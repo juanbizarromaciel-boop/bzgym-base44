@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
-  Library, LayoutDashboard, Zap, User
+  Library, LayoutDashboard, User
 } from "lucide-react";
 
 const adminNav = [
@@ -12,12 +12,13 @@ const adminNav = [
   { name: "Alunos", icon: Users, page: "Students" },
   { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
   { name: "Treinos", icon: ClipboardList, page: "WorkoutPlans" },
+  { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
   { name: "Progresso", icon: BarChart3, page: "Progress" },
   { name: "Cronômetro", icon: Timer, page: "TimerPage" },
 ];
 
 const studentNav = [
-  { name: "Meu Treino", icon: Dumbbell, page: "StudentWorkout" },
+  { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
   { name: "Progresso", icon: BarChart3, page: "Progress" },
   { name: "Cronômetro", icon: Timer, page: "TimerPage" },
 ];
@@ -69,10 +70,11 @@ export default function Layout({ children, currentPageName }) {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-purple-900/30 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Zap className="w-5 h-5 text-purple-400" style={{filter: 'drop-shadow(0 0 6px rgba(168,85,247,0.8))'}} />
-          <span className="font-cyber text-base font-bold tracking-widest text-white" style={{textShadow: '0 0 10px rgba(168,85,247,0.6)'}}>
-            FITCOACH
-          </span>
+          <img src="https://media.base44.com/images/public/69b152b7ec586487b4d800db/a7e184410_generated_image.png" alt="BZ" className="w-8 h-8 rounded-md object-cover" style={{boxShadow: '0 0 8px rgba(168,85,247,0.4)'}} />
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-cyber text-base font-bold tracking-widest text-white" style={{textShadow: '0 0 10px rgba(168,85,247,0.6)'}}>BZ</span>
+            <span className="font-cyber text-xs text-purple-400/50 tracking-widest">GYM</span>
+          </div>
         </div>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -91,19 +93,19 @@ export default function Layout({ children, currentPageName }) {
         lg:translate-x-0
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-purple-900/20 hidden lg:block">
+        <div className="p-5 border-b border-purple-900/20 hidden lg:block">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg border border-purple-500/40 flex items-center justify-center bg-purple-500/10"
-              style={{boxShadow: '0 0 15px rgba(168,85,247,0.2), inset 0 0 10px rgba(168,85,247,0.05)'}}>
-              <Zap className="w-5 h-5 text-purple-400" />
-            </div>
+            <img
+              src="https://media.base44.com/images/public/69b152b7ec586487b4d800db/a7e184410_generated_image.png"
+              alt="BZ GYM"
+              className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
+              style={{boxShadow: '0 0 15px rgba(168,85,247,0.35), 0 0 30px rgba(168,85,247,0.1)'}}
+            />
             <div>
-              <h1 className="font-cyber font-bold text-base tracking-widest text-white" style={{textShadow: '0 0 10px rgba(168,85,247,0.5)'}}>
-                FITCOACH
+              <h1 className="font-cyber font-black text-xl tracking-widest text-white leading-none" style={{textShadow: '0 0 15px rgba(168,85,247,0.6)'}}>
+                BZ
               </h1>
-              <p className="text-xs text-purple-500/60 tracking-widest uppercase">
-                {isAdmin ? "Personal Trainer" : "Aluno"}
-              </p>
+              <p className="text-xs text-purple-400/50 tracking-[0.3em] uppercase font-cyber">GYM</p>
             </div>
           </div>
         </div>

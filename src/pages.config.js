@@ -54,6 +54,7 @@ import StudentWorkout from './pages/StudentWorkout';
 import Students from './pages/Students';
 import TimerPage from './pages/TimerPage';
 import WorkoutPlans from './pages/WorkoutPlans';
+import MyWorkout from './pages/MyWorkout';
 import __Layout from './Layout.jsx';
 
 
@@ -65,6 +66,7 @@ export const PAGES = {
     "Students": Students,
     "TimerPage": TimerPage,
     "WorkoutPlans": WorkoutPlans,
+    "MyWorkout": MyWorkout,
 }
 
 export const pagesConfig = {

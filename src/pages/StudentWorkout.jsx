@@ -64,7 +64,7 @@ export default function StudentWorkout() {
 
   return (
     <div>
-      <PageHeader title="Treinar" subtitle="Registre seu treino do dia" />
+      <PageHeader title="Treinar Aluno" subtitle="Selecione o aluno e registre o treino" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <Select value={selectedStudentId} onValueChange={(v) => { setSelectedStudentId(v); setSelectedPlanId(""); setSetsData({}); setCompletedExercises(new Set()); }}>

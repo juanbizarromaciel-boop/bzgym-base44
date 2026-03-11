@@ -29,7 +29,7 @@ export default function Dashboard() {
         <h2 className="font-cyber text-xl tracking-widest text-white mb-2">BEM-VINDO, ALUNO</h2>
         <p className="text-purple-400/50 mb-6 text-sm">Use o menu lateral para navegar</p>
         <Link
-          to={createPageUrl("StudentWorkout")}
+          to={createPageUrl("MyWorkout")}
           className="btn-neon-purple px-6 py-3 rounded-lg font-medium tracking-wider text-sm"
         >
           INICIAR TREINO →
