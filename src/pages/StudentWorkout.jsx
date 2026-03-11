@@ -68,30 +68,48 @@ export default function StudentWorkout() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <Select value={selectedStudentId} onValueChange={(v) => { setSelectedStudentId(v); setSelectedPlanId(""); setSetsData({}); setCompletedExercises(new Set()); }}>
-          <SelectTrigger className="bg-gray-900/60 border-gray-800 text-white">
+          <SelectTrigger className="cyber-input">
             <SelectValue placeholder="Selecione o aluno" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700">
+          <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
             {students.map((s) => (
-              <SelectItem key={s.id} value={s.id} className="text-white hover:bg-gray-700">{s.name}</SelectItem>
+              <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
 
         <Select value={selectedPlanId} onValueChange={(v) => { setSelectedPlanId(v); setSetsData({}); setCompletedExercises(new Set()); }}>
-          <SelectTrigger className="bg-gray-900/60 border-gray-800 text-white">
+          <SelectTrigger className="cyber-input">
             <SelectValue placeholder="Selecione o treino" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700">
+          <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
             {studentPlans.map((p) => (
-              <SelectItem key={p.id} value={p.id} className="text-white hover:bg-gray-700">{p.name}</SelectItem>
+              <SelectItem key={p.id} value={p.id} className="text-white">{p.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
       {selectedPlan && (
-        <div className="space-y-6">
+        <div className="space-y-4">
+          {/* Progress bar */}
+          <div className="cyber-card rounded-xl p-4 border border-purple-900/20 mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-purple-400/50 tracking-wider font-mono-cyber">PROGRESSO DO TREINO</span>
+              <span className="font-cyber text-sm text-purple-300">{completedExercises.size}/{selectedPlan.exercises?.length || 0}</span>
+            </div>
+            <div className="h-1.5 bg-purple-900/30 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${selectedPlan.exercises?.length ? (completedExercises.size / selectedPlan.exercises.length) * 100 : 0}%`,
+                  background: 'linear-gradient(90deg, #a855f7, #06b6d4)',
+                  boxShadow: '0 0 8px rgba(168,85,247,0.8)'
+                }}
+              />
+            </div>
+          </div>
+
           {selectedPlan.exercises?.map((exercise, exerciseIdx) => {
             const isCompleted = completedExercises.has(exerciseIdx);
             const sets = setsData[exerciseIdx] || initSets(exerciseIdx, exercise.sets);
@@ -99,36 +117,40 @@ export default function StudentWorkout() {
             return (
               <div
                 key={exerciseIdx}
-                className={`bg-gray-900/60 border rounded-2xl p-5 transition-all ${
-                  isCompleted ? "border-emerald-500/30 bg-emerald-500/5" : "border-gray-800/60"
+                className={`cyber-card rounded-xl p-5 border transition-all ${
+                  isCompleted ? "border-cyan-500/30" : "border-purple-900/20"
                 }`}
+                style={isCompleted ? {background: 'rgba(6,182,212,0.03)'} : {}}
               >
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                      isCompleted ? "bg-emerald-500/20" : "bg-gray-800"
+                    <div className={`w-10 h-10 rounded-lg border flex items-center justify-center flex-shrink-0 ${
+                      isCompleted ? "bg-cyan-500/10 border-cyan-500/30" : "bg-purple-500/10 border-purple-500/20"
                     }`}>
-                      {isCompleted ? <CheckCircle className="w-5 h-5 text-emerald-400" /> : <Dumbbell className="w-4 h-4 text-gray-400" />}
+                      {isCompleted
+                        ? <CheckCircle className="w-5 h-5 text-cyan-400" />
+                        : <span className="font-cyber text-xs text-purple-400">#{exerciseIdx + 1}</span>
+                      }
                     </div>
                     <div>
                       <h3 className="font-semibold text-white">{exercise.exercise_name}</h3>
-                      <div className="flex gap-2 mt-1">
-                        <Badge variant="outline" className="text-xs border-gray-700 text-gray-400">
+                      <div className="flex flex-wrap gap-2 mt-1.5">
+                        <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
                           {exercise.sets}x{exercise.reps}
                         </Badge>
                         {exercise.load_kg > 0 && (
-                          <Badge variant="outline" className="text-xs border-emerald-500/30 text-emerald-400">
-                            {exercise.load_kg}kg sugerido
+                          <Badge className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs">
+                            {exercise.load_kg}kg ref.
                           </Badge>
                         )}
                         {exercise.technique && exercise.technique !== "normal" && (
-                          <Badge className="bg-purple-500/20 text-purple-400 border border-purple-500/30 text-xs">
+                          <Badge className="bg-pink-500/10 border border-pink-500/20 text-pink-300 text-xs">
                             {exercise.technique.replace(/_/g, " ")}
                           </Badge>
                         )}
                       </div>
                       {exercise.technique_details && (
-                        <p className="text-xs text-gray-500 mt-1 italic">{exercise.technique_details}</p>
+                        <p className="text-xs text-purple-400/40 mt-1 font-mono-cyber italic">{exercise.technique_details}</p>
                       )}
                     </div>
                   </div>
@@ -137,14 +159,14 @@ export default function StudentWorkout() {
 
                 {/* Sets Grid */}
                 <div className="space-y-2">
-                  <div className="grid grid-cols-12 gap-2 text-xs text-gray-500 font-medium px-2">
+                  <div className="grid grid-cols-12 gap-2 text-[10px] text-purple-400/40 font-mono-cyber uppercase tracking-wider px-2 mb-1">
                     <span className="col-span-2">Série</span>
                     <span className="col-span-5">Reps feitas</span>
                     <span className="col-span-5">Carga (kg)</span>
                   </div>
                   {sets.map((set, setIdx) => (
                     <div key={setIdx} className="grid grid-cols-12 gap-2 items-center">
-                      <span className="col-span-2 text-center text-sm font-mono text-gray-500 bg-gray-800/60 rounded-lg py-2">
+                      <span className="col-span-2 text-center text-sm font-cyber text-purple-400/60 bg-purple-900/20 border border-purple-900/30 rounded-lg py-2">
                         {setIdx + 1}
                       </span>
                       <div className="col-span-5">
@@ -153,7 +175,7 @@ export default function StudentWorkout() {
                           value={set.reps_done || ""}
                           onChange={(e) => updateSet(exerciseIdx, setIdx, "reps_done", e.target.value)}
                           placeholder={exercise.reps}
-                          className="bg-gray-800 border-gray-700 text-white text-center"
+                          className="cyber-input text-center"
                           disabled={isCompleted}
                         />
                       </div>
@@ -163,7 +185,7 @@ export default function StudentWorkout() {
                           value={set.load_kg || ""}
                           onChange={(e) => updateSet(exerciseIdx, setIdx, "load_kg", e.target.value)}
                           placeholder={exercise.load_kg?.toString() || "0"}
-                          className="bg-gray-800 border-gray-700 text-white text-center"
+                          className="cyber-input text-center"
                           disabled={isCompleted}
                         />
                       </div>
@@ -172,14 +194,20 @@ export default function StudentWorkout() {
                 </div>
 
                 {!isCompleted && (
-                  <Button
+                  <button
                     onClick={() => saveExerciseLog(exerciseIdx)}
-                    className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700"
+                    className="w-full mt-4 btn-neon-cyan py-3 rounded-lg text-sm font-medium tracking-widest flex items-center justify-center gap-2"
                     disabled={logMut.isPending}
                   >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Registrar Exercício
-                  </Button>
+                    <CheckCircle className="w-4 h-4" />
+                    CONCLUIR EXERCÍCIO
+                  </button>
+                )}
+
+                {isCompleted && (
+                  <div className="mt-4 text-center py-2 border border-cyan-500/20 rounded-lg bg-cyan-500/5">
+                    <span className="text-xs font-mono-cyber text-cyan-400 tracking-wider">✓ CONCLUÍDO</span>
+                  </div>
                 )}
               </div>
             );
@@ -188,16 +216,16 @@ export default function StudentWorkout() {
       )}
 
       {!selectedPlanId && selectedStudentId && studentPlans.length === 0 && (
-        <div className="text-center py-16 text-gray-500">
+        <div className="text-center py-16 text-purple-500/30">
           <Dumbbell className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p>Nenhum treino encontrado para este aluno.</p>
+          <p className="font-mono-cyber text-sm">// nenhum treino encontrado</p>
         </div>
       )}
 
       {!selectedStudentId && (
-        <div className="text-center py-16 text-gray-500">
-          <Dumbbell className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p>Selecione um aluno e um treino para começar.</p>
+        <div className="text-center py-16 text-purple-500/30">
+          <Dumbbell className="w-12 h-12 mx-auto mb-4 opacity-20" style={{filter: 'drop-shadow(0 0 10px rgba(168,85,247,0.4))'}} />
+          <p className="font-mono-cyber text-sm">// selecione um aluno para começar</p>
         </div>
       )}
     </div>

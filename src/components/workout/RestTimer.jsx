@@ -33,43 +33,34 @@ export default function RestTimer({ initialSeconds = 60, onComplete }) {
   const secs = seconds % 60;
 
   return (
-    <div className="flex items-center gap-3 bg-gray-800/60 rounded-xl px-4 py-3 border border-gray-700/50">
+    <div className="flex items-center gap-3 rounded-xl px-4 py-3 border border-purple-900/30 bg-black/60">
       <div className="relative w-10 h-10">
         <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
           <path
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
             fill="none"
-            stroke="#374151"
+            stroke="rgba(88,28,135,0.3)"
             strokeWidth="3"
           />
           <path
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
             fill="none"
-            stroke="#10B981"
+            stroke="#a855f7"
             strokeWidth="3"
             strokeDasharray={`${progress}, 100`}
             className="transition-all duration-1000"
+            style={{filter: 'drop-shadow(0 0 3px rgba(168,85,247,0.8))'}}
           />
         </svg>
       </div>
-      <span className="font-mono text-xl font-bold text-white tabular-nums w-16">
+      <span className="font-cyber text-lg font-bold text-purple-300 tabular-nums w-14" style={{textShadow: '0 0 8px rgba(168,85,247,0.6)'}}>
         {mins}:{secs.toString().padStart(2, "0")}
       </span>
       <div className="flex gap-1">
-        <Button
-          size="icon"
-          variant="ghost"
-          className="h-8 w-8 text-emerald-400 hover:bg-emerald-500/10"
-          onClick={() => setIsRunning(!isRunning)}
-        >
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-purple-400 hover:bg-purple-500/10" onClick={() => setIsRunning(!isRunning)}>
           {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="h-8 w-8 text-gray-400 hover:bg-gray-700"
-          onClick={() => { setSeconds(initialSeconds); setIsRunning(false); }}
-        >
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-purple-400/50 hover:bg-purple-500/10" onClick={() => { setSeconds(initialSeconds); setIsRunning(false); }}>
           <RotateCcw className="w-4 h-4" />
         </Button>
       </div>

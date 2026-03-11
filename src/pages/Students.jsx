@@ -91,106 +91,91 @@ export default function Students() {
         title="Alunos"
         subtitle={`${students.filter((s) => s.active !== false).length} alunos ativos`}
         action={
-          <Button onClick={() => setDialogOpen(true)} className="bg-emerald-600 hover:bg-emerald-700">
-            <Plus className="w-4 h-4 mr-2" /> Novo Aluno
-          </Button>
+          <button onClick={() => setDialogOpen(true)} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium tracking-wider flex items-center gap-2">
+            <Plus className="w-4 h-4" /> NOVO ALUNO
+          </button>
         }
       />
 
       <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-        <Input
-          placeholder="Buscar aluno..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 bg-gray-900/60 border-gray-800 text-white placeholder:text-gray-600"
-        />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-500/50" />
+        <Input placeholder="Buscar aluno..." value={search} onChange={(e) => setSearch(e.target.value)} className="cyber-input pl-10" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filtered.map((student) => (
-          <div
-            key={student.id}
-            className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-5 hover:border-gray-700 transition-all group"
-          >
+          <div key={student.id} className="cyber-card rounded-xl p-5 border border-purple-900/20 hover:border-purple-500/30 transition-all group">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-                  <UserCircle className="w-6 h-6 text-emerald-400" />
+                <div className="w-11 h-11 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center"
+                  style={{boxShadow: '0 0 10px rgba(168,85,247,0.1)'}}>
+                  <UserCircle className="w-6 h-6 text-purple-400" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-white">{student.name}</h3>
                   {student.goal && (
-                    <Badge className={`${goalColors[student.goal]} border text-xs mt-1`}>
-                      {goals[student.goal]}
-                    </Badge>
+                    <Badge className={`${goalColors[student.goal]} border text-xs mt-1`}>{goals[student.goal]}</Badge>
                   )}
                 </div>
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white" onClick={() => openEdit(student)}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/50 hover:text-purple-300" onClick={() => openEdit(student)}>
                   <Pencil className="w-3.5 h-3.5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-400" onClick={() => deleteMut.mutate(student.id)}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/50 hover:text-red-400" onClick={() => deleteMut.mutate(student.id)}>
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
-            <div className="space-y-1.5 text-xs text-gray-500">
-              {student.email && (
-                <div className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" />{student.email}</div>
-              )}
-              {student.phone && (
-                <div className="flex items-center gap-2"><Phone className="w-3.5 h-3.5" />{student.phone}</div>
-              )}
+            <div className="space-y-1.5 text-xs text-purple-400/40 font-mono-cyber">
+              {student.email && <div className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" />{student.email}</div>}
+              {student.phone && <div className="flex items-center gap-2"><Phone className="w-3.5 h-3.5" />{student.phone}</div>}
             </div>
           </div>
         ))}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={closeDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
+        <DialogContent className="border border-purple-900/40 text-white max-w-md" style={{background: '#04040e'}}>
           <DialogHeader>
-            <DialogTitle>{editingStudent ? "Editar Aluno" : "Novo Aluno"}</DialogTitle>
+            <DialogTitle className="font-cyber tracking-widest text-purple-300">{editingStudent ? "EDITAR ALUNO" : "NOVO ALUNO"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-gray-400">Nome *</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="bg-gray-800 border-gray-700 text-white mt-1" />
+              <Label className="text-purple-400/60 text-xs tracking-wider">NOME *</Label>
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="cyber-input mt-1" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-gray-400">Email</Label>
-                <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="bg-gray-800 border-gray-700 text-white mt-1" />
+                <Label className="text-purple-400/60 text-xs tracking-wider">EMAIL</Label>
+                <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="cyber-input mt-1" />
               </div>
               <div>
-                <Label className="text-gray-400">Telefone</Label>
-                <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="bg-gray-800 border-gray-700 text-white mt-1" />
+                <Label className="text-purple-400/60 text-xs tracking-wider">TELEFONE</Label>
+                <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="cyber-input mt-1" />
               </div>
             </div>
             <div>
-              <Label className="text-gray-400">Objetivo</Label>
+              <Label className="text-purple-400/60 text-xs tracking-wider">OBJETIVO</Label>
               <Select value={form.goal} onValueChange={(v) => setForm({ ...form, goal: v })}>
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectTrigger className="cyber-input mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
                   {Object.entries(goals).map(([k, v]) => (
-                    <SelectItem key={k} value={k} className="text-white hover:bg-gray-700">{v}</SelectItem>
+                    <SelectItem key={k} value={k} className="text-white">{v}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label className="text-gray-400">Observações</Label>
-              <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="bg-gray-800 border-gray-700 text-white mt-1 h-20" />
+              <Label className="text-purple-400/60 text-xs tracking-wider">OBSERVAÇÕES</Label>
+              <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="cyber-input mt-1 h-20" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeDialog} className="border-gray-700 text-gray-300 hover:bg-gray-800">Cancelar</Button>
-            <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700" disabled={createMut.isPending || updateMut.isPending}>
-              {createMut.isPending || updateMut.isPending ? "Salvando..." : "Salvar"}
-            </Button>
+            <Button variant="outline" onClick={closeDialog} className="border-purple-900/40 text-purple-400/60 hover:bg-purple-500/10">Cancelar</Button>
+            <button onClick={handleSave} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium" disabled={createMut.isPending || updateMut.isPending}>
+              {createMut.isPending || updateMut.isPending ? "..." : "SALVAR"}
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
