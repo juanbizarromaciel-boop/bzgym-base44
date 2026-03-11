@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --neon-purple: #a855f7;
+  --neon-cyan: #06b6d4;
+  --neon-pink: #ec4899;
+  --bg-void: #000000;
+  --bg-dark: #05050d;
+  --bg-card: #0a0a16;
+  --bg-card2: #0d0d1f;
+  --border-glow: rgba(168, 85, 247, 0.25);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background-color: var(--bg-void);
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Scanline overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.4); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
+
+/* Neon text glow utilities */
+.neon-text-purple {
+  color: #c084fc;
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.8), 0 0 20px rgba(168, 85, 247, 0.4);
+}
+.neon-text-cyan {
+  color: #22d3ee;
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.4);
+}
+.neon-text-pink {
+  color: #f472b6;
+  text-shadow: 0 0 10px rgba(236, 72, 153, 0.8), 0 0 20px rgba(236, 72, 153, 0.4);
+}
+
+/* Neon border glow */
+.neon-border-purple {
+  border-color: rgba(168, 85, 247, 0.5) !important;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.2), inset 0 0 8px rgba(168, 85, 247, 0.05);
+}
+.neon-border-cyan {
+  border-color: rgba(6, 182, 212, 0.5) !important;
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.2), inset 0 0 8px rgba(6, 182, 212, 0.05);
+}
+
+/* Glitch effect */
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(1px, -1px); }
+  60% { transform: translate(-1px, -1px); }
+  80% { transform: translate(1px, 1px); }
+}
+.glitch:hover { animation: glitch 0.3s ease infinite; }
+
+/* Neon button */
+.btn-neon-purple {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  color: #c084fc;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.2);
+  transition: all 0.2s;
+}
+.btn-neon-purple:hover {
+  background: rgba(168, 85, 247, 0.3);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.2);
+  color: white;
+}
+.btn-neon-cyan {
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid rgba(6, 182, 212, 0.5);
+  color: #22d3ee;
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+  transition: all 0.2s;
+}
+.btn-neon-cyan:hover {
+  background: rgba(6, 182, 212, 0.3);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.2);
+  color: white;
+}
+
+/* Card cyberpunk */
+.cyber-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(168, 85, 247, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+.cyber-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.5), transparent);
+}
+.cyber-card:hover {
+  border-color: rgba(168, 85, 247, 0.35);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.08);
+}
+
+/* Input cyber */
+.cyber-input {
+  background: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(168, 85, 247, 0.2) !important;
+  color: white !important;
+  transition: all 0.2s;
+}
+.cyber-input:focus {
+  border-color: rgba(168, 85, 247, 0.6) !important;
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.15) !important;
+  outline: none;
+}
+.cyber-input::placeholder { color: rgba(168, 85, 247, 0.3) !important; }
+
+/* Pulse animation for active state */
+@keyframes pulse-neon {
+  0%, 100% { box-shadow: 0 0 5px rgba(168, 85, 247, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.8), 0 0 40px rgba(168, 85, 247, 0.3); }
+}
+.pulse-neon { animation: pulse-neon 2s ease-in-out infinite; }
+
+/* Grid background */
+.bg-grid {
+  background-image: 
+    linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Font cyberpunk for titles */
+.font-cyber { font-family: 'Orbitron', sans-serif; }
+.font-mono-cyber { font-family: 'Share Tech Mono', monospace; }

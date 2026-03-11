@@ -48,23 +48,23 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import Dashboard from './pages/Dashboard';
-import Students from './pages/Students';
 import ExerciseLibrary from './pages/ExerciseLibrary';
-import WorkoutPlans from './pages/WorkoutPlans';
-import StudentWorkout from './pages/StudentWorkout';
 import Progress from './pages/Progress';
+import StudentWorkout from './pages/StudentWorkout';
+import Students from './pages/Students';
 import TimerPage from './pages/TimerPage';
+import WorkoutPlans from './pages/WorkoutPlans';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Dashboard": Dashboard,
-    "Students": Students,
     "ExerciseLibrary": ExerciseLibrary,
-    "WorkoutPlans": WorkoutPlans,
-    "StudentWorkout": StudentWorkout,
     "Progress": Progress,
+    "StudentWorkout": StudentWorkout,
+    "Students": Students,
     "TimerPage": TimerPage,
+    "WorkoutPlans": WorkoutPlans,
 }
 
 export const pagesConfig = {
