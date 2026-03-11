@@ -92,22 +92,15 @@ export default function ExerciseLibrary() {
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-          <Input
-            placeholder="Buscar exercício..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 bg-gray-900/60 border-gray-800 text-white placeholder:text-gray-600"
-          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-500/40" />
+          <Input placeholder="Buscar exercício..." value={search} onChange={(e) => setSearch(e.target.value)} className="cyber-input pl-10" />
         </div>
         <Select value={filterGroup} onValueChange={setFilterGroup}>
-          <SelectTrigger className="w-full sm:w-48 bg-gray-900/60 border-gray-800 text-white">
-            <SelectValue placeholder="Grupo Muscular" />
-          </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700">
-            <SelectItem value="all" className="text-white hover:bg-gray-700">Todos</SelectItem>
+          <SelectTrigger className="w-full sm:w-48 cyber-input"><SelectValue placeholder="Grupo Muscular" /></SelectTrigger>
+          <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
+            <SelectItem value="all" className="text-white">Todos</SelectItem>
             {Object.entries(muscleGroups).map(([k, v]) => (
-              <SelectItem key={k} value={k} className="text-white hover:bg-gray-700">{v}</SelectItem>
+              <SelectItem key={k} value={k} className="text-white">{v}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -115,10 +108,10 @@ export default function ExerciseLibrary() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
         {filtered.map((ex) => (
-          <div key={ex.id} className="bg-gray-900/60 border border-gray-800/60 rounded-xl p-4 hover:border-gray-700 transition-all group">
+          <div key={ex.id} className="cyber-card rounded-xl p-4 border border-purple-900/20 hover:border-purple-500/30 transition-all group">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${muscleColors[ex.muscle_group] || muscleColors.outro}`}>
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center border border-purple-900/30 ${muscleColors[ex.muscle_group] || muscleColors.outro}`}>
                   <Dumbbell className="w-4 h-4" />
                 </div>
                 <div>
@@ -129,52 +122,52 @@ export default function ExerciseLibrary() {
                 </div>
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-white" onClick={() => openEdit(ex)}>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/50 hover:text-purple-300" onClick={() => openEdit(ex)}>
                   <Pencil className="w-3 h-3" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-red-400" onClick={() => deleteMut.mutate(ex.id)}>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/50 hover:text-pink-400" onClick={() => deleteMut.mutate(ex.id)}>
                   <Trash2 className="w-3 h-3" />
                 </Button>
               </div>
             </div>
-            {ex.description && <p className="text-xs text-gray-500 mt-2 line-clamp-2">{ex.description}</p>}
+            {ex.description && <p className="text-xs text-purple-400/30 mt-2 line-clamp-2 font-mono-cyber">{ex.description}</p>}
           </div>
         ))}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={closeDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
+        <DialogContent className="border border-purple-900/40 text-white max-w-md" style={{background: '#04040e'}}>
           <DialogHeader>
-            <DialogTitle>{editing ? "Editar Exercício" : "Novo Exercício"}</DialogTitle>
+            <DialogTitle className="font-cyber tracking-widest text-purple-300">{editing ? "EDITAR EXERCÍCIO" : "NOVO EXERCÍCIO"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-gray-400">Nome *</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="bg-gray-800 border-gray-700 text-white mt-1" />
+              <Label className="text-purple-400/60 text-xs tracking-wider">NOME *</Label>
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="cyber-input mt-1" />
             </div>
             <div>
-              <Label className="text-gray-400">Grupo Muscular</Label>
+              <Label className="text-purple-400/60 text-xs tracking-wider">GRUPO MUSCULAR</Label>
               <Select value={form.muscle_group} onValueChange={(v) => setForm({ ...form, muscle_group: v })}>
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectTrigger className="cyber-input mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
                   {Object.entries(muscleGroups).map(([k, v]) => (
-                    <SelectItem key={k} value={k} className="text-white hover:bg-gray-700">{v}</SelectItem>
+                    <SelectItem key={k} value={k} className="text-white">{v}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label className="text-gray-400">Descrição</Label>
-              <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="bg-gray-800 border-gray-700 text-white mt-1 h-20" />
+              <Label className="text-purple-400/60 text-xs tracking-wider">DESCRIÇÃO</Label>
+              <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="cyber-input mt-1 h-20" />
             </div>
             <div>
-              <Label className="text-gray-400">URL do Vídeo</Label>
-              <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://..." className="bg-gray-800 border-gray-700 text-white mt-1" />
+              <Label className="text-purple-400/60 text-xs tracking-wider">URL DO VÍDEO</Label>
+              <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://..." className="cyber-input mt-1" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeDialog} className="border-gray-700 text-gray-300 hover:bg-gray-800">Cancelar</Button>
-            <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700">Salvar</Button>
+            <Button variant="outline" onClick={closeDialog} className="border-purple-900/40 text-purple-400/60 hover:bg-purple-500/10">Cancelar</Button>
+            <button onClick={handleSave} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium">SALVAR</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -51,11 +51,11 @@ export default function Progress() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 shadow-xl">
-        <p className="text-xs text-gray-400 mb-1">{label}</p>
-        <p className="text-lg font-bold text-emerald-400">{payload[0].value}kg</p>
+      <div className="border rounded-xl px-4 py-3 shadow-xl" style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.4)', boxShadow: '0 0 20px rgba(168,85,247,0.15)'}}>
+        <p className="text-xs text-purple-400/50 font-mono-cyber mb-1">{label}</p>
+        <p className="font-cyber text-lg text-purple-300" style={{textShadow: '0 0 8px rgba(168,85,247,0.6)'}}>{payload[0].value}kg</p>
         {payload[0].payload.exercicio && (
-          <p className="text-xs text-gray-500">{payload[0].payload.exercicio}</p>
+          <p className="text-xs text-purple-400/40 mt-1">{payload[0].payload.exercicio}</p>
         )}
       </div>
     );
