@@ -73,90 +73,57 @@ export default function ExerciseFormDialog({ open, onClose, onSave, exercise, ex
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
+      <DialogContent className="border border-purple-900/40 text-white max-w-md" style={{background: '#04040e'}}>
         <DialogHeader>
-          <DialogTitle>{exercise ? "Editar Exercício" : "Adicionar Exercício"}</DialogTitle>
+          <DialogTitle className="font-cyber tracking-widest text-purple-300">{exercise ? "EDITAR EXERCÍCIO" : "ADICIONAR EXERCÍCIO"}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label className="text-gray-400">Exercício</Label>
+            <Label className="text-purple-400/60 text-xs tracking-wider">EXERCÍCIO</Label>
             {exercisesList?.length > 0 ? (
               <Select value={form.exercise_id} onValueChange={handleExerciseSelect}>
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
-                  <SelectValue placeholder="Selecione o exercício" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectTrigger className="cyber-input mt-1"><SelectValue placeholder="Selecione o exercício" /></SelectTrigger>
+                <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
                   {exercisesList.map((ex) => (
-                    <SelectItem key={ex.id} value={ex.id} className="text-white hover:bg-gray-700">
-                      {ex.name}
-                    </SelectItem>
+                    <SelectItem key={ex.id} value={ex.id} className="text-white">{ex.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             ) : (
-              <Input
-                value={form.exercise_name}
-                onChange={(e) => setForm({ ...form, exercise_name: e.target.value })}
-                placeholder="Nome do exercício"
-                className="bg-gray-800 border-gray-700 text-white mt-1"
-              />
+              <Input value={form.exercise_name} onChange={(e) => setForm({ ...form, exercise_name: e.target.value })} placeholder="Nome do exercício" className="cyber-input mt-1" />
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-gray-400">Séries</Label>
-              <Input
-                type="number"
-                value={form.sets}
-                onChange={(e) => setForm({ ...form, sets: parseInt(e.target.value) || 0 })}
-                className="bg-gray-800 border-gray-700 text-white mt-1"
-              />
+              <Label className="text-purple-400/60 text-xs tracking-wider">SÉRIES</Label>
+              <Input type="number" value={form.sets} onChange={(e) => setForm({ ...form, sets: parseInt(e.target.value) || 0 })} className="cyber-input mt-1" />
             </div>
             <div>
-              <Label className="text-gray-400">Repetições</Label>
-              <Input
-                value={form.reps}
-                onChange={(e) => setForm({ ...form, reps: e.target.value })}
-                placeholder="8-12"
-                className="bg-gray-800 border-gray-700 text-white mt-1"
-              />
+              <Label className="text-purple-400/60 text-xs tracking-wider">REPETIÇÕES</Label>
+              <Input value={form.reps} onChange={(e) => setForm({ ...form, reps: e.target.value })} placeholder="8-12" className="cyber-input mt-1" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-gray-400">Carga (kg)</Label>
-              <Input
-                type="number"
-                value={form.load_kg}
-                onChange={(e) => setForm({ ...form, load_kg: parseFloat(e.target.value) || 0 })}
-                className="bg-gray-800 border-gray-700 text-white mt-1"
-              />
+              <Label className="text-purple-400/60 text-xs tracking-wider">CARGA (kg)</Label>
+              <Input type="number" value={form.load_kg} onChange={(e) => setForm({ ...form, load_kg: parseFloat(e.target.value) || 0 })} className="cyber-input mt-1" />
             </div>
             <div>
-              <Label className="text-gray-400">Descanso (seg)</Label>
-              <Input
-                type="number"
-                value={form.rest_seconds}
-                onChange={(e) => setForm({ ...form, rest_seconds: parseInt(e.target.value) || 0 })}
-                className="bg-gray-800 border-gray-700 text-white mt-1"
-              />
+              <Label className="text-purple-400/60 text-xs tracking-wider">DESCANSO (seg)</Label>
+              <Input type="number" value={form.rest_seconds} onChange={(e) => setForm({ ...form, rest_seconds: parseInt(e.target.value) || 0 })} className="cyber-input mt-1" />
             </div>
           </div>
 
           <div>
-            <Label className="text-gray-400">Técnica</Label>
+            <Label className="text-purple-400/60 text-xs tracking-wider">TÉCNICA</Label>
             <Select value={form.technique} onValueChange={(v) => setForm({ ...form, technique: v })}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectTrigger className="cyber-input mt-1"><SelectValue /></SelectTrigger>
+              <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
                 {techniques.map((t) => (
-                  <SelectItem key={t.value} value={t.value} className="text-white hover:bg-gray-700">
-                    {t.label}
-                  </SelectItem>
+                  <SelectItem key={t.value} value={t.value} className="text-white">{t.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -164,34 +131,20 @@ export default function ExerciseFormDialog({ open, onClose, onSave, exercise, ex
 
           {form.technique !== "normal" && (
             <div>
-              <Label className="text-gray-400">Detalhes da Técnica</Label>
-              <Input
-                value={form.technique_details}
-                onChange={(e) => setForm({ ...form, technique_details: e.target.value })}
-                placeholder="Ex: 7x3 com 15s de pausa"
-                className="bg-gray-800 border-gray-700 text-white mt-1"
-              />
+              <Label className="text-purple-400/60 text-xs tracking-wider">DETALHES DA TÉCNICA</Label>
+              <Input value={form.technique_details} onChange={(e) => setForm({ ...form, technique_details: e.target.value })} placeholder="Ex: 7x3 com 15s de pausa" className="cyber-input mt-1" />
             </div>
           )}
 
           <div>
-            <Label className="text-gray-400">Observações</Label>
-            <Textarea
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              placeholder="Observações sobre execução..."
-              className="bg-gray-800 border-gray-700 text-white mt-1 h-20"
-            />
+            <Label className="text-purple-400/60 text-xs tracking-wider">OBSERVAÇÕES</Label>
+            <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Observações sobre execução..." className="cyber-input mt-1 h-20" />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="border-gray-700 text-gray-300 hover:bg-gray-800">
-            Cancelar
-          </Button>
-          <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-            Salvar
-          </Button>
+          <Button variant="outline" onClick={onClose} className="border-purple-900/40 text-purple-400/60 hover:bg-purple-500/10">Cancelar</Button>
+          <button onClick={handleSave} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium">SALVAR</button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
