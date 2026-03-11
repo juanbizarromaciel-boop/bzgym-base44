@@ -33,33 +33,33 @@ export default function ExerciseCard({ exercise, index, onEdit, onRemove, showAc
   const tech = exercise.technique || "normal";
 
   return (
-    <div className="group bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 hover:border-gray-600/50 transition-all">
+    <div className="group rounded-xl p-4 border border-purple-900/20 hover:border-purple-500/25 transition-all" style={{background: 'rgba(0,0,0,0.5)'}}>
       <div className="flex items-start gap-3">
         {showActions && (
-          <div className="text-gray-600 mt-1 cursor-grab">
+          <div className="text-purple-600/30 mt-1 cursor-grab hover:text-purple-400/50">
             <GripVertical className="w-4 h-4" />
           </div>
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-mono text-gray-500 bg-gray-800 px-2 py-0.5 rounded">
+            <span className="text-xs font-cyber text-purple-500/40 bg-purple-900/20 px-2 py-0.5 rounded border border-purple-900/30">
               #{index + 1}
             </span>
             <h4 className="font-semibold text-white truncate">{exercise.exercise_name}</h4>
           </div>
 
           <div className="flex flex-wrap gap-2 mb-2">
-            <Badge variant="outline" className="bg-gray-800/80 border-gray-600 text-gray-300 text-xs">
+            <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
               {exercise.sets}x{exercise.reps}
             </Badge>
             {exercise.load_kg > 0 && (
-              <Badge variant="outline" className="bg-emerald-500/10 border-emerald-500/30 text-emerald-400 text-xs">
+              <Badge className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs">
                 {exercise.load_kg}kg
               </Badge>
             )}
             {exercise.rest_seconds > 0 && (
-              <Badge variant="outline" className="bg-gray-800/80 border-gray-600 text-gray-400 text-xs">
-                {exercise.rest_seconds}s rest
+              <Badge className="bg-purple-900/30 border border-purple-900/40 text-purple-400/60 text-xs font-mono-cyber">
+                {exercise.rest_seconds}s
               </Badge>
             )}
             {tech !== "normal" && (
@@ -70,19 +70,19 @@ export default function ExerciseCard({ exercise, index, onEdit, onRemove, showAc
           </div>
 
           {exercise.technique_details && (
-            <p className="text-xs text-gray-500 italic">{exercise.technique_details}</p>
+            <p className="text-xs text-purple-400/40 italic font-mono-cyber">{exercise.technique_details}</p>
           )}
           {exercise.notes && (
-            <p className="text-xs text-gray-500 mt-1">{exercise.notes}</p>
+            <p className="text-xs text-purple-400/30 mt-1">{exercise.notes}</p>
           )}
         </div>
 
         {showActions && (
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white hover:bg-gray-700" onClick={() => onEdit(index)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-purple-300 hover:bg-purple-500/10" onClick={() => onEdit(index)}>
               <Pencil className="w-3.5 h-3.5" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-400 hover:bg-red-500/10" onClick={() => onRemove(index)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-pink-400 hover:bg-pink-500/10" onClick={() => onRemove(index)}>
               <Trash2 className="w-3.5 h-3.5" />
             </Button>
           </div>
