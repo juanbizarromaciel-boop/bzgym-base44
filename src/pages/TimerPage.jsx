@@ -69,92 +69,99 @@ export default function TimerPage() {
         {/* Circular Timer */}
         <div className="relative flex items-center justify-center mb-8">
           <svg className="w-72 h-72 md:w-80 md:h-80 -rotate-90" viewBox="0 0 320 320">
-            <circle cx="160" cy="160" r={radius} fill="none" stroke="#1F2937" strokeWidth="8" />
+            <circle cx="160" cy="160" r={radius} fill="none" stroke="rgba(88,28,135,0.2)" strokeWidth="6" />
+            {/* Outer glow ring */}
+            <circle cx="160" cy="160" r={radius + 6} fill="none" stroke="rgba(168,85,247,0.05)" strokeWidth="1" />
             <circle
               cx="160" cy="160" r={radius}
               fill="none"
-              stroke={isFinished ? "#EF4444" : "#10B981"}
-              strokeWidth="8"
+              stroke={isFinished ? "#f472b6" : "#a855f7"}
+              strokeWidth="6"
               strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={dashOffset}
               className="transition-all duration-1000"
+              style={{filter: `drop-shadow(0 0 ${isFinished ? '12px rgba(244,114,182,1)' : '10px rgba(168,85,247,0.9)'})`}}
             />
+            {/* Tick marks */}
+            {Array.from({length: 12}).map((_, i) => {
+              const angle = (i / 12) * 2 * Math.PI - Math.PI / 2;
+              const x1 = 160 + (radius - 12) * Math.cos(angle);
+              const y1 = 160 + (radius - 12) * Math.sin(angle);
+              const x2 = 160 + (radius - 20) * Math.cos(angle);
+              const y2 = 160 + (radius - 20) * Math.sin(angle);
+              return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(168,85,247,0.2)" strokeWidth="1.5" />;
+            })}
           </svg>
           <div className="absolute flex flex-col items-center">
-            <span className={`font-mono text-6xl md:text-7xl font-bold tabular-nums ${
-              isFinished ? "text-red-400 animate-pulse" : "text-white"
-            }`}>
+            <span className={`font-cyber text-6xl md:text-7xl font-bold tabular-nums ${
+              isFinished ? "text-pink-400" : "text-white"
+            }`} style={{textShadow: isFinished ? '0 0 20px rgba(244,114,182,0.8)' : '0 0 20px rgba(168,85,247,0.6)'}}>
               {mins}:{secs.toString().padStart(2, "0")}
             </span>
-            {isFinished && <span className="text-red-400 text-sm mt-2 font-medium">Descanso finalizado!</span>}
+            <span className="text-[10px] text-purple-500/40 font-mono-cyber tracking-[0.3em] mt-2 uppercase">
+              {isFinished ? "CONCLUÍDO" : isRunning ? "EM ANDAMENTO" : "PAUSADO"}
+            </span>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-center gap-4 mb-8">
-          <Button
-            size="icon"
-            variant="outline"
-            className="h-12 w-12 rounded-full border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
+        <div className="flex items-center justify-center gap-5 mb-8">
+          <button
+            className="h-12 w-12 rounded-full border border-purple-900/40 text-purple-400/60 hover:bg-purple-500/10 hover:text-purple-300 flex items-center justify-center transition-all"
             onClick={() => adjustTime(-5)}
           >
             <Minus className="w-5 h-5" />
-          </Button>
+          </button>
 
-          <Button
-            size="icon"
-            className={`h-16 w-16 rounded-full text-white shadow-lg ${
-              isRunning
-                ? "bg-yellow-600 hover:bg-yellow-700"
-                : isFinished
-                ? "bg-red-600 hover:bg-red-700"
-                : "bg-emerald-600 hover:bg-emerald-700"
+          <button
+            className={`h-18 w-18 rounded-full flex items-center justify-center transition-all duration-200 ${
+              isFinished
+                ? "btn-neon-pink"
+                : isRunning
+                ? "bg-yellow-500/15 border border-yellow-500/40 text-yellow-300"
+                : "btn-neon-purple"
             }`}
+            style={{width: 72, height: 72, boxShadow: isRunning ? '0 0 20px rgba(234,179,8,0.3)' : '0 0 20px rgba(168,85,247,0.3)'}}
             onClick={() => {
               if (isFinished) { reset(); return; }
               setIsRunning(!isRunning);
             }}
           >
-            {isFinished ? <RotateCcw className="w-6 h-6" /> : isRunning ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
-          </Button>
+            {isFinished ? <RotateCcw className="w-7 h-7" /> : isRunning ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-0.5" />}
+          </button>
 
-          <Button
-            size="icon"
-            variant="outline"
-            className="h-12 w-12 rounded-full border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
+          <button
+            className="h-12 w-12 rounded-full border border-purple-900/40 text-purple-400/60 hover:bg-purple-500/10 hover:text-purple-300 flex items-center justify-center transition-all"
             onClick={() => adjustTime(5)}
           >
             <Plus className="w-5 h-5" />
-          </Button>
+          </button>
         </div>
 
         <div className="flex justify-center mb-8">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-500 hover:text-white"
-            onClick={reset}
-          >
-            <RotateCcw className="w-4 h-4 mr-2" /> Resetar
-          </Button>
+          <button className="text-purple-500/30 hover:text-purple-400 flex items-center gap-2 text-sm font-mono-cyber tracking-wider transition-colors" onClick={reset}>
+            <RotateCcw className="w-4 h-4" /> RESETAR
+          </button>
         </div>
 
         {/* Presets */}
-        <div className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-3">Tempos Rápidos</p>
+        <div className="cyber-card rounded-xl p-5 border border-purple-900/20">
+          <p className="text-[10px] text-purple-500/40 uppercase tracking-[0.2em] font-medium mb-4">Tempos Rápidos</p>
           <div className="grid grid-cols-3 gap-2">
             {presets.map((preset) => (
-              <Button
+              <button
                 key={preset}
-                variant="outline"
                 onClick={() => setPreset(preset)}
-                className={`border-gray-700 hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400 ${
-                  totalSeconds === preset ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400" : "text-gray-400"
+                className={`py-2.5 rounded-lg text-sm font-cyber tracking-wider transition-all ${
+                  totalSeconds === preset
+                    ? "bg-purple-500/20 border border-purple-500/40 text-purple-300"
+                    : "border border-purple-900/30 text-purple-500/40 hover:border-purple-500/30 hover:text-purple-300"
                 }`}
+                style={totalSeconds === preset ? {boxShadow: '0 0 10px rgba(168,85,247,0.2)'} : {}}
               >
-                {preset >= 60 ? `${preset / 60}min` : `${preset}s`}
-              </Button>
+                {preset >= 60 ? `${preset / 60}MIN` : `${preset}S`}
+              </button>
             ))}
           </div>
         </div>
