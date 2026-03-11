@@ -84,9 +84,9 @@ export default function ExerciseLibrary() {
         title="Exercícios"
         subtitle={`${exercises.length} exercícios cadastrados`}
         action={
-          <Button onClick={() => setDialogOpen(true)} className="bg-emerald-600 hover:bg-emerald-700">
-            <Plus className="w-4 h-4 mr-2" /> Novo Exercício
-          </Button>
+          <button onClick={() => setDialogOpen(true)} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium tracking-wider flex items-center gap-2">
+            <Plus className="w-4 h-4" /> NOVO EXERCÍCIO
+          </button>
         }
       />
 
