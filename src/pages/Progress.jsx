@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
+import MuscleMap from "../components/workout/MuscleMap";
 
 export default function Progress() {
   const [selectedStudentId, setSelectedStudentId] = useState("");
@@ -17,6 +18,7 @@ export default function Progress() {
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: logs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list() });
+  const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
 
   const studentLogs = useMemo(() => {
     let filtered = logs.filter((l) => l.student_id === selectedStudentId);
@@ -25,6 +27,15 @@ export default function Progress() {
     }
     return filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [logs, selectedStudentId, selectedExercise]);
+
+  const allStudentExercises = useMemo(() => {
+    const plans = allPlans.filter(p => p.student_id === selectedStudentId);
+    const exercises = [];
+    plans.forEach(plan => {
+      if (plan.exercises) exercises.push(...plan.exercises);
+    });
+    return exercises;
+  }, [allPlans, selectedStudentId]);
 
   const exerciseNames = useMemo(() => {
     const names = new Set(logs.filter((l) => l.student_id === selectedStudentId).map((l) => l.exercise_name));
@@ -94,6 +105,16 @@ export default function Progress() {
 
       {selectedStudentId && chartData.length > 0 && (
         <>
+          {/* Muscle Map - All workouts combined */}
+          {allStudentExercises.length > 0 && (
+            <div className="cyber-card rounded-xl p-5 border border-purple-900/20 mb-6">
+              <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">
+                Mapa Muscular Geral — Todos os Treinos
+              </p>
+              <MuscleMap exercises={allStudentExercises} size="md" showLabels={true} />
+            </div>
+          )}
+
           {/* Trend */}
           {trend && (
             <div className="flex items-center gap-4 mb-6 cyber-card rounded-xl p-4 border border-purple-900/20">

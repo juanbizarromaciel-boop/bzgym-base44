@@ -11,6 +11,7 @@ import { CheckCircle, Dumbbell } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 import RestTimer from "../components/workout/RestTimer";
+import MuscleMap from "../components/workout/MuscleMap";
 
 export default function StudentWorkout() {
   const [selectedStudentId, setSelectedStudentId] = useState("");
@@ -92,6 +93,12 @@ export default function StudentWorkout() {
 
       {selectedPlan && (
         <div className="space-y-4">
+          {/* Muscle Map */}
+          <div className="cyber-card rounded-xl p-5 border border-purple-900/20 mb-4">
+            <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">Grupos Musculares - {selectedPlan.name}</p>
+            <MuscleMap exercises={selectedPlan.exercises || []} size="md" showLabels={true} />
+          </div>
+
           {/* Progress bar */}
           <div className="cyber-card rounded-xl p-4 border border-purple-900/20 mb-6">
             <div className="flex items-center justify-between mb-2">

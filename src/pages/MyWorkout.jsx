@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import RestTimer from "../components/workout/RestTimer";
+import MuscleMap from "../components/workout/MuscleMap";
 
 const DAY_MAP = { 0: "domingo", 1: "segunda", 2: "terca", 3: "quarta", 4: "quinta", 5: "sexta", 6: "sabado" };
 const DAY_LABELS = { segunda: "SEG", terca: "TER", quarta: "QUA", quinta: "QUI", sexta: "SEX", sabado: "SAB", domingo: "DOM" };
@@ -234,6 +235,12 @@ export default function MyWorkout() {
 
   return (
     <div>
+      {/* Muscle Map */}
+      <div className="cyber-card rounded-xl p-5 border border-purple-900/20 mb-5">
+        <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">Grupos Musculares - {selectedPlan?.name}</p>
+        <MuscleMap exercises={selectedPlan?.exercises || []} size="sm" showLabels={true} />
+      </div>
+
       {/* Back + Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
