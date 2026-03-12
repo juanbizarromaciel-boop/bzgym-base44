@@ -64,7 +64,7 @@ export default function NotificationBell() {
   });
 
   // Admin notifications - pending students
-  const pendingStudents = user?.role === "admin" ? allStudents.filter(s => !s.active && s.goal) : [];
+  const pendingStudents = user?.role === "admin" ? allStudents.filter(s => s.active === false) : [];
 
   // Student notifications
   const myPlans = student ? plans.filter(p => p.student_id === student.id) : [];
