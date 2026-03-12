@@ -23,8 +23,8 @@ export default function PendingStudents() {
     }
   });
 
-  const pendingStudents = students.filter(s => !s.active && s.goal);
-  const activeStudents = students.filter(s => s.active);
+  const pendingStudents = students.filter(s => s.active === false);
+  const activeStudents = students.filter(s => s.active === true);
 
   const handleActivate = (student) => {
     updateMut.mutate({
