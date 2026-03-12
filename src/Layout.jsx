@@ -141,7 +141,7 @@ export default function Layout({ children, currentPageName }) {
         {/* Bottom glow line */}
         <div className="h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
         <div className="p-4">
-          <p className="text-[10px] text-purple-500/30 text-center font-mono-cyber">SYSTEM v2.0</p>
+          <p className="text-[10px] text-purple-500/30 text-center font-mono-cyber">BZ</p>
         </div>
       </aside>
 
