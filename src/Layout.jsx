@@ -6,6 +6,7 @@ import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
   Library, LayoutDashboard, User, Utensils, BookOpen
 } from "lucide-react";
+import NotificationBell from "../components/notifications/NotificationBell";
 
 const adminNav = [
   { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
@@ -82,12 +83,15 @@ export default function Layout({ children, currentPageName }) {
             <span className="font-cyber text-xs text-purple-400/50 tracking-widest">GYM</span>
           </div>
         </div>
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="text-purple-400 hover:text-white p-1"
-        >
-          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="text-purple-400 hover:text-white p-1"
+          >
+            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Sidebar */}
@@ -155,6 +159,10 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Main Content */}
       <main className="lg:ml-64 pt-16 lg:pt-0 min-h-screen">
+        {/* Desktop notification - top right */}
+        <div className="hidden lg:block fixed top-6 right-6 z-30">
+          <NotificationBell />
+        </div>
         <div className="p-4 md:p-8">
           {children}
         </div>
