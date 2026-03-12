@@ -73,7 +73,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-purple-900/30 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img src="https://media.base44.com/images/public/69b152b7ec586487b4d800db/a7e184410_generated_image.png" alt="BZ" className="w-8 h-8 rounded-md object-cover" style={{boxShadow: '0 0 8px rgba(168,85,247,0.4)'}} />
+          <img src="https://media.base44.com/images/public/69b152b7ec586487b4d800db/31da85a7a_IMG_1517.png" alt="BZ" className="w-8 h-8 rounded-md object-cover" style={{boxShadow: '0 0 8px rgba(168,85,247,0.4)'}} />
           <div className="flex items-baseline gap-1.5">
             <span className="font-cyber text-base font-bold tracking-widest text-white" style={{textShadow: '0 0 10px rgba(168,85,247,0.6)'}}>BZ</span>
             <span className="font-cyber text-xs text-purple-400/50 tracking-widest">GYM</span>
@@ -99,8 +99,8 @@ export default function Layout({ children, currentPageName }) {
         <div className="p-5 border-b border-purple-900/20 hidden lg:block">
           <div className="flex items-center gap-3">
             <img
-              src="https://media.base44.com/images/public/69b152b7ec586487b4d800db/a7e184410_generated_image.png"
-              alt="BZ GYM"
+              src="https://media.base44.com/images/public/69b152b7ec586487b4d800db/31da85a7a_IMG_1517.png"
+              alt="BZ"
               className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
               style={{boxShadow: '0 0 15px rgba(168,85,247,0.35), 0 0 30px rgba(168,85,247,0.1)'}}
             />
