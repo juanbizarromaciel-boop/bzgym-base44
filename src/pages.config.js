@@ -49,24 +49,28 @@
  */
 import Dashboard from './pages/Dashboard';
 import ExerciseLibrary from './pages/ExerciseLibrary';
+import MyWorkout from './pages/MyWorkout';
 import Progress from './pages/Progress';
 import StudentWorkout from './pages/StudentWorkout';
 import Students from './pages/Students';
 import TimerPage from './pages/TimerPage';
 import WorkoutPlans from './pages/WorkoutPlans';
-import MyWorkout from './pages/MyWorkout';
+import Diet from './pages/Diet';
+import MyDiet from './pages/MyDiet';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Dashboard": Dashboard,
     "ExerciseLibrary": ExerciseLibrary,
+    "MyWorkout": MyWorkout,
     "Progress": Progress,
     "StudentWorkout": StudentWorkout,
     "Students": Students,
     "TimerPage": TimerPage,
     "WorkoutPlans": WorkoutPlans,
-    "MyWorkout": MyWorkout,
+    "Diet": Diet,
+    "MyDiet": MyDiet,
 }
 
 export const pagesConfig = {

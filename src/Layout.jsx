@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
-  Library, LayoutDashboard, User
+  Library, LayoutDashboard, User, Utensils
 } from "lucide-react";
 
 const adminNav = [
@@ -14,11 +14,13 @@ const adminNav = [
   { name: "Treinos", icon: ClipboardList, page: "WorkoutPlans" },
   { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
   { name: "Progresso", icon: BarChart3, page: "Progress" },
+  { name: "Dietas", icon: Utensils, page: "Diet" },
   { name: "Cronômetro", icon: Timer, page: "TimerPage" },
 ];
 
 const studentNav = [
   { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+  { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
   { name: "Progresso", icon: BarChart3, page: "Progress" },
   { name: "Cronômetro", icon: Timer, page: "TimerPage" },
 ];
