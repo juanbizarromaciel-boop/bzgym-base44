@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bell, X, Dumbbell, MessageCircle, CheckCircle } from "lucide-react";
+import { Bell, X, Dumbbell, MessageCircle, CheckCircle, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +24,12 @@ export default function NotificationBell() {
       }
     }).catch(() => {});
   }, []);
+
+  const { data: allStudents = [] } = useQuery({
+    queryKey: ["students"],
+    queryFn: () => base44.entities.Student.list(),
+    refetchInterval: 10000
+  });
 
   const { data: plans = [] } = useQuery({
     queryKey: ["plans"],
@@ -50,6 +56,16 @@ export default function NotificationBell() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["messages"] })
   });
 
+  const activateStudentMut = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Student.update(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["students"] });
+    }
+  });
+
+  // Admin notifications - pending students
+  const pendingStudents = user?.role === "admin" ? allStudents.filter(s => !s.active && s.goal) : [];
+
   // Student notifications
   const myPlans = student ? plans.filter(p => p.student_id === student.id) : [];
   const newPlansCount = myPlans.filter(p => {
@@ -73,7 +89,7 @@ export default function NotificationBell() {
     return logDate > oneHourAgo;
   }) : [];
 
-  const totalNotifications = newPlansCount + unreadMessages.length + (user?.role === "admin" ? recentLogs.length : 0);
+  const totalNotifications = newPlansCount + unreadMessages.length + pendingStudents.length + (user?.role === "admin" ? recentLogs.length : 0);
 
   const handleMarkMessageRead = (msg) => {
     if (!msg.read) {
@@ -92,6 +108,13 @@ export default function NotificationBell() {
   const handleNavigateToWorkout = () => {
     setIsOpen(false);
     navigate("/MyWorkout");
+  };
+
+  const handleActivateStudent = (studentData) => {
+    activateStudentMut.mutate({
+      id: studentData.id,
+      data: { ...studentData, active: true }
+    });
   };
 
   if (!user) return null;
@@ -151,6 +174,42 @@ export default function NotificationBell() {
                 </div>
               ) : (
                 <div className="space-y-2">
+                  {/* Pending students (admin only) */}
+                  {pendingStudents.map(pendingStudent => (
+                    <div
+                      key={pendingStudent.id}
+                      className="p-3 rounded-lg border border-pink-500/30 bg-pink-500/10"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-pink-500/20 border border-pink-500/40 flex items-center justify-center flex-shrink-0">
+                          <UserPlus className="w-5 h-5 text-pink-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white mb-1">
+                            Novo aluno cadastrado
+                          </p>
+                          <p className="text-xs text-purple-400/60 mb-2">
+                            {pendingStudent.name}
+                          </p>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[10px]">
+                              {pendingStudent.goal}
+                            </Badge>
+                          </div>
+                          <Button
+                            onClick={() => handleActivateStudent(pendingStudent)}
+                            disabled={activateStudentMut.isPending}
+                            size="sm"
+                            className="w-full mt-2 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 text-pink-300 text-xs"
+                          >
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Ativar Aluno
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
                   {/* New workout plans (students only) */}
                   {newPlansCount > 0 && (
                     <button
