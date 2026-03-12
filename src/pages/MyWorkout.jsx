@@ -33,7 +33,11 @@ export default function MyWorkout() {
   useEffect(() => {
     if (user && students.length > 0) {
       const found = students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase());
-      setStudent(found || null);
+      if (!found || !found.goal) {
+        window.location.href = "/Onboarding";
+      } else {
+        setStudent(found);
+      }
     }
   }, [user, students]);
 

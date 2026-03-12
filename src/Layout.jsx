@@ -9,7 +9,9 @@ import {
 
 const adminNav = [
   { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+  { name: "Novos Alunos", icon: Users, page: "PendingStudents" },
   { name: "Alunos", icon: Users, page: "Students" },
+  { name: "Chat", icon: User, page: "Chat" },
   { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
   { name: "Treinos", icon: ClipboardList, page: "WorkoutPlans" },
   { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
@@ -22,6 +24,7 @@ const adminNav = [
 const studentNav = [
   { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
   { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
+  { name: "Chat", icon: User, page: "Chat" },
   { name: "Progresso", icon: BarChart3, page: "Progress" },
   { name: "Cronômetro", icon: Timer, page: "TimerPage" },
 ];
