@@ -45,14 +45,35 @@ const emptyExercise = {
 
 export default function ExerciseFormDialog({ open, onClose, onSave, exercise, exercisesList }) {
   const [form, setForm] = useState(emptyExercise);
+  const [selectedMuscleGroup, setSelectedMuscleGroup] = useState("");
 
   useEffect(() => {
     if (exercise) {
       setForm(exercise);
     } else {
       setForm(emptyExercise);
+      setSelectedMuscleGroup("");
     }
   }, [exercise, open]);
+
+  const muscleGroups = [
+    { value: "peito", label: "Peito" },
+    { value: "costas", label: "Costas" },
+    { value: "ombros", label: "Ombros" },
+    { value: "biceps", label: "Bíceps" },
+    { value: "triceps", label: "Tríceps" },
+    { value: "pernas", label: "Pernas" },
+    { value: "gluteos", label: "Glúteos" },
+    { value: "abdomen", label: "Abdômen" },
+    { value: "panturrilha", label: "Panturrilha" },
+    { value: "antebraco", label: "Antebraço" },
+    { value: "cardio", label: "Cardio" },
+    { value: "outro", label: "Outro" }
+  ];
+
+  const filteredExercises = selectedMuscleGroup
+    ? exercisesList.filter(ex => ex.muscle_group === selectedMuscleGroup)
+    : exercisesList;
 
   const handleExerciseSelect = (exerciseId) => {
     const selected = exercisesList.find((e) => e.id === exerciseId);
@@ -79,13 +100,38 @@ export default function ExerciseFormDialog({ open, onClose, onSave, exercise, ex
         </DialogHeader>
 
         <div className="space-y-4">
+          {exercisesList?.length > 0 && (
+            <div>
+              <Label className="text-purple-400/60 text-xs tracking-wider">GRUPO MUSCULAR</Label>
+              <Select value={selectedMuscleGroup} onValueChange={(v) => {
+                setSelectedMuscleGroup(v);
+                setForm({ ...form, exercise_id: "", exercise_name: "" });
+              }}>
+                <SelectTrigger className="cyber-input mt-1">
+                  <SelectValue placeholder="Selecione o grupo muscular" />
+                </SelectTrigger>
+                <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
+                  {muscleGroups.map((mg) => (
+                    <SelectItem key={mg.value} value={mg.value} className="text-white">{mg.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div>
             <Label className="text-purple-400/60 text-xs tracking-wider">EXERCÍCIO</Label>
             {exercisesList?.length > 0 ? (
-              <Select value={form.exercise_id} onValueChange={handleExerciseSelect}>
-                <SelectTrigger className="cyber-input mt-1"><SelectValue placeholder="Selecione o exercício" /></SelectTrigger>
+              <Select 
+                value={form.exercise_id} 
+                onValueChange={handleExerciseSelect}
+                disabled={!selectedMuscleGroup}
+              >
+                <SelectTrigger className="cyber-input mt-1">
+                  <SelectValue placeholder={selectedMuscleGroup ? "Selecione o exercício" : "Selecione o grupo muscular primeiro"} />
+                </SelectTrigger>
                 <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
-                  {exercisesList.map((ex) => (
+                  {filteredExercises.map((ex) => (
                     <SelectItem key={ex.id} value={ex.id} className="text-white">{ex.name}</SelectItem>
                   ))}
                 </SelectContent>
