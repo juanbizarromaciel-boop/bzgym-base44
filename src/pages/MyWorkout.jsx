@@ -35,6 +35,8 @@ export default function MyWorkout() {
       const found = students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase());
       if (!found || !found.goal) {
         window.location.href = "/Onboarding";
+      } else if (!found.active) {
+        window.location.href = "/Welcome";
       } else {
         setStudent(found);
       }

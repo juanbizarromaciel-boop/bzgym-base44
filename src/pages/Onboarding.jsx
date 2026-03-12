@@ -21,6 +21,7 @@ export default function Onboarding() {
   const [selectedGoal, setSelectedGoal] = useState("");
   const [customGoal, setCustomGoal] = useState("");
   const [notes, setNotes] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -44,6 +45,11 @@ export default function Onboarding() {
       return;
     }
 
+    if (!phone.trim()) {
+      toast.error("Preencha seu telefone");
+      return;
+    }
+
     setLoading(true);
     try {
       const goalValue = customGoal.trim() || selectedGoal;
@@ -51,20 +57,22 @@ export default function Onboarding() {
       if (student) {
         await base44.entities.Student.update(student.id, {
           goal: goalValue,
+          phone: phone.trim(),
           notes: notes.trim() || student.notes
         });
       } else {
         await base44.entities.Student.create({
           name: user.full_name || user.email,
           email: user.email,
+          phone: phone.trim(),
           goal: goalValue,
           notes: notes.trim(),
-          active: true
+          active: false
         });
       }
 
-      toast.success("Perfil configurado!");
-      setTimeout(() => navigate("/MyWorkout"), 800);
+      toast.success("Cadastro enviado!");
+      setTimeout(() => navigate("/Welcome"), 600);
     } catch (error) {
       toast.error("Erro ao salvar");
       setLoading(false);
@@ -152,6 +160,24 @@ export default function Onboarding() {
           </div>
         </div>
 
+        {/* Phone - Required */}
+        <div className="cyber-card rounded-2xl p-6 md:p-8 border border-purple-900/30 mb-6">
+          <label className="text-xs text-purple-400/50 font-mono-cyber tracking-wider uppercase mb-3 block">
+            Telefone (WhatsApp) *
+          </label>
+          <Input
+            type="tel"
+            placeholder="(00) 00000-0000"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="cyber-input"
+            required
+          />
+          <p className="text-[10px] text-purple-500/30 font-mono-cyber mt-2">
+            // seu personal trainer entrará em contato
+          </p>
+        </div>
+
         {/* Notes */}
         <div className="cyber-card rounded-2xl p-6 md:p-8 border border-purple-900/30 mb-6">
           <label className="text-xs text-purple-400/50 font-mono-cyber tracking-wider uppercase mb-3 block">
@@ -168,14 +194,14 @@ export default function Onboarding() {
         {/* Submit */}
         <Button
           onClick={handleSubmit}
-          disabled={loading || (!selectedGoal && !customGoal)}
+          disabled={loading || (!selectedGoal && !customGoal) || !phone.trim()}
           className="w-full btn-neon-purple py-6 rounded-xl font-cyber text-base tracking-widest"
         >
-          {loading ? "SALVANDO..." : "INICIAR JORNADA →"}
+          {loading ? "ENVIANDO..." : "ENVIAR CADASTRO →"}
         </Button>
 
         <p className="text-center text-purple-500/30 text-xs font-mono-cyber mt-4">
-          // seu personal trainer será notificado
+          * campos obrigatórios
         </p>
       </div>
     </div>
