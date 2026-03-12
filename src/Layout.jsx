@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
-  Library, LayoutDashboard, User, Utensils
+  Library, LayoutDashboard, User, Utensils, BookOpen
 } from "lucide-react";
 
 const adminNav = [
@@ -15,6 +15,7 @@ const adminNav = [
   { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
   { name: "Progresso", icon: BarChart3, page: "Progress" },
   { name: "Dietas", icon: Utensils, page: "Diet" },
+  { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
   { name: "Cronômetro", icon: Timer, page: "TimerPage" },
 ];
 

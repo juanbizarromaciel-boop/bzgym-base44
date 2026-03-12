@@ -57,6 +57,7 @@ import TimerPage from './pages/TimerPage';
 import WorkoutPlans from './pages/WorkoutPlans';
 import Diet from './pages/Diet';
 import MyDiet from './pages/MyDiet';
+import FoodDatabase from './pages/FoodDatabase';
 import __Layout from './Layout.jsx';
 
 
@@ -71,6 +72,7 @@ export const PAGES = {
     "WorkoutPlans": WorkoutPlans,
     "Diet": Diet,
     "MyDiet": MyDiet,
+    "FoodDatabase": FoodDatabase,
 }
 
 export const pagesConfig = {
