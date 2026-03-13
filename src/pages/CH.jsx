@@ -153,6 +153,20 @@ export default function CH() {
     }
   });
 
+  // Agrupar ciclos por aluno
+  const cyclesByStudent = filteredCycles.reduce((acc, cycle) => {
+    if (!acc[cycle.student_id]) {
+      acc[cycle.student_id] = [];
+    }
+    acc[cycle.student_id].push(cycle);
+    return acc;
+  }, {});
+
+  const getStudentName = (studentId) => {
+    const s = students.find(st => st.id === studentId);
+    return s?.name || "Aluno";
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -166,14 +180,15 @@ export default function CH() {
         }
       />
 
-      {user?.role === "admin" && (
+      {user?.role === "admin" && !selectedStudent && (
         <div className="cyber-card p-4 rounded-xl">
-          <Label className="text-purple-300 text-xs mb-2 block">Selecionar Aluno</Label>
+          <Label className="text-purple-300 text-xs mb-2 block">Filtrar por Aluno (opcional)</Label>
           <Select value={selectedStudent} onValueChange={setSelectedStudent}>
             <SelectTrigger className="cyber-input">
-              <SelectValue placeholder="Escolha um aluno" />
+              <SelectValue placeholder="Todos os alunos" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value={null}>Todos os alunos</SelectItem>
               {students.filter(s => s.active).map(s => (
                 <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
               ))}
@@ -182,15 +197,29 @@ export default function CH() {
         </div>
       )}
 
-      <div className="grid gap-4">
-        {filteredCycles.length === 0 ? (
-          <div className="cyber-card p-12 rounded-xl text-center">
-            <Syringe className="w-12 h-12 mx-auto mb-4 text-purple-500/30" />
-            <p className="text-purple-400/50 text-sm">Nenhum ciclo registrado</p>
-          </div>
-        ) : (
-          filteredCycles.map(cycle => (
-            <div key={cycle.id} className="cyber-card p-5 rounded-xl">
+      {filteredCycles.length === 0 ? (
+        <div className="cyber-card p-12 rounded-xl text-center">
+          <Syringe className="w-12 h-12 mx-auto mb-4 text-purple-500/30" />
+          <p className="text-purple-400/50 text-sm">Nenhum ciclo registrado</p>
+        </div>
+      ) : (
+        Object.entries(cyclesByStudent).map(([studentId, studentCycles]) => (
+          <div key={studentId} className="space-y-4">
+            {user?.role === "admin" && (
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-cyan-500/20 border border-purple-500/30 flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">
+                    {getStudentName(studentId).substring(0, 2).toUpperCase()}
+                  </span>
+                </div>
+                <h3 className="text-xl font-cyber text-white tracking-wider">
+                  {getStudentName(studentId)}
+                </h3>
+              </div>
+            )}
+            <div className="grid gap-4">
+              {studentCycles.map(cycle => (
+                <div key={cycle.id} className="cyber-card p-5 rounded-xl">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center">
