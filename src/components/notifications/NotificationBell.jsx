@@ -165,22 +165,12 @@ export default function NotificationBell() {
             style={{ background: '#04040e', boxShadow: '0 0 40px rgba(168,85,247,0.2)' }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-purple-900/30">
-              <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-purple-400" />
-                <h3 className="font-cyber text-sm text-white tracking-wider">NOTIFICAÇÕES</h3>
-              </div>
-              <div className="flex items-center gap-1">
-                {unreadMessages.length > 0 && (
-                  <button
-                    onClick={() => clearNotificationsMut.mutate()}
-                    disabled={clearNotificationsMut.isPending}
-                    className="p-1 rounded-lg hover:bg-purple-500/10 transition-colors text-purple-500/50 hover:text-purple-400"
-                    title="Limpar notificações"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
+            <div className="p-4 border-b border-purple-900/30">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-purple-400" />
+                  <h3 className="font-cyber text-sm text-white tracking-wider">NOTIFICAÇÕES</h3>
+                </div>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="p-1 rounded-lg hover:bg-purple-500/10 transition-colors"
@@ -188,6 +178,16 @@ export default function NotificationBell() {
                   <X className="w-4 h-4 text-purple-500/50" />
                 </button>
               </div>
+              {unreadMessages.length > 0 && (
+                <button
+                  onClick={() => clearNotificationsMut.mutate()}
+                  disabled={clearNotificationsMut.isPending}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10 transition-colors text-purple-400 text-xs font-medium"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Limpar Notificações de Chat
+                </button>
+              )}
             </div>
 
             {/* Content */}
