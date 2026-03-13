@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bell, X, Dumbbell, MessageCircle, CheckCircle, UserPlus } from "lucide-react";
+import { Bell, X, Dumbbell, MessageCircle, CheckCircle, UserPlus, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function NotificationBell() {
   const [user, setUser] = useState(null);
@@ -60,6 +61,18 @@ export default function NotificationBell() {
     mutationFn: ({ id, data }) => base44.entities.Student.update(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["students"] });
+    }
+  });
+
+  const clearNotificationsMut = useMutation({
+    mutationFn: async () => {
+      await Promise.all(
+        unreadMessages.map(msg => base44.entities.ChatMessage.update(msg.id, { read: true }))
+      );
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["messages"] });
+      toast.success("Notificações limpas");
     }
   });
 
@@ -157,12 +170,24 @@ export default function NotificationBell() {
                 <Bell className="w-4 h-4 text-purple-400" />
                 <h3 className="font-cyber text-sm text-white tracking-wider">NOTIFICAÇÕES</h3>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1 rounded-lg hover:bg-purple-500/10 transition-colors"
-              >
-                <X className="w-4 h-4 text-purple-500/50" />
-              </button>
+              <div className="flex items-center gap-1">
+                {unreadMessages.length > 0 && (
+                  <button
+                    onClick={() => clearNotificationsMut.mutate()}
+                    disabled={clearNotificationsMut.isPending}
+                    className="p-1 rounded-lg hover:bg-purple-500/10 transition-colors text-purple-500/50 hover:text-purple-400"
+                    title="Limpar notificações"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1 rounded-lg hover:bg-purple-500/10 transition-colors"
+                >
+                  <X className="w-4 h-4 text-purple-500/50" />
+                </button>
+              </div>
             </div>
 
             {/* Content */}
