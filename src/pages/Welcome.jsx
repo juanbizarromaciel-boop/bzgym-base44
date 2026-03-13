@@ -86,21 +86,13 @@ export default function Welcome() {
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <div className="flex justify-center">
           <Button
             onClick={() => navigate("/Chat")}
             className="btn-neon-cyan px-8 py-3 rounded-xl font-medium tracking-wider"
           >
             <MessageCircle className="w-4 h-4 mr-2" />
             Ir para o Chat
-          </Button>
-          <Button
-            onClick={() => navigate("/MyWorkout")}
-            variant="outline"
-            className="px-8 py-3 rounded-xl font-medium tracking-wider border-purple-500/30 bg-purple-500/5 text-white hover:bg-purple-500/10"
-          >
-            <Dumbbell className="w-4 h-4 mr-2" />
-            Ver Treinos
           </Button>
         </div>
 

@@ -30,11 +30,7 @@ export default function Onboarding() {
       setUser(u);
       base44.entities.Student.list().then(students => {
         const found = students.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
-        if (found && found.goal) {
-          navigate("/MyWorkout");
-        } else {
-          setStudent(found);
-        }
+        setStudent(found);
       });
     }).catch(() => {});
   }, [navigate]);
