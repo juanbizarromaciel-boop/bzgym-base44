@@ -7,7 +7,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Dumbbell } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { CheckCircle, Dumbbell, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 import RestTimer from "../components/workout/RestTimer";
