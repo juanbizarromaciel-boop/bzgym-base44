@@ -10,6 +10,8 @@ import Onboarding from './pages/Onboarding';
 import Chat from './pages/Chat';
 import PendingStudents from './pages/PendingStudents';
 import Welcome from './pages/Welcome';
+import CH from './pages/CH';
+import StudentDocuments from './pages/StudentDocuments';
 import { base44 } from '@/api/base44Client';
 import { useState, useEffect } from 'react';
 
@@ -107,6 +109,8 @@ const AuthenticatedApp = () => {
       <Route path="/Welcome" element={<Welcome />} />
       <Route path="/Chat" element={<LayoutWrapper currentPageName="Chat"><Chat /></LayoutWrapper>} />
       <Route path="/PendingStudents" element={<LayoutWrapper currentPageName="PendingStudents"><PendingStudents /></LayoutWrapper>} />
+      <Route path="/CH" element={<LayoutWrapper currentPageName="CH"><CH /></LayoutWrapper>} />
+      <Route path="/StudentDocuments" element={<LayoutWrapper currentPageName="StudentDocuments"><StudentDocuments /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
