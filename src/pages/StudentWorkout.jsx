@@ -18,10 +18,13 @@ export default function StudentWorkout() {
   const [selectedPlanId, setSelectedPlanId] = useState("");
   const [setsData, setSetsData] = useState({});
   const [completedExercises, setCompletedExercises] = useState(new Set());
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
   const qc = useQueryClient();
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
+  const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
 
   const studentPlans = allPlans.filter((p) => p.student_id === selectedStudentId);
   const selectedPlan = allPlans.find((p) => p.id === selectedPlanId);
@@ -61,6 +64,15 @@ export default function StudentWorkout() {
 
     setCompletedExercises(new Set([...completedExercises, exerciseIdx]));
     toast.success(`${exercise.exercise_name} registrado!`);
+  };
+
+  const getExerciseVideo = (exerciseId) => {
+    return exercises.find(ex => ex.id === exerciseId)?.video_url;
+  };
+
+  const openVideoDialog = (videoUrl) => {
+    setSelectedVideo(videoUrl);
+    setVideoDialogOpen(true);
   };
 
   return (
@@ -139,8 +151,19 @@ export default function StudentWorkout() {
                         : <span className="font-cyber text-xs text-purple-400">#{exerciseIdx + 1}</span>
                       }
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-white">{exercise.exercise_name}</h3>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-white">{exercise.exercise_name}</h3>
+                        {getExerciseVideo(exercise.exercise_id) && (
+                          <button
+                            onClick={() => openVideoDialog(getExerciseVideo(exercise.exercise_id))}
+                            className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                            title="Ver vídeo do exercício"
+                          >
+                            <PlayCircle className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
                       <div className="flex flex-wrap gap-2 mt-1.5">
                         <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
                           {exercise.sets}x{exercise.reps}
@@ -235,6 +258,21 @@ export default function StudentWorkout() {
           <p className="font-mono-cyber text-sm">// selecione um aluno para começar</p>
         </div>
       )}
+
+      {/* Video Dialog */}
+      <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
+        <DialogContent className="bg-[#0a0a16] border-purple-500/30 text-white max-w-3xl p-0">
+          {selectedVideo && (
+            <video
+              src={selectedVideo}
+              controls
+              autoPlay
+              className="w-full rounded-lg"
+              style={{ maxHeight: '80vh' }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
