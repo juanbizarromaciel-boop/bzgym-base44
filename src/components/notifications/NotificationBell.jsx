@@ -66,6 +66,9 @@ export default function NotificationBell() {
 
   const clearNotificationsMut = useMutation({
     mutationFn: async () => {
+      const updates = [];
+      
+      // Mark all unread messages as read
       const messagesToMark = messages.filter(m => {
         if (user?.role === "admin") {
           return !m.read && !m.is_trainer;
@@ -74,16 +77,18 @@ export default function NotificationBell() {
         }
       });
       
-      if (messagesToMark.length === 0) return;
+      messagesToMark.forEach(msg => {
+        updates.push(base44.entities.ChatMessage.update(msg.id, { read: true }));
+      });
       
-      await Promise.all(
-        messagesToMark.map(msg => base44.entities.ChatMessage.update(msg.id, { read: true }))
-      );
+      if (updates.length > 0) {
+        await Promise.all(updates);
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["messages"] });
+      qc.invalidateQueries({ queryKey: ["logs"] });
       toast.success("Notificações limpas");
-      setIsOpen(false);
     }
   });
 
