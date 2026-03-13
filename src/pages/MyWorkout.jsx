@@ -3,8 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar } from "lucide-react";
+import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import RestTimer from "../components/workout/RestTimer";
 import MuscleMap from "../components/workout/MuscleMap";
 
@@ -19,6 +20,8 @@ export default function MyWorkout() {
   const [setsData, setSetsData] = useState({});
   const [completedExercises, setCompletedExercises] = useState(new Set());
   const [workoutDone, setWorkoutDone] = useState(false);
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
   const qc = useQueryClient();
 
   const today = DAY_MAP[new Date().getDay()];
@@ -29,6 +32,7 @@ export default function MyWorkout() {
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
+  const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
 
   useEffect(() => {
     if (user && students.length > 0) {
@@ -84,6 +88,15 @@ export default function MyWorkout() {
     if (newCompleted.size === selectedPlan.exercises?.length) {
       setTimeout(() => setWorkoutDone(true), 600);
     }
+  };
+
+  const getExerciseVideo = (exerciseId) => {
+    return exercises.find(ex => ex.id === exerciseId)?.video_url;
+  };
+
+  const openVideoDialog = (videoUrl) => {
+    setSelectedVideo(videoUrl);
+    setVideoDialogOpen(true);
   };
 
   // Loading
@@ -300,8 +313,19 @@ export default function MyWorkout() {
                       : <span className="font-cyber text-xs text-purple-400">#{exerciseIdx + 1}</span>
                     }
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-white">{exercise.exercise_name}</h3>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-white">{exercise.exercise_name}</h3>
+                      {getExerciseVideo(exercise.exercise_id) && (
+                        <button
+                          onClick={() => openVideoDialog(getExerciseVideo(exercise.exercise_id))}
+                          className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                          title="Ver vídeo do exercício"
+                        >
+                          <PlayCircle className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-2 mt-1.5">
                       <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
                         {exercise.sets}x{exercise.reps}
@@ -384,6 +408,21 @@ export default function MyWorkout() {
           );
         })}
       </div>
+
+      {/* Video Dialog */}
+      <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
+        <DialogContent className="bg-[#0a0a16] border-purple-500/30 text-white max-w-3xl p-0">
+          {selectedVideo && (
+            <video
+              src={selectedVideo}
+              controls
+              autoPlay
+              className="w-full rounded-lg"
+              style={{ maxHeight: '80vh' }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

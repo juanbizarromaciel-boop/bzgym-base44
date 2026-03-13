@@ -161,8 +161,26 @@ export default function ExerciseLibrary() {
               <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="cyber-input mt-1 h-20" />
             </div>
             <div>
-              <Label className="text-purple-400/60 text-xs tracking-wider">URL DO VÍDEO</Label>
-              <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="https://..." className="cyber-input mt-1" />
+              <Label className="text-purple-400/60 text-xs tracking-wider">VÍDEO DO EXERCÍCIO</Label>
+              <input
+                type="file"
+                accept="video/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    try {
+                      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                      setForm({ ...form, video_url: file_url });
+                    } catch (err) {
+                      console.error(err);
+                    }
+                  }
+                }}
+                className="cyber-input mt-1 text-sm text-purple-400/60 file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-purple-500/10 file:text-purple-400 hover:file:bg-purple-500/20 cursor-pointer"
+              />
+              {form.video_url && (
+                <p className="text-xs text-cyan-400/60 mt-2 font-mono-cyber truncate">✓ Vídeo carregado</p>
+              )}
             </div>
           </div>
           <DialogFooter>
