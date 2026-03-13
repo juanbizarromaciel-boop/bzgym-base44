@@ -285,9 +285,11 @@ export default function CH() {
                 <p className="text-purple-300/70 text-sm">{cycle.notes}</p>
               )}
             </div>
-          ))
-        )}
-      </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="bg-[#0a0a16] border-purple-500/30 text-white max-w-md max-h-[90vh] overflow-y-auto">
