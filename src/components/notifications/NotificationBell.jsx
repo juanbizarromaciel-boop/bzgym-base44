@@ -66,13 +66,24 @@ export default function NotificationBell() {
 
   const clearNotificationsMut = useMutation({
     mutationFn: async () => {
+      const messagesToMark = messages.filter(m => {
+        if (user?.role === "admin") {
+          return !m.read && !m.is_trainer;
+        } else {
+          return !m.read && m.is_trainer && m.student_id === student?.id;
+        }
+      });
+      
+      if (messagesToMark.length === 0) return;
+      
       await Promise.all(
-        unreadMessages.map(msg => base44.entities.ChatMessage.update(msg.id, { read: true }))
+        messagesToMark.map(msg => base44.entities.ChatMessage.update(msg.id, { read: true }))
       );
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["messages"] });
       toast.success("Notificações limpas");
+      setIsOpen(false);
     }
   });
 
