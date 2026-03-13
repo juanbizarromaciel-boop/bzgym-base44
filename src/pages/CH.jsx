@@ -220,7 +220,7 @@ export default function CH() {
             <div className="grid gap-4">
               {studentCycles.map(cycle => (
                 <div key={cycle.id} className="cyber-card p-5 rounded-xl">
-              <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center">
                     <Syringe className="w-6 h-6 text-purple-400" />
@@ -249,10 +249,10 @@ export default function CH() {
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
-                </div>
-              </div>
+                  </div>
+                  </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                 <div className="bg-purple-500/5 border border-purple-500/20 rounded-lg p-3">
                   <p className="text-purple-400/50 text-xs mb-1">Dosagem Semanal</p>
                   <p className="text-white text-lg font-bold">{cycle.dosage_mg_per_week} mg</p>
@@ -264,27 +264,27 @@ export default function CH() {
                 <div className="bg-pink-500/5 border border-pink-500/20 rounded-lg p-3">
                   <p className="text-pink-400/50 text-xs mb-1">Frequência</p>
                   <p className="text-white text-sm">{frequencyLabels[cycle.application_frequency]}</p>
-                </div>
-              </div>
+                  </div>
+                  </div>
 
-              {cycle.cycle_duration_weeks && (
+                  {cycle.cycle_duration_weeks && (
                 <div className="mb-3">
                   <Badge className="bg-green-500/10 border-green-500/30 text-green-400">
                     Duração: {cycle.cycle_duration_weeks} semanas
                   </Badge>
-                </div>
-              )}
+                  </div>
+                  )}
 
-              {cycle.application_site && (
+                  {cycle.application_site && (
                 <p className="text-purple-300/70 text-sm mb-2">
                   <span className="text-purple-400/50">Local: </span>{cycle.application_site}
-                </p>
-              )}
+                  </p>
+                  )}
 
-              {cycle.notes && (
-                <p className="text-purple-300/70 text-sm">{cycle.notes}</p>
-              )}
-            </div>
+                  {cycle.notes && (
+                    <p className="text-purple-300/70 text-sm">{cycle.notes}</p>
+                  )}
+                </div>
               ))}
             </div>
           </div>
