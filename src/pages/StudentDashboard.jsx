@@ -90,6 +90,7 @@ export default function StudentDashboard() {
     plan.exercises?.forEach(ex => {
       const muscle = ex.exercise_name?.toLowerCase().includes("supino") ? "peito" :
                      ex.exercise_name?.toLowerCase().includes("remada") ? "costas" :
+                     ex.exercise_name?.toLowerCase().includes("bulgaro") ? "gluteo" :
                      ex.exercise_name?.toLowerCase().includes("agachamento") ? "pernas" :
                      ex.exercise_name?.toLowerCase().includes("rosca") ? "biceps" :
                      ex.exercise_name?.toLowerCase().includes("tríceps") ? "triceps" : "outro";
