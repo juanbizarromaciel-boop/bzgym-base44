@@ -25,6 +25,7 @@ const adminNav = [
 ];
 
 const studentNav = [
+  { name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" },
   { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
   { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
   { name: "Chat", icon: User, page: "Chat" },

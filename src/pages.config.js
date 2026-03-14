@@ -64,6 +64,7 @@ import Students from './pages/Students';
 import TimerPage from './pages/TimerPage';
 import Welcome from './pages/Welcome';
 import WorkoutPlans from './pages/WorkoutPlans';
+import StudentDashboard from './pages/StudentDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +86,7 @@ export const PAGES = {
     "TimerPage": TimerPage,
     "Welcome": Welcome,
     "WorkoutPlans": WorkoutPlans,
+    "StudentDashboard": StudentDashboard,
 }
 
 export const pagesConfig = {
