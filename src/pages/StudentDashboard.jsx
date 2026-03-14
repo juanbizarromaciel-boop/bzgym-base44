@@ -84,16 +84,19 @@ export default function StudentDashboard() {
   // Max load this week
   const maxLoad = Math.max(...recentLogs.map(log => log.max_load_kg || 0), 0);
 
+  // First, get all exercises to map muscle_group
+  const { data: allExercisesDB = [] } = useQuery({
+    queryKey: ["exercises"],
+    queryFn: () => base44.entities.Exercise.list()
+  });
+
   // Volume by muscle group (from plans)
   const volumeByMuscle = {};
   myPlans.forEach(plan => {
     plan.exercises?.forEach(ex => {
-      const muscle = ex.exercise_name?.toLowerCase().includes("supino") ? "peito" :
-                     ex.exercise_name?.toLowerCase().includes("remada") ? "costas" :
-                     ex.exercise_name?.toLowerCase().includes("bulgaro") ? "gluteos" :
-                     ex.exercise_name?.toLowerCase().includes("agachamento") ? "pernas" :
-                     ex.exercise_name?.toLowerCase().includes("rosca") ? "biceps" :
-                     ex.exercise_name?.toLowerCase().includes("tríceps") ? "triceps" : "outro";
+      // Find exercise in DB to get muscle_group
+      const exerciseData = allExercisesDB.find(e => e.id === ex.exercise_id);
+      const muscle = exerciseData?.muscle_group || "outro";
       volumeByMuscle[muscle] = (volumeByMuscle[muscle] || 0) + (ex.sets || 0);
     });
   });
@@ -107,11 +110,9 @@ export default function StudentDashboard() {
   // Weight by muscle group (from recent logs)
   const weightByMuscle = {};
   recentLogs.forEach(log => {
-    const muscle = log.exercise_name?.toLowerCase().includes("supino") ? "peito" :
-                   log.exercise_name?.toLowerCase().includes("remada") ? "costas" :
-                   log.exercise_name?.toLowerCase().includes("agachamento") ? "pernas" :
-                   log.exercise_name?.toLowerCase().includes("rosca") ? "biceps" :
-                   log.exercise_name?.toLowerCase().includes("tríceps") ? "triceps" : "outro";
+    // Find exercise in DB to get muscle_group
+    const exerciseData = allExercisesDB.find(e => e.id === log.exercise_id);
+    const muscle = exerciseData?.muscle_group || "outro";
     const totalWeight = log.sets_completed?.reduce((sum, set) => sum + (set.load_kg * set.reps_done), 0) || 0;
     weightByMuscle[muscle] = (weightByMuscle[muscle] || 0) + totalWeight;
   });
