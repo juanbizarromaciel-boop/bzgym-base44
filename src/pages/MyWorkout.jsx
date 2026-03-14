@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle } from "lucide-react";
+import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import RestTimer from "../components/workout/RestTimer";
@@ -39,8 +39,6 @@ export default function MyWorkout() {
       const found = students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase());
       if (!found || !found.goal) {
         window.location.href = "/Onboarding";
-      } else if (!found.active) {
-        window.location.href = "/Welcome";
       } else {
         setStudent(found);
       }
@@ -85,9 +83,13 @@ export default function MyWorkout() {
     const newCompleted = new Set([...completedExercises, exerciseIdx]);
     setCompletedExercises(newCompleted);
     toast.success(`${exercise.exercise_name} concluído!`);
-    if (newCompleted.size === selectedPlan.exercises?.length) {
-      setTimeout(() => setWorkoutDone(true), 600);
-    }
+  };
+
+  const finishWorkout = () => {
+    setWorkoutDone(true);
+    setTimeout(() => {
+      window.location.href = "/Progress";
+    }, 3000);
   };
 
   const getExerciseVideo = (exerciseId) => {
@@ -106,44 +108,69 @@ export default function MyWorkout() {
     </div>
   );
 
-  // Not linked to a student
-  if (user && students.length > 0 && !student) return (
-    <div className="text-center py-20">
-      <div className="w-16 h-16 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-5">
-        <Dumbbell className="w-8 h-8 text-purple-500/40" />
+  // Not linked to a student or not active yet
+  if (user && students.length > 0 && (!student || !student.active)) {
+    if (student && !student.active) {
+      window.location.href = "/Welcome";
+      return null;
+    }
+    return (
+      <div className="text-center py-20">
+        <div className="w-16 h-16 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-5">
+          <Dumbbell className="w-8 h-8 text-purple-500/40" />
+        </div>
+        <h2 className="font-cyber text-lg text-white tracking-widest mb-3">PERFIL NÃO ENCONTRADO</h2>
+        <p className="text-purple-400/40 text-sm font-mono-cyber leading-relaxed">
+          // seu email não está vinculado a nenhum aluno<br />
+          // contate seu personal trainer
+        </p>
       </div>
-      <h2 className="font-cyber text-lg text-white tracking-widest mb-3">PERFIL NÃO ENCONTRADO</h2>
-      <p className="text-purple-400/40 text-sm font-mono-cyber leading-relaxed">
-        // seu email não está vinculado a nenhum aluno<br />
-        // contate seu personal trainer
-      </p>
-    </div>
-  );
+    );
+  }
 
   // Workout complete celebration
   if (workoutDone) return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
       <div
-        className="w-28 h-28 rounded-full flex items-center justify-center mb-6"
-        style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.15), transparent)', border: '1px solid rgba(6,182,212,0.4)', boxShadow: '0 0 60px rgba(6,182,212,0.3)' }}
+        className="w-32 h-32 rounded-full flex items-center justify-center mb-6 animate-pulse"
+        style={{ 
+          background: 'radial-gradient(circle, rgba(6,182,212,0.2), rgba(168,85,247,0.1), transparent)', 
+          border: '2px solid rgba(6,182,212,0.6)', 
+          boxShadow: '0 0 80px rgba(6,182,212,0.4), 0 0 120px rgba(168,85,247,0.3)' 
+        }}
       >
-        <Trophy className="w-14 h-14 text-cyan-400" style={{ filter: 'drop-shadow(0 0 10px rgba(6,182,212,0.8))' }} />
+        <Trophy className="w-16 h-16 text-cyan-400" style={{ filter: 'drop-shadow(0 0 15px rgba(6,182,212,1))' }} />
       </div>
-      <p className="text-xs font-mono-cyber text-purple-500/50 tracking-[0.4em] mb-3">TREINO CONCLUÍDO</p>
-      <h2 className="font-cyber text-4xl text-white tracking-widest mb-1" style={{ textShadow: '0 0 30px rgba(168,85,247,0.5)' }}>
-        MISSÃO<br />CUMPRIDA
-      </h2>
-      <p className="text-cyan-400/60 font-mono-cyber text-sm mt-3 mb-8">// {selectedPlan?.name}</p>
-      <div className="flex flex-col gap-1 text-xs font-mono-cyber text-purple-400/40 mb-8">
-        <p>// {selectedPlan?.exercises?.length} exercícios realizados</p>
-        <p>// {completedExercises.size} séries registradas</p>
+      <div className="mb-4">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="h-px w-12 bg-gradient-to-r from-transparent to-cyan-500/50" />
+          <span className="text-[10px] font-mono-cyber text-cyan-500/60 tracking-[0.4em]">TREINO FINALIZADO</span>
+          <div className="h-px w-12 bg-gradient-to-l from-transparent to-cyan-500/50" />
+        </div>
+        <h2 className="font-cyber text-5xl md:text-6xl text-white tracking-widest mb-2" style={{ textShadow: '0 0 40px rgba(6,182,212,0.6), 0 0 60px rgba(168,85,247,0.4)' }}>
+          PARABÉNS!
+        </h2>
+        <p className="text-cyan-400/80 font-mono-cyber text-lg mt-2">// você destruiu o treino</p>
       </div>
-      <button
-        onClick={() => { setSelectedPlanId(null); setSetsData({}); setCompletedExercises(new Set()); setWorkoutDone(false); }}
-        className="btn-neon-cyan px-8 py-3 rounded-lg font-medium tracking-widest"
-      >
-        VOLTAR AO MENU
-      </button>
+      <div className="cyber-card rounded-xl p-6 border border-cyan-500/20 bg-cyan-500/5 mb-8 max-w-md">
+        <p className="text-white font-semibold mb-3">{selectedPlan?.name}</p>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="text-center">
+            <p className="font-cyber text-2xl text-cyan-400">{selectedPlan?.exercises?.length}</p>
+            <p className="text-[10px] text-purple-400/40 font-mono-cyber tracking-wider uppercase">Exercícios</p>
+          </div>
+          <div className="text-center">
+            <p className="font-cyber text-2xl text-purple-400">{completedExercises.size}</p>
+            <p className="text-[10px] text-purple-400/40 font-mono-cyber tracking-wider uppercase">Concluídos</p>
+          </div>
+        </div>
+      </div>
+      <p className="text-xs font-mono-cyber text-purple-500/40 mb-2">// redirecionando para o progresso...</p>
+      <div className="flex gap-2">
+        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0s' }} />
+        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
+        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0.4s' }} />
+      </div>
     </div>
   );
 
@@ -288,6 +315,27 @@ export default function MyWorkout() {
           />
         </div>
       </div>
+
+      {/* Finish Workout Button */}
+      {completedExercises.size === selectedPlan.exercises?.length && completedExercises.size > 0 && (
+        <div className="mb-6">
+          <button
+            onClick={finishWorkout}
+            className="w-full py-4 rounded-xl font-cyber text-lg tracking-widest transition-all"
+            style={{
+              background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.15))',
+              border: '2px solid rgba(6,182,212,0.5)',
+              boxShadow: '0 0 30px rgba(6,182,212,0.3)',
+              color: 'white'
+            }}
+          >
+            <div className="flex items-center justify-center gap-3">
+              <Flag className="w-6 h-6" />
+              <span>FINALIZAR TREINO</span>
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* Exercises */}
       <div className="space-y-4">
