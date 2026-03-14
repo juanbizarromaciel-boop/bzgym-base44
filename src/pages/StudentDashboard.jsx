@@ -88,9 +88,9 @@ export default function StudentDashboard() {
   const volumeByMuscle = {};
   myPlans.forEach(plan => {
     plan.exercises?.forEach(ex => {
-      const muscle = e.muscle_group?.toLowerCase().includes("supino") ? "peito" :
+      const muscle = ex.exercise_name?.toLowerCase().includes("supino") ? "peito" :
                      ex.exercise_name?.toLowerCase().includes("remada") ? "costas" :
-                     ex.exercise_name?.toLowerCase().includes("bulgaro") ? "gluteo" :
+                     ex.exercise_name?.toLowerCase().includes("bulgaro") ? "gluteos" :
                      ex.exercise_name?.toLowerCase().includes("agachamento") ? "pernas" :
                      ex.exercise_name?.toLowerCase().includes("rosca") ? "biceps" :
                      ex.exercise_name?.toLowerCase().includes("tríceps") ? "triceps" : "outro";

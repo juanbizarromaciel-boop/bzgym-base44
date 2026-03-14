@@ -58,13 +58,13 @@ import MyWorkout from './pages/MyWorkout';
 import Onboarding from './pages/Onboarding';
 import PendingStudents from './pages/PendingStudents';
 import Progress from './pages/Progress';
+import StudentDashboard from './pages/StudentDashboard';
 import StudentDocuments from './pages/StudentDocuments';
 import StudentWorkout from './pages/StudentWorkout';
 import Students from './pages/Students';
 import TimerPage from './pages/TimerPage';
 import Welcome from './pages/Welcome';
 import WorkoutPlans from './pages/WorkoutPlans';
-import StudentDashboard from './pages/StudentDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -80,13 +80,13 @@ export const PAGES = {
     "Onboarding": Onboarding,
     "PendingStudents": PendingStudents,
     "Progress": Progress,
+    "StudentDashboard": StudentDashboard,
     "StudentDocuments": StudentDocuments,
     "StudentWorkout": StudentWorkout,
     "Students": Students,
     "TimerPage": TimerPage,
     "Welcome": Welcome,
     "WorkoutPlans": WorkoutPlans,
-    "StudentDashboard": StudentDashboard,
 }
 
 export const pagesConfig = {
