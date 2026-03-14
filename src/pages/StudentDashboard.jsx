@@ -107,7 +107,7 @@ export default function StudentDashboard() {
   // Weight by muscle group (from recent logs)
   const weightByMuscle = {};
   recentLogs.forEach(log => {
-    const muscle = log.exercise_name?.toLowerCase().includes("supino") ? "peito" :
+    const muscle = log.e.muscle_group?.toLowerCase().includes("supino") ? "peito" :
                    log.exercise_name?.toLowerCase().includes("remada") ? "costas" :
                    log.exercise_name?.toLowerCase().includes("agachamento") ? "pernas" :
                    log.exercise_name?.toLowerCase().includes("rosca") ? "biceps" :
