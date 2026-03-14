@@ -21,19 +21,12 @@ export default function Dashboard() {
 
   const isAdmin = role === "admin";
 
-  // Auto-redirect students
+  // Auto-redirect students to their dashboard
   if (role === "user") {
+    window.location.href = "/StudentDashboard";
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <Dumbbell className="w-12 h-12 text-purple-400 mb-4" style={{filter: 'drop-shadow(0 0 10px rgba(168,85,247,0.8))'}} />
-        <h2 className="font-cyber text-xl tracking-widest text-white mb-2">BEM-VINDO, ALUNO</h2>
-        <p className="text-purple-400/50 mb-6 text-sm">Use o menu lateral para navegar</p>
-        <Link
-          to={createPageUrl("MyWorkout")}
-          className="btn-neon-purple px-6 py-3 rounded-lg font-medium tracking-wider text-sm"
-        >
-          INICIAR TREINO →
-        </Link>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
