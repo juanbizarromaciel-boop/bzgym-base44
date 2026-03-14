@@ -29,27 +29,31 @@ export default function NotificationBell() {
   const { data: allStudents = [] } = useQuery({
     queryKey: ["students"],
     queryFn: () => base44.entities.Student.list(),
-    refetchInterval: 10000
+    refetchInterval: 30000,
+    retry: 1
   });
 
   const { data: plans = [] } = useQuery({
     queryKey: ["plans"],
     queryFn: () => base44.entities.WorkoutPlan.list(),
     enabled: !!student,
-    refetchInterval: 10000
+    refetchInterval: 30000,
+    retry: 1
   });
 
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
     queryFn: () => base44.entities.ChatMessage.list("-created_date", 100),
-    refetchInterval: 5000
+    refetchInterval: 15000,
+    retry: 1
   });
 
   const { data: logs = [] } = useQuery({
     queryKey: ["logs"],
     queryFn: () => base44.entities.WorkoutLog.list("-created_date", 50),
     enabled: user?.role === "admin",
-    refetchInterval: 10000
+    refetchInterval: 30000,
+    retry: 1
   });
 
   const updateMessageMut = useMutation({
