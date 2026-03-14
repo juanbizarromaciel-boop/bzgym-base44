@@ -194,7 +194,7 @@ export default function NotificationBell() {
                   <X className="w-4 h-4 text-purple-500/50" />
                 </button>
               </div>
-              {unreadMessages.length > 0 && (
+              {totalNotifications > 0 && (
                 <button
                   onClick={() => clearNotificationsMut.mutate()}
                   disabled={clearNotificationsMut.isPending}

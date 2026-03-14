@@ -30,7 +30,16 @@ export default function Onboarding() {
       setUser(u);
       base44.entities.Student.list().then(students => {
         const found = students.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
-        setStudent(found);
+        if (found && found.goal) {
+          // Redirect already registered students
+          if (found.active) {
+            navigate("/StudentDashboard");
+          } else {
+            navigate("/Welcome");
+          }
+        } else {
+          setStudent(found);
+        }
       });
     }).catch(() => {});
   }, [navigate]);
