@@ -40,6 +40,11 @@ export default function StudentDashboard() {
     queryFn: () => base44.entities.WorkoutPlan.list()
   });
 
+  const { data: allExercisesDB = [] } = useQuery({
+    queryKey: ["exercises"],
+    queryFn: () => base44.entities.Exercise.list()
+  });
+
   useEffect(() => {
     if (user && students.length > 0) {
       const found = students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase());
@@ -83,12 +88,6 @@ export default function StudentDashboard() {
 
   // Max load this week
   const maxLoad = Math.max(...recentLogs.map(log => log.max_load_kg || 0), 0);
-
-  // First, get all exercises to map muscle_group
-  const { data: allExercisesDB = [] } = useQuery({
-    queryKey: ["exercises"],
-    queryFn: () => base44.entities.Exercise.list()
-  });
 
   // Volume by muscle group (from plans)
   const volumeByMuscle = {};
