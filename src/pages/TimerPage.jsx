@@ -105,11 +105,6 @@ function SingleTimer({ label, color, presetList, defaultSeconds }) {
 }
 
 export default function TimerPage() {
-  // kept for legacy (not used directly anymore)
-  const intervalRef = useRef(null);
-  const audioRef = useRef(null);
-
-  useEffect(() => { return () => clearInterval(intervalRef.current); }, []);
 
   return (
     <div>
