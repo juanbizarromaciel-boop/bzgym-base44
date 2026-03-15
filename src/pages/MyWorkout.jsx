@@ -399,7 +399,7 @@ export default function MyWorkout() {
                     )}
                   </div>
                 </div>
-                <RestTimer initialSeconds={exercise.rest_seconds || 60} />
+                <ExerciseTimers restSeconds={exercise.rest_seconds || 60} technique={exercise.technique || "normal"} />
               </div>
 
               {/* Sets input */}
