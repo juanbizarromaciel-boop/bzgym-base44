@@ -11,7 +11,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, UserCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, UserCircle, AlertTriangle } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
 import ExerciseCard from "../components/workout/ExerciseCard";
 import ExerciseFormDialog from "../components/workout/ExerciseFormDialog";
@@ -29,6 +29,7 @@ export default function WorkoutPlans() {
   const [editingExerciseIndex, setEditingExerciseIndex] = useState(null);
   const [expandedPlan, setExpandedPlan] = useState(null);
   const [filterStudent, setFilterStudent] = useState("all");
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const qc = useQueryClient();
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
@@ -151,7 +152,7 @@ export default function WorkoutPlans() {
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-purple-300" onClick={(e) => { e.stopPropagation(); openEditPlan(plan); }}>
                   <Pencil className="w-3.5 h-3.5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-pink-400" onClick={(e) => { e.stopPropagation(); deleteMut.mutate(plan.id); }}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-pink-400" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(plan.id); }}>
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
                 {expandedPlan === plan.id ? <ChevronUp className="w-4 h-4 text-purple-500/40" /> : <ChevronDown className="w-4 h-4 text-purple-500/40" />}
