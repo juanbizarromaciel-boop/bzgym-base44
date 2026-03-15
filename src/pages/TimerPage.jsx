@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Play, Pause, RotateCcw, Plus, Minus } from "lucide-react";
+import { Play, Pause, RotateCcw, Plus, Minus, Timer, Zap } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
 
 const presets = [30, 45, 60, 90, 120, 180];
+const techniquePresets = [10, 15, 20, 30, 45];
 
 export default function TimerPage() {
   const [totalSeconds, setTotalSeconds] = useState(60);
