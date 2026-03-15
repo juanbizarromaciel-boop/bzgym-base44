@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw, Plus, Minus, Timer, Zap } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
 
