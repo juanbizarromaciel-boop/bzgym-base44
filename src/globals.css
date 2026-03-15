@@ -41,28 +41,33 @@ body::before {
 ::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.4); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
 
+/* Smooth transitions global */
+*, *::before, *::after {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Neon text glow utilities */
 .neon-text-purple {
-  color: #c084fc;
-  text-shadow: 0 0 10px rgba(168, 85, 247, 0.8), 0 0 20px rgba(168, 85, 247, 0.4);
+  color: #d8b4fe;
+  text-shadow: 0 0 12px rgba(168, 85, 247, 1), 0 0 25px rgba(168, 85, 247, 0.5);
 }
 .neon-text-cyan {
-  color: #22d3ee;
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.4);
+  color: #67e8f9;
+  text-shadow: 0 0 12px rgba(6, 182, 212, 1), 0 0 25px rgba(6, 182, 212, 0.5);
 }
 .neon-text-pink {
-  color: #f472b6;
-  text-shadow: 0 0 10px rgba(236, 72, 153, 0.8), 0 0 20px rgba(236, 72, 153, 0.4);
+  color: #f9a8d4;
+  text-shadow: 0 0 12px rgba(236, 72, 153, 1), 0 0 25px rgba(236, 72, 153, 0.5);
 }
 
 /* Neon border glow */
 .neon-border-purple {
-  border-color: rgba(168, 85, 247, 0.5) !important;
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.2), inset 0 0 8px rgba(168, 85, 247, 0.05);
+  border-color: rgba(168, 85, 247, 0.7) !important;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.35), inset 0 0 10px rgba(168, 85, 247, 0.07);
 }
 .neon-border-cyan {
-  border-color: rgba(6, 182, 212, 0.5) !important;
-  box-shadow: 0 0 8px rgba(6, 182, 212, 0.2), inset 0 0 8px rgba(6, 182, 212, 0.05);
+  border-color: rgba(6, 182, 212, 0.7) !important;
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.35), inset 0 0 10px rgba(6, 182, 212, 0.07);
 }
 
 /* Glitch effect */
@@ -77,69 +82,112 @@ body::before {
 
 /* Neon button */
 .btn-neon-purple {
-  background: rgba(168, 85, 247, 0.15);
-  border: 1px solid rgba(168, 85, 247, 0.5);
-  color: #c084fc;
-  box-shadow: 0 0 12px rgba(168, 85, 247, 0.2);
-  transition: all 0.2s;
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.6);
+  color: #e9d5ff;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  font-weight: 600;
 }
 .btn-neon-purple:hover {
-  background: rgba(168, 85, 247, 0.3);
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.2);
+  background: rgba(168, 85, 247, 0.35);
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.6), 0 0 50px rgba(168, 85, 247, 0.25);
   color: white;
+  transform: translateY(-1px);
 }
+.btn-neon-purple:active { transform: translateY(0); }
 .btn-neon-cyan {
-  background: rgba(6, 182, 212, 0.15);
-  border: 1px solid rgba(6, 182, 212, 0.5);
-  color: #22d3ee;
-  box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
-  transition: all 0.2s;
+  background: rgba(6, 182, 212, 0.18);
+  border: 1px solid rgba(6, 182, 212, 0.6);
+  color: #cffafe;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  font-weight: 600;
 }
 .btn-neon-cyan:hover {
-  background: rgba(6, 182, 212, 0.3);
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.2);
+  background: rgba(6, 182, 212, 0.35);
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.6), 0 0 50px rgba(6, 182, 212, 0.25);
   color: white;
+  transform: translateY(-1px);
+}
+.btn-neon-cyan:active { transform: translateY(0); }
+.btn-neon-pink {
+  background: rgba(236, 72, 153, 0.18);
+  border: 1px solid rgba(236, 72, 153, 0.6);
+  color: #fce7f3;
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.25);
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  font-weight: 600;
+}
+.btn-neon-pink:hover {
+  background: rgba(236, 72, 153, 0.35);
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.6), 0 0 50px rgba(236, 72, 153, 0.25);
+  color: white;
+  transform: translateY(-1px);
 }
 
 /* Card cyberpunk */
 .cyber-card {
   background: var(--bg-card);
-  border: 1px solid rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.18);
   position: relative;
   overflow: hidden;
+  transition: border-color 0.25s, box-shadow 0.25s;
 }
 .cyber-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.7), transparent);
 }
 .cyber-card:hover {
-  border-color: rgba(168, 85, 247, 0.35);
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.08);
+  border-color: rgba(168, 85, 247, 0.45);
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.1), 0 4px 20px rgba(0,0,0,0.4);
 }
 
 /* Input cyber */
 .cyber-input {
-  background: rgba(0, 0, 0, 0.6) !important;
-  border: 1px solid rgba(168, 85, 247, 0.2) !important;
-  color: white !important;
-  transition: all 0.2s;
+  background: rgba(0, 0, 0, 0.7) !important;
+  border: 1px solid rgba(168, 85, 247, 0.3) !important;
+  color: #f3e8ff !important;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  font-size: 0.9rem;
 }
 .cyber-input:focus {
-  border-color: rgba(168, 85, 247, 0.6) !important;
-  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.15) !important;
+  border-color: rgba(168, 85, 247, 0.8) !important;
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2), 0 0 12px rgba(168, 85, 247, 0.15) !important;
   outline: none;
 }
-.cyber-input::placeholder { color: rgba(168, 85, 247, 0.3) !important; }
+.cyber-input::placeholder { color: rgba(168, 85, 247, 0.35) !important; }
 
 /* Pulse animation for active state */
 @keyframes pulse-neon {
-  0%, 100% { box-shadow: 0 0 5px rgba(168, 85, 247, 0.4); }
-  50% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.8), 0 0 40px rgba(168, 85, 247, 0.3); }
+  0%, 100% { box-shadow: 0 0 8px rgba(168, 85, 247, 0.5); }
+  50% { box-shadow: 0 0 28px rgba(168, 85, 247, 1), 0 0 55px rgba(168, 85, 247, 0.4); }
 }
 .pulse-neon { animation: pulse-neon 2s ease-in-out infinite; }
+
+/* Fade in up animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.35s cubic-bezier(0.4,0,0.2,1) both; }
+
+/* Slide in */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in { animation: slideIn 0.3s cubic-bezier(0.4,0,0.2,1) both; }
+
+/* Timer blink when finished */
+@keyframes blink-neon {
+  0%, 100% { opacity: 1; text-shadow: 0 0 20px rgba(244,114,182,1), 0 0 40px rgba(244,114,182,0.5); }
+  50% { opacity: 0.6; text-shadow: 0 0 5px rgba(244,114,182,0.3); }
+}
+.animate-blink-neon { animation: blink-neon 0.8s ease-in-out infinite; }
 
 /* Grid background */
 .bg-grid {
