@@ -239,6 +239,29 @@ export default function WorkoutPlans() {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
+        <DialogContent className="border border-pink-900/40 text-white max-w-sm" style={{background: '#04040e'}}>
+          <DialogHeader>
+            <DialogTitle className="font-cyber tracking-widest text-pink-300 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" /> CONFIRMAR EXCLUSÃO
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-purple-400/60 mt-1">
+            Tem certeza que deseja apagar este treino? Esta ação não pode ser desfeita.
+          </p>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)} className="border-purple-900/40 text-purple-400/60 hover:bg-purple-500/10">Cancelar</Button>
+            <button
+              onClick={() => { deleteMut.mutate(deleteConfirmId); setDeleteConfirmId(null); }}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-pink-500/20 border border-pink-500/30 text-pink-300 hover:bg-pink-500/30 transition-colors"
+            >
+              APAGAR TREINO
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <ExerciseFormDialog
         open={exerciseDialogOpen}
         onClose={() => { setExerciseDialogOpen(false); setEditingExerciseIndex(null); }}
