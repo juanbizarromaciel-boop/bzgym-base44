@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Target, Zap, TrendingUp, Heart, Dumbbell } from "lucide-react";
+import { Target, Zap, TrendingUp, Heart, Dumbbell, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 const GOALS = [
