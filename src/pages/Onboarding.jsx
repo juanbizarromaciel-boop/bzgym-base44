@@ -90,6 +90,45 @@ export default function Onboarding() {
     </div>
   );
 
+  if (submitted) return (
+    <div className="min-h-screen bg-[#000000] flex items-center justify-center p-4">
+      <div className="w-full max-w-md text-center animate-fade-in-up">
+        <div className="flex justify-center mb-8">
+          <div className="w-24 h-24 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center"
+            style={{boxShadow: '0 0 40px rgba(168,85,247,0.3), 0 0 80px rgba(168,85,247,0.1)'}}>
+            <CheckCircle2 className="w-12 h-12 text-purple-400" style={{filter: 'drop-shadow(0 0 10px rgba(168,85,247,0.8))'}} />
+          </div>
+        </div>
+
+        <h1 className="font-cyber text-3xl md:text-4xl text-white tracking-widest mb-4"
+          style={{textShadow: '0 0 25px rgba(168,85,247,0.6)'}}>
+          CADASTRO ENVIADO
+        </h1>
+
+        <div className="cyber-card rounded-2xl p-6 border border-purple-900/30 mb-6 text-left space-y-4">
+          <p className="text-purple-200/80 text-sm leading-relaxed">
+            Suas informações foram enviadas ao seu <span className="text-purple-300 font-semibold">personal trainer</span>.
+          </p>
+          <p className="text-purple-200/80 text-sm leading-relaxed">
+            Assim que ele revisar seu perfil, você receberá uma mensagem de boas-vindas com o acesso completo à plataforma.
+          </p>
+          <div className="border-t border-purple-900/30 pt-4">
+            <p className="text-[11px] text-purple-500/40 font-mono-cyber tracking-wider">
+              // aguarde o contato do seu professor
+            </p>
+          </div>
+        </div>
+
+        <img
+          src="https://media.base44.com/images/public/69b152b7ec586487b4d800db/31da85a7a_IMG_1517.png"
+          alt="BZ"
+          className="w-12 h-12 rounded-xl object-cover mx-auto opacity-40"
+        />
+        <p className="text-purple-500/30 font-mono-cyber text-xs mt-3 tracking-widest">BZ GYM</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#000000] flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
