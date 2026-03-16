@@ -77,8 +77,7 @@ export default function Onboarding() {
         });
       }
 
-      toast.success("Cadastro enviado!");
-      setTimeout(() => navigate("/Welcome"), 600);
+      setSubmitted(true);
     } catch (error) {
       toast.error("Erro ao salvar");
       setLoading(false);
