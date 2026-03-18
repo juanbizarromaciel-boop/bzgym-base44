@@ -146,6 +146,18 @@ export default function StudentWorkout() {
             </div>
           </div>
 
+          {/* Botão Finalizar Treino */}
+          {allExercisesDone && !workoutFinished && (
+            <button
+              onClick={handleFinishWorkout}
+              className="w-full btn-neon-purple py-4 rounded-xl font-cyber text-base tracking-widest flex items-center justify-center gap-3 mb-2"
+              style={{boxShadow: '0 0 30px rgba(168,85,247,0.4)'}}
+            >
+              <Trophy className="w-5 h-5" />
+              FINALIZAR TREINO
+            </button>
+          )}
+
           {selectedPlan.exercises?.map((exercise, exerciseIdx) => {
             const isCompleted = completedExercises.has(exerciseIdx);
             const sets = setsData[exerciseIdx] || initSets(exerciseIdx, exercise.sets);
