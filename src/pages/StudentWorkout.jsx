@@ -288,6 +288,65 @@ export default function StudentWorkout() {
         </div>
       )}
 
+      {/* Workout Finished Modal */}
+      {workoutFinished && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md animate-fade-in-up">
+            <div className="cyber-card rounded-2xl p-8 border border-purple-500/40 text-center"
+              style={{boxShadow: '0 0 60px rgba(168,85,247,0.2), 0 0 120px rgba(168,85,247,0.08)'}}>
+
+              {/* Trophy Icon */}
+              <div className="flex justify-center mb-6">
+                <div className="w-24 h-24 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center"
+                  style={{boxShadow: '0 0 40px rgba(168,85,247,0.4)'}}>
+                  <Trophy className="w-12 h-12 text-purple-300" style={{filter: 'drop-shadow(0 0 12px rgba(168,85,247,1))'}} />
+                </div>
+              </div>
+
+              <h2 className="font-cyber text-2xl text-white tracking-widest mb-2"
+                style={{textShadow: '0 0 20px rgba(168,85,247,0.6)'}}>
+                TREINO CONCLUÍDO!
+              </h2>
+
+              <p className="text-purple-400/60 font-mono-cyber text-xs mb-6">
+                // {students.find(s => s.id === selectedStudentId)?.name}
+              </p>
+
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-3">
+                  <p className="text-2xl font-cyber text-purple-300">{selectedPlan.exercises?.length || 0}</p>
+                  <p className="text-[10px] text-purple-500/50 font-mono-cyber uppercase tracking-wider mt-1">Exercícios</p>
+                </div>
+                <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3">
+                  <p className="text-2xl font-cyber text-cyan-300">
+                    {Object.values(setsData).reduce((acc, sets) => acc + sets.length, 0) || 
+                     (selectedPlan.exercises?.reduce((acc, ex) => acc + (ex.sets || 0), 0) || 0)}
+                  </p>
+                  <p className="text-[10px] text-cyan-500/50 font-mono-cyber uppercase tracking-wider mt-1">Séries</p>
+                </div>
+              </div>
+
+              <p className="text-purple-200/70 text-sm mb-6 leading-relaxed">
+                Os dados do treino foram registrados no <span className="text-purple-300 font-semibold">progresso do aluno</span> automaticamente.
+              </p>
+
+              <div className="border-t border-purple-900/30 pt-5">
+                <p className="text-[11px] text-purple-500/40 font-mono-cyber mb-4">
+                  // dados disponíveis em: Progresso → {students.find(s => s.id === selectedStudentId)?.name}
+                </p>
+                <button
+                  onClick={handleResetWorkout}
+                  className="w-full btn-neon-purple py-3 rounded-xl font-cyber text-sm tracking-widest"
+                >
+                  NOVO TREINO
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Video Dialog */}
       <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
         <DialogContent className="bg-[#0a0a16] border-purple-500/30 text-white max-w-3xl p-0">
