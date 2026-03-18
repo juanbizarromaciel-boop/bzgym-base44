@@ -21,6 +21,7 @@ export default function StudentWorkout() {
   const [completedExercises, setCompletedExercises] = useState(new Set());
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [workoutFinished, setWorkoutFinished] = useState(false);
   const qc = useQueryClient();
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
