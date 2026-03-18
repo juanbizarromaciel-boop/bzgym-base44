@@ -68,6 +68,21 @@ export default function StudentWorkout() {
     toast.success(`${exercise.exercise_name} registrado!`);
   };
 
+  const allExercisesDone = selectedPlan && selectedPlan.exercises?.length > 0 &&
+    completedExercises.size === selectedPlan.exercises.length;
+
+  const handleFinishWorkout = () => {
+    setWorkoutFinished(true);
+  };
+
+  const handleResetWorkout = () => {
+    setWorkoutFinished(false);
+    setSetsData({});
+    setCompletedExercises(new Set());
+    setSelectedPlanId("");
+    setSelectedStudentId("");
+  };
+
   const getExerciseVideo = (exerciseId) => {
     return exercises.find(ex => ex.id === exerciseId)?.video_url;
   };
