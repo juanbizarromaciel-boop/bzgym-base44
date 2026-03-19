@@ -71,33 +71,29 @@ export default function NotificationBell() {
     }
   });
 
-  const clearNotificationsMut = useMutation({
-    mutationFn: async () => {
-      const updates = [];
-      
-      // Mark all unread messages as read
-      const messagesToMark = messages.filter(m => {
-        if (user?.role === "admin") {
-          return !m.read && !m.is_trainer;
-        } else {
-          return !m.read && m.is_trainer && m.student_id === student?.id;
-        }
-      });
-      
-      messagesToMark.forEach(msg => {
-        updates.push(base44.entities.ChatMessage.update(msg.id, { read: true }));
-      });
-      
-      if (updates.length > 0) {
-        await Promise.all(updates);
-      }
+  const markMessageReadMut = useMutation({
+    mutationFn: async (msgIds) => {
+      await Promise.all(msgIds.map(id => base44.entities.ChatMessage.update(id, { read: true })));
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["messages"] });
-      qc.invalidateQueries({ queryKey: ["logs"] });
-      toast.success("Notificações limpas");
-    }
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["messages"] })
   });
+
+  const dismissMessage = (msgId) => {
+    markMessageReadMut.mutate([msgId]);
+  };
+
+  const clearAllNotifications = () => {
+    // Dismiss all pending students
+    setDismissedStudents(new Set(pendingStudents.map(s => s.id)));
+    // Dismiss all logs
+    setDismissedLogs(new Set(recentLogs.map(l => l.id)));
+    // Dismiss plans
+    setDismissedPlans(true);
+    // Mark all messages as read
+    const msgIds = unreadMessages.map(m => m.id);
+    if (msgIds.length > 0) markMessageReadMut.mutate(msgIds);
+    toast.success("Notificações limpas");
+  };
 
   // Admin notifications - pending students
   const pendingStudents = user?.role === "admin" ? allStudents.filter(s => s.active === false) : [];
