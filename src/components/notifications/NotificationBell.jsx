@@ -120,10 +120,7 @@ export default function NotificationBell() {
 
   const handleMarkMessageRead = (msg) => {
     if (!msg.read) {
-      updateMessageMut.mutate({
-        id: msg.id,
-        data: { ...msg, read: true }
-      });
+      markMessageReadMut.mutate([msg.id]);
     }
   };
 
