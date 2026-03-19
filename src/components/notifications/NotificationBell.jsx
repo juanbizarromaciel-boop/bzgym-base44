@@ -59,11 +59,6 @@ export default function NotificationBell() {
     retry: 1
   });
 
-  const updateMessageMut = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.ChatMessage.update(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["messages"] })
-  });
-
   const activateStudentMut = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Student.update(id, data),
     onSuccess: () => {
