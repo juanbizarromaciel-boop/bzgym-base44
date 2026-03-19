@@ -296,31 +296,38 @@ export default function NotificationBell() {
 
                   {/* Unread messages */}
                   {unreadMessages.slice(0, 5).map(msg => (
-                    <button
-                      key={msg.id}
-                      onClick={() => {
-                        handleMarkMessageRead(msg);
-                        handleNavigateToChat();
-                      }}
-                      className="w-full text-left p-3 rounded-lg border border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10 transition-all"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
-                          <MessageCircle className="w-5 h-5 text-purple-400" />
+                    <div key={msg.id} className="relative p-3 rounded-lg border border-purple-500/20 bg-purple-500/5">
+                      <button
+                        onClick={() => dismissMessage(msg.id)}
+                        className="absolute top-2 right-2 p-0.5 rounded hover:bg-purple-500/20 transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5 text-purple-400/60 hover:text-purple-300" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleMarkMessageRead(msg);
+                          handleNavigateToChat();
+                        }}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
+                            <MessageCircle className="w-5 h-5 text-purple-400" />
+                          </div>
+                          <div className="flex-1 min-w-0 pr-4">
+                            <p className="text-sm font-medium text-white mb-1 truncate">
+                              {msg.sender_name || msg.sender_email}
+                            </p>
+                            <p className="text-xs text-purple-400/60 line-clamp-2">
+                              {msg.message}
+                            </p>
+                            <p className="text-[10px] text-purple-400/40 font-mono-cyber mt-1">
+                              {new Date(msg.created_date).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white mb-1 truncate">
-                            {msg.sender_name || msg.sender_email}
-                          </p>
-                          <p className="text-xs text-purple-400/60 line-clamp-2">
-                            {msg.message}
-                          </p>
-                          <p className="text-[10px] text-purple-400/40 font-mono-cyber mt-1">
-                            {new Date(msg.created_date).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
+                      </button>
+                    </div>
                   ))}
 
                   {/* Recent workout logs (admin only) */}
