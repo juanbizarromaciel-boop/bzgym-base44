@@ -100,7 +100,7 @@ export default function NotificationBell() {
 
   // Student notifications
   const myPlans = student ? plans.filter(p => p.student_id === student.id) : [];
-  const newPlansCount = myPlans.filter(p => {
+  const newPlansCount = dismissedPlans ? 0 : myPlans.filter(p => {
     const createdDate = new Date(p.created_date);
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     return createdDate > oneDayAgo;
