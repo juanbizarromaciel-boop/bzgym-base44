@@ -109,19 +109,42 @@ export default function Layout({ children, currentPageName }) {
       `}>
         {/* Logo */}
         <div className="p-5 border-b border-purple-900/20 hidden lg:block">
-          <div className="flex items-center gap-3">
-            <img
-              src="https://media.base44.com/images/public/69b152b7ec586487b4d800db/31da85a7a_IMG_1517.png"
-              alt="BZ"
-              className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
-              style={{boxShadow: '0 0 15px rgba(168,85,247,0.35), 0 0 30px rgba(168,85,247,0.1)'}}
-            />
-            <div>
-              <h1 className="font-cyber font-black text-xl tracking-widest text-white leading-none" style={{textShadow: '0 0 15px rgba(168,85,247,0.6)'}}>
-                BZ
-              </h1>
-              <p className="text-xs text-purple-400/50 tracking-[0.3em] uppercase font-cyber">GYM</p>
+          <div className="flex flex-col gap-0.5">
+            <div className="relative inline-flex items-baseline gap-1">
+              <span
+                className="font-cyber font-black text-4xl tracking-tight leading-none select-none"
+                style={{
+                  color: '#ffffff',
+                  textShadow: '0 0 8px rgba(168,85,247,0.9), 0 0 20px rgba(168,85,247,0.5), 0 0 40px rgba(168,85,247,0.2)',
+                  letterSpacing: '-0.02em',
+                  fontStyle: 'italic',
+                }}
+              >
+                B
+              </span>
+              <span
+                className="font-cyber font-black text-4xl tracking-tight leading-none select-none"
+                style={{
+                  color: '#c084fc',
+                  textShadow: '0 0 10px rgba(192,132,252,1), 0 0 25px rgba(168,85,247,0.7), 0 0 50px rgba(168,85,247,0.3)',
+                  letterSpacing: '-0.02em',
+                  fontStyle: 'italic',
+                }}
+              >
+                Z
+              </span>
+              {/* Decorative underline slash */}
+              <span
+                className="absolute -bottom-1 left-0 w-full h-px"
+                style={{background: 'linear-gradient(90deg, rgba(168,85,247,0.8), rgba(168,85,247,0.1))'}}
+              />
             </div>
+            <p
+              className="font-mono-cyber text-[9px] tracking-[0.45em] uppercase mt-1"
+              style={{color: 'rgba(168,85,247,0.45)'}}
+            >
+              ▸ gym system
+            </p>
           </div>
         </div>
 
