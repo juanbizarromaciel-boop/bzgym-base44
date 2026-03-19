@@ -118,7 +118,7 @@ export default function NotificationBell() {
   const recentLogs = user?.role === "admin" ? logs.filter(log => {
     const logDate = new Date(log.created_date);
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    return logDate > oneHourAgo;
+    return logDate > oneHourAgo && !dismissedLogs.has(log.id);
   }) : [];
 
   const totalNotifications = newPlansCount + unreadMessages.length + pendingStudents.length + (user?.role === "admin" ? recentLogs.length : 0);
