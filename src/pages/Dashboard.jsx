@@ -66,34 +66,7 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Activity */}
-      <div className="cyber-card rounded-xl p-6 border border-purple-900/20">
-        <div className="flex items-center gap-2 mb-5">
-          <Zap className="w-4 h-4 text-purple-400" />
-          <h2 className="font-cyber text-sm tracking-widest text-purple-300 uppercase">Atividade Recente</h2>
-        </div>
-        {logs.length === 0 ? (
-          <p className="text-purple-500/40 text-sm font-mono-cyber">// nenhum treino registrado</p>
-        ) : (
-          <div className="space-y-2">
-            {logs.slice(0, 6).map((log) => (
-              <div key={log.id} className="flex items-center justify-between px-4 py-3 rounded-lg bg-black/40 border border-purple-900/20 hover:border-purple-500/20 transition-all">
-                <div className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,1)]" />
-                  <div>
-                    <p className="text-sm font-medium text-white">{log.exercise_name}</p>
-                    <p className="text-xs text-purple-500/40 font-mono-cyber">{log.date}</p>
-                  </div>
-                </div>
-                {log.max_load_kg > 0 && (
-                  <span className="font-cyber text-sm text-cyan-400" style={{textShadow: '0 0 8px rgba(6,182,212,0.6)'}}>
-                    {log.max_load_kg}kg
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <RecentWorkouts logs={logs} plans={plans} students={students} />
     </div>
   );
 }
