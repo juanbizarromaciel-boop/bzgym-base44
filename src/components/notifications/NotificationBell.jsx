@@ -199,12 +199,11 @@ export default function NotificationBell() {
               </div>
               {totalNotifications > 0 && (
                 <button
-                  onClick={() => clearNotificationsMut.mutate()}
-                  disabled={clearNotificationsMut.isPending}
-                  className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10 active:bg-purple-500/15 transition-colors text-purple-400 text-xs font-medium disabled:opacity-50"
+                  onClick={clearAllNotifications}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10 active:bg-purple-500/15 transition-colors text-purple-400 text-xs font-medium"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  {clearNotificationsMut.isPending ? "Limpando..." : "Limpar Notificações"}
+                  Limpar Todas
                 </button>
               )}
             </div>
