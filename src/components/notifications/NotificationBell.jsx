@@ -11,6 +11,9 @@ export default function NotificationBell() {
   const [user, setUser] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [student, setStudent] = useState(null);
+  const [dismissedStudents, setDismissedStudents] = useState(new Set());
+  const [dismissedLogs, setDismissedLogs] = useState(new Set());
+  const [dismissedPlans, setDismissedPlans] = useState(false);
   const navigate = useNavigate();
   const qc = useQueryClient();
 
