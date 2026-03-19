@@ -263,27 +263,35 @@ export default function NotificationBell() {
 
                   {/* New workout plans (students only) */}
                   {newPlansCount > 0 && (
-                    <button
-                      onClick={handleNavigateToWorkout}
-                      className="w-full text-left p-3 rounded-lg border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 transition-all"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center flex-shrink-0">
-                          <Dumbbell className="w-5 h-5 text-cyan-400" />
+                    <div className="relative p-3 rounded-lg border border-cyan-500/20 bg-cyan-500/5">
+                      <button
+                        onClick={() => setDismissedPlans(true)}
+                        className="absolute top-2 right-2 p-0.5 rounded hover:bg-cyan-500/20 transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5 text-cyan-400/60 hover:text-cyan-300" />
+                      </button>
+                      <button
+                        onClick={handleNavigateToWorkout}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center flex-shrink-0">
+                            <Dumbbell className="w-5 h-5 text-cyan-400" />
+                          </div>
+                          <div className="flex-1 min-w-0 pr-4">
+                            <p className="text-sm font-medium text-white mb-1">
+                              {newPlansCount} novo{newPlansCount > 1 ? 's' : ''} treino{newPlansCount > 1 ? 's' : ''}
+                            </p>
+                            <p className="text-xs text-purple-400/60">
+                              Seu personal montou treino{newPlansCount > 1 ? 's' : ''} para você!
+                            </p>
+                            <p className="text-[10px] text-cyan-400/50 font-mono-cyber mt-1">
+                              Toque para ver →
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white mb-1">
-                            {newPlansCount} novo{newPlansCount > 1 ? 's' : ''} treino{newPlansCount > 1 ? 's' : ''}
-                          </p>
-                          <p className="text-xs text-purple-400/60">
-                            Seu personal montou treino{newPlansCount > 1 ? 's' : ''} para você!
-                          </p>
-                          <p className="text-[10px] text-cyan-400/50 font-mono-cyber mt-1">
-                            Toque para ver →
-                          </p>
-                        </div>
-                      </div>
-                    </button>
+                      </button>
+                    </div>
                   )}
 
                   {/* Unread messages */}
