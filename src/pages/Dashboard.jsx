@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Users, Dumbbell, ClipboardList, TrendingUp, Zap, ChevronRight } from "lucide-react";
+import RecentWorkouts from "../components/dashboard/RecentWorkouts";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import StatsCard from "../components/shared/StatsCard";
