@@ -96,7 +96,7 @@ export default function NotificationBell() {
   };
 
   // Admin notifications - pending students
-  const pendingStudents = user?.role === "admin" ? allStudents.filter(s => s.active === false) : [];
+  const pendingStudents = user?.role === "admin" ? allStudents.filter(s => s.active === false && !dismissedStudents.has(s.id)) : [];
 
   // Student notifications
   const myPlans = student ? plans.filter(p => p.student_id === student.id) : [];
