@@ -11,7 +11,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, UserCircle, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, UserCircle, AlertTriangle, Copy } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
 import ExerciseCard from "../components/workout/ExerciseCard";
 import ExerciseFormDialog from "../components/workout/ExerciseFormDialog";
