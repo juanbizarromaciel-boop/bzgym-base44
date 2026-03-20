@@ -284,6 +284,45 @@ export default function WorkoutPlans() {
         </DialogContent>
       </Dialog>
 
+      {/* Duplicate Dialog */}
+      <Dialog open={!!duplicatePlan} onOpenChange={() => { setDuplicatePlan(null); setDupeStudentId(""); }}>
+        <DialogContent className="border border-cyan-900/40 text-white max-w-sm" style={{background: '#04040e'}}>
+          <DialogHeader>
+            <DialogTitle className="font-cyber tracking-widest text-cyan-300 flex items-center gap-2">
+              <Copy className="w-4 h-4" /> DUPLICAR TREINO
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-2 space-y-4">
+            <p className="text-sm text-purple-400/60">
+              Duplicando: <span className="text-cyan-300 font-medium">{duplicatePlan?.name}</span>
+              <br />
+              <span className="text-xs text-purple-500/40">O treino será criado como "{duplicatePlan?.name} dupe" e você poderá editá-lo em seguida.</span>
+            </p>
+            <div>
+              <Label className="text-purple-400/60 text-xs tracking-wider">PASSAR PARA O ALUNO</Label>
+              <Select value={dupeStudentId} onValueChange={setDupeStudentId}>
+                <SelectTrigger className="cyber-input mt-1"><SelectValue placeholder="Selecione o aluno" /></SelectTrigger>
+                <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
+                  {students.map((s) => (
+                    <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => { setDuplicatePlan(null); setDupeStudentId(""); }} className="border-purple-900/40 text-purple-400/60 hover:bg-purple-500/10">Cancelar</Button>
+            <button
+              onClick={() => duplicateMut.mutate({ plan: duplicatePlan, studentId: dupeStudentId })}
+              disabled={!dupeStudentId || duplicateMut.isPending}
+              className="btn-neon-cyan px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40"
+            >
+              DUPLICAR E EDITAR
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <ExerciseFormDialog
         open={exerciseDialogOpen}
         onClose={() => { setExerciseDialogOpen(false); setEditingExerciseIndex(null); }}
