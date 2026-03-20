@@ -57,7 +57,7 @@ import MyDiet from './pages/MyDiet';
 import MyWorkout from './pages/MyWorkout';
 import Onboarding from './pages/Onboarding';
 import PendingStudents from './pages/PendingStudents';
-import Progress from './pages/Progress';
+import Progress from './pages/Progress.jsx';
 import StudentDashboard from './pages/StudentDashboard';
 import StudentDocuments from './pages/StudentDocuments';
 import StudentWorkout from './pages/StudentWorkout';
