@@ -51,6 +51,23 @@ export default function WorkoutPlans() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["plans"] }),
   });
 
+  const duplicateMut = useMutation({
+    mutationFn: ({ plan, studentId }) => base44.entities.WorkoutPlan.create({
+      student_id: studentId,
+      name: `${plan.name} dupe`,
+      day_of_week: plan.day_of_week,
+      exercises: plan.exercises || [],
+      active: plan.active,
+    }),
+    onSuccess: (newPlan) => {
+      qc.invalidateQueries({ queryKey: ["plans"] });
+      setDuplicatePlan(null);
+      setDupeStudentId("");
+      // Open the new plan for editing right away
+      openEditPlan(newPlan);
+    },
+  });
+
   const closePlanDialog = () => {
     setPlanDialogOpen(false);
     setEditingPlan(null);
