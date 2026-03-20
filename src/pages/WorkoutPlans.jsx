@@ -30,6 +30,8 @@ export default function WorkoutPlans() {
   const [expandedPlan, setExpandedPlan] = useState(null);
   const [filterStudent, setFilterStudent] = useState("all");
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [duplicatePlan, setDuplicatePlan] = useState(null);
+  const [dupeStudentId, setDupeStudentId] = useState("");
   const qc = useQueryClient();
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
