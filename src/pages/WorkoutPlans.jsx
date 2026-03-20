@@ -168,6 +168,9 @@ export default function WorkoutPlans() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-cyan-300" title="Duplicar treino" onClick={(e) => { e.stopPropagation(); setDuplicatePlan(plan); setDupeStudentId(plan.student_id); }}>
+                  <Copy className="w-3.5 h-3.5" />
+                </Button>
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-purple-300" onClick={(e) => { e.stopPropagation(); openEditPlan(plan); }}>
                   <Pencil className="w-3.5 h-3.5" />
                 </Button>
