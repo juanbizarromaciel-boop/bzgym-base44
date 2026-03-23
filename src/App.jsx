@@ -11,6 +11,7 @@ import Chat from './pages/Chat';
 import PendingStudents from './pages/PendingStudents';
 import Welcome from './pages/Welcome';
 import CH from './pages/CH';
+import PRBoard from './pages/PRBoard.jsx';
 import StudentDocuments from './pages/StudentDocuments';
 import { base44 } from '@/api/base44Client';
 import { useState, useEffect } from 'react';
@@ -110,6 +111,7 @@ const AuthenticatedApp = () => {
       <Route path="/Chat" element={<LayoutWrapper currentPageName="Chat"><Chat /></LayoutWrapper>} />
       <Route path="/PendingStudents" element={<LayoutWrapper currentPageName="PendingStudents"><PendingStudents /></LayoutWrapper>} />
       <Route path="/CH" element={<LayoutWrapper currentPageName="CH"><CH /></LayoutWrapper>} />
+      <Route path="/PRBoard" element={<LayoutWrapper currentPageName="PRBoard"><PRBoard /></LayoutWrapper>} />
       <Route path="/StudentDocuments" element={<LayoutWrapper currentPageName="StudentDocuments"><StudentDocuments /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
