@@ -369,7 +369,6 @@ export default function PRBoard() {
 
                           {/* Info */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-white truncate">{getStudentName(pr.student_id)}</p>
                             <p className="text-xs text-purple-500/40 font-mono-cyber">
                               {format(new Date(pr.date), "dd 'de' MMM yyyy", { locale: ptBR })}
                             </p>
