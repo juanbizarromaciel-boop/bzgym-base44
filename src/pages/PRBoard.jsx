@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Trophy, Upload, X, Camera, Video, Medal, Crown } from "lucide-react";
+import { Trophy, Upload, X, Camera, Video, Medal, Crown, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 import { format } from "date-fns";
@@ -30,6 +30,8 @@ export default function PRBoard() {
   const [activeModality, setActiveModality] = useState("1rm");
   const [selectedMedia, setSelectedMedia] = useState(null);
   const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
+  const [expandedExercises, setExpandedExercises] = useState({});
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // pr to delete
 
   // Form state
   const [form, setForm] = useState({ exercise_name: "", modality: "1rm", load_kg: "", notes: "" });
@@ -42,7 +44,7 @@ export default function PRBoard() {
 
   const qc = useQueryClient();
 
-  React.useEffect(() => {
+  useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
       if (u.role !== 'admin') {
@@ -54,7 +56,7 @@ export default function PRBoard() {
     }).catch(() => {});
   }, []);
 
-  const { data: allPRs = [] } = useQuery({ queryKey: ["prs"], queryFn: () => base44.entities.PRRecord.list("-date", 200) });
+  const { data: allPRs = [] } = useQuery({ queryKey: ["prs"], queryFn: () => base44.entities.PRRecord.list("-date", 500) });
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
 
@@ -69,13 +71,22 @@ export default function PRBoard() {
     },
   });
 
+  const deletePR = useMutation({
+    mutationFn: (id) => base44.entities.PRRecord.delete(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["prs"] });
+      toast.success("PR removido");
+      setDeleteConfirm(null);
+    },
+  });
+
   const exerciseNames = useMemo(() => {
     const fromEx = exercises.map(e => e.name);
     const fromPRs = allPRs.map(p => p.exercise_name);
     return [...new Set([...fromEx, ...fromPRs])].filter(Boolean).sort();
   }, [exercises, allPRs]);
 
-  // Group PRs by modality → exercise → top by load
+  // Group PRs by modality → exercise → sorted by load desc (highest first)
   const ranking = useMemo(() => {
     const byModality = {};
     MODALITIES.forEach(m => { byModality[m.value] = {}; });
@@ -87,7 +98,6 @@ export default function PRBoard() {
       byModality[pr.modality][key].push(pr);
     });
 
-    // Sort each exercise list by load desc
     Object.keys(byModality).forEach(mod => {
       Object.keys(byModality[mod]).forEach(ex => {
         byModality[mod][ex].sort((a, b) => b.load_kg - a.load_kg);
@@ -106,8 +116,7 @@ export default function PRBoard() {
     const isVideo = file.type.startsWith("video/");
     setMediaTypeState(isVideo ? "video" : "photo");
     setMediaFile(file);
-    const url = URL.createObjectURL(file);
-    setMediaPreview(url);
+    setMediaPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async () => {
@@ -117,7 +126,7 @@ export default function PRBoard() {
     }
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file: mediaFile });
-    const studentId = user?.role === 'admin' ? (student?.id || "") : (student?.id || "");
+    const studentId = student?.id || "";
     createPR.mutate({
       student_id: studentId,
       exercise_name: form.exercise_name,
@@ -131,13 +140,15 @@ export default function PRBoard() {
     setUploading(false);
   };
 
-  const openMedia = (pr) => {
-    setSelectedMedia(pr);
-    setMediaDialogOpen(true);
+  const openMedia = (pr) => { setSelectedMedia(pr); setMediaDialogOpen(true); };
+
+  const toggleExercise = (exName) => {
+    setExpandedExercises(prev => ({ ...prev, [exName]: !prev[exName] }));
   };
 
   const currentRanking = ranking[activeModality] || {};
   const modColor = MODALITY_COLORS[activeModality];
+  const isAdmin = user?.role === "admin";
 
   return (
     <div>
@@ -166,7 +177,6 @@ export default function PRBoard() {
           <div className="cyber-card rounded-xl p-6 border border-purple-900/20 space-y-5">
             <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase">// Novo Record Pessoal</p>
 
-            {/* Modalidade */}
             <div>
               <label className="text-xs text-purple-400/60 font-mono-cyber uppercase tracking-wider mb-2 block">Modalidade</label>
               <div className="flex gap-2">
@@ -185,35 +195,23 @@ export default function PRBoard() {
               </div>
             </div>
 
-            {/* Exercício */}
             <div>
               <label className="text-xs text-purple-400/60 font-mono-cyber uppercase tracking-wider mb-2 block">Exercício</label>
-              <Input
-                list="exercises-list"
-                value={form.exercise_name}
+              <Input list="exercises-list" value={form.exercise_name}
                 onChange={e => setForm(f => ({ ...f, exercise_name: e.target.value }))}
-                placeholder="Nome do exercício"
-                className="cyber-input"
-              />
+                placeholder="Nome do exercício" className="cyber-input" />
               <datalist id="exercises-list">
                 {exerciseNames.map(name => <option key={name} value={name} />)}
               </datalist>
             </div>
 
-            {/* Carga */}
             <div>
               <label className="text-xs text-purple-400/60 font-mono-cyber uppercase tracking-wider mb-2 block">Carga (kg)</label>
-              <Input
-                type="number"
-                inputMode="decimal"
-                value={form.load_kg}
+              <Input type="number" inputMode="decimal" value={form.load_kg}
                 onChange={e => setForm(f => ({ ...f, load_kg: e.target.value }))}
-                placeholder="Ex: 100"
-                className="cyber-input"
-              />
+                placeholder="Ex: 100" className="cyber-input" />
             </div>
 
-            {/* Mídia */}
             <div>
               <label className="text-xs text-purple-400/60 font-mono-cyber uppercase tracking-wider mb-2 block">Foto ou Vídeo (obrigatório)</label>
               <label className="block w-full cursor-pointer">
@@ -232,10 +230,8 @@ export default function PRBoard() {
                       ? <img src={mediaPreview} alt="PR" className="w-full max-h-60 object-cover rounded-xl" />
                       : <video src={mediaPreview} className="w-full max-h-60 rounded-xl" controls />
                     }
-                    <button
-                      onClick={(e) => { e.preventDefault(); setMediaFile(null); setMediaPreview(null); }}
-                      className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/70 flex items-center justify-center text-white hover:bg-black"
-                    >
+                    <button onClick={(e) => { e.preventDefault(); setMediaFile(null); setMediaPreview(null); }}
+                      className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/70 flex items-center justify-center text-white hover:bg-black">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -243,22 +239,14 @@ export default function PRBoard() {
               </label>
             </div>
 
-            {/* Observações */}
             <div>
               <label className="text-xs text-purple-400/60 font-mono-cyber uppercase tracking-wider mb-2 block">Observações (opcional)</label>
-              <Input
-                value={form.notes}
-                onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                placeholder="Ex: com cinto, pausa, etc."
-                className="cyber-input"
-              />
+              <Input value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                placeholder="Ex: com cinto, pausa, etc." className="cyber-input" />
             </div>
 
-            <button
-              onClick={handleSubmit}
-              disabled={uploading || createPR.isPending}
-              className="w-full btn-neon-purple py-3.5 rounded-xl font-cyber tracking-widest flex items-center justify-center gap-2"
-            >
+            <button onClick={handleSubmit} disabled={uploading || createPR.isPending}
+              className="w-full btn-neon-purple py-3.5 rounded-xl font-cyber tracking-widest flex items-center justify-center gap-2">
               {uploading || createPR.isPending
                 ? <div className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
                 : <><Upload className="w-4 h-4" /> REGISTRAR PR</>
@@ -266,7 +254,7 @@ export default function PRBoard() {
             </button>
           </div>
 
-          {/* Mini ranking below form */}
+          {/* Meus PRs recentes */}
           <div className="mt-8">
             <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">// seus PRs recentes</p>
             <div className="space-y-2">
@@ -321,73 +309,117 @@ export default function PRBoard() {
             })}
           </div>
 
-          {/* Ranking per exercise */}
           {Object.keys(currentRanking).length === 0 ? (
             <div className="text-center py-16 text-purple-500/20">
               <Trophy className="w-12 h-12 mx-auto mb-4 opacity-30" />
               <p className="font-mono-cyber text-sm">// nenhum PR registrado ainda</p>
             </div>
           ) : (
-            <div className="space-y-6">
-              {Object.entries(currentRanking).map(([exName, prs]) => (
-                <div key={exName} className="cyber-card rounded-xl border border-purple-900/20 overflow-hidden">
-                  <div className="px-5 py-3 border-b border-purple-900/20 flex items-center gap-3">
-                    <Trophy className="w-4 h-4" style={{ color: modColor.text }} />
-                    <h3 className="font-cyber text-sm tracking-widest text-white uppercase">{exName}</h3>
-                    <Badge className="ml-auto text-[10px]" style={{ background: modColor.bg, border: `1px solid ${modColor.border}`, color: modColor.text }}>
-                      {MODALITIES.find(m => m.value === activeModality)?.label}
-                    </Badge>
-                  </div>
-                  <div className="divide-y divide-purple-900/15">
-                    {prs.slice(0, 10).map((pr, idx) => {
-                      const RankIcon = RANK_ICONS[idx] || Trophy;
-                      const rankColor = RANK_COLORS[idx] || "rgba(168,85,247,0.5)";
-                      return (
-                        <div
-                          key={pr.id}
-                          onClick={() => openMedia(pr)}
-                          className="flex items-center gap-4 px-5 py-3 cursor-pointer hover:bg-white/5 transition-all"
-                        >
-                          {/* Rank */}
-                          <div className="w-8 flex-shrink-0 text-center">
-                            {idx < 3
-                              ? <RankIcon className="w-5 h-5 mx-auto" style={{ color: rankColor }} />
-                              : <span className="font-cyber text-sm" style={{ color: 'rgba(168,85,247,0.3)' }}>#{idx + 1}</span>
-                            }
-                          </div>
+            <div className="space-y-3">
+              {Object.entries(currentRanking).map(([exName, prs]) => {
+                const isExpanded = !!expandedExercises[exName];
+                const topPR = prs[0];
+                return (
+                  <div key={exName} className="cyber-card rounded-xl border border-purple-900/20 overflow-hidden">
+                    {/* Exercise header — click to expand/collapse */}
+                    <button
+                      onClick={() => toggleExercise(exName)}
+                      className="w-full flex items-center gap-3 px-5 py-4 hover:bg-white/5 transition-all text-left"
+                    >
+                      <div className="flex-shrink-0">
+                        {isExpanded
+                          ? <ChevronDown className="w-4 h-4" style={{ color: modColor.text }} />
+                          : <ChevronRight className="w-4 h-4" style={{ color: modColor.text }} />
+                        }
+                      </div>
+                      <Trophy className="w-4 h-4 flex-shrink-0" style={{ color: modColor.text }} />
+                      <h3 className="font-cyber text-sm tracking-widest text-white uppercase flex-1">{exName}</h3>
 
-                          {/* Student avatar + name */}
-                          <div className="flex flex-col items-center gap-1 w-14 flex-shrink-0">
-                            <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border" style={{ borderColor: 'rgba(168,85,247,0.25)' }}>
-                              {getStudentPhoto(pr.student_id)
-                                ? <img src={getStudentPhoto(pr.student_id)} alt="" className="w-full h-full object-cover" />
-                                : <div className="w-full h-full bg-purple-900/30 flex items-center justify-center text-purple-400 font-cyber text-lg">{getStudentName(pr.student_id)[0]}</div>
+                      {/* Preview: top PR avatar + load */}
+                      {!isExpanded && topPR && (
+                        <div className="flex items-center gap-3 ml-auto">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full overflow-hidden border" style={{ borderColor: 'rgba(168,85,247,0.25)' }}>
+                              {getStudentPhoto(topPR.student_id)
+                                ? <img src={getStudentPhoto(topPR.student_id)} alt="" className="w-full h-full object-cover" />
+                                : <div className="w-full h-full bg-purple-900/30 flex items-center justify-center text-purple-400 text-xs font-cyber">{getStudentName(topPR.student_id)[0]}</div>
                               }
                             </div>
-                            <p className="text-[9px] font-mono-cyber text-white/50 truncate w-14 text-center">{getStudentName(pr.student_id)}</p>
+                            <p className="text-xs text-white/50 font-mono-cyber hidden sm:block">{getStudentName(topPR.student_id)}</p>
                           </div>
-
-                          {/* Info */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs text-purple-500/40 font-mono-cyber">
-                              {format(new Date(pr.date), "dd 'de' MMM yyyy", { locale: ptBR })}
-                            </p>
-                            {pr.notes && <p className="text-xs text-purple-400/30 mt-0.5 truncate">{pr.notes}</p>}
-                          </div>
-
-                          {/* Load */}
-                          <div className="text-right flex-shrink-0">
-                            <p className="font-cyber text-xl" style={{ color: idx === 0 ? rankColor : modColor.text }}>
-                              {pr.load_kg}
-                            </p>
-                            <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(168,85,247,0.35)' }}>kg</p>
-                          </div>
+                          <p className="font-cyber text-lg" style={{ color: RANK_COLORS[0] }}>{topPR.load_kg}<span className="text-xs opacity-60">kg</span></p>
+                          <Badge className="text-[10px]" style={{ background: modColor.bg, border: `1px solid ${modColor.border}`, color: modColor.text }}>
+                            {prs.length} PR{prs.length > 1 ? "s" : ""}
+                          </Badge>
                         </div>
-                      );
-                    })}
+                      )}
+                      {isExpanded && (
+                        <Badge className="ml-auto text-[10px]" style={{ background: modColor.bg, border: `1px solid ${modColor.border}`, color: modColor.text }}>
+                          {prs.length} PR{prs.length > 1 ? "s" : ""}
+                        </Badge>
+                      )}
+                    </button>
+
+                    {/* Expanded list */}
+                    {isExpanded && (
+                      <div className="divide-y divide-purple-900/15 border-t border-purple-900/20">
+                        {prs.map((pr, idx) => {
+                          const RankIcon = RANK_ICONS[idx] || Trophy;
+                          const rankColor = RANK_COLORS[idx] || "rgba(168,85,247,0.5)";
+                          return (
+                            <div key={pr.id} className="flex items-center gap-4 px-5 py-3 hover:bg-white/5 transition-all group">
+                              {/* Rank */}
+                              <div className="w-8 flex-shrink-0 text-center">
+                                {idx < 3
+                                  ? <RankIcon className="w-5 h-5 mx-auto" style={{ color: rankColor }} />
+                                  : <span className="font-cyber text-sm" style={{ color: 'rgba(168,85,247,0.3)' }}>#{idx + 1}</span>
+                                }
+                              </div>
+
+                              {/* Student avatar + name */}
+                              <div className="flex flex-col items-center gap-1 w-14 flex-shrink-0 cursor-pointer" onClick={() => openMedia(pr)}>
+                                <div className="w-12 h-12 rounded-full overflow-hidden border" style={{ borderColor: 'rgba(168,85,247,0.25)' }}>
+                                  {getStudentPhoto(pr.student_id)
+                                    ? <img src={getStudentPhoto(pr.student_id)} alt="" className="w-full h-full object-cover" />
+                                    : <div className="w-full h-full bg-purple-900/30 flex items-center justify-center text-purple-400 font-cyber text-lg">{getStudentName(pr.student_id)[0]}</div>
+                                  }
+                                </div>
+                                <p className="text-[9px] font-mono-cyber text-white/50 truncate w-14 text-center">{getStudentName(pr.student_id)}</p>
+                              </div>
+
+                              {/* Info */}
+                              <div className="flex-1 min-w-0 cursor-pointer" onClick={() => openMedia(pr)}>
+                                <p className="text-xs text-purple-500/40 font-mono-cyber">
+                                  {format(new Date(pr.date), "dd 'de' MMM yyyy", { locale: ptBR })}
+                                </p>
+                                {pr.notes && <p className="text-xs text-purple-400/30 mt-0.5 truncate">{pr.notes}</p>}
+                              </div>
+
+                              {/* Load */}
+                              <div className="text-right flex-shrink-0 cursor-pointer" onClick={() => openMedia(pr)}>
+                                <p className="font-cyber text-xl" style={{ color: idx === 0 ? rankColor : modColor.text }}>
+                                  {pr.load_kg}
+                                </p>
+                                <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(168,85,247,0.35)' }}>kg</p>
+                              </div>
+
+                              {/* Admin delete */}
+                              {isAdmin && (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setDeleteConfirm(pr); }}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity ml-2 w-7 h-7 rounded-lg flex items-center justify-center hover:bg-red-500/15"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5 text-red-400/60 hover:text-red-400" />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -404,10 +436,18 @@ export default function PRBoard() {
               }
               <div className="p-4 border-t border-purple-900/20">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-cyber text-white text-sm">{getStudentName(selectedMedia.student_id)}</p>
-                    <p className="text-xs text-purple-400/40 font-mono-cyber">{selectedMedia.exercise_name}</p>
-                    {selectedMedia.notes && <p className="text-xs text-purple-400/30 mt-1">{selectedMedia.notes}</p>}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border" style={{ borderColor: 'rgba(168,85,247,0.25)' }}>
+                      {getStudentPhoto(selectedMedia.student_id)
+                        ? <img src={getStudentPhoto(selectedMedia.student_id)} alt="" className="w-full h-full object-cover" />
+                        : <div className="w-full h-full bg-purple-900/30 flex items-center justify-center text-purple-400 font-cyber">{getStudentName(selectedMedia.student_id)[0]}</div>
+                      }
+                    </div>
+                    <div>
+                      <p className="font-cyber text-white text-sm">{getStudentName(selectedMedia.student_id)}</p>
+                      <p className="text-xs text-purple-400/40 font-mono-cyber">{selectedMedia.exercise_name}</p>
+                      {selectedMedia.notes && <p className="text-xs text-purple-400/30 mt-0.5">{selectedMedia.notes}</p>}
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="font-cyber text-2xl" style={{ color: MODALITY_COLORS[selectedMedia.modality]?.text }}>
@@ -425,6 +465,39 @@ export default function PRBoard() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent className="border-red-500/30 max-w-sm" style={{ background: '#04040e' }}>
+          <div className="p-2 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto">
+              <Trash2 className="w-5 h-5 text-red-400" />
+            </div>
+            <div>
+              <p className="font-cyber text-white tracking-wide">Apagar PR?</p>
+              {deleteConfirm && (
+                <p className="text-sm text-purple-400/50 mt-1 font-mono-cyber">
+                  {deleteConfirm.exercise_name} · {deleteConfirm.load_kg}kg · {getStudentName(deleteConfirm.student_id)}
+                </p>
+              )}
+              <p className="text-xs text-red-400/50 mt-2">Esta ação não pode ser desfeita.</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setDeleteConfirm(null)}
+                className="flex-1 py-2.5 rounded-xl border border-purple-900/30 text-purple-400/60 text-sm font-mono-cyber hover:bg-purple-500/5 transition-all">
+                Cancelar
+              </button>
+              <button
+                onClick={() => deletePR.mutate(deleteConfirm.id)}
+                disabled={deletePR.isPending}
+                className="flex-1 py-2.5 rounded-xl text-sm font-cyber tracking-wider transition-all"
+                style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171' }}>
+                {deletePR.isPending ? "..." : "APAGAR"}
+              </button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
