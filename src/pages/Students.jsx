@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, UserCircle, Phone, Mail, Target, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, UserCircle, Phone, Mail, Target, Pencil, Trash2, Camera } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
 
 const goals = {
@@ -31,13 +31,16 @@ const goalColors = {
   saude: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
 };
 
-const emptyStudent = { name: "", email: "", phone: "", goal: "hipertrofia", notes: "", active: true };
+const emptyStudent = { name: "", email: "", phone: "", goal: "hipertrofia", notes: "", active: true, photo_url: "" };
 
 export default function Students() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [form, setForm] = useState(emptyStudent);
   const [search, setSearch] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
   const qc = useQueryClient();
 
   const { data: students = [], isLoading } = useQuery({
@@ -64,20 +67,38 @@ export default function Students() {
     setDialogOpen(false);
     setEditingStudent(null);
     setForm(emptyStudent);
+    setPhotoFile(null);
+    setPhotoPreview(null);
   };
 
   const openEdit = (s) => {
     setEditingStudent(s);
-    setForm({ name: s.name, email: s.email || "", phone: s.phone || "", goal: s.goal || "hipertrofia", notes: s.notes || "", active: s.active !== false });
+    setForm({ name: s.name, email: s.email || "", phone: s.phone || "", goal: s.goal || "hipertrofia", notes: s.notes || "", active: s.active !== false, photo_url: s.photo_url || "" });
+    setPhotoFile(null);
+    setPhotoPreview(s.photo_url || null);
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const handleSave = async () => {
     if (!form.name) return;
+    let finalForm = { ...form };
+    if (photoFile) {
+      setPhotoUploading(true);
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: photoFile });
+      finalForm = { ...finalForm, photo_url: file_url };
+      setPhotoUploading(false);
+    }
     if (editingStudent) {
-      updateMut.mutate({ id: editingStudent.id, data: form });
+      updateMut.mutate({ id: editingStudent.id, data: finalForm });
     } else {
-      createMut.mutate(form);
+      createMut.mutate(finalForm);
     }
   };
 
@@ -107,9 +128,12 @@ export default function Students() {
           <div key={student.id} className="cyber-card rounded-xl p-5 border border-purple-900/20 hover:border-purple-500/30 transition-all group">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center"
+                <div className="w-11 h-11 rounded-full overflow-hidden bg-purple-500/10 border border-purple-500/20 flex items-center justify-center"
                   style={{boxShadow: '0 0 10px rgba(168,85,247,0.1)'}}>
-                  <UserCircle className="w-6 h-6 text-purple-400" />
+                  {student.photo_url
+                    ? <img src={student.photo_url} alt={student.name} className="w-full h-full object-cover" />
+                    : <UserCircle className="w-6 h-6 text-purple-400" />
+                  }
                 </div>
                 <div>
                   <h3 className="font-semibold text-white">{student.name}</h3>
@@ -141,6 +165,19 @@ export default function Students() {
             <DialogTitle className="font-cyber tracking-widest text-purple-300">{editingStudent ? "EDITAR ALUNO" : "NOVO ALUNO"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Photo upload */}
+            <div className="flex flex-col items-center gap-2">
+              <label className="cursor-pointer group relative">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-purple-500/10 border-2 border-dashed border-purple-500/30 group-hover:border-purple-500/60 flex items-center justify-center transition-all">
+                  {photoPreview
+                    ? <img src={photoPreview} alt="" className="w-full h-full object-cover" />
+                    : <Camera className="w-7 h-7 text-purple-500/40" />
+                  }
+                </div>
+                <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+              </label>
+              <p className="text-[10px] text-purple-500/40 font-mono-cyber">Clique para foto de perfil</p>
+            </div>
             <div>
               <Label className="text-purple-400/60 text-xs tracking-wider">NOME *</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="cyber-input mt-1" />
@@ -173,8 +210,8 @@ export default function Students() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog} className="border-purple-900/40 text-purple-400/60 hover:bg-purple-500/10">Cancelar</Button>
-            <button onClick={handleSave} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium" disabled={createMut.isPending || updateMut.isPending}>
-              {createMut.isPending || updateMut.isPending ? "..." : "SALVAR"}
+            <button onClick={handleSave} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium" disabled={createMut.isPending || updateMut.isPending || photoUploading}>
+              {createMut.isPending || updateMut.isPending || photoUploading ? "..." : "SALVAR"}
             </button>
           </DialogFooter>
         </DialogContent>

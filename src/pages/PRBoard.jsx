@@ -98,6 +98,7 @@ export default function PRBoard() {
   }, [allPRs]);
 
   const getStudentName = (studentId) => students.find(s => s.id === studentId)?.name || "Atleta";
+  const getStudentPhoto = (studentId) => students.find(s => s.id === studentId)?.photo_url || null;
 
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
@@ -355,14 +356,15 @@ export default function PRBoard() {
                             }
                           </div>
 
-                          {/* Media thumb */}
-                          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border" style={{ borderColor: 'rgba(168,85,247,0.15)' }}>
-                            {pr.media_type === "photo"
-                              ? <img src={pr.media_url} alt="PR" className="w-full h-full object-cover" />
-                              : <div className="w-full h-full bg-purple-900/20 flex items-center justify-center">
-                                  <Video className="w-4 h-4 text-purple-400" />
-                                </div>
-                            }
+                          {/* Student avatar + name */}
+                          <div className="flex flex-col items-center gap-1 w-14 flex-shrink-0">
+                            <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border" style={{ borderColor: 'rgba(168,85,247,0.25)' }}>
+                              {getStudentPhoto(pr.student_id)
+                                ? <img src={getStudentPhoto(pr.student_id)} alt="" className="w-full h-full object-cover" />
+                                : <div className="w-full h-full bg-purple-900/30 flex items-center justify-center text-purple-400 font-cyber text-lg">{getStudentName(pr.student_id)[0]}</div>
+                              }
+                            </div>
+                            <p className="text-[9px] font-mono-cyber text-white/50 truncate w-14 text-center">{getStudentName(pr.student_id)}</p>
                           </div>
 
                           {/* Info */}
