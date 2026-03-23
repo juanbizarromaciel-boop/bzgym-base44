@@ -7,6 +7,7 @@ import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircl
 import { toast } from "sonner";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ExerciseTimers from "../components/workout/ExerciseTimers";
+import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
 
 const DAY_MAP = { 0: "domingo", 1: "segunda", 2: "terca", 3: "quarta", 4: "quinta", 5: "sexta", 6: "sabado" };
@@ -31,6 +32,7 @@ export default function MyWorkout() {
   }, []);
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
+  const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list() });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
 
@@ -377,6 +379,7 @@ export default function MyWorkout() {
                       )}
                     </div>
                     <div className="flex flex-wrap gap-2 mt-1.5">
+                      <LastWeightBadge exerciseName={exercise.exercise_name} logs={student ? allLogs.filter(l => l.student_id === student.id) : []} />
                       <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
                         {exercise.sets}x{exercise.reps}
                       </Badge>

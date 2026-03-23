@@ -12,6 +12,7 @@ import { CheckCircle, Dumbbell, PlayCircle, Trophy, X } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 import RestTimer from "../components/workout/RestTimer";
+import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
 
 export default function StudentWorkout() {
@@ -27,6 +28,7 @@ export default function StudentWorkout() {
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
+  const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list() });
 
   const studentPlans = allPlans.filter((p) => p.student_id === selectedStudentId);
   const selectedPlan = allPlans.find((p) => p.id === selectedPlanId);
@@ -194,6 +196,7 @@ export default function StudentWorkout() {
                         )}
                       </div>
                       <div className="flex flex-wrap gap-2 mt-1.5">
+                        <LastWeightBadge exerciseName={exercise.exercise_name} logs={allLogs.filter(l => l.student_id === selectedStudentId)} />
                         <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
                           {exercise.sets}x{exercise.reps}
                         </Badge>
