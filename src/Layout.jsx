@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
-  Library, LayoutDashboard, User, Utensils, BookOpen, Activity, FileImage
+  Library, LayoutDashboard, User, Utensils, BookOpen, Activity, FileImage, Trophy
 } from "lucide-react";
 import NotificationBell from "../components/notifications/NotificationBell";
 
