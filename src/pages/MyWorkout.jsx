@@ -70,6 +70,13 @@ export default function MyWorkout() {
     setSetsData({ ...setsData, [exerciseIdx]: updated });
   };
 
+  const applyWeightToAllSets = (exerciseIdx, kg) => {
+    const numSets = selectedPlan.exercises[exerciseIdx]?.sets || 3;
+    const current = setsData[exerciseIdx] || initSets(exerciseIdx, numSets);
+    const updated = current.map(s => ({ ...s, load_kg: kg }));
+    setSetsData({ ...setsData, [exerciseIdx]: updated });
+  };
+
   const saveExerciseLog = (exerciseIdx) => {
     const exercise = selectedPlan.exercises[exerciseIdx];
     const sets = setsData[exerciseIdx] || initSets(exerciseIdx, exercise.sets);
@@ -379,7 +386,12 @@ export default function MyWorkout() {
                       )}
                     </div>
                     <div className="flex flex-wrap gap-2 mt-1.5">
-                      <LastWeightBadge exerciseName={exercise.exercise_name} logs={student ? allLogs.filter(l => l.student_id === student.id) : []} />
+                      <LastWeightBadge
+                        exerciseName={exercise.exercise_name}
+                        logs={student ? allLogs.filter(l => l.student_id === student.id) : []}
+                        onApply={(kg) => applyWeightToAllSets(exerciseIdx, kg)}
+                        disabled={isCompleted}
+                      />
                       <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
                         {exercise.sets}x{exercise.reps}
                       </Badge>
