@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { History, ChevronsUp, Pencil, Check } from "lucide-react";
+import { History, ChevronsUp, Pencil, Check, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function LastWeightBadge({ exerciseName, logs = [], onApply, disabled }) {
   const [editing, setEditing] = useState(false);
   const [customValue, setCustomValue] = useState("");
+  const [showSets, setShowSets] = useState(false);
 
   const lastLog = [...logs]
     .filter(l => l.exercise_name === exerciseName && l.max_load_kg > 0)
     .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-  if (!lastLog && !onApply) return null;
   if (!lastLog) return null;
 
   const handleApply = (val) => {
@@ -18,70 +18,115 @@ export default function LastWeightBadge({ exerciseName, logs = [], onApply, disa
     setCustomValue("");
   };
 
+  const sets = lastLog.sets_completed || [];
+
   return (
-    <div className="flex items-center gap-1 flex-wrap">
-      {/* Badge showing last weight */}
-      <span
-        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono-cyber"
-        style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', color: '#fbbf24' }}
-      >
-        <History className="w-3 h-3 flex-shrink-0" />
-        último: {lastLog.max_load_kg}kg
-      </span>
-
-      {/* Apply button */}
-      {onApply && !disabled && !editing && (
-        <button
-          onClick={() => handleApply(lastLog.max_load_kg)}
-          title="Preencher todas as séries com este peso"
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono-cyber transition-all hover:opacity-90"
-          style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.4)', color: '#fbbf24' }}
+    <div className="w-full">
+      <div className="flex items-center gap-1 flex-wrap">
+        {/* Badge showing last weight */}
+        <span
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono-cyber"
+          style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', color: '#fbbf24' }}
         >
-          <ChevronsUp className="w-3 h-3" />
-          Usar
-        </button>
-      )}
+          <History className="w-3 h-3 flex-shrink-0" />
+          último: {lastLog.max_load_kg}kg
+        </span>
 
-      {/* Edit / correct button */}
-      {onApply && !disabled && !editing && (
-        <button
-          onClick={() => { setEditing(true); setCustomValue(String(lastLog.max_load_kg)); }}
-          title="Corrigir peso"
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono-cyber transition-all hover:opacity-90"
-          style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.25)', color: '#c084fc' }}
-        >
-          <Pencil className="w-3 h-3" />
-          Corrigir
-        </button>
-      )}
+        {/* Show sets button */}
+        {sets.length > 0 && (
+          <button
+            onClick={() => setShowSets(v => !v)}
+            title="Ver última série"
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono-cyber transition-all hover:opacity-90"
+            style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', color: '#f59e0b' }}
+          >
+            {showSets ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            séries
+          </button>
+        )}
 
-      {/* Inline edit input */}
-      {editing && (
-        <div className="flex items-center gap-1">
-          <input
-            autoFocus
-            type="number"
-            inputMode="decimal"
-            value={customValue}
-            onChange={e => setCustomValue(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter") handleApply(customValue); if (e.key === "Escape") setEditing(false); }}
-            className="w-16 px-2 py-0.5 rounded-md text-[11px] font-mono-cyber text-center"
-            style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(168,85,247,0.5)', color: '#f3e8ff', outline: 'none' }}
-            placeholder="kg"
-          />
+        {/* Apply button */}
+        {onApply && !disabled && !editing && (
           <button
-            onClick={() => handleApply(customValue)}
-            className="inline-flex items-center justify-center w-6 h-6 rounded-md"
-            style={{ background: 'rgba(168,85,247,0.2)', border: '1px solid rgba(168,85,247,0.4)', color: '#c084fc' }}
+            onClick={() => handleApply(lastLog.max_load_kg)}
+            title="Preencher todas as séries com este peso"
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono-cyber transition-all hover:opacity-90"
+            style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.4)', color: '#fbbf24' }}
           >
-            <Check className="w-3.5 h-3.5" />
+            <ChevronsUp className="w-3 h-3" />
+            Usar
           </button>
+        )}
+
+        {/* Edit / correct button */}
+        {onApply && !disabled && !editing && (
           <button
-            onClick={() => setEditing(false)}
-            className="text-[10px] font-mono-cyber text-purple-500/40 hover:text-purple-400 px-1"
+            onClick={() => { setEditing(true); setCustomValue(String(lastLog.max_load_kg)); }}
+            title="Corrigir peso"
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono-cyber transition-all hover:opacity-90"
+            style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.25)', color: '#c084fc' }}
           >
-            ✕
+            <Pencil className="w-3 h-3" />
+            Corrigir
           </button>
+        )}
+
+        {/* Inline edit input */}
+        {editing && (
+          <div className="flex items-center gap-1">
+            <input
+              autoFocus
+              type="number"
+              inputMode="decimal"
+              value={customValue}
+              onChange={e => setCustomValue(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") handleApply(customValue); if (e.key === "Escape") setEditing(false); }}
+              className="w-16 px-2 py-0.5 rounded-md text-[11px] font-mono-cyber text-center"
+              style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(168,85,247,0.5)', color: '#f3e8ff', outline: 'none' }}
+              placeholder="kg"
+            />
+            <button
+              onClick={() => handleApply(customValue)}
+              className="inline-flex items-center justify-center w-6 h-6 rounded-md"
+              style={{ background: 'rgba(168,85,247,0.2)', border: '1px solid rgba(168,85,247,0.4)', color: '#c084fc' }}
+            >
+              <Check className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => setEditing(false)}
+              className="text-[10px] font-mono-cyber text-purple-500/40 hover:text-purple-400 px-1"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Expanded sets table */}
+      {showSets && sets.length > 0 && (
+        <div className="mt-2 rounded-lg overflow-hidden" style={{ border: '1px solid rgba(245,158,11,0.2)', background: 'rgba(245,158,11,0.04)' }}>
+          <div className="px-3 py-1.5 border-b flex items-center gap-1.5" style={{ borderColor: 'rgba(245,158,11,0.15)' }}>
+            <History className="w-3 h-3 text-amber-500/60" />
+            <span className="text-[10px] font-mono-cyber text-amber-500/60 tracking-wider uppercase">
+              Último treino · {new Date(lastLog.date + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+            </span>
+          </div>
+          <div className="px-3 py-2">
+            <div className="grid grid-cols-3 text-[10px] font-mono-cyber text-amber-500/40 uppercase tracking-wider mb-1.5 px-1">
+              <span>Série</span>
+              <span className="text-center">Reps</span>
+              <span className="text-center">Kg</span>
+            </div>
+            <div className="space-y-1">
+              {sets.map((s, i) => (
+                <div key={i} className="grid grid-cols-3 text-[11px] font-mono-cyber px-1">
+                  <span className="text-amber-500/50">{s.set_number ?? i + 1}</span>
+                  <span className="text-center text-amber-300/80">{s.reps_done > 0 ? s.reps_done : '—'}</span>
+                  <span className="text-center text-amber-400/90 font-semibold">{s.load_kg > 0 ? `${s.load_kg}kg` : '—'}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>
