@@ -32,6 +32,7 @@ export default function Diet() {
   const [form, setForm] = useState(emptyPlan);
   const [expandedId, setExpandedId] = useState(null);
   const [filterStudent, setFilterStudent] = useState("all");
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // plan to delete
   const qc = useQueryClient();
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
@@ -129,7 +130,7 @@ export default function Diet() {
                   <button onClick={(e) => { e.stopPropagation(); openEdit(plan); }} className="p-1.5 text-purple-400/40 hover:text-purple-300 hover:bg-purple-500/10 rounded-lg transition-all">
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); deleteMut.mutate(plan.id); }} className="p-1.5 text-purple-400/40 hover:text-pink-400 hover:bg-pink-500/10 rounded-lg transition-all">
+                  <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(plan); }} className="p-1.5 text-purple-400/40 hover:text-pink-400 hover:bg-pink-500/10 rounded-lg transition-all">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                   {isExpanded ? <ChevronUp className="w-4 h-4 text-purple-500/40" /> : <ChevronDown className="w-4 h-4 text-purple-500/40" />}
@@ -182,6 +183,30 @@ export default function Diet() {
           );
         })}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent className="border border-pink-900/40 text-white max-w-sm" style={{ background: '#04040e' }}>
+          <DialogHeader>
+            <DialogTitle className="font-cyber tracking-widest text-pink-400">EXCLUIR DIETA</DialogTitle>
+          </DialogHeader>
+          <div className="py-2">
+            <p className="text-sm text-purple-300/70">Tem certeza que deseja excluir a dieta</p>
+            <p className="text-white font-semibold mt-1">"{deleteConfirm?.name}"</p>
+            <p className="text-xs text-purple-500/40 font-mono-cyber mt-2">// esta ação não pode ser desfeita</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="border-purple-900/40 text-purple-400/60 hover:bg-purple-500/10">Cancelar</Button>
+            <button
+              onClick={() => { deleteMut.mutate(deleteConfirm.id); setDeleteConfirm(null); }}
+              className="btn-neon-pink px-4 py-2 rounded-lg text-sm font-medium"
+              disabled={deleteMut.isPending}
+            >
+              EXCLUIR
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={closeDialog}>
