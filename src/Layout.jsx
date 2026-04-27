@@ -4,12 +4,13 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
-  Library, LayoutDashboard, User, Utensils, BookOpen, Activity, FileImage, Trophy, UserCircle
+  Library, LayoutDashboard, User, Utensils, BookOpen, Activity, FileImage, Trophy, UserCircle, Clock
 } from "lucide-react";
 import NotificationBell from "../components/notifications/NotificationBell";
 
 const adminNav = [
   { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+  { name: "Horas", icon: Clock, page: "WorkHours" },
   { name: "Novos Alunos", icon: Users, page: "PendingStudents" },
   { name: "Alunos", icon: Users, page: "Students" },
   { name: "Chat", icon: User, page: "Chat" },
