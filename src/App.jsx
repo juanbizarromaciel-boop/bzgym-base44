@@ -14,7 +14,6 @@ import CH from './pages/CH';
 import PRBoard from './pages/PRBoard.jsx';
 import Profile from './pages/Profile.jsx';
 import StudentDocuments from './pages/StudentDocuments';
-import WorkHours from './pages/WorkHours';
 import { base44 } from '@/api/base44Client';
 import { useState, useEffect } from 'react';
 
@@ -116,7 +115,6 @@ const AuthenticatedApp = () => {
       <Route path="/PRBoard" element={<LayoutWrapper currentPageName="PRBoard"><PRBoard /></LayoutWrapper>} />
       <Route path="/Profile" element={<LayoutWrapper currentPageName="Profile"><Profile /></LayoutWrapper>} />
       <Route path="/StudentDocuments" element={<LayoutWrapper currentPageName="StudentDocuments"><StudentDocuments /></LayoutWrapper>} />
-      <Route path="/WorkHours" element={<LayoutWrapper currentPageName="WorkHours"><WorkHours /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
