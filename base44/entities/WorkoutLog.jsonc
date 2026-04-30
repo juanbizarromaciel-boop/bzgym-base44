@@ -1,0 +1,106 @@
+{
+  "name": "WorkoutLog",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string",
+      "description": "ID do aluno"
+    },
+    "workout_plan_id": {
+      "type": "string",
+      "description": "ID do plano de treino"
+    },
+    "exercise_id": {
+      "type": "string",
+      "description": "ID do exerc\u00edcio"
+    },
+    "exercise_name": {
+      "type": "string",
+      "description": "Nome do exerc\u00edcio"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do treino"
+    },
+    "sets_completed": {
+      "type": "array",
+      "description": "S\u00e9ries realizadas",
+      "items": {
+        "type": "object",
+        "properties": {
+          "set_number": {
+            "type": "number"
+          },
+          "reps_done": {
+            "type": "number"
+          },
+          "load_kg": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "technique_used": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "max_load_kg": {
+      "type": "number",
+      "description": "Maior carga usada na sess\u00e3o"
+    }
+  },
+  "required": [
+    "student_id",
+    "exercise_name",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "created_by": "{{user.email}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "created_by": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

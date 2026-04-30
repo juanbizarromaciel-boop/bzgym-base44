@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -44,11 +44,30 @@ export default function Progress() {
   const [selectedExercise, setSelectedExercise] = useState("all");
   const [selectedMuscle, setSelectedMuscle] = useState("all");
   const [period, setPeriod] = useState("weekly");
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then((u) => {
+      setUserRole(u?.role || "user");
+    }).catch(() => setUserRole("user"));
+  }, []);
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: logs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list() });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
+
+  const isAdmin = userRole === "admin";
+
+  // For students: auto-select their own student record
+  useEffect(() => {
+    if (!isAdmin && userRole && students.length > 0) {
+      base44.auth.me().then((u) => {
+        const found = students.find(s => s.email?.toLowerCase() === u?.email?.toLowerCase());
+        if (found) setSelectedStudentId(found.id);
+      }).catch(() => {});
+    }
+  }, [isAdmin, userRole, students]);
 
   const studentLogs = useMemo(() => {
     return logs.filter((l) => l.student_id === selectedStudentId).sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -186,14 +205,16 @@ export default function Progress() {
       <PageHeader title="Evolução" subtitle="Volume de treino · kg × reps" />
 
       <div className="flex flex-wrap gap-3 mb-6">
-        <Select value={selectedStudentId} onValueChange={(v) => { setSelectedStudentId(v); setSelectedExercise("all"); setSelectedMuscle("all"); }}>
-          <SelectTrigger className="w-full sm:w-56 cyber-input">
-            <SelectValue placeholder="Selecione o aluno" />
-          </SelectTrigger>
-          <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
-            {students.map((s) => <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        {isAdmin && (
+          <Select value={selectedStudentId} onValueChange={(v) => { setSelectedStudentId(v); setSelectedExercise("all"); setSelectedMuscle("all"); }}>
+            <SelectTrigger className="w-full sm:w-56 cyber-input">
+              <SelectValue placeholder="Selecione o aluno" />
+            </SelectTrigger>
+            <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
+              {students.map((s) => <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
 
         {selectedStudentId && (
           <>
@@ -391,10 +412,16 @@ export default function Progress() {
         </div>
       )}
 
-      {!selectedStudentId && (
+      {!selectedStudentId && isAdmin && (
         <div className="text-center py-16 text-purple-500/20">
           <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="font-mono-cyber text-sm">// selecione um aluno para ver a evolução</p>
+        </div>
+      )}
+
+      {!selectedStudentId && !isAdmin && (
+        <div className="text-center py-16 text-purple-500/20">
+          <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto" />
         </div>
       )}
     </div>
