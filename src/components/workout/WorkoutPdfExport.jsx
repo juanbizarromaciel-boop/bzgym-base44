@@ -189,7 +189,7 @@ export default function WorkoutPdfExport({ studentId, studentName, planId, compa
         doc.setFont("helvetica", "normal");
         doc.text("EXERCÍCIO", margin + 2, y);
         doc.text("SÉRIES", margin + 88, y, { align: "center" });
-        doc.text("REPS MÉDIAS", margin + 112, y, { align: "center" });
+        doc.text("REPETIÇÕES", margin + 112, y, { align: "center" });
         doc.text("CARGA MÉDIA", margin + 140, y, { align: "center" });
         doc.text("CARGA MÁX", margin + 168, y, { align: "center" });
 
@@ -241,8 +241,8 @@ export default function WorkoutPdfExport({ studentId, studentName, planId, compa
           doc.setTextColor(168, 85, 247);
           doc.text(String(ex.sets || "—"), margin + 88, y + 3, { align: "center" });
 
-          // Avg reps (from logs or plan target)
-          const repsDisplay = stats?.avgReps ? `${stats.avgReps}` : (ex.reps || "—");
+          // Reps prescribed in plan
+          const repsDisplay = ex.reps || "—";
           doc.setTextColor(6, 182, 212);
           doc.text(String(repsDisplay), margin + 112, y + 3, { align: "center" });
 
