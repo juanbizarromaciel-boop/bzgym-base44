@@ -15,6 +15,7 @@ import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, UserCircle, AlertTriangle
 import PageHeader from "../components/shared/PageHeader";
 import ExerciseCard from "../components/workout/ExerciseCard";
 import ExerciseFormDialog from "../components/workout/ExerciseFormDialog";
+import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
 
 const days = {
   segunda: "Segunda", terca: "Terça", quarta: "Quarta",
@@ -171,6 +172,14 @@ export default function WorkoutPlans() {
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-cyan-300" title="Duplicar treino" onClick={(e) => { e.stopPropagation(); setDuplicatePlan(plan); setDupeStudentId(plan.student_id); }}>
                   <Copy className="w-3.5 h-3.5" />
                 </Button>
+                <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center h-8 w-8">
+                  <WorkoutPdfExport
+                    studentId={plan.student_id}
+                    studentName={getStudentName(plan.student_id)}
+                    planId={plan.id}
+                    compact={true}
+                  />
+                </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-purple-300" onClick={(e) => { e.stopPropagation(); openEditPlan(plan); }}>
                   <Pencil className="w-3.5 h-3.5" />
                 </Button>

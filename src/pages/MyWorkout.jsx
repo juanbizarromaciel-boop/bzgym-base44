@@ -9,6 +9,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ExerciseTimers from "../components/workout/ExerciseTimers";
 import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
+import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
 
 const DAY_MAP = { 0: "domingo", 1: "segunda", 2: "terca", 3: "quarta", 4: "quinta", 5: "sexta", 6: "sabado" };
 const DAY_LABELS = { segunda: "SEG", terca: "TER", quarta: "QUA", quinta: "QUI", sexta: "SEX", sabado: "SAB", domingo: "DOM" };
@@ -238,9 +239,17 @@ export default function MyWorkout() {
 
       {/* All plans */}
       <div>
-        <p className="text-[10px] text-purple-500/40 font-mono-cyber uppercase tracking-[0.25em] mb-4 flex items-center gap-2">
-          <Calendar className="w-3 h-3" /> Todos os treinos
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-[10px] text-purple-500/40 font-mono-cyber uppercase tracking-[0.25em] flex items-center gap-2">
+            <Calendar className="w-3 h-3" /> Todos os treinos
+          </p>
+          {student && myPlans.length > 0 && (
+            <WorkoutPdfExport
+              studentId={student.id}
+              studentName={student.name}
+            />
+          )}
+        </div>
         <div className="space-y-2">
           {myPlans.map(plan => {
             const isToday = plan.day_of_week === today;
