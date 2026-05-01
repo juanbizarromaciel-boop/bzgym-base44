@@ -143,39 +143,56 @@ Retorne JSON com: dietName, goal, totalCalories, totalProtein, totalCarbs, total
   return (
     <div className="space-y-5">
       {/* Prompt */}
-      <div className="rounded-xl p-5 border" style={{ background: 'rgba(6,4,18,0.95)', borderColor: 'rgba(16,185,129,0.2)' }}>
-        <div className="flex items-center gap-2 mb-3">
-          <ClipboardList className="w-4 h-4 text-emerald-400" />
-          <h2 className="text-sm font-semibold tracking-wider text-emerald-200">MONTAR DIETA COM IA</h2>
+      <div className="rounded-2xl p-5 border relative overflow-hidden backdrop-blur-sm"
+        style={{ background: 'rgba(10,6,28,0.85)', borderColor: 'rgba(16,185,129,0.2)', boxShadow: '0 4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(16,185,129,0.07)' }}>
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.3), transparent)' }} />
+
+        <div className="flex items-center gap-2.5 mb-4">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}>
+            <ClipboardList className="w-3.5 h-3.5 text-emerald-400" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold tracking-wide text-emerald-200">Montar Dieta com IA</h2>
+            <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(110,231,183,0.4)' }}>
+              {foods.length > 0 ? `${foods.length} alimento(s) no banco · usa-os prioritariamente` : 'Descreva o plano alimentar desejado'}
+            </p>
+          </div>
         </div>
-        <p className="text-xs mb-3" style={{ color: 'rgba(110,231,183,0.5)' }}>
-          A IA usa os alimentos já cadastrados no banco prioritariamente. {foods.length > 0 ? `(${foods.length} alimento(s) no banco)` : ''}
-        </p>
+
         <textarea
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleGenerate(); }}
           placeholder="Ex: Monte uma dieta de cutting com 2400 kcal, 150g de proteína, usando alimentos cadastrados, 5 refeições por dia."
           rows={4}
-          className="cyber-input w-full resize-none rounded-lg p-3 text-sm"
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          className="w-full resize-none rounded-xl p-3.5 text-sm transition-all outline-none"
+          style={{
+            background: 'rgba(4,2,14,0.7)',
+            border: '1px solid rgba(16,185,129,0.15)',
+            color: '#f0e6ff',
+            fontFamily: 'Inter, sans-serif',
+            caretColor: '#10b981',
+          }}
         />
+
         <div className="flex items-center justify-between mt-3">
-          <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(16,185,129,0.5)' }}>Ctrl+Enter para gerar</p>
+          <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(168,85,247,0.35)' }}>Ctrl+Enter para gerar</p>
           <button onClick={handleGenerate} disabled={loading || !prompt.trim()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-            style={{ background: loading ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.4)', color: '#6ee7b7', boxShadow: '0 0 15px rgba(16,185,129,0.1)' }}>
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+            style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.35)', color: '#6ee7b7', boxShadow: loading ? 'none' : '0 0 14px rgba(16,185,129,0.1)' }}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
             Gerar dieta
           </button>
         </div>
-        <div className="mt-4">
-          <p className="text-[10px] font-mono-cyber mb-2" style={{ color: 'rgba(16,185,129,0.45)' }}>SUGESTÕES RÁPIDAS</p>
+
+        <div className="mt-4 pt-4 border-t" style={{ borderColor: 'rgba(16,185,129,0.1)' }}>
+          <p className="text-[10px] font-mono-cyber mb-2.5" style={{ color: 'rgba(16,185,129,0.35)' }}>SUGESTÕES RÁPIDAS</p>
           <div className="flex flex-wrap gap-2">
             {QUICK_PROMPTS.map((q, i) => (
               <button key={i} onClick={() => setPrompt(q)}
                 className="text-xs px-3 py-1.5 rounded-full border transition-all hover:scale-105"
-                style={{ borderColor: 'rgba(16,185,129,0.2)', background: 'rgba(16,185,129,0.05)', color: 'rgba(110,231,183,0.7)' }}>
+                style={{ borderColor: 'rgba(16,185,129,0.15)', background: 'rgba(16,185,129,0.04)', color: 'rgba(110,231,183,0.65)' }}>
                 {q.length > 40 ? q.slice(0, 40) + '...' : q}
               </button>
             ))}

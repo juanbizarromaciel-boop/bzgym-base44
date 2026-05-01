@@ -178,38 +178,56 @@ export default function AIFoodGenerator({ settings }) {
   return (
     <div className="space-y-5">
       {/* Prompt area */}
-      <div className="rounded-xl p-5 border" style={{ background: 'rgba(6,4,18,0.95)', borderColor: 'rgba(168,85,247,0.2)' }}>
-        <div className="flex items-center gap-2 mb-3">
-          <Utensils className="w-4 h-4 text-orange-400" />
-          <h2 className="text-sm font-semibold tracking-wider" style={{ color: '#fed7aa' }}>CADASTRAR ALIMENTO COM IA</h2>
+      <div className="rounded-2xl p-5 border relative overflow-hidden backdrop-blur-sm"
+        style={{ background: 'rgba(10,6,28,0.85)', borderColor: 'rgba(251,146,60,0.2)', boxShadow: '0 4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(251,146,60,0.08)' }}>
+        {/* subtle top glow line */}
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(251,146,60,0.35), transparent)' }} />
+
+        <div className="flex items-center gap-2.5 mb-4">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(251,146,60,0.12)', border: '1px solid rgba(251,146,60,0.25)' }}>
+            <Utensils className="w-3.5 h-3.5 text-orange-400" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold tracking-wide" style={{ color: '#fed7aa' }}>Cadastrar Alimento com IA</h2>
+            <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(251,146,60,0.4)' }}>Descreva o alimento e a IA extrai os nutrientes</p>
+          </div>
         </div>
+
         <textarea
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleGenerate(); }}
           placeholder="Ex: Cadastre 100g de arroz branco cozido&#10;Ou vários: arroz, feijão, frango, ovo, banana..."
           rows={3}
-          className="cyber-input w-full resize-none rounded-lg p-3 text-sm"
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          className="w-full resize-none rounded-xl p-3.5 text-sm transition-all outline-none"
+          style={{
+            background: 'rgba(4,2,14,0.7)',
+            border: '1px solid rgba(251,146,60,0.18)',
+            color: '#f0e6ff',
+            fontFamily: 'Inter, sans-serif',
+            caretColor: '#fb923c',
+          }}
         />
+
         <div className="flex items-center justify-between mt-3">
-          <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(168,85,247,0.4)' }}>Ctrl+Enter para gerar</p>
+          <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(168,85,247,0.35)' }}>Ctrl+Enter para gerar</p>
           <button onClick={handleGenerate} disabled={loading || !prompt.trim()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-            style={{ background: loading ? 'rgba(168,85,247,0.1)' : 'rgba(168,85,247,0.25)', border: '1px solid rgba(168,85,247,0.45)', color: '#e9d5ff', boxShadow: '0 0 15px rgba(168,85,247,0.15)' }}>
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+            style={{ background: 'rgba(251,146,60,0.15)', border: '1px solid rgba(251,146,60,0.35)', color: '#fed7aa', boxShadow: loading ? 'none' : '0 0 14px rgba(251,146,60,0.12)' }}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
             Gerar com IA
           </button>
         </div>
 
         {/* Quick prompts */}
-        <div className="mt-4">
-          <p className="text-[10px] font-mono-cyber mb-2" style={{ color: 'rgba(168,85,247,0.4)' }}>SUGESTÕES RÁPIDAS</p>
+        <div className="mt-4 pt-4 border-t" style={{ borderColor: 'rgba(251,146,60,0.1)' }}>
+          <p className="text-[10px] font-mono-cyber mb-2.5" style={{ color: 'rgba(251,146,60,0.35)' }}>SUGESTÕES RÁPIDAS</p>
           <div className="flex flex-wrap gap-2">
             {QUICK_PROMPTS.map((q, i) => (
               <button key={i} onClick={() => setPrompt(q)}
                 className="text-xs px-3 py-1.5 rounded-full border transition-all hover:scale-105"
-                style={{ borderColor: 'rgba(168,85,247,0.2)', background: 'rgba(168,85,247,0.06)', color: 'rgba(196,181,224,0.7)' }}>
+                style={{ borderColor: 'rgba(251,146,60,0.15)', background: 'rgba(251,146,60,0.05)', color: 'rgba(253,186,116,0.65)' }}>
                 {q.length > 35 ? q.slice(0, 35) + '...' : q}
               </button>
             ))}
