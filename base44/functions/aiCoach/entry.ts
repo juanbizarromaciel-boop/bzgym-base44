@@ -36,19 +36,12 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { type, prompt, context, api_key, model } = body;
+    const { type, prompt, context } = body;
 
     if (!type || !prompt) {
       return Response.json({ error: 'Parâmetros obrigatórios: type, prompt' }, { status: 400 });
     }
 
-    // Get API key: prefer passed key (for test), fallback to env
-    const openaiKey = api_key || Deno.env.get('OPENAI_API_KEY');
-    if (!openaiKey) {
-      return Response.json({ error: 'Chave de API OpenAI não configurada. Acesse Configurações > Inteligência Artificial.' }, { status: 400 });
-    }
-
-    const selectedModel = model || 'gpt-4o-mini';
     const systemPrompt = SYSTEM_PROMPTS[type] || SYSTEM_PROMPTS.test;
 
     let userMessage = prompt;
@@ -56,78 +49,42 @@ Deno.serve(async (req) => {
       userMessage += `\n\nContexto adicional: ${JSON.stringify(context)}`;
     }
 
-    // Call OpenAI
-    const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openaiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage }
-        ],
-        temperature: 0.3,
-        max_tokens: 4000,
-        response_format: type !== 'test' ? { type: 'json_object' } : undefined
-      })
+    const fullPrompt = `${systemPrompt}\n\n${userMessage}`;
+
+    // Use Base44 InvokeLLM - no API key needed
+    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt: fullPrompt,
+      model: 'claude_sonnet_4_6',
+      response_json_schema: type !== 'test' ? {
+        type: 'object',
+        additionalProperties: true
+      } : {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          message: { type: 'string' }
+        }
+      }
     });
 
-    if (!openaiRes.ok) {
-      const err = await openaiRes.json();
-      const errMsg = err?.error?.message || 'Erro na API OpenAI';
-
-      // Log error
-      await base44.asServiceRole.entities.AIRequestLog.create({
-        teacher_id: user.email,
-        type,
-        prompt: prompt.slice(0, 500),
-        status: 'error',
-        model: selectedModel,
-        error_message: errMsg
-      });
-
-      return Response.json({ error: errMsg }, { status: 502 });
-    }
-
-    const openaiData = await openaiRes.json();
-    const rawContent = openaiData.choices?.[0]?.message?.content || '';
-    const tokensUsed = openaiData.usage?.total_tokens || 0;
-
-    // Parse JSON from response
-    let parsed;
-    try {
-      parsed = JSON.parse(rawContent);
-    } catch {
-      // Try to extract JSON from text
-      const match = rawContent.match(/\{[\s\S]*\}/);
-      if (match) {
-        try { parsed = JSON.parse(match[0]); } catch { parsed = null; }
-      }
-    }
-
-    if (!parsed && type !== 'test') {
-      return Response.json({ error: 'A IA retornou uma resposta inválida. Tente novamente com um prompt mais específico.' }, { status: 422 });
-    }
+    let parsed = result;
 
     // Log success
     await base44.asServiceRole.entities.AIRequestLog.create({
       teacher_id: user.email,
       type,
       prompt: prompt.slice(0, 500),
-      response_summary: rawContent.slice(0, 300),
-      tokens_used: tokensUsed,
-      model: selectedModel,
+      response_summary: JSON.stringify(result).slice(0, 300),
+      tokens_used: 0,
+      model: 'claude_sonnet_4_6',
       status: 'success'
     });
 
     return Response.json({
       success: true,
-      data: parsed || rawContent,
-      tokens_used: tokensUsed,
-      model: selectedModel
+      data: parsed,
+      tokens_used: 0,
+      model: 'claude_sonnet_4_6'
     });
 
   } catch (error) {
