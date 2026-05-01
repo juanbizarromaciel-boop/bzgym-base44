@@ -55,9 +55,9 @@ const SKIN_STROKE = "rgba(168,85,247,0.25)";
 export default function MuscleMap({ exercises = [], size = "md", showLabels = false }) {
   const intensity = useMemo(() => calculateMuscleIntensity(exercises), [exercises]);
 
-  const sizeMap = { sm: 110, md: 160, lg: 220 };
+  const sizeMap = { sm: 70, md: 100, lg: 140 };
   const w = sizeMap[size] || sizeMap.md;
-  const h = w * 2.1;
+  const h = w * 2.6;
 
   // Active muscles summary for label
   const activeLabels = {
@@ -81,11 +81,11 @@ export default function MuscleMap({ exercises = [], size = "md", showLabels = fa
         </div>
       )}
 
-      <div className="flex gap-4 justify-center items-start">
+      <div className="flex gap-2 justify-center items-start">
         {/* FRONT VIEW */}
         <div className="flex flex-col items-center">
           {showLabels && <p className="text-[9px] font-mono-cyber text-purple-500/40 tracking-wider mb-1.5 uppercase">Frente</p>}
-          <svg width={w} height={h} viewBox="0 0 100 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width={w} height={h} viewBox="10 0 80 210" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <filter id="glow-front">
                 <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
@@ -241,7 +241,7 @@ export default function MuscleMap({ exercises = [], size = "md", showLabels = fa
         {/* BACK VIEW */}
         <div className="flex flex-col items-center">
           {showLabels && <p className="text-[9px] font-mono-cyber text-purple-500/40 tracking-wider mb-1.5 uppercase">Costas</p>}
-          <svg width={w} height={h} viewBox="0 0 100 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width={w} height={h} viewBox="10 0 80 210" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* === BODY SILHOUETTE BACK === */}
             <ellipse cx="50" cy="11" rx="10" ry="11" fill={SKIN} stroke={SKIN_STROKE} strokeWidth="0.5" />
             <path d="M44 20 L44 27 L56 27 L56 20 Z" fill={SKIN} stroke={SKIN_STROKE} strokeWidth="0.4" />
