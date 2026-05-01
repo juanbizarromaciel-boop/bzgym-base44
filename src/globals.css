@@ -177,6 +177,37 @@ body::before {
 }
 .animate-fade-in-up { animation: fadeInUp 0.35s cubic-bezier(0.4,0,0.2,1) both; }
 
+/* Stat card hover lift */
+.stat-card {
+  transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.stat-card:hover { transform: translateY(-2px); }
+
+/* Section divider */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(168,85,247,0.25) 0%, rgba(168,85,247,0.08) 50%, transparent 100%);
+  margin: 0;
+}
+
+/* Neon dot pulse */
+@keyframes neon-dot-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px currentColor; }
+  50% { opacity: 0.5; box-shadow: 0 0 12px currentColor; }
+}
+.neon-dot { animation: neon-dot-pulse 2s ease-in-out infinite; }
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, rgba(168,85,247,0.04) 25%, rgba(168,85,247,0.1) 50%, rgba(168,85,247,0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
 /* Slide in */
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(-8px); }

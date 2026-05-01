@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Dumbbell, TrendingUp, Target, Calendar, Award, ChevronRight, Flame, MessageSquare, Zap, CheckCircle2, Clock, ClipboardList } from "lucide-react";
+import {
+  Dumbbell, TrendingUp, Target, Calendar, Award,
+  ChevronRight, Flame, MessageSquare, Zap, CheckCircle2,
+  Clock, ClipboardList, Activity
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import MuscleMap from "../components/workout/MuscleMap";
 
@@ -10,10 +14,7 @@ const GOAL_LABELS = {
   resistencia: "RESISTÊNCIA", forca: "FORÇA", saude: "SAÚDE"
 };
 
-const DAY_MAP = {
-  0: "domingo", 1: "segunda", 2: "terca", 3: "quarta",
-  4: "quinta", 5: "sexta", 6: "sabado"
-};
+const DAY_MAP = { 0: "domingo", 1: "segunda", 2: "terca", 3: "quarta", 4: "quinta", 5: "sexta", 6: "sabado" };
 
 export default function StudentDashboard() {
   const [user, setUser] = useState(null);
@@ -38,7 +39,11 @@ export default function StudentDashboard() {
   }, [user, students]);
 
   if (!student) {
-    return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" /></div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   const myLogs = workoutLogs.filter(log => log.student_id === student.id);
@@ -48,40 +53,49 @@ export default function StudentDashboard() {
   const last7Days = new Date();
   last7Days.setDate(last7Days.getDate() - 7);
   const recentLogs = myLogs.filter(log => new Date(log.date) >= last7Days);
-
   const uniqueWorkoutDates = [...new Set(recentLogs.map(log => log.date))].length;
   const totalVolume = recentLogs.reduce((sum, log) =>
     sum + (log.sets_completed?.reduce((s, set) => s + (set.reps_done * set.load_kg), 0) || 0), 0);
   const maxLoad = Math.max(...myLogs.map(log => log.max_load_kg || 0), 0);
 
-  // Today's workout
   const todayDow = DAY_MAP[new Date().getDay()];
   const todayPlan = myPlans.find(p => p.day_of_week === todayDow);
   const todayLogged = myLogs.some(l => l.date === new Date().toISOString().split("T")[0]);
 
-  // Last workout
-  const lastLog = myLogs.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-  const lastDate = lastLog?.date;
-  const daysSince = lastDate ? Math.floor((new Date() - new Date(lastDate)) / 86400000) : null;
+  const sortedLogs = [...myLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const lastLog = sortedLogs[0];
+  const daysSince = lastLog?.date
+    ? Math.floor((new Date() - new Date(lastLog.date)) / 86400000)
+    : null;
 
-  // Muscle map
   const allExercises = myPlans.flatMap(p => p.exercises || []);
+  const todayDate = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
-  const formatDate = (d) => {
-    if (!d) return "";
-    const [y, m, day] = d.split("-");
-    return `${day}/${m}/${y}`;
-  };
+  const stats = [
+    { label: "Treinos / Semana", value: uniqueWorkoutDates, icon: Calendar, accent: "#06b6d4", glow: "rgba(6,182,212,0.15)" },
+    { label: "Volume (kg×reps)", value: totalVolume > 0 ? `${Math.round(totalVolume / 1000)}k` : "—", icon: Flame, accent: "#ec4899", glow: "rgba(236,72,153,0.15)" },
+    { label: "Carga Máxima", value: maxLoad > 0 ? `${maxLoad}kg` : "—", icon: Award, accent: "#f59e0b", glow: "rgba(245,158,11,0.15)" },
+    { label: "Planos Ativos", value: myPlans.length, icon: ClipboardList, accent: "#a855f7", glow: "rgba(168,85,247,0.15)" },
+  ];
+
+  const quickActions = [
+    { label: "Meu Treino", icon: Dumbbell, href: "/MyWorkout", accent: "#a855f7" },
+    { label: "Progresso", icon: TrendingUp, href: "/Progress", accent: "#06b6d4" },
+    { label: "Minha Dieta", icon: Target, href: "/MyDiet", accent: "#ec4899" },
+    { label: "Chat", icon: MessageSquare, href: "/Chat", accent: "#10b981" },
+  ];
 
   return (
-    <div className="space-y-8">
-      {/* Greeting */}
-      <div>
-        <p className="text-[10px] font-mono-cyber text-purple-500/40 uppercase tracking-widest">▸ painel do aluno</p>
-        <h1 className="font-cyber text-2xl md:text-3xl text-white tracking-widest mt-1">
+    <div className="space-y-8 max-w-4xl">
+
+      {/* Header */}
+      <div className="relative">
+        <p className="text-[10px] font-mono-cyber text-purple-500/35 tracking-[0.3em] uppercase mb-2">{todayDate}</p>
+        <h1 className="font-cyber text-3xl md:text-4xl text-white tracking-widest leading-none"
+          style={{ textShadow: '0 0 30px rgba(168,85,247,0.3)' }}>
           OLÁ, {student.name?.split(" ")[0]?.toUpperCase()}
         </h1>
-        <div className="flex items-center gap-3 mt-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2 mt-3">
           {student.goal && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-purple-500/20 bg-purple-500/5 text-xs font-mono-cyber text-purple-400/70">
               <Target className="w-3 h-3" />
@@ -90,100 +104,119 @@ export default function StudentDashboard() {
           )}
           {daysSince !== null && (
             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-mono-cyber
-              ${daysSince === 0 ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-400" :
-                daysSince <= 2 ? "border-cyan-500/30 bg-cyan-500/5 text-cyan-400" :
-                "border-orange-500/30 bg-orange-500/5 text-orange-400"}`}>
+              ${daysSince === 0 ? "border-emerald-500/25 bg-emerald-500/5 text-emerald-400"
+                : daysSince <= 2 ? "border-cyan-500/25 bg-cyan-500/5 text-cyan-400"
+                : "border-orange-500/25 bg-orange-500/5 text-orange-400"}`}>
               <Clock className="w-3 h-3" />
               {daysSince === 0 ? "Treinou hoje!" : `Último treino há ${daysSince} dia${daysSince > 1 ? "s" : ""}`}
             </span>
           )}
         </div>
+        <div className="mt-5 h-px bg-gradient-to-r from-purple-500/30 via-purple-500/10 to-transparent" />
       </div>
 
-      {/* Today's Task */}
-      <div className={`rounded-xl p-5 border transition-all ${todayPlan
-        ? "border-purple-500/30 bg-purple-500/5"
-        : "border-purple-900/20 bg-black/40"}`}>
+      {/* Today's Workout Card */}
+      <div className="relative rounded-2xl p-6 border overflow-hidden transition-all"
+        style={{
+          background: todayPlan
+            ? 'radial-gradient(ellipse at top left, rgba(168,85,247,0.08), transparent 60%), rgba(4,4,12,0.95)'
+            : 'rgba(4,4,12,0.85)',
+          borderColor: todayPlan ? 'rgba(168,85,247,0.25)' : 'rgba(168,85,247,0.1)',
+          boxShadow: todayPlan ? '0 0 30px rgba(168,85,247,0.06)' : 'none'
+        }}>
+        {/* Top accent */}
+        {todayPlan && (
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)' }} />
+        )}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${todayPlan ? "bg-purple-500/20 border border-purple-500/30" : "bg-black/60 border border-purple-900/30"}`}>
-              <Dumbbell className={`w-5 h-5 ${todayPlan ? "text-purple-400" : "text-purple-500/30"}`} />
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                background: todayPlan ? 'rgba(168,85,247,0.12)' : 'rgba(255,255,255,0.03)',
+                border: todayPlan ? '1px solid rgba(168,85,247,0.25)' : '1px solid rgba(255,255,255,0.06)'
+              }}>
+              <Dumbbell className="w-6 h-6" style={{ color: todayPlan ? '#c084fc' : '#ffffff20' }} />
             </div>
             <div>
-              <p className="text-sm font-medium text-white">
-                {todayPlan ? todayPlan.name : "Nenhum treino hoje"}
+              <p className="text-[10px] font-mono-cyber text-purple-500/40 uppercase tracking-widest mb-0.5">Treino de hoje</p>
+              <p className="text-base font-semibold text-white">
+                {todayPlan ? todayPlan.name : "Sem treino programado"}
               </p>
-              <p className="text-xs text-purple-400/50">
+              <p className="text-xs text-purple-400/45 mt-0.5">
                 {todayPlan
-                  ? todayLogged ? "✓ Treino registrado hoje" : `${todayPlan.exercises?.length || 0} exercícios planejados`
-                  : "Descanse ou faça um treino livre"}
+                  ? todayLogged
+                    ? "✓ Sessão registrada hoje"
+                    : `${todayPlan.exercises?.length || 0} exercícios · pronto para iniciar`
+                  : "Descanse ou faça treino livre"}
               </p>
             </div>
           </div>
-          {todayPlan && !todayLogged && (
+          {todayPlan && !todayLogged ? (
             <Link to="/MyWorkout"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-300 text-sm font-medium hover:bg-purple-500/30 transition-all">
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
+              style={{
+                background: 'rgba(168,85,247,0.2)',
+                border: '1px solid rgba(168,85,247,0.35)',
+                color: '#e9d5ff',
+                boxShadow: '0 0 20px rgba(168,85,247,0.15)'
+              }}>
               <Zap className="w-4 h-4" />
               Iniciar
             </Link>
-          )}
-          {todayLogged && (
+          ) : todayLogged ? (
             <span className="flex items-center gap-1.5 text-emerald-400 text-xs font-mono-cyber">
               <CheckCircle2 className="w-4 h-4" />
               Concluído
             </span>
-          )}
+          ) : null}
         </div>
       </div>
 
-      {/* Unread message alert */}
+      {/* Message Alert */}
       {unreadMessages.length > 0 && (
-        <Link to="/Chat" className="flex items-center gap-3 p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/5 text-cyan-300 hover:bg-cyan-500/10 transition-all">
+        <Link to="/Chat"
+          className="flex items-center gap-3 px-5 py-3.5 rounded-xl border border-cyan-500/25 bg-cyan-500/5 text-cyan-300 hover:bg-cyan-500/8 transition-all group">
+          <div className="w-2 h-2 rounded-full bg-cyan-400 neon-dot flex-shrink-0" />
           <MessageSquare className="w-4 h-4 flex-shrink-0" />
-          <span className="text-sm">{unreadMessages.length} mensagem{unreadMessages.length > 1 ? "ns" : ""} nova{unreadMessages.length > 1 ? "s" : ""} do seu professor</span>
-          <ChevronRight className="w-4 h-4 ml-auto opacity-60" />
+          <span className="text-sm flex-1 font-medium">
+            {unreadMessages.length} mensagem{unreadMessages.length > 1 ? "ns" : ""} nova{unreadMessages.length > 1 ? "s" : ""} do professor
+          </span>
+          <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-60 -translate-x-1 group-hover:translate-x-0 transition-all" />
         </Link>
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Treinos / Semana", value: uniqueWorkoutDates, icon: Calendar, color: "cyan" },
-          { label: "Volume (kg×reps)", value: Math.round(totalVolume).toLocaleString(), icon: Flame, color: "pink" },
-          { label: "Carga Máx (kg)", value: maxLoad || "—", icon: Award, color: "yellow" },
-          { label: "Planos Ativos", value: myPlans.length, icon: ClipboardList, color: "purple" },
-        ].map((s, i) => {
-          const colorMap = {
-            cyan: { border: "border-cyan-500/20", icon: "text-cyan-400", val: "text-cyan-300" },
-            pink: { border: "border-pink-500/20", icon: "text-pink-400", val: "text-pink-300" },
-            yellow: { border: "border-yellow-500/20", icon: "text-yellow-400", val: "text-yellow-300" },
-            purple: { border: "border-purple-500/20", icon: "text-purple-400", val: "text-purple-300" },
-          };
-          const c = colorMap[s.color];
-          return (
-            <div key={i} className={`rounded-xl p-4 border ${c.border} bg-black/60`}>
-              <s.icon className={`w-4 h-4 ${c.icon} mb-3`} />
-              <p className={`text-2xl font-cyber font-bold ${c.val}`}>{s.value}</p>
-              <p className="text-[10px] text-purple-400/40 font-mono-cyber mt-1 uppercase tracking-wider">{s.label}</p>
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {stats.map((s, i) => (
+          <div key={i} className="relative rounded-xl p-5 border overflow-hidden"
+            style={{
+              background: `radial-gradient(ellipse at top left, ${s.glow}, transparent 70%), rgba(4,4,12,0.95)`,
+              borderColor: `${s.accent}22`,
+            }}>
+            <div className="absolute top-0 left-0 right-0 h-px"
+              style={{ background: `linear-gradient(90deg, transparent, ${s.accent}44, transparent)` }} />
+            <s.icon className="w-4 h-4 mb-4 opacity-70" style={{ color: s.accent }} />
+            <p className="font-cyber text-2xl font-bold" style={{ color: s.accent }}>
+              {s.value}
+            </p>
+            <p className="text-[10px] text-purple-400/40 font-mono-cyber mt-1 uppercase tracking-wider">{s.label}</p>
+          </div>
+        ))}
       </div>
 
       {/* Quick Actions */}
       <div>
-        <p className="text-[10px] font-mono-cyber text-purple-500/40 uppercase tracking-widest mb-3">▸ acesso rápido</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { label: "Meu Treino", icon: Dumbbell, href: "/MyWorkout", color: "text-purple-400", border: "hover:border-purple-500/40" },
-            { label: "Progresso", icon: TrendingUp, href: "/Progress", color: "text-cyan-400", border: "hover:border-cyan-500/40" },
-            { label: "Minha Dieta", icon: Target, href: "/MyDiet", color: "text-pink-400", border: "hover:border-pink-500/40" },
-            { label: "Chat", icon: MessageSquare, href: "/Chat", color: "text-emerald-400", border: "hover:border-emerald-500/40" },
-          ].map((a, i) => (
+        <p className="text-[10px] font-mono-cyber text-purple-500/35 uppercase tracking-[0.25em] mb-3">▸ acesso rápido</p>
+        <div className="grid grid-cols-4 gap-3">
+          {quickActions.map((a, i) => (
             <a key={i} href={a.href}
-              className={`flex flex-col items-center gap-3 p-4 rounded-xl border border-purple-900/20 bg-black/40 ${a.border} transition-all group`}>
-              <a.icon className={`w-6 h-6 ${a.color} group-hover:scale-110 transition-transform`} />
-              <span className="text-xs font-medium text-white/70 text-center">{a.label}</span>
+              className="flex flex-col items-center gap-3 p-4 rounded-xl border border-purple-900/20 bg-black/50 hover:bg-black/80 transition-all group">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110"
+                style={{ background: `${a.accent}15`, border: `1px solid ${a.accent}25` }}>
+                <a.icon className="w-5 h-5" style={{ color: a.accent }} />
+              </div>
+              <span className="text-xs font-medium text-white/55 group-hover:text-white/90 transition-colors text-center">{a.label}</span>
             </a>
           ))}
         </div>
@@ -191,39 +224,44 @@ export default function StudentDashboard() {
 
       {/* Muscle Map */}
       {allExercises.length > 0 && (
-        <div className="rounded-xl p-6 border border-purple-900/20 bg-black/40">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-4 h-4 text-purple-400" />
-            <h3 className="font-cyber text-sm text-white tracking-widest">MAPA MUSCULAR DO TREINO</h3>
+        <div className="rounded-2xl p-6 border border-purple-900/20 bg-black/40">
+          <div className="flex items-center gap-2 mb-5">
+            <Activity className="w-4 h-4 text-purple-400" />
+            <p className="text-[11px] font-mono-cyber text-purple-400/60 uppercase tracking-[0.2em]">Mapa Muscular</p>
           </div>
           <MuscleMap exercises={allExercises} size="lg" showLabels={true} />
         </div>
       )}
 
-      {/* My Plans Summary */}
+      {/* My Plans */}
       {myPlans.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-mono-cyber text-purple-500/40 uppercase tracking-widest">▸ meus treinos</p>
-            <a href="/MyWorkout" className="text-xs text-purple-400/60 hover:text-purple-400 transition-colors">Ver todos →</a>
+            <p className="text-[10px] font-mono-cyber text-purple-500/35 uppercase tracking-[0.25em]">▸ meus treinos</p>
+            <a href="/MyWorkout" className="text-[11px] text-purple-400/50 hover:text-purple-400 transition-colors font-mono-cyber">ver todos →</a>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {myPlans.slice(0, 4).map((plan, i) => (
               <a key={i} href="/MyWorkout"
-                className="flex items-center gap-4 p-4 rounded-xl border border-purple-900/20 bg-black/40 hover:border-purple-500/30 transition-all group">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                className="flex items-center gap-4 p-4 rounded-xl border border-purple-900/20 bg-black/40 hover:border-purple-500/25 transition-all group"
+                style={{ background: 'rgba(4,4,12,0.8)' }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.18)' }}>
                   <Dumbbell className="w-5 h-5 text-purple-400" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{plan.name}</p>
-                  <p className="text-xs text-purple-400/50">{plan.exercises?.length || 0} exercícios · {plan.day_of_week || "qualquer dia"}</p>
+                  <p className="text-[11px] text-purple-400/40 font-mono-cyber mt-0.5">
+                    {plan.exercises?.length || 0} exercícios · {plan.day_of_week || "livre"}
+                  </p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-purple-500/30 group-hover:text-purple-400 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-purple-500/20 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all" />
               </a>
             ))}
           </div>
         </div>
       )}
+
     </div>
   );
 }
