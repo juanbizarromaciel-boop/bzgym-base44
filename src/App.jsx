@@ -9,6 +9,8 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Onboarding from './pages/Onboarding';
 import Chat from './pages/Chat';
 import PendingStudents from './pages/PendingStudents';
+import AICoach from './pages/AICoach';
+import AISettings from './pages/AISettings';
 import Welcome from './pages/Welcome';
 import CH from './pages/CH';
 import PRBoard from './pages/PRBoard.jsx';
@@ -115,6 +117,8 @@ const AuthenticatedApp = () => {
       <Route path="/PRBoard" element={<LayoutWrapper currentPageName="PRBoard"><PRBoard /></LayoutWrapper>} />
       <Route path="/Profile" element={<LayoutWrapper currentPageName="Profile"><Profile /></LayoutWrapper>} />
       <Route path="/StudentDocuments" element={<LayoutWrapper currentPageName="StudentDocuments"><StudentDocuments /></LayoutWrapper>} />
+      <Route path="/AICoach" element={<LayoutWrapper currentPageName="AICoach"><AICoach /></LayoutWrapper>} />
+      <Route path="/AISettings" element={<LayoutWrapper currentPageName="AISettings"><AISettings /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

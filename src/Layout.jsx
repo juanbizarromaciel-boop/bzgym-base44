@@ -5,7 +5,8 @@ import { base44 } from "@/api/base44Client";
 import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
-  FileImage, Trophy, UserCircle, MessageSquare, UserPlus
+  FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
+  Sparkles, Settings
 } from "lucide-react";
 import NotificationBell from "./components/notifications/NotificationBell";
 
@@ -56,6 +57,13 @@ const adminNavGroups = [
     label: "Saúde",
     items: [
       { name: "Saúde e Exames", icon: Activity, page: "CH" },
+    ]
+  },
+  {
+    label: "Inteligência Artificial",
+    items: [
+      { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
+      { name: "Config. IA", icon: Settings, page: "AISettings" },
     ]
   },
   {

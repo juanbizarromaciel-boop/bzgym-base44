@@ -1,0 +1,76 @@
+{
+  "name": "AISettings",
+  "type": "object",
+  "properties": {
+    "teacher_id": {
+      "type": "string",
+      "description": "ID do professor (email)"
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "openai"
+      ],
+      "default": "openai"
+    },
+    "model": {
+      "type": "string",
+      "default": "gpt-4o-mini",
+      "description": "Modelo de IA"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "safe_mode": {
+      "type": "boolean",
+      "default": true
+    },
+    "monthly_limit": {
+      "type": "number",
+      "default": 100,
+      "description": "Limite de chamadas/m\u00eas"
+    },
+    "allow_workout_generation": {
+      "type": "boolean",
+      "default": true
+    },
+    "allow_diet_generation": {
+      "type": "boolean",
+      "default": true
+    },
+    "allow_food_generation": {
+      "type": "boolean",
+      "default": true
+    },
+    "allow_progression_suggestions": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "teacher_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

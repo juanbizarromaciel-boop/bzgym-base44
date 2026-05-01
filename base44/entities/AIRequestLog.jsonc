@@ -1,0 +1,71 @@
+{
+  "name": "AIRequestLog",
+  "type": "object",
+  "properties": {
+    "teacher_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "food",
+        "diet",
+        "workout",
+        "test"
+      ],
+      "description": "Tipo de gera\u00e7\u00e3o"
+    },
+    "prompt": {
+      "type": "string",
+      "description": "Prompt enviado"
+    },
+    "response_summary": {
+      "type": "string",
+      "description": "Resumo da resposta"
+    },
+    "tokens_used": {
+      "type": "number"
+    },
+    "model": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "error_message": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "teacher_id",
+    "type"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
