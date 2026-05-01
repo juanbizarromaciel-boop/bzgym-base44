@@ -137,22 +137,36 @@ export default function Layout({ children, currentPageName }) {
         to={createPageUrl(item.page)}
         onClick={() => setSidebarOpen(false)}
         className={`
-          flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 mx-2
+          relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-200 mx-2
           ${isActive
-            ? "text-white bg-purple-500/15 border border-purple-500/20"
-            : "text-purple-300/45 hover:text-purple-200 hover:bg-white/5 border border-transparent"
+            ? "border border-purple-500/30"
+            : "border border-transparent hover:border-purple-900/40"
           }
         `}
+        style={isActive ? {
+          background: 'linear-gradient(135deg, rgba(168,85,247,0.18), rgba(168,85,247,0.08))',
+          boxShadow: '0 0 12px rgba(168,85,247,0.12), inset 0 1px 0 rgba(168,85,247,0.1)'
+        } : {}}
       >
-        <item.icon className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? "text-purple-400" : "text-current"}`} />
-        <span className="text-xs tracking-wide font-medium">{item.name}</span>
-        {isActive && <span className="ml-auto w-1 h-1 rounded-full bg-purple-400" />}
+        {isActive && (
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full"
+            style={{ background: '#c084fc', boxShadow: '0 0 8px rgba(192,132,252,1)' }} />
+        )}
+        <item.icon className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${isActive ? "text-purple-400" : "text-purple-500/50"}`}
+          style={isActive ? { filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.8))' } : {}} />
+        <span className={`text-xs tracking-wide font-medium transition-colors ${
+          isActive ? "text-purple-100" : "text-purple-300/55 hover:text-purple-200"
+        }`}>{item.name}</span>
+        {isActive && (
+          <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
+            style={{ background: '#c084fc', boxShadow: '0 0 6px rgba(192,132,252,0.9)' }} />
+        )}
       </Link>
     );
   };
 
   return (
-    <div className="min-h-screen bg-[#000000] bg-grid text-white">
+    <div className="min-h-screen bg-[#02020a] bg-grid text-white" style={{ color: '#f0e6ff' }}>
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black/97 backdrop-blur-md border-b border-purple-900/20 px-4 py-3 flex items-center justify-between">
         <div className="flex items-baseline gap-0.5">
@@ -175,11 +189,15 @@ export default function Layout({ children, currentPageName }) {
       {/* Sidebar */}
       <aside className={`
         fixed top-0 left-0 h-full w-60 z-40
-        border-r border-purple-900/20
+        border-r
         transition-transform duration-300 ease-out flex flex-col
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0
-      `} style={{ background: 'rgba(2,2,8,0.99)' }}>
+      `} style={{
+        background: 'linear-gradient(180deg, rgba(8,4,22,0.99) 0%, rgba(4,2,14,0.99) 100%)',
+        borderColor: 'rgba(168,85,247,0.18)',
+        boxShadow: '4px 0 30px rgba(0,0,0,0.6), inset -1px 0 0 rgba(168,85,247,0.08)'
+      }}>
 
         {/* Logo */}
         <div className="px-5 py-4 border-b border-purple-900/15 hidden lg:block">
@@ -213,7 +231,8 @@ export default function Layout({ children, currentPageName }) {
         <nav className="flex-1 py-3 overflow-y-auto mt-12 lg:mt-0 scrollbar-thin">
           {navGroups.map((group) => (
             <div key={group.label} className="mb-3">
-              <p className="text-[9px] text-purple-500/20 uppercase tracking-[0.3em] font-semibold px-5 mb-1.5">
+              <p className="text-[9px] uppercase tracking-[0.3em] font-bold px-5 mb-1.5"
+                style={{ color: 'rgba(192,132,252,0.45)', letterSpacing: '0.35em' }}>
                 {group.label}
               </p>
               <div className="space-y-0.5">

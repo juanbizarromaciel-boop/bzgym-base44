@@ -97,43 +97,57 @@ export default function Dashboard() {
 
       {/* Header */}
       <div className="relative">
-        <p className="text-[10px] font-mono-cyber text-purple-500/35 tracking-[0.3em] uppercase mb-2">
-          {todayDate}
+        <p className="text-[10px] font-mono-cyber tracking-[0.35em] uppercase mb-3"
+          style={{ color: 'rgba(192,132,252,0.6)' }}>
+          ◈ {todayDate}
         </p>
-        <div className="flex items-end gap-4">
+        <div className="flex items-end gap-4 flex-wrap">
           <div>
-            <h1 className="font-cyber text-3xl md:text-4xl text-white tracking-widest leading-none"
-              style={{ textShadow: '0 0 30px rgba(168,85,247,0.3)' }}>
+            <h1 className="font-cyber text-3xl md:text-5xl font-black tracking-widest leading-none"
+              style={{
+                color: '#ffffff',
+                textShadow: '0 0 40px rgba(168,85,247,0.5), 0 0 80px rgba(168,85,247,0.2)'
+              }}>
               {userName ? `OLÁ, ${userName.toUpperCase()}` : "DASHBOARD"}
             </h1>
-            <p className="text-purple-400/40 text-sm mt-2 font-mono-cyber">// central de controle · professor</p>
+            <p className="text-sm mt-2 font-mono-cyber" style={{ color: 'rgba(192,132,252,0.55)' }}>
+              // central de controle · personal trainer
+            </p>
           </div>
           {alerts.length === 0 && activeStudents.length > 0 && (
-            <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5">
+            <div className="ml-auto flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/8"
+              style={{ boxShadow: '0 0 15px rgba(16,185,129,0.1)' }}>
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-[11px] text-emerald-400 font-mono-cyber">tudo em dia</span>
+              <span className="text-xs text-emerald-300 font-mono-cyber">sistema operacional</span>
             </div>
           )}
         </div>
-        {/* Accent line */}
-        <div className="mt-5 h-px bg-gradient-to-r from-purple-500/30 via-purple-500/10 to-transparent" />
+        {/* Accent lines */}
+        <div className="mt-6 flex gap-1">
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, rgba(168,85,247,0.6), rgba(6,182,212,0.3), transparent)' }} />
+          <div className="w-2 h-px bg-purple-500/60" />
+        </div>
       </div>
 
       {/* Alerts */}
       {alerts.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Bell className="w-3 h-3 text-purple-500/40" />
-            <p className="text-[10px] font-mono-cyber text-purple-500/40 uppercase tracking-[0.25em]">Alertas</p>
-            <span className="ml-1 px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-400 text-[10px] font-mono-cyber">{alerts.length}</span>
+            <Bell className="w-3.5 h-3.5" style={{ color: 'rgba(192,132,252,0.7)' }} />
+            <p className="text-[10px] font-mono-cyber uppercase tracking-[0.3em]" style={{ color: 'rgba(192,132,252,0.6)' }}>Alertas do Sistema</p>
+            <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono-cyber font-bold"
+              style={{ background: 'rgba(168,85,247,0.2)', color: '#d8b4fe', border: '1px solid rgba(168,85,247,0.35)' }}>
+              {alerts.length}
+            </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {alerts.map((alert, i) => (
               <Link key={i} to={alert.link}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all hover:brightness-125 group ${alertStyle[alert.color]}`}>
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all hover:brightness-125 hover:scale-[1.01] group ${alertStyle[alert.color]}`}
+                style={{ backdropFilter: 'blur(8px)' }}>
                 <alert.icon className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm flex-1 font-medium">{alert.text}</span>
-                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-60 -translate-x-1 group-hover:translate-x-0 transition-all" />
+                <span className="text-sm flex-1 font-semibold">{alert.text}</span>
+                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-70 -translate-x-1 group-hover:translate-x-0 transition-all" />
               </Link>
             ))}
           </div>
@@ -143,38 +157,58 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s, i) => (
-          <div key={i} className="relative rounded-xl p-5 border overflow-hidden transition-all group cursor-default"
+          <div key={i} className="relative rounded-xl p-5 border overflow-hidden transition-all hover:scale-[1.02] cursor-default"
             style={{
-              background: `radial-gradient(ellipse at top left, ${s.glow}, transparent 70%), rgba(4,4,12,0.95)`,
-              borderColor: `${s.accent}22`,
-              boxShadow: `inset 0 1px 0 ${s.glow}`
+              background: `radial-gradient(ellipse at top left, ${s.glow}, transparent 65%), rgba(6,4,18,0.95)`,
+              borderColor: `${s.accent}30`,
+              boxShadow: `0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 ${s.glow}`
             }}>
-            {/* top line accent */}
+            {/* top accent line */}
             <div className="absolute top-0 left-0 right-0 h-px"
-              style={{ background: `linear-gradient(90deg, transparent, ${s.accent}55, transparent)` }} />
-            <s.icon className="w-4 h-4 mb-4 opacity-70" style={{ color: s.accent }} />
-            <p className="font-cyber text-3xl font-bold" style={{ color: s.accent, textShadow: `0 0 20px ${s.glow}` }}>
+              style={{ background: `linear-gradient(90deg, transparent, ${s.accent}80, transparent)` }} />
+            {/* corner decoration */}
+            <div className="absolute bottom-0 right-0 w-6 h-6 overflow-hidden">
+              <div className="absolute bottom-0 right-0 w-px h-4" style={{ background: `${s.accent}40` }} />
+              <div className="absolute bottom-0 right-0 h-px w-4" style={{ background: `${s.accent}40` }} />
+            </div>
+            <s.icon className="w-4 h-4 mb-4" style={{ color: s.accent, filter: `drop-shadow(0 0 6px ${s.accent})` }} />
+            <p className="font-cyber text-4xl font-black" style={{ color: s.accent, textShadow: `0 0 25px ${s.accent}80` }}>
               {s.value}
             </p>
-            <p className="text-xs text-white/65 mt-1 font-medium">{s.label}</p>
-            <p className="text-[10px] text-purple-500/35 font-mono-cyber mt-0.5">{s.sub}</p>
+            <p className="text-sm mt-1.5 font-semibold" style={{ color: 'rgba(240,230,255,0.85)' }}>{s.label}</p>
+            <p className="text-[11px] font-mono-cyber mt-0.5" style={{ color: 'rgba(192,132,252,0.55)' }}>{s.sub}</p>
           </div>
         ))}
       </div>
 
       {/* Quick Actions */}
       <div>
-        <p className="text-[10px] font-mono-cyber text-purple-500/35 uppercase tracking-[0.25em] mb-3">▸ ações rápidas</p>
-        <div className="grid grid-cols-4 gap-3">
+        <p className="text-[10px] font-mono-cyber uppercase tracking-[0.3em] mb-3"
+          style={{ color: 'rgba(192,132,252,0.55)' }}>▸ ações rápidas</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {quickActions.map((a, i) => (
             <Link key={i} to={createPageUrl(a.page)}
-              className="flex flex-col items-center gap-3 p-4 rounded-xl border border-purple-900/20 bg-black/50 hover:bg-black/80 transition-all group"
-              style={{ '--accent': a.accent }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110"
-                style={{ background: `${a.accent}15`, border: `1px solid ${a.accent}25` }}>
-                <a.icon className="w-5 h-5" style={{ color: a.accent }} />
+              className="relative flex flex-col items-center gap-3 p-5 rounded-xl border transition-all group overflow-hidden hover:scale-[1.03]"
+              style={{
+                borderColor: `${a.accent}22`,
+                background: `linear-gradient(135deg, rgba(6,4,18,0.95), rgba(4,2,14,0.95))`,
+                boxShadow: `0 2px 20px rgba(0,0,0,0.4)`
+              }}>
+              {/* hover glow */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"
+                style={{ background: `radial-gradient(ellipse at center, ${a.accent}10, transparent 70%)` }} />
+              <div className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: `linear-gradient(90deg, transparent, ${a.accent}70, transparent)` }} />
+              <div className="relative w-12 h-12 rounded-xl flex items-center justify-center transition-all group-hover:scale-110"
+                style={{
+                  background: `${a.accent}18`,
+                  border: `1px solid ${a.accent}35`,
+                  boxShadow: `0 0 15px ${a.accent}20`
+                }}>
+                <a.icon className="w-5 h-5" style={{ color: a.accent, filter: `drop-shadow(0 0 5px ${a.accent})` }} />
               </div>
-              <span className="text-xs font-medium text-white/60 group-hover:text-white/90 transition-colors text-center">{a.label}</span>
+              <span className="relative text-xs font-semibold text-center transition-colors"
+                style={{ color: 'rgba(240,230,255,0.7)' }}>{a.label}</span>
             </Link>
           ))}
         </div>
@@ -183,39 +217,59 @@ export default function Dashboard() {
       {/* Recent Sessions */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-[10px] font-mono-cyber text-purple-500/35 uppercase tracking-[0.25em]">▸ treinos recentes</p>
-          <Link to={createPageUrl("Progress")} className="text-[11px] text-purple-400/50 hover:text-purple-400 transition-colors font-mono-cyber">
-            ver tudo →
+          <p className="text-[10px] font-mono-cyber uppercase tracking-[0.3em]"
+            style={{ color: 'rgba(192,132,252,0.55)' }}>▸ feed de treinos</p>
+          <Link to={createPageUrl("Progress")}
+            className="text-[11px] font-mono-cyber transition-colors hover:text-purple-300"
+            style={{ color: 'rgba(192,132,252,0.5)' }}>
+            ver histórico →
           </Link>
         </div>
-        <div className="rounded-xl border border-purple-900/20 overflow-hidden"
-          style={{ background: 'rgba(4,4,12,0.9)' }}>
+        <div className="rounded-xl border overflow-hidden"
+          style={{
+            background: 'linear-gradient(180deg, rgba(8,5,20,0.95), rgba(4,2,14,0.95))',
+            borderColor: 'rgba(168,85,247,0.15)',
+            boxShadow: '0 4px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(168,85,247,0.06)'
+          }}>
+          {/* header bar */}
+          <div className="px-5 py-2.5 border-b flex items-center gap-2"
+            style={{ borderColor: 'rgba(168,85,247,0.12)', background: 'rgba(168,85,247,0.04)' }}>
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" style={{ boxShadow: '0 0 6px rgba(16,185,129,0.9)' }} />
+            <span className="text-[10px] font-mono-cyber" style={{ color: 'rgba(192,132,252,0.5)' }}>LIVE · atividade recente</span>
+          </div>
           {recentSessions.length === 0 ? (
             <div className="p-10 text-center">
-              <Dumbbell className="w-8 h-8 mx-auto mb-3 text-purple-500/20" />
-              <p className="text-sm text-purple-500/30 font-mono-cyber">// nenhum treino registrado ainda</p>
+              <Dumbbell className="w-8 h-8 mx-auto mb-3" style={{ color: 'rgba(168,85,247,0.2)' }} />
+              <p className="text-sm font-mono-cyber" style={{ color: 'rgba(168,85,247,0.3)' }}>// nenhum treino registrado ainda</p>
             </div>
           ) : (
-            <div className="divide-y divide-purple-900/15">
+            <div className="divide-y" style={{ borderColor: 'rgba(168,85,247,0.08)' }}>
               {recentSessions.map((session, i) => {
                 const student = getStudent(session.student_id);
                 const plan = getPlan(session.plan_id);
                 return (
-                  <div key={i} className="flex items-center gap-4 px-5 py-3.5 hover:bg-purple-500/4 transition-colors group">
-                    {/* Avatar */}
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-cyber flex-shrink-0"
-                      style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)', color: '#c084fc' }}>
+                  <div key={i} className="flex items-center gap-4 px-5 py-3.5 transition-colors group"
+                    style={{ ':hover': { background: 'rgba(168,85,247,0.04)' } }}
+                    onMouseEnter={e => e.currentTarget.style.background='rgba(168,85,247,0.04)'}
+                    onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-cyber font-bold flex-shrink-0"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(168,85,247,0.08))',
+                        border: '1px solid rgba(168,85,247,0.3)',
+                        color: '#d8b4fe',
+                        textShadow: '0 0 8px rgba(168,85,247,0.6)'
+                      }}>
                       {student?.name?.charAt(0) || "?"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-white font-medium truncate">{student?.name || "Aluno"}</p>
-                      <p className="text-[11px] text-purple-400/40 font-mono-cyber truncate">
+                      <p className="text-sm font-semibold truncate" style={{ color: '#f0e6ff' }}>{student?.name || "Aluno"}</p>
+                      <p className="text-[11px] font-mono-cyber truncate mt-0.5" style={{ color: 'rgba(192,132,252,0.5)' }}>
                         {plan?.name || "Treino livre"} · {session.count} exerc.
                       </p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" style={{ boxShadow: '0 0 6px rgba(16,185,129,0.8)' }} />
-                      <span className="text-[11px] text-purple-400/40 font-mono-cyber">{formatDate(session.date)}</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" style={{ boxShadow: '0 0 8px rgba(16,185,129,0.9)' }} />
+                      <span className="text-[11px] font-mono-cyber" style={{ color: 'rgba(192,132,252,0.45)' }}>{formatDate(session.date)}</span>
                     </div>
                   </div>
                 );
