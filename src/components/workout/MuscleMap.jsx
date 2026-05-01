@@ -101,30 +101,30 @@ export default function MuscleMap({ exercises = [], size = "md", showLabels = fa
             {/* Pescoço */}
             <rect x="27" y="16" width="6" height="6" rx="1" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
             {/* Trapézio/Ombros */}
-            <path d="M27 19 Q18 21 14 25 L14 38 Q16 42 20 43 L22 34 Q24 26 30 25 Q36 26 38 34 L40 43 Q44 42 46 38 L46 25 Q42 21 33 19 Z"
+            <path d="M27 19 Q16 21 11 26 L11 40 Q13 44 18 45 L20 35 Q23 26 30 25 Q37 26 40 35 L42 45 Q47 44 49 40 L49 26 Q44 21 33 19 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             {/* Torso (ombros largos → cintura estreita → quadril) */}
-            <path d="M20 43 Q17 55 18 70 Q19 82 22 86 L22 96 L38 96 L38 86 Q41 82 42 70 Q43 55 40 43 L30 44 Z"
+            <path d="M18 45 Q15 57 16 72 Q17 83 21 87 L22 96 L38 96 L39 87 Q43 83 44 72 Q45 57 42 45 L30 46 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             {/* Quadril */}
             <path d="M22 96 Q19 100 19 105 L22 108 L38 108 L41 105 Q41 100 38 96 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             {/* Braço esquerdo superior */}
-            <path d="M14 25 Q10 28 9 38 L9 56 Q10 60 13 62 L15 60 Q14 54 14 40 L16 28 Z"
+            <path d="M11 26 Q7 30 6 40 L6 58 Q7 62 10 64 L12 62 Q11 55 11 42 L13 29 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             {/* Braço direito superior */}
-            <path d="M46 25 Q50 28 51 38 L51 56 Q50 60 47 62 L45 60 Q46 54 46 40 L44 28 Z"
+            <path d="M49 26 Q53 30 54 40 L54 58 Q53 62 50 64 L48 62 Q49 55 49 42 L47 29 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             {/* Antebraço esquerdo */}
-            <path d="M9 56 Q8 65 9 74 L11 78 L14 77 L13 62 Z"
+            <path d="M6 58 Q5 67 6 76 L9 80 L12 78 L10 64 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             {/* Antebraço direito */}
-            <path d="M51 56 Q52 65 51 74 L49 78 L46 77 L47 62 Z"
+            <path d="M54 58 Q55 67 54 76 L51 80 L48 78 L50 64 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             {/* Mão esquerda */}
-            <ellipse cx="10" cy="81" rx="3" ry="4.5" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
+            <ellipse cx="7" cy="83" rx="3" ry="4.5" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
             {/* Mão direita */}
-            <ellipse cx="50" cy="81" rx="3" ry="4.5" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
+            <ellipse cx="53" cy="83" rx="3" ry="4.5" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
             {/* Coxa esquerda */}
             <path d="M19 108 Q17 125 18 142 L22 145 L26 143 L25 108 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
@@ -149,10 +149,10 @@ export default function MuscleMap({ exercises = [], size = "md", showLabels = fa
             {/* ── MÚSCULOS FRENTE ── */}
 
             {/* Deltóide esquerdo */}
-            <path d="M14 25 Q10 27 9 34 L11 42 Q13 42 15 38 L16 28 Z"
+            <path d="M11 26 Q7 28 6 36 L8 44 Q11 44 13 40 L14 30 Z"
               {...M(intensity.ombros, "purple")}/>
             {/* Deltóide direito */}
-            <path d="M46 25 Q50 27 51 34 L49 42 Q47 42 45 38 L44 28 Z"
+            <path d="M49 26 Q53 28 54 36 L52 44 Q49 44 47 40 L46 30 Z"
               {...M(intensity.ombros, "purple")}/>
 
             {/* Peitoral esquerdo */}
@@ -183,17 +183,17 @@ export default function MuscleMap({ exercises = [], size = "md", showLabels = fa
               {...M(intensity.abdomen * 0.6, "cyan")}/>
 
             {/* Bíceps esquerdo */}
-            <path d="M10 34 Q8 40 8 52 Q9 58 12 60 L14 58 Q13 50 13 38 Z"
+            <path d="M7 36 Q5 42 5 54 Q6 60 9 62 L11 60 Q10 52 10 40 Z"
               {...M(intensity.biceps, "purple")}/>
             {/* Bíceps direito */}
-            <path d="M50 34 Q52 40 52 52 Q51 58 48 60 L46 58 Q47 50 47 38 Z"
+            <path d="M53 36 Q55 42 55 54 Q54 60 51 62 L49 60 Q50 52 50 40 Z"
               {...M(intensity.biceps, "purple")}/>
 
             {/* Antebraço esquerdo */}
-            <path d="M9 60 Q8 68 9 76 L12 79 L14 77 L13 60 Z"
+            <path d="M6 62 Q5 70 6 78 L9 81 L12 79 L10 64 Z"
               {...M(intensity.antebraco, "purple")}/>
             {/* Antebraço direito */}
-            <path d="M51 60 Q52 68 51 76 L48 79 L46 77 L47 60 Z"
+            <path d="M54 62 Q55 70 54 78 L51 81 L48 79 L50 64 Z"
               {...M(intensity.antebraco, "purple")}/>
 
             {/* Quad esquerdo – lateral */}
@@ -233,20 +233,20 @@ export default function MuscleMap({ exercises = [], size = "md", showLabels = fa
             {/* ── SILHUETA COSTAS (espelhada) ── */}
             <ellipse cx="30" cy="9" rx="7" ry="8" fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             <rect x="27" y="16" width="6" height="6" rx="1" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
-            <path d="M27 19 Q18 21 14 25 L14 38 Q16 42 20 43 L22 34 Q24 26 30 25 Q36 26 38 34 L40 43 Q44 42 46 38 L46 25 Q42 21 33 19 Z"
+            <path d="M27 19 Q16 21 11 26 L11 40 Q13 44 18 45 L20 35 Q23 26 30 25 Q37 26 40 35 L42 45 Q47 44 49 40 L49 26 Q44 21 33 19 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
-            <path d="M20 43 Q17 55 18 70 Q19 82 22 86 L22 96 L38 96 L38 86 Q41 82 42 70 Q43 55 40 43 L30 44 Z"
+            <path d="M18 45 Q15 57 16 72 Q17 83 21 87 L22 96 L38 96 L39 87 Q43 83 44 72 Q45 57 42 45 L30 46 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             <path d="M22 96 Q19 100 19 105 L22 108 L38 108 L41 105 Q41 100 38 96 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
-            <path d="M14 25 Q10 28 9 38 L9 56 Q10 60 13 62 L15 60 Q14 54 14 40 L16 28 Z"
+            <path d="M11 26 Q7 30 6 40 L6 58 Q7 62 10 64 L12 62 Q11 55 11 42 L13 29 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
-            <path d="M46 25 Q50 28 51 38 L51 56 Q50 60 47 62 L45 60 Q46 54 46 40 L44 28 Z"
+            <path d="M49 26 Q53 30 54 40 L54 58 Q53 62 50 64 L48 62 Q49 55 49 42 L47 29 Z"
               fill={SKIN} stroke={SK} strokeWidth="0.5"/>
-            <path d="M9 56 Q8 65 9 74 L11 78 L14 77 L13 62 Z" fill={SKIN} stroke={SK} strokeWidth="0.5"/>
-            <path d="M51 56 Q52 65 51 74 L49 78 L46 77 L47 62 Z" fill={SKIN} stroke={SK} strokeWidth="0.5"/>
-            <ellipse cx="10" cy="81" rx="3" ry="4.5" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
-            <ellipse cx="50" cy="81" rx="3" ry="4.5" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
+            <path d="M6 58 Q5 67 6 76 L9 80 L12 78 L10 64 Z" fill={SKIN} stroke={SK} strokeWidth="0.5"/>
+            <path d="M54 58 Q55 67 54 76 L51 80 L48 78 L50 64 Z" fill={SKIN} stroke={SK} strokeWidth="0.5"/>
+            <ellipse cx="7" cy="83" rx="3" ry="4.5" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
+            <ellipse cx="53" cy="83" rx="3" ry="4.5" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
             <path d="M19 108 Q17 125 18 142 L22 145 L26 143 L25 108 Z" fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             <path d="M41 108 Q43 125 42 142 L38 145 L34 143 L35 108 Z" fill={SKIN} stroke={SK} strokeWidth="0.5"/>
             <ellipse cx="22" cy="147" rx="4" ry="3" fill={SKIN} stroke={SK} strokeWidth="0.4"/>
@@ -259,37 +259,37 @@ export default function MuscleMap({ exercises = [], size = "md", showLabels = fa
             {/* ── MÚSCULOS COSTAS ── */}
 
             {/* Trapézio superior */}
-            <path d="M22 20 Q26 18 30 19 Q34 18 38 20 L42 28 Q36 24 30 25 Q24 24 18 28 Z"
+            <path d="M22 20 Q26 18 30 19 Q34 18 38 20 L44 28 Q37 24 30 25 Q23 24 16 28 Z"
               {...M(intensity.costas, "cyan")}/>
             {/* Trapézio médio */}
-            <path d="M18 28 Q14 30 13 36 L17 42 Q21 38 26 36 L30 35 L34 36 Q39 38 43 42 L47 36 Q46 30 42 28 Q36 24 30 25 Q24 24 18 28 Z"
+            <path d="M16 28 Q12 31 11 37 L15 43 Q19 39 24 37 L30 36 L36 37 Q41 39 45 43 L49 37 Q48 31 44 28 Q37 24 30 25 Q23 24 16 28 Z"
               {...M(intensity.costas, "cyan")}/>
 
             {/* Deltóide posterior esquerdo */}
-            <path d="M14 25 Q10 27 9 33 L11 40 Q14 40 16 36 Z"
+            <path d="M11 26 Q7 28 6 35 L8 43 Q11 43 13 39 L14 30 Z"
               {...M(intensity.ombros, "purple")}/>
             {/* Deltóide posterior direito */}
-            <path d="M46 25 Q50 27 51 33 L49 40 Q46 40 44 36 Z"
+            <path d="M49 26 Q53 28 54 35 L52 43 Q49 43 47 39 L46 30 Z"
               {...M(intensity.ombros, "purple")}/>
 
             {/* Infraespinhal esquerdo */}
-            <path d="M18 42 Q15 50 17 58 L24 56 L24 42 Q21 41 18 42 Z"
+            <path d="M16 43 Q13 51 15 59 L23 57 L23 43 Q20 42 16 43 Z"
               {...M(intensity.costas * 0.7, "cyan")}/>
             {/* Infraespinhal direito */}
-            <path d="M42 42 Q45 50 43 58 L36 56 L36 42 Q39 41 42 42 Z"
+            <path d="M44 43 Q47 51 45 59 L37 57 L37 43 Q40 42 44 43 Z"
               {...M(intensity.costas * 0.7, "cyan")}/>
 
             {/* Lattísimo esquerdo */}
-            <path d="M17 44 Q13 54 13 68 L18 73 Q21 66 22 56 L24 56 Z"
+            <path d="M15 45 Q11 56 11 70 L16 75 Q19 68 21 57 L23 57 Z"
               {...M(intensity.costas, "cyan")}/>
             {/* Lattísimo direito */}
-            <path d="M43 44 Q47 54 47 68 L42 73 Q39 66 38 56 L36 56 Z"
+            <path d="M45 45 Q49 56 49 70 L44 75 Q41 68 39 57 L37 57 Z"
               {...M(intensity.costas, "cyan")}/>
             {intensity.costas > 0 && <>
-              <path d="M17 48 L22 58" stroke="rgba(6,182,212,0.35)" strokeWidth="0.4" fill="none"/>
-              <path d="M16 58 L21 67" stroke="rgba(6,182,212,0.35)" strokeWidth="0.4" fill="none"/>
-              <path d="M43 48 L38 58" stroke="rgba(6,182,212,0.35)" strokeWidth="0.4" fill="none"/>
-              <path d="M44 58 L39 67" stroke="rgba(6,182,212,0.35)" strokeWidth="0.4" fill="none"/>
+              <path d="M15 50 L21 60" stroke="rgba(6,182,212,0.35)" strokeWidth="0.4" fill="none"/>
+              <path d="M14 60 L20 69" stroke="rgba(6,182,212,0.35)" strokeWidth="0.4" fill="none"/>
+              <path d="M45 50 L39 60" stroke="rgba(6,182,212,0.35)" strokeWidth="0.4" fill="none"/>
+              <path d="M46 60 L40 69" stroke="rgba(6,182,212,0.35)" strokeWidth="0.4" fill="none"/>
             </>}
 
             {/* Eretores da espinha / lombar */}
@@ -307,17 +307,17 @@ export default function MuscleMap({ exercises = [], size = "md", showLabels = fa
               {...M(intensity.costas * 0.6, "cyan")}/>
 
             {/* Tríceps esquerdo */}
-            <path d="M11 34 Q9 42 9 54 L12 58 L14 56 Q13 46 13 36 Z"
+            <path d="M8 36 Q6 44 6 56 L9 60 L11 58 Q10 48 10 38 Z"
               {...M(intensity.triceps, "purple")}/>
             {/* Tríceps direito */}
-            <path d="M49 34 Q51 42 51 54 L48 58 L46 56 Q47 46 47 36 Z"
+            <path d="M52 36 Q54 44 54 56 L51 60 L49 58 Q50 48 50 38 Z"
               {...M(intensity.triceps, "purple")}/>
 
             {/* Antebraço esquerdo costas */}
-            <path d="M9 60 Q8 68 9 76 L12 79 L14 77 L13 60 Z"
+            <path d="M6 60 Q5 68 6 76 L9 80 L12 78 L10 64 Z"
               {...M(intensity.antebraco, "purple")}/>
             {/* Antebraço direito costas */}
-            <path d="M51 60 Q52 68 51 76 L48 79 L46 77 L47 60 Z"
+            <path d="M54 60 Q55 68 54 76 L51 80 L48 78 L50 64 Z"
               {...M(intensity.antebraco, "purple")}/>
 
             {/* Glúteo esquerdo */}
