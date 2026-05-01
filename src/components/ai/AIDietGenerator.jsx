@@ -96,7 +96,7 @@ Retorne JSON com: dietName, goal, totalCalories, totalProtein, totalCarbs, total
       if (!d?.meals?.length) { toast.error("A IA não gerou um plano válido. Tente um prompt mais detalhado."); return; }
       setDiet(d);
     } catch (e) {
-      toast.error(e.message);
+      toast.error("Erro ao conectar: " + e.message);
     }
     setLoading(false);
   };

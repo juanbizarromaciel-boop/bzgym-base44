@@ -146,7 +146,7 @@ export default function AIFoodGenerator({ settings }) {
       if (list.length === 0) { toast.error("A IA não retornou alimentos válidos. Tente um prompt mais específico."); return; }
       setFoods(list);
     } catch (e) {
-      toast.error(e.message);
+      toast.error("Erro ao conectar: " + e.message);
     }
     setLoading(false);
   };
