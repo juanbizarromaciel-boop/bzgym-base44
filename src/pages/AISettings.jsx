@@ -79,6 +79,7 @@ export default function AISettings() {
   const handleTestConnection = async () => {
     if (!apiKey) { toast.error("Informe a API Key para testar."); return; }
     setTestStatus('loading');
+    setTestMsg("");
     try {
       const res = await base44.functions.invoke('aiCoach', {
         type: 'test',
@@ -86,17 +87,23 @@ export default function AISettings() {
         api_key: apiKey,
         model: settings?.model || 'gpt-4o-mini'
       });
-      if (res?.data?.success) {
+      const data = res?.data;
+      if (data?.success) {
         setTestStatus('ok');
-        setTestMsg(res.data.data?.message || 'Conexão estabelecida com sucesso!');
+        setTestMsg(data.data?.message || 'Conexão estabelecida com sucesso!');
         toast.success("API conectada com sucesso!");
       } else {
         setTestStatus('error');
-        setTestMsg(res?.data?.error || 'Falha na conexão');
+        const errMsg = data?.error || 'Falha na conexão';
+        setTestMsg(errMsg);
+        toast.error(errMsg);
       }
     } catch (e) {
+      // Extract error message from axios error response
+      const errMsg = e?.response?.data?.error || e?.response?.data?.message || e.message || 'Erro desconhecido';
       setTestStatus('error');
-      setTestMsg(e.message);
+      setTestMsg(errMsg);
+      toast.error(errMsg);
     }
   };
 
