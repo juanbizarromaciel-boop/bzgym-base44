@@ -1,37 +1,39 @@
 import React, { useMemo } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-const calculateMuscleIntensity = (exercises = []) => {
-  const muscleGroups = {
-    peito: 0, costas: 0, ombros: 0, biceps: 0, triceps: 0,
-    pernas: 0, gluteos: 0, abdomen: 0, panturrilha: 0, antebraco: 0
-  };
-  exercises.forEach(ex => {
-    const group = ex.muscle_group || "outro";
-    if (muscleGroups[group] !== undefined) {
-      muscleGroups[group] += (ex.sets || 3);
-    }
-  });
-  return muscleGroups;
-};
+/**
+ * MuscleMap - Pie chart showing muscle groups worked.
+ *
+ * Props:
+ *   exercises: array of exercise objects. Each can be:
+ *     - { muscle_group: "peito", sets: 3 }  (from Exercise entity)
+ *     - { exercise_name: "Supino", muscle_group: "peito", sets: 3 } (from WorkoutPlan.exercises)
+ *   exerciseLibrary: optional array of Exercise entity objects to resolve muscle_group by name
+ *   loggedExercises: optional array of { exercise_name, sets_completed } from WorkoutLogs (for Progress period view)
+ *   size: "sm" | "md" | "lg"
+ *   showLabels: boolean
+ */
 
 const LABELS = {
   peito: "Peito", costas: "Costas", ombros: "Ombros", biceps: "Bíceps",
   triceps: "Tríceps", pernas: "Pernas", gluteos: "Glúteos",
-  abdomen: "Abdômen", panturrilha: "Panturrilha", antebraco: "Antebraço"
+  abdomen: "Abdômen", panturrilha: "Panturrilha", antebraco: "Antebraço",
+  cardio: "Cardio", outro: "Outro",
 };
 
 const COLORS = {
-  peito:      "#ec4899",
-  costas:     "#06b6d4",
-  ombros:     "#a855f7",
-  biceps:     "#c084fc",
-  triceps:    "#818cf8",
-  pernas:     "#f472b6",
-  gluteos:    "#fb7185",
-  abdomen:    "#22d3ee",
-  panturrilha:"#67e8f9",
-  antebraco:  "#d8b4fe",
+  peito:       "#ec4899",
+  costas:      "#06b6d4",
+  ombros:      "#a855f7",
+  biceps:      "#c084fc",
+  triceps:     "#818cf8",
+  pernas:      "#f472b6",
+  gluteos:     "#fb7185",
+  abdomen:     "#22d3ee",
+  panturrilha: "#67e8f9",
+  antebraco:   "#d8b4fe",
+  cardio:      "#ef4444",
+  outro:       "#6b7280",
 };
 
 const CustomTooltip = ({ active, payload }) => {
@@ -54,17 +56,47 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-export default function MuscleMap({ exercises = [], size = "md", showLabels = false }) {
-  const raw = useMemo(() => calculateMuscleIntensity(exercises), [exercises]);
+export default function MuscleMap({ exercises = [], exerciseLibrary = [], loggedExercises = [], size = "md", showLabels = false }) {
+  const data = useMemo(() => {
+    // Build a name → muscle_group lookup from library
+    const libraryMap = {};
+    exerciseLibrary.forEach(ex => {
+      if (ex.name) libraryMap[ex.name.toLowerCase()] = ex.muscle_group;
+    });
 
-  const data = Object.entries(raw)
-    .filter(([, v]) => v > 0)
-    .map(([key, value]) => ({
-      key,
-      name: LABELS[key],
-      value,
-      color: COLORS[key],
-    }));
+    const muscleGroups = {};
+
+    // From plan exercises (primary source)
+    exercises.forEach(ex => {
+      let muscle = ex.muscle_group;
+      if (!muscle && ex.exercise_name) {
+        muscle = libraryMap[ex.exercise_name.toLowerCase()] || "outro";
+      }
+      if (!muscle) muscle = "outro";
+      const sets = ex.sets || 3;
+      muscleGroups[muscle] = (muscleGroups[muscle] || 0) + sets;
+    });
+
+    // From logged exercises (for period-based Progress view)
+    loggedExercises.forEach(log => {
+      let muscle = log.muscle_group;
+      if (!muscle && log.exercise_name) {
+        muscle = libraryMap[log.exercise_name.toLowerCase()] || "outro";
+      }
+      if (!muscle) muscle = "outro";
+      const sets = log.sets_completed?.length || 3;
+      muscleGroups[muscle] = (muscleGroups[muscle] || 0) + sets;
+    });
+
+    return Object.entries(muscleGroups)
+      .filter(([, v]) => v > 0)
+      .map(([key, value]) => ({
+        key,
+        name: LABELS[key] || key,
+        value,
+        color: COLORS[key] || "#6b7280",
+      }));
+  }, [exercises, exerciseLibrary, loggedExercises]);
 
   const sizeMap = { sm: 140, md: 190, lg: 240 };
   const chartSize = sizeMap[size] || sizeMap.md;
@@ -99,8 +131,8 @@ export default function MuscleMap({ exercises = [], size = "md", showLabels = fa
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius="45%"
-              outerRadius="75%"
+              innerRadius="42%"
+              outerRadius="72%"
               paddingAngle={3}
               dataKey="value"
               strokeWidth={0}

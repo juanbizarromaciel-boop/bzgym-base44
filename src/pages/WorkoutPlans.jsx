@@ -115,7 +115,17 @@ export default function WorkoutPlans() {
 
   const getStudentName = (id) => students.find((s) => s.id === id)?.name || "—";
 
+  const [expandedStudent, setExpandedStudent] = useState(null);
+
   const filteredPlans = filterStudent === "all" ? plans : plans.filter((p) => p.student_id === filterStudent);
+
+  // Group plans by student
+  const plansByStudent = students
+    .map(s => ({ student: s, plans: filteredPlans.filter(p => p.student_id === s.id) }))
+    .filter(g => g.plans.length > 0);
+
+  // Plans with no matching student
+  const orphanPlans = filteredPlans.filter(p => !students.find(s => s.id === p.student_id));
 
   return (
     <div>
@@ -143,64 +153,124 @@ export default function WorkoutPlans() {
         </Select>
       </div>
 
-      <div className="space-y-3">
-        {filteredPlans.map((plan) => (
+      <div className="space-y-4">
+        {plansByStudent.map(({ student, plans: studentPlans }) => {
+          const isOpen = expandedStudent === student.id || filterStudent === student.id;
+          return (
+            <div key={student.id} className="cyber-card rounded-xl border border-purple-900/25 overflow-hidden">
+              {/* Student Folder Header */}
+              <button
+                className="w-full flex items-center justify-between px-5 py-4 hover:bg-purple-500/5 transition-all"
+                onClick={() => setExpandedStudent(isOpen ? null : student.id)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/15 border border-purple-500/25 flex items-center justify-center flex-shrink-0">
+                    <UserCircle className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-white text-sm">{student.name}</p>
+                    <p className="text-[10px] font-mono-cyber text-purple-500/40 mt-0.5">{studentPlans.length} treino{studentPlans.length !== 1 ? "s" : ""}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    {studentPlans.slice(0, 4).map(p => (
+                      <span key={p.id} className="text-[9px] px-2 py-0.5 rounded font-mono-cyber"
+                        style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)', color: 'rgba(192,132,252,0.7)' }}>
+                        {p.name.length > 10 ? p.name.slice(0, 10) + "…" : p.name}
+                      </span>
+                    ))}
+                    {studentPlans.length > 4 && <span className="text-[9px] text-purple-500/40 font-mono-cyber self-center">+{studentPlans.length - 4}</span>}
+                  </div>
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-purple-500/40" /> : <ChevronDown className="w-4 h-4 text-purple-500/40" />}
+                </div>
+              </button>
+
+              {/* Plans inside this student folder */}
+              {isOpen && (
+                <div className="border-t border-purple-900/20 divide-y divide-purple-900/10">
+                  {studentPlans.map((plan) => (
+                    <div key={plan.id} className="bg-black/20">
+                      <div
+                        className="pl-10 pr-5 py-4 flex items-center justify-between cursor-pointer hover:bg-purple-500/3 transition-all"
+                        onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(to bottom, #a855f7, #06b6d4)', opacity: 0.5, boxShadow: '0 0 6px rgba(168,85,247,0.4)' }} />
+                          <div>
+                            <h3 className="font-medium text-white text-sm">{plan.name}</h3>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {plan.day_of_week && (
+                                <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px]">
+                                  {days[plan.day_of_week]}
+                                </Badge>
+                              )}
+                              <Badge className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px]">
+                                {plan.exercises?.length || 0} exerc.
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-cyan-300" title="Duplicar" onClick={(e) => { e.stopPropagation(); setDuplicatePlan(plan); setDupeStudentId(plan.student_id); }}>
+                            <Copy className="w-3 h-3" />
+                          </Button>
+                          <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center h-7 w-7">
+                            <WorkoutPdfExport studentId={plan.student_id} studentName={getStudentName(plan.student_id)} planId={plan.id} compact={true} />
+                          </div>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-purple-300" onClick={(e) => { e.stopPropagation(); openEditPlan(plan); }}>
+                            <Pencil className="w-3 h-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-pink-400" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(plan.id); }}>
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                          {expandedPlan === plan.id ? <ChevronUp className="w-3.5 h-3.5 text-purple-500/40" /> : <ChevronDown className="w-3.5 h-3.5 text-purple-500/40" />}
+                        </div>
+                      </div>
+                      {expandedPlan === plan.id && (
+                        <div className="pl-12 pr-5 pb-4 space-y-2 border-t border-purple-900/10 pt-3">
+                          {plan.exercises?.map((ex, idx) => (
+                            <ExerciseCard key={idx} exercise={ex} index={idx} showActions={false} />
+                          ))}
+                          {(!plan.exercises || plan.exercises.length === 0) && (
+                            <p className="text-sm text-purple-500/30 text-center py-4 font-mono-cyber">// nenhum exercício adicionado</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {orphanPlans.map((plan) => (
           <div key={plan.id} className="cyber-card rounded-xl border border-purple-900/20 overflow-hidden hover:border-purple-500/25 transition-all">
-            <div
-              className="p-5 flex items-center justify-between cursor-pointer"
-              onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}
-            >
+            <div className="p-5 flex items-center justify-between cursor-pointer" onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}>
               <div className="flex items-center gap-4">
-                <div className="w-2 h-10 rounded-full bg-gradient-to-b from-purple-500 to-cyan-500 opacity-60" style={{boxShadow: '0 0 8px rgba(168,85,247,0.5)'}} />
+                <div className="w-2 h-10 rounded-full bg-gradient-to-b from-purple-500 to-cyan-500 opacity-60" />
                 <div>
                   <h3 className="font-semibold text-white">{plan.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <UserCircle className="w-3.5 h-3.5 text-purple-500/40" />
-                    <span className="text-xs text-purple-400/40 font-mono-cyber">{getStudentName(plan.student_id)}</span>
-                    {plan.day_of_week && (
-                      <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs">
-                        {days[plan.day_of_week]}
-                      </Badge>
-                    )}
-                    <Badge className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs">
-                      {plan.exercises?.length || 0} exerc.
-                    </Badge>
+                    <Badge className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs">{plan.exercises?.length || 0} exerc.</Badge>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-cyan-300" title="Duplicar treino" onClick={(e) => { e.stopPropagation(); setDuplicatePlan(plan); setDupeStudentId(plan.student_id); }}>
-                  <Copy className="w-3.5 h-3.5" />
-                </Button>
-                <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center h-8 w-8">
-                  <WorkoutPdfExport
-                    studentId={plan.student_id}
-                    studentName={getStudentName(plan.student_id)}
-                    planId={plan.id}
-                    compact={true}
-                  />
-                </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-purple-300" onClick={(e) => { e.stopPropagation(); openEditPlan(plan); }}>
-                  <Pencil className="w-3.5 h-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-pink-400" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(plan.id); }}>
-                  <Trash2 className="w-3.5 h-3.5" />
-                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-purple-300" onClick={(e) => { e.stopPropagation(); openEditPlan(plan); }}><Pencil className="w-3.5 h-3.5" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-purple-400/40 hover:text-pink-400" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(plan.id); }}><Trash2 className="w-3.5 h-3.5" /></Button>
                 {expandedPlan === plan.id ? <ChevronUp className="w-4 h-4 text-purple-500/40" /> : <ChevronDown className="w-4 h-4 text-purple-500/40" />}
               </div>
             </div>
             {expandedPlan === plan.id && (
               <div className="px-5 pb-5 space-y-2 border-t border-purple-900/20 pt-4">
-                {plan.exercises?.map((ex, idx) => (
-                  <ExerciseCard key={idx} exercise={ex} index={idx} showActions={false} />
-                ))}
-                {(!plan.exercises || plan.exercises.length === 0) && (
-                  <p className="text-sm text-purple-500/30 text-center py-4 font-mono-cyber">// nenhum exercício adicionado</p>
-                )}
+                {plan.exercises?.map((ex, idx) => <ExerciseCard key={idx} exercise={ex} index={idx} showActions={false} />)}
               </div>
             )}
           </div>
         ))}
+
         {filteredPlans.length === 0 && (
           <div className="text-center py-16 text-purple-500/30">
             <p className="font-mono-cyber text-sm">// nenhum treino encontrado</p>

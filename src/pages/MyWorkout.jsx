@@ -304,7 +304,7 @@ export default function MyWorkout() {
       {/* Muscle Map */}
       <div className="cyber-card rounded-xl p-5 border border-purple-900/20 mb-5">
         <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">Grupos Musculares - {selectedPlan?.name}</p>
-        <MuscleMap exercises={selectedPlan?.exercises || []} size="sm" showLabels={true} />
+        <MuscleMap exercises={selectedPlan?.exercises || []} exerciseLibrary={exercises} size="sm" showLabels={true} />
       </div>
 
       {/* Back + Header */}

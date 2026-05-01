@@ -134,7 +134,7 @@ export default function StudentWorkout() {
           {/* Muscle Map */}
           <div className="cyber-card rounded-xl p-5 border border-purple-900/20 mb-4">
             <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">Grupos Musculares - {selectedPlan.name}</p>
-            <MuscleMap exercises={selectedPlan.exercises || []} size="md" showLabels={true} />
+            <MuscleMap exercises={selectedPlan.exercises || []} exerciseLibrary={exercises} size="md" showLabels={true} />
           </div>
 
           {/* Progress bar */}

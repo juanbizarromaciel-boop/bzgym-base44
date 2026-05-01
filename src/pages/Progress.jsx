@@ -254,10 +254,10 @@ export default function Progress() {
 
       {selectedStudentId && filteredLogs.length > 0 && (
         <>
-          {allStudentExercises.length > 0 && (
+          {filteredLogs.length > 0 && (
             <div className="cyber-card rounded-xl p-5 border border-purple-900/20 mb-6">
-              <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">Mapa Muscular</p>
-              <MuscleMap exercises={allStudentExercises} size="md" showLabels={true} />
+              <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">Músculos Trabalhados no Período</p>
+              <MuscleMap loggedExercises={filteredLogs} exerciseLibrary={exercises} size="md" showLabels={true} />
             </div>
           )}
 
