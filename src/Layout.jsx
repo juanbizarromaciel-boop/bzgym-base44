@@ -4,39 +4,115 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
-  Library, LayoutDashboard, User, Utensils, BookOpen, Activity, FileImage, Trophy, UserCircle
+  Library, LayoutDashboard, Utensils, BookOpen, Activity,
+  FileImage, Trophy, UserCircle, MessageSquare, UserPlus
 } from "lucide-react";
-import NotificationBell from "../components/notifications/NotificationBell";
+import NotificationBell from "./components/notifications/NotificationBell";
 
-const adminNav = [
-  { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
-  { name: "Novos Alunos", icon: Users, page: "PendingStudents" },
-  { name: "Alunos", icon: Users, page: "Students" },
-  { name: "Chat", icon: User, page: "Chat" },
-  { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
-  { name: "Treinos", icon: ClipboardList, page: "WorkoutPlans" },
-  { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
-  { name: "Progresso", icon: BarChart3, page: "Progress" },
-  { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-  { name: "Dietas", icon: Utensils, page: "Diet" },
-  { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
-  { name: "CH", icon: Activity, page: "CH" },
-  { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-  { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-  { name: "Perfil", icon: UserCircle, page: "Profile" },
+const adminNavGroups = [
+  {
+    label: "Visão Geral",
+    items: [
+      { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+      { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
+    ]
+  },
+  {
+    label: "Alunos",
+    items: [
+      { name: "Alunos", icon: Users, page: "Students" },
+      { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
+    ]
+  },
+  {
+    label: "Treinos",
+    items: [
+      { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
+      { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
+      { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
+    ]
+  },
+  {
+    label: "Evolução",
+    items: [
+      { name: "Progresso", icon: BarChart3, page: "Progress" },
+      { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
+    ]
+  },
+  {
+    label: "Nutrição",
+    items: [
+      { name: "Dietas", icon: Utensils, page: "Diet" },
+      { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
+    ]
+  },
+  {
+    label: "Comunicação",
+    items: [
+      { name: "Chat", icon: MessageSquare, page: "Chat" },
+    ]
+  },
+  {
+    label: "Saúde",
+    items: [
+      { name: "Saúde e Exames", icon: Activity, page: "CH" },
+    ]
+  },
+  {
+    label: "Ferramentas",
+    items: [
+      { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+      { name: "Perfil", icon: UserCircle, page: "Profile" },
+    ]
+  },
 ];
 
-const studentNav = [
-  { name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" },
-  { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
-  { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
-  { name: "Chat", icon: User, page: "Chat" },
-  { name: "Progresso", icon: BarChart3, page: "Progress" },
-  { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-  { name: "CH", icon: Activity, page: "CH" },
-  { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-  { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-  { name: "Perfil", icon: UserCircle, page: "Profile" },
+const studentNavGroups = [
+  {
+    label: "Hoje",
+    items: [
+      { name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" },
+    ]
+  },
+  {
+    label: "Treino",
+    items: [
+      { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+      { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
+    ]
+  },
+  {
+    label: "Nutrição",
+    items: [
+      { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
+    ]
+  },
+  {
+    label: "Evolução",
+    items: [
+      { name: "Progresso", icon: BarChart3, page: "Progress" },
+      { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
+    ]
+  },
+  {
+    label: "Comunicação",
+    items: [
+      { name: "Chat", icon: MessageSquare, page: "Chat" },
+    ]
+  },
+  {
+    label: "Saúde",
+    items: [
+      { name: "Saúde e Exames", icon: Activity, page: "CH" },
+    ]
+  },
+  {
+    label: "Conta",
+    items: [
+      { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+      { name: "Perfil", icon: UserCircle, page: "Profile" },
+    ]
+  },
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -52,7 +128,7 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   const isAdmin = role === "admin";
-  const navItems = isAdmin ? adminNav : studentNav;
+  const navGroups = isAdmin ? adminNavGroups : studentNavGroups;
 
   const NavLink = ({ item }) => {
     const isActive = currentPageName === item.page;
@@ -61,53 +137,35 @@ export default function Layout({ children, currentPageName }) {
         to={createPageUrl(item.page)}
         onClick={() => setSidebarOpen(false)}
         className={`
-          flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-200 relative group
+          flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 mx-2
           ${isActive
-            ? "text-white bg-purple-500/10 border-r-2 border-purple-400"
-            : "text-purple-300/50 hover:text-purple-200 hover:bg-purple-500/5"
+            ? "text-white bg-purple-500/15 border border-purple-500/20"
+            : "text-purple-300/45 hover:text-purple-200 hover:bg-white/5 border border-transparent"
           }
         `}
       >
-        {isActive && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-8 bg-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
-        )}
-        <item.icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-purple-400" : ""}`} />
-        <span className="tracking-wide">{item.name}</span>
-        {isActive && (
-          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,1)]" />
-        )}
+        <item.icon className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? "text-purple-400" : "text-current"}`} />
+        <span className="text-xs tracking-wide font-medium">{item.name}</span>
+        {isActive && <span className="ml-auto w-1 h-1 rounded-full bg-purple-400" />}
       </Link>
     );
   };
 
   return (
     <div className="min-h-screen bg-[#000000] bg-grid text-white">
-
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-b border-purple-900/30 px-4 py-3 flex items-center justify-between">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black/97 backdrop-blur-md border-b border-purple-900/20 px-4 py-3 flex items-center justify-between">
         <div className="flex items-baseline gap-0.5">
-          <span
-            className="font-cyber font-black text-2xl leading-none select-none"
-            style={{
-              color: '#ffffff',
-              textShadow: '0 0 8px rgba(168,85,247,0.9), 0 0 20px rgba(168,85,247,0.5)',
-              fontStyle: 'italic',
-            }}
-          >B</span>
-          <span
-            className="font-cyber font-black text-2xl leading-none select-none"
-            style={{
-              color: '#c084fc',
-              textShadow: '0 0 10px rgba(192,132,252,1), 0 0 25px rgba(168,85,247,0.7)',
-              fontStyle: 'italic',
-            }}
-          >Z</span>
+          <span className="font-cyber font-black text-2xl leading-none select-none italic"
+            style={{ color: '#ffffff', textShadow: '0 0 8px rgba(168,85,247,0.8)' }}>B</span>
+          <span className="font-cyber font-black text-2xl leading-none select-none italic"
+            style={{ color: '#c084fc', textShadow: '0 0 10px rgba(192,132,252,0.9)' }}>Z</span>
         </div>
         <div className="flex items-center gap-2">
           <NotificationBell />
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-purple-400 hover:text-white p-1"
+            className="text-purple-400 hover:text-white p-1.5 rounded-lg hover:bg-purple-500/10 transition-all"
           >
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -116,94 +174,71 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 h-full w-64 z-40
-        bg-black border-r border-purple-900/30
+        fixed top-0 left-0 h-full w-60 z-40
+        border-r border-purple-900/20
         transition-transform duration-300 ease-out flex flex-col
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0
-      `}>
+      `} style={{ background: 'rgba(2,2,8,0.99)' }}>
+
         {/* Logo */}
-        <div className="p-5 border-b border-purple-900/20 hidden lg:block">
-          <div className="flex flex-col gap-0.5">
-            <div className="relative inline-flex items-baseline gap-1">
-              <span
-                className="font-cyber font-black text-4xl tracking-tight leading-none select-none"
-                style={{
-                  color: '#ffffff',
-                  textShadow: '0 0 8px rgba(168,85,247,0.9), 0 0 20px rgba(168,85,247,0.5), 0 0 40px rgba(168,85,247,0.2)',
-                  letterSpacing: '-0.02em',
-                  fontStyle: 'italic',
-                }}
-              >
-                B
-              </span>
-              <span
-                className="font-cyber font-black text-4xl tracking-tight leading-none select-none"
-                style={{
-                  color: '#c084fc',
-                  textShadow: '0 0 10px rgba(192,132,252,1), 0 0 25px rgba(168,85,247,0.7), 0 0 50px rgba(168,85,247,0.3)',
-                  letterSpacing: '-0.02em',
-                  fontStyle: 'italic',
-                }}
-              >
-                Z
-              </span>
-              {/* Decorative underline slash */}
-              <span
-                className="absolute -bottom-1 left-0 w-full h-px"
-                style={{background: 'linear-gradient(90deg, rgba(168,85,247,0.8), rgba(168,85,247,0.1))'}}
-              />
-            </div>
-            <p
-              className="font-mono-cyber text-[9px] tracking-[0.45em] uppercase mt-1"
-              style={{color: 'rgba(168,85,247,0.45)'}}
-            >
-              ▸ gym system
-            </p>
+        <div className="px-5 py-4 border-b border-purple-900/15 hidden lg:block">
+          <div className="flex items-baseline gap-1">
+            <span className="font-cyber font-black text-3xl leading-none select-none italic"
+              style={{ color: '#ffffff', textShadow: '0 0 10px rgba(168,85,247,0.8)' }}>B</span>
+            <span className="font-cyber font-black text-3xl leading-none select-none italic"
+              style={{ color: '#c084fc', textShadow: '0 0 12px rgba(192,132,252,0.9)' }}>Z</span>
+            <span className="ml-1.5 text-[9px] font-mono-cyber text-purple-500/25 tracking-widest uppercase self-end pb-0.5">GYM</span>
           </div>
         </div>
 
         {/* Role Badge */}
-        <div className="px-4 py-3 border-b border-purple-900/20">
-          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-            isAdmin 
-              ? "bg-purple-500/10 border border-purple-500/20" 
-              : "bg-cyan-500/10 border border-cyan-500/20"
-          }`}>
-            <User className={`w-3.5 h-3.5 ${isAdmin ? "text-purple-400" : "text-cyan-400"}`} />
-            <span className={`text-xs font-medium tracking-wider uppercase ${isAdmin ? "text-purple-400" : "text-cyan-400"}`}>
-              {isAdmin ? "Professor" : "Aluno"}
+        <div className="px-4 py-3 border-b border-purple-900/15">
+          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border
+            ${isAdmin
+              ? "border-purple-500/15 bg-purple-500/6"
+              : "border-cyan-500/15 bg-cyan-500/6"
+            }`}>
+            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isAdmin ? "bg-purple-400" : "bg-cyan-400"}`} />
+            <span className={`text-[10px] font-medium tracking-widest uppercase ${isAdmin ? "text-purple-400/75" : "text-cyan-400/75"}`}>
+              {isAdmin ? "Personal Trainer" : "Aluno"}
             </span>
           </div>
-          {userName && <p className="text-xs text-purple-300/40 mt-2 px-1 truncate">{userName}</p>}
+          {userName && (
+            <p className="text-[10px] text-purple-300/25 mt-2 px-1 truncate font-mono-cyber">{userName}</p>
+          )}
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-4 mt-12 lg:mt-0">
-          <div className="px-3 mb-3">
-            <p className="text-[10px] text-purple-500/40 uppercase tracking-[0.2em] font-medium px-1">Menu</p>
-          </div>
-          {navItems.map((item) => (
-            <NavLink key={item.page} item={item} />
+        <nav className="flex-1 py-3 overflow-y-auto mt-12 lg:mt-0 scrollbar-thin">
+          {navGroups.map((group) => (
+            <div key={group.label} className="mb-3">
+              <p className="text-[9px] text-purple-500/20 uppercase tracking-[0.3em] font-semibold px-5 mb-1.5">
+                {group.label}
+              </p>
+              <div className="space-y-0.5">
+                {group.items.map((item) => (
+                  <NavLink key={item.page} item={item} />
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 
-        {/* Bottom glow line */}
-        <div className="h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
-        <div className="p-4">
-          <p className="text-[10px] text-purple-500/30 text-center font-mono-cyber">BZ</p>
+        <div className="h-px bg-gradient-to-r from-transparent via-purple-500/15 to-transparent mx-4" />
+        <div className="p-3 flex items-center justify-center">
+          <p className="text-[9px] text-purple-500/15 font-mono-cyber tracking-widest">BZ · GYM SYSTEM</p>
         </div>
       </aside>
 
-      {/* Overlay */}
+      {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/80 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/75 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Main Content */}
-      <main className="lg:ml-64 pt-16 lg:pt-0 min-h-screen">
-        {/* Desktop notification - top right */}
-        <div className="hidden lg:block fixed top-6 right-6 z-30">
+      <main className="lg:ml-60 pt-16 lg:pt-0 min-h-screen">
+        <div className="hidden lg:block fixed top-5 right-6 z-30">
           <NotificationBell />
         </div>
         <div className="p-4 md:p-8">

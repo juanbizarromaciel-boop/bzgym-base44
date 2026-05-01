@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
-import { Dumbbell, TrendingUp, Flame, Target, Calendar, Award } from "lucide-react";
+import { Dumbbell, TrendingUp, Target, Calendar, Award, ChevronRight, Flame, MessageSquare, Zap, CheckCircle2, Clock, ClipboardList } from "lucide-react";
+import { Link } from "react-router-dom";
 import MuscleMap from "../components/workout/MuscleMap";
-
-const MUSCLE_COLORS = {
-  peito: "#ef4444", costas: "#3b82f6", ombros: "#f97316", 
-  biceps: "#a855f7", triceps: "#ec4899", pernas: "#eab308",
-  gluteos: "#f43f5e", abdomen: "#06b6d4", panturrilha: "#84cc16",
-  antebraco: "#f59e0b", cardio: "#10b981", outro: "#6b7280"
-};
 
 const GOAL_LABELS = {
   hipertrofia: "HIPERTROFIA", emagrecimento: "EMAGRECIMENTO",
   resistencia: "RESISTÊNCIA", forca: "FORÇA", saude: "SAÚDE"
+};
+
+const DAY_MAP = {
+  0: "domingo", 1: "segunda", 2: "terca", 3: "quarta",
+  4: "quinta", 5: "sexta", 6: "sabado"
 };
 
 export default function StudentDashboard() {
@@ -25,287 +23,207 @@ export default function StudentDashboard() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const { data: students = [] } = useQuery({
-    queryKey: ["students"],
-    queryFn: () => base44.entities.Student.list()
-  });
-
-  const { data: workoutLogs = [] } = useQuery({
-    queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list()
-  });
-
-  const { data: workoutPlans = [] } = useQuery({
-    queryKey: ["workoutPlans"],
-    queryFn: () => base44.entities.WorkoutPlan.list()
-  });
-
-  const { data: allExercisesDB = [] } = useQuery({
-    queryKey: ["exercises"],
-    queryFn: () => base44.entities.Exercise.list()
-  });
+  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
+  const { data: workoutLogs = [] } = useQuery({ queryKey: ["workoutLogs"], queryFn: () => base44.entities.WorkoutLog.list() });
+  const { data: workoutPlans = [] } = useQuery({ queryKey: ["workoutPlans"], queryFn: () => base44.entities.WorkoutPlan.list() });
+  const { data: messages = [] } = useQuery({ queryKey: ["messages"], queryFn: () => base44.entities.ChatMessage.list() });
 
   useEffect(() => {
     if (user && students.length > 0) {
       const found = students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase());
-      if (!found || !found.goal) {
-        window.location.href = "/Onboarding";
-      } else if (!found.active) {
-        window.location.href = "/Welcome";
-      } else {
-        setStudent(found);
-      }
+      if (!found || !found.goal) { window.location.href = "/Onboarding"; }
+      else if (!found.active) { window.location.href = "/Welcome"; }
+      else { setStudent(found); }
     }
   }, [user, students]);
 
   if (!student) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" /></div>;
   }
 
-  // Filter data for this student
   const myLogs = workoutLogs.filter(log => log.student_id === student.id);
   const myPlans = workoutPlans.filter(plan => plan.student_id === student.id && plan.active !== false);
+  const unreadMessages = messages.filter(m => m.student_id === student.id && m.is_trainer && !m.read);
 
-  // Last 7 days logs
   const last7Days = new Date();
   last7Days.setDate(last7Days.getDate() - 7);
   const recentLogs = myLogs.filter(log => new Date(log.date) >= last7Days);
 
-  // Total workouts this week
   const uniqueWorkoutDates = [...new Set(recentLogs.map(log => log.date))].length;
+  const totalVolume = recentLogs.reduce((sum, log) =>
+    sum + (log.sets_completed?.reduce((s, set) => s + (set.reps_done * set.load_kg), 0) || 0), 0);
+  const maxLoad = Math.max(...myLogs.map(log => log.max_load_kg || 0), 0);
 
-  // Total sets this week
-  const totalSets = recentLogs.reduce((sum, log) => sum + (log.sets_completed?.length || 0), 0);
+  // Today's workout
+  const todayDow = DAY_MAP[new Date().getDay()];
+  const todayPlan = myPlans.find(p => p.day_of_week === todayDow);
+  const todayLogged = myLogs.some(l => l.date === new Date().toISOString().split("T")[0]);
 
-  // Total volume (reps × kg)
-  const totalVolume = recentLogs.reduce((sum, log) => {
-    return sum + (log.sets_completed?.reduce((s, set) => s + (set.reps_done * set.load_kg), 0) || 0);
-  }, 0);
+  // Last workout
+  const lastLog = myLogs.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+  const lastDate = lastLog?.date;
+  const daysSince = lastDate ? Math.floor((new Date() - new Date(lastDate)) / 86400000) : null;
 
-  // Max load this week
-  const maxLoad = Math.max(...recentLogs.map(log => log.max_load_kg || 0), 0);
-
-  // Volume by muscle group (from plans)
-  const volumeByMuscle = {};
-  myPlans.forEach(plan => {
-    plan.exercises?.forEach(ex => {
-      // Find exercise in DB to get muscle_group
-      const exerciseData = allExercisesDB.find(e => e.id === ex.exercise_id);
-      const muscle = exerciseData?.muscle_group || "outro";
-      volumeByMuscle[muscle] = (volumeByMuscle[muscle] || 0) + (ex.sets || 0);
-    });
-  });
-
-  const muscleVolumeData = Object.entries(volumeByMuscle).map(([muscle, sets]) => ({
-    name: muscle.charAt(0).toUpperCase() + muscle.slice(1),
-    sets,
-    fill: MUSCLE_COLORS[muscle] || MUSCLE_COLORS.outro
-  }));
-
-  // Weight by muscle group (from recent logs)
-  const weightByMuscle = {};
-  recentLogs.forEach(log => {
-    // Find exercise in DB to get muscle_group
-    const exerciseData = allExercisesDB.find(e => e.id === log.exercise_id);
-    const muscle = exerciseData?.muscle_group || "outro";
-    const totalWeight = log.sets_completed?.reduce((sum, set) => sum + (set.load_kg * set.reps_done), 0) || 0;
-    weightByMuscle[muscle] = (weightByMuscle[muscle] || 0) + totalWeight;
-  });
-
-  const muscleWeightData = Object.entries(weightByMuscle).map(([muscle, weight]) => ({
-    name: muscle.charAt(0).toUpperCase() + muscle.slice(1),
-    weight: Math.round(weight),
-    fill: MUSCLE_COLORS[muscle] || MUSCLE_COLORS.outro
-  }));
-
-  // All exercises for muscle map
+  // Muscle map
   const allExercises = myPlans.flatMap(p => p.exercises || []);
 
+  const formatDate = (d) => {
+    if (!d) return "";
+    const [y, m, day] = d.split("-");
+    return `${day}/${m}/${y}`;
+  };
+
   return (
-    <div>
-      {/* Hero Section */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-purple-900/40" />
-          <span className="text-[10px] font-mono-cyber text-purple-500/30 tracking-[0.25em]">
-            DASHBOARD
-          </span>
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-purple-900/40" />
-        </div>
-        <h1 className="font-cyber text-3xl md:text-4xl text-white tracking-widest" style={{ textShadow: '0 0 30px rgba(168,85,247,0.4)' }}>
+    <div className="space-y-8">
+      {/* Greeting */}
+      <div>
+        <p className="text-[10px] font-mono-cyber text-purple-500/40 uppercase tracking-widest">▸ painel do aluno</p>
+        <h1 className="font-cyber text-2xl md:text-3xl text-white tracking-widest mt-1">
           OLÁ, {student.name?.split(" ")[0]?.toUpperCase()}
         </h1>
-        <p className="text-purple-400/50 font-mono-cyber text-sm mt-1">// sua jornada fitness em tempo real</p>
-        {student.goal && (
-          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-purple-500/20 bg-purple-500/5">
-            <Target className="w-3.5 h-3.5 text-purple-400" />
-            <span className="text-xs font-mono-cyber text-purple-400/60 tracking-wider">{GOAL_LABELS[student.goal] || student.goal}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-3 mt-2 flex-wrap">
+          {student.goal && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-purple-500/20 bg-purple-500/5 text-xs font-mono-cyber text-purple-400/70">
+              <Target className="w-3 h-3" />
+              {GOAL_LABELS[student.goal] || student.goal}
+            </span>
+          )}
+          {daysSince !== null && (
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-mono-cyber
+              ${daysSince === 0 ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-400" :
+                daysSince <= 2 ? "border-cyan-500/30 bg-cyan-500/5 text-cyan-400" :
+                "border-orange-500/30 bg-orange-500/5 text-orange-400"}`}>
+              <Clock className="w-3 h-3" />
+              {daysSince === 0 ? "Treinou hoje!" : `Último treino há ${daysSince} dia${daysSince > 1 ? "s" : ""}`}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-        <div className="cyber-card rounded-xl p-4 border border-purple-900/20 hover:border-purple-500/30 transition-all group">
-          <div className="flex items-center justify-between mb-2">
-            <Calendar className="w-4 h-4 text-cyan-400" />
-            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity pulse-neon" />
+      {/* Today's Task */}
+      <div className={`rounded-xl p-5 border transition-all ${todayPlan
+        ? "border-purple-500/30 bg-purple-500/5"
+        : "border-purple-900/20 bg-black/40"}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${todayPlan ? "bg-purple-500/20 border border-purple-500/30" : "bg-black/60 border border-purple-900/30"}`}>
+              <Dumbbell className={`w-5 h-5 ${todayPlan ? "text-purple-400" : "text-purple-500/30"}`} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-white">
+                {todayPlan ? todayPlan.name : "Nenhum treino hoje"}
+              </p>
+              <p className="text-xs text-purple-400/50">
+                {todayPlan
+                  ? todayLogged ? "✓ Treino registrado hoje" : `${todayPlan.exercises?.length || 0} exercícios planejados`
+                  : "Descanse ou faça um treino livre"}
+              </p>
+            </div>
           </div>
-          <p className="font-cyber text-2xl text-white mb-1">{uniqueWorkoutDates}</p>
-          <p className="text-[10px] text-purple-400/40 font-mono-cyber tracking-wider uppercase">Treinos / Semana</p>
+          {todayPlan && !todayLogged && (
+            <Link to="/MyWorkout"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-300 text-sm font-medium hover:bg-purple-500/30 transition-all">
+              <Zap className="w-4 h-4" />
+              Iniciar
+            </Link>
+          )}
+          {todayLogged && (
+            <span className="flex items-center gap-1.5 text-emerald-400 text-xs font-mono-cyber">
+              <CheckCircle2 className="w-4 h-4" />
+              Concluído
+            </span>
+          )}
         </div>
+      </div>
 
-        <div className="cyber-card rounded-xl p-4 border border-purple-900/20 hover:border-purple-500/30 transition-all group">
-          <div className="flex items-center justify-between mb-2">
-            <Dumbbell className="w-4 h-4 text-purple-400" />
-            <div className="w-1.5 h-1.5 rounded-full bg-purple-400 opacity-0 group-hover:opacity-100 transition-opacity pulse-neon" />
-          </div>
-          <p className="font-cyber text-2xl text-white mb-1">{totalSets}</p>
-          <p className="text-[10px] text-purple-400/40 font-mono-cyber tracking-wider uppercase">Séries / Semana</p>
-        </div>
+      {/* Unread message alert */}
+      {unreadMessages.length > 0 && (
+        <Link to="/Chat" className="flex items-center gap-3 p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/5 text-cyan-300 hover:bg-cyan-500/10 transition-all">
+          <MessageSquare className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm">{unreadMessages.length} mensagem{unreadMessages.length > 1 ? "ns" : ""} nova{unreadMessages.length > 1 ? "s" : ""} do seu professor</span>
+          <ChevronRight className="w-4 h-4 ml-auto opacity-60" />
+        </Link>
+      )}
 
-        <div className="cyber-card rounded-xl p-4 border border-purple-900/20 hover:border-purple-500/30 transition-all group">
-          <div className="flex items-center justify-between mb-2">
-            <Flame className="w-4 h-4 text-pink-400" />
-            <div className="w-1.5 h-1.5 rounded-full bg-pink-400 opacity-0 group-hover:opacity-100 transition-opacity pulse-neon" />
-          </div>
-          <p className="font-cyber text-2xl text-white mb-1">{Math.round(totalVolume).toLocaleString()}</p>
-          <p className="text-[10px] text-purple-400/40 font-mono-cyber tracking-wider uppercase">Volume Total (kg×reps)</p>
-        </div>
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Treinos / Semana", value: uniqueWorkoutDates, icon: Calendar, color: "cyan" },
+          { label: "Volume (kg×reps)", value: Math.round(totalVolume).toLocaleString(), icon: Flame, color: "pink" },
+          { label: "Carga Máx (kg)", value: maxLoad || "—", icon: Award, color: "yellow" },
+          { label: "Planos Ativos", value: myPlans.length, icon: ClipboardList, color: "purple" },
+        ].map((s, i) => {
+          const colorMap = {
+            cyan: { border: "border-cyan-500/20", icon: "text-cyan-400", val: "text-cyan-300" },
+            pink: { border: "border-pink-500/20", icon: "text-pink-400", val: "text-pink-300" },
+            yellow: { border: "border-yellow-500/20", icon: "text-yellow-400", val: "text-yellow-300" },
+            purple: { border: "border-purple-500/20", icon: "text-purple-400", val: "text-purple-300" },
+          };
+          const c = colorMap[s.color];
+          return (
+            <div key={i} className={`rounded-xl p-4 border ${c.border} bg-black/60`}>
+              <s.icon className={`w-4 h-4 ${c.icon} mb-3`} />
+              <p className={`text-2xl font-cyber font-bold ${c.val}`}>{s.value}</p>
+              <p className="text-[10px] text-purple-400/40 font-mono-cyber mt-1 uppercase tracking-wider">{s.label}</p>
+            </div>
+          );
+        })}
+      </div>
 
-        <div className="cyber-card rounded-xl p-4 border border-purple-900/20 hover:border-purple-500/30 transition-all group">
-          <div className="flex items-center justify-between mb-2">
-            <Award className="w-4 h-4 text-yellow-400" />
-            <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity pulse-neon" />
-          </div>
-          <p className="font-cyber text-2xl text-white mb-1">{maxLoad}</p>
-          <p className="text-[10px] text-purple-400/40 font-mono-cyber tracking-wider uppercase">Carga Máxima (kg)</p>
+      {/* Quick Actions */}
+      <div>
+        <p className="text-[10px] font-mono-cyber text-purple-500/40 uppercase tracking-widest mb-3">▸ acesso rápido</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: "Meu Treino", icon: Dumbbell, href: "/MyWorkout", color: "text-purple-400", border: "hover:border-purple-500/40" },
+            { label: "Progresso", icon: TrendingUp, href: "/Progress", color: "text-cyan-400", border: "hover:border-cyan-500/40" },
+            { label: "Minha Dieta", icon: Target, href: "/MyDiet", color: "text-pink-400", border: "hover:border-pink-500/40" },
+            { label: "Chat", icon: MessageSquare, href: "/Chat", color: "text-emerald-400", border: "hover:border-emerald-500/40" },
+          ].map((a, i) => (
+            <a key={i} href={a.href}
+              className={`flex flex-col items-center gap-3 p-4 rounded-xl border border-purple-900/20 bg-black/40 ${a.border} transition-all group`}>
+              <a.icon className={`w-6 h-6 ${a.color} group-hover:scale-110 transition-transform`} />
+              <span className="text-xs font-medium text-white/70 text-center">{a.label}</span>
+            </a>
+          ))}
         </div>
       </div>
 
       {/* Muscle Map */}
-      <div className="cyber-card rounded-xl p-6 border border-purple-900/20 mb-6">
-        <div className="flex items-center gap-2 mb-5">
-          <TrendingUp className="w-4 h-4 text-purple-400" />
-          <h2 className="font-cyber text-sm text-white tracking-widest">MAPA MUSCULAR</h2>
+      {allExercises.length > 0 && (
+        <div className="rounded-xl p-6 border border-purple-900/20 bg-black/40">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-4 h-4 text-purple-400" />
+            <h3 className="font-cyber text-sm text-white tracking-widest">MAPA MUSCULAR DO TREINO</h3>
+          </div>
+          <MuscleMap exercises={allExercises} size="lg" showLabels={true} />
         </div>
-        <MuscleMap exercises={allExercises} size="lg" showLabels={true} />
-        <p className="text-[10px] text-purple-500/30 font-mono-cyber text-center mt-4">
-          // visualização dos grupos musculares trabalhados
-        </p>
-      </div>
+      )}
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Volume by Muscle - Pie Chart */}
-        <div className="cyber-card rounded-xl p-6 border border-purple-900/20">
-          <h3 className="font-cyber text-sm text-white tracking-widest mb-4">VOLUME POR GRUPO MUSCULAR</h3>
-          {muscleVolumeData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie
-                  data={muscleVolumeData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={90}
-                  fill="#8884d8"
-                  dataKey="sets"
-                >
-                  {muscleVolumeData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    background: '#0a0a16', 
-                    border: '1px solid rgba(168,85,247,0.3)',
-                    borderRadius: '8px',
-                    color: 'white'
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-[280px] flex items-center justify-center text-purple-500/30 text-sm font-mono-cyber">
-              // sem dados de treino ainda
-            </div>
-          )}
+      {/* My Plans Summary */}
+      {myPlans.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-mono-cyber text-purple-500/40 uppercase tracking-widest">▸ meus treinos</p>
+            <a href="/MyWorkout" className="text-xs text-purple-400/60 hover:text-purple-400 transition-colors">Ver todos →</a>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {myPlans.slice(0, 4).map((plan, i) => (
+              <a key={i} href="/MyWorkout"
+                className="flex items-center gap-4 p-4 rounded-xl border border-purple-900/20 bg-black/40 hover:border-purple-500/30 transition-all group">
+                <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                  <Dumbbell className="w-5 h-5 text-purple-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">{plan.name}</p>
+                  <p className="text-xs text-purple-400/50">{plan.exercises?.length || 0} exercícios · {plan.day_of_week || "qualquer dia"}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-purple-500/30 group-hover:text-purple-400 transition-colors" />
+              </a>
+            ))}
+          </div>
         </div>
-
-        {/* Weight by Muscle - Bar Chart */}
-        <div className="cyber-card rounded-xl p-6 border border-purple-900/20">
-          <h3 className="font-cyber text-sm text-white tracking-widest mb-4">PESO TOTAL (últimos 7 dias)</h3>
-          {muscleWeightData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={muscleWeightData}>
-                <XAxis 
-                  dataKey="name" 
-                  tick={{ fill: 'rgba(168,85,247,0.5)', fontSize: 11 }}
-                  axisLine={{ stroke: 'rgba(168,85,247,0.2)' }}
-                />
-                <YAxis 
-                  tick={{ fill: 'rgba(168,85,247,0.5)', fontSize: 11 }}
-                  axisLine={{ stroke: 'rgba(168,85,247,0.2)' }}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    background: '#0a0a16', 
-                    border: '1px solid rgba(168,85,247,0.3)',
-                    borderRadius: '8px',
-                    color: 'white'
-                  }}
-                  formatter={(value) => [`${value} kg`, 'Peso Total']}
-                />
-                <Bar dataKey="weight" radius={[8, 8, 0, 0]}>
-                  {muscleWeightData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-[280px] flex items-center justify-center text-purple-500/30 text-sm font-mono-cyber">
-              // sem registros de treino nos últimos 7 dias
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <a
-          href="/MyWorkout"
-          className="cyber-card rounded-xl p-5 border border-purple-900/20 hover:border-purple-500/30 transition-all group text-center"
-        >
-          <Dumbbell className="w-8 h-8 text-purple-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-          <p className="font-cyber text-sm text-white tracking-wider">INICIAR TREINO</p>
-          <p className="text-[10px] text-purple-500/40 font-mono-cyber mt-1">// começar agora</p>
-        </a>
-
-        <a
-          href="/Progress"
-          className="cyber-card rounded-xl p-5 border border-purple-900/20 hover:border-cyan-500/30 transition-all group text-center"
-        >
-          <TrendingUp className="w-8 h-8 text-cyan-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-          <p className="font-cyber text-sm text-white tracking-wider">VER PROGRESSO</p>
-          <p className="text-[10px] text-purple-500/40 font-mono-cyber mt-1">// histórico completo</p>
-        </a>
-
-        <a
-          href="/MyDiet"
-          className="cyber-card rounded-xl p-5 border border-purple-900/20 hover:border-pink-500/30 transition-all group text-center"
-        >
-          <Target className="w-8 h-8 text-pink-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-          <p className="font-cyber text-sm text-white tracking-wider">MINHA DIETA</p>
-          <p className="text-[10px] text-purple-500/40 font-mono-cyber mt-1">// plano alimentar</p>
-        </a>
-      </div>
+      )}
     </div>
   );
 }
