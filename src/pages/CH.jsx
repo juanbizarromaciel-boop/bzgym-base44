@@ -8,9 +8,33 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar, Plus, Activity, Edit, Trash2, Syringe, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Activity, Edit, Trash2, Syringe, ChevronDown, ChevronUp, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import CycleConcentrationChart from "../components/cycles/CycleConcentrationChart";
+import WeeklyApplicationCalendar from "../components/cycles/WeeklyApplicationCalendar";
+
+const ESTER_LABELS = {
+  propionato: "Propionato",
+  fenilpropionato: "Fenilpropionato",
+  isocaproato: "Isocaproato",
+  enantato: "Enantato",
+  cipionato: "Cipionato",
+  decanoato: "Decanoato",
+  undecanoato: "Undecanoato",
+  acetato: "Acetato",
+  sem_ester: "Sem Éster",
+};
+
+const FREQ_LABELS = {
+  "1x_semana": "1x/semana",
+  "2x_semana": "2x/semana",
+  "3x_semana": "3x/semana",
+  "dia_sim_dia_nao": "Dia sim, dia não",
+  "diario": "Diário"
+};
+
+const DAY_NAMES = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 export default function CH() {
   const [user, setUser] = useState(null);
@@ -21,23 +45,16 @@ export default function CH() {
   const [editingSubstance, setEditingSubstance] = useState(null);
   const [selectedCycleId, setSelectedCycleId] = useState(null);
   const [expandedCycles, setExpandedCycles] = useState({});
+  const [detailCycle, setDetailCycle] = useState(null); // cycle detail view
   const qc = useQueryClient();
 
   const [cycleFormData, setCycleFormData] = useState({
-    student_id: "",
-    name: "",
-    cycle_start_date: "",
-    cycle_duration_weeks: "",
-    notes: ""
+    student_id: "", name: "", cycle_start_date: "", cycle_duration_weeks: "", notes: ""
   });
 
   const [substanceFormData, setSubstanceFormData] = useState({
-    substance: "",
-    dosage_mg_per_week: "",
-    dosage_mg_per_application: "",
-    application_frequency: "2x_semana",
-    application_site: "",
-    notes: ""
+    substance: "", ester: "", dosage_mg_per_week: "", dosage_mg_per_application: "",
+    application_frequency: "2x_semana", application_days: [], application_site: "", notes: ""
   });
 
   useEffect(() => {
@@ -70,188 +87,217 @@ export default function CH() {
 
   const createCycleMut = useMutation({
     mutationFn: (data) => base44.entities.Cycle.create(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["cycles"] });
-      toast.success("Ciclo criado");
-      handleCloseCycleDialog();
-    }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cycles"] }); toast.success("Ciclo criado"); handleCloseCycleDialog(); }
   });
 
   const updateCycleMut = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Cycle.update(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["cycles"] });
-      toast.success("Ciclo atualizado");
-      handleCloseCycleDialog();
-    }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cycles"] }); toast.success("Ciclo atualizado"); handleCloseCycleDialog(); }
   });
 
   const deleteCycleMut = useMutation({
     mutationFn: (id) => base44.entities.Cycle.delete(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["cycles"] });
-      qc.invalidateQueries({ queryKey: ["substances"] });
-      toast.success("Ciclo excluído");
-    }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cycles"] }); qc.invalidateQueries({ queryKey: ["substances"] }); toast.success("Ciclo excluído"); }
   });
 
   const createSubstanceMut = useMutation({
     mutationFn: (data) => base44.entities.CycleSubstance.create(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["substances"] });
-      toast.success("Substância adicionada");
-      handleCloseSubstanceDialog();
-    }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["substances"] }); toast.success("Substância adicionada"); handleCloseSubstanceDialog(); }
   });
 
   const updateSubstanceMut = useMutation({
     mutationFn: ({ id, data }) => base44.entities.CycleSubstance.update(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["substances"] });
-      toast.success("Substância atualizada");
-      handleCloseSubstanceDialog();
-    }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["substances"] }); toast.success("Substância atualizada"); handleCloseSubstanceDialog(); }
   });
 
   const deleteSubstanceMut = useMutation({
     mutationFn: (id) => base44.entities.CycleSubstance.delete(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["substances"] });
-      toast.success("Substância excluída");
-    }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["substances"] }); toast.success("Substância excluída"); }
   });
 
   const handleOpenCycleDialog = (cycle = null) => {
     if (cycle) {
       setEditingCycle(cycle);
       setCycleFormData({
-        student_id: cycle.student_id || "",
-        name: cycle.name || "",
+        student_id: cycle.student_id || "", name: cycle.name || "",
         cycle_start_date: cycle.cycle_start_date || "",
-        cycle_duration_weeks: cycle.cycle_duration_weeks || "",
-        notes: cycle.notes || ""
+        cycle_duration_weeks: cycle.cycle_duration_weeks || "", notes: cycle.notes || ""
       });
     } else {
       setEditingCycle(null);
-      setCycleFormData({
-        student_id: "",
-        name: "",
-        cycle_start_date: new Date().toISOString().split('T')[0],
-        cycle_duration_weeks: "",
-        notes: ""
-      });
+      setCycleFormData({ student_id: "", name: "", cycle_start_date: new Date().toISOString().split('T')[0], cycle_duration_weeks: "", notes: "" });
     }
     setCycleDialogOpen(true);
   };
 
-  const handleCloseCycleDialog = () => {
-    setCycleDialogOpen(false);
-    setEditingCycle(null);
-  };
+  const handleCloseCycleDialog = () => { setCycleDialogOpen(false); setEditingCycle(null); };
 
   const handleOpenSubstanceDialog = (cycleId, substance = null) => {
     setSelectedCycleId(cycleId);
     if (substance) {
       setEditingSubstance(substance);
       setSubstanceFormData({
-        substance: substance.substance || "",
+        substance: substance.substance || "", ester: substance.ester || "",
         dosage_mg_per_week: substance.dosage_mg_per_week || "",
         dosage_mg_per_application: substance.dosage_mg_per_application || "",
         application_frequency: substance.application_frequency || "2x_semana",
-        application_site: substance.application_site || "",
-        notes: substance.notes || ""
+        application_days: substance.application_days || [],
+        application_site: substance.application_site || "", notes: substance.notes || ""
       });
     } else {
       setEditingSubstance(null);
-      setSubstanceFormData({
-        substance: "",
-        dosage_mg_per_week: "",
-        dosage_mg_per_application: "",
-        application_frequency: "2x_semana",
-        application_site: "",
-        notes: ""
-      });
+      setSubstanceFormData({ substance: "", ester: "", dosage_mg_per_week: "", dosage_mg_per_application: "", application_frequency: "2x_semana", application_days: [], application_site: "", notes: "" });
     }
     setSubstanceDialogOpen(true);
   };
 
-  const handleCloseSubstanceDialog = () => {
-    setSubstanceDialogOpen(false);
-    setEditingSubstance(null);
-    setSelectedCycleId(null);
+  const handleCloseSubstanceDialog = () => { setSubstanceDialogOpen(false); setEditingSubstance(null); setSelectedCycleId(null); };
+
+  const toggleDay = (day) => {
+    setSubstanceFormData(prev => ({
+      ...prev,
+      application_days: prev.application_days.includes(day)
+        ? prev.application_days.filter(d => d !== day)
+        : [...prev.application_days, day].sort((a, b) => a - b)
+    }));
   };
 
   const handleSubmitCycle = () => {
-    if (!cycleFormData.student_id || !cycleFormData.name) {
-      toast.error("Preencha os campos obrigatórios");
-      return;
-    }
-
-    const data = {
-      ...cycleFormData,
-      cycle_duration_weeks: cycleFormData.cycle_duration_weeks ? parseInt(cycleFormData.cycle_duration_weeks) : null
-    };
-
-    if (editingCycle) {
-      updateCycleMut.mutate({ id: editingCycle.id, data });
-    } else {
-      createCycleMut.mutate(data);
-    }
+    if (!cycleFormData.student_id || !cycleFormData.name) { toast.error("Preencha os campos obrigatórios"); return; }
+    const data = { ...cycleFormData, cycle_duration_weeks: cycleFormData.cycle_duration_weeks ? parseInt(cycleFormData.cycle_duration_weeks) : null };
+    editingCycle ? updateCycleMut.mutate({ id: editingCycle.id, data }) : createCycleMut.mutate(data);
   };
 
   const handleSubmitSubstance = () => {
-    if (!substanceFormData.substance) {
-      toast.error("Digite o nome da substância");
-      return;
-    }
-
+    if (!substanceFormData.substance) { toast.error("Digite o nome da substância"); return; }
     const data = {
       ...substanceFormData,
       cycle_id: selectedCycleId,
-      dosage_mg_per_week: parseFloat(substanceFormData.dosage_mg_per_week),
-      dosage_mg_per_application: parseFloat(substanceFormData.dosage_mg_per_application)
+      dosage_mg_per_week: parseFloat(substanceFormData.dosage_mg_per_week) || 0,
+      dosage_mg_per_application: parseFloat(substanceFormData.dosage_mg_per_application) || 0,
     };
-
-    if (editingSubstance) {
-      updateSubstanceMut.mutate({ id: editingSubstance.id, data });
-    } else {
-      createSubstanceMut.mutate(data);
-    }
+    editingSubstance ? updateSubstanceMut.mutate({ id: editingSubstance.id, data }) : createSubstanceMut.mutate(data);
   };
 
-  const frequencyLabels = {
-    "1x_semana": "1x/semana",
-    "2x_semana": "2x/semana",
-    "3x_semana": "3x/semana",
-    "dia_sim_dia_nao": "Dia sim, dia não",
-    "diario": "Diário"
-  };
+  const getStudentName = (studentId) => students.find(st => st.id === studentId)?.name || "Aluno";
+  const toggleCycleExpand = (cycleId) => setExpandedCycles(prev => ({ ...prev, [cycleId]: !prev[cycleId] }));
 
-  const getStudentName = (studentId) => {
-    const s = students.find(st => st.id === studentId);
-    return s?.name || "Aluno";
-  };
-
-  const toggleCycleExpand = (cycleId) => {
-    setExpandedCycles(prev => ({ ...prev, [cycleId]: !prev[cycleId] }));
-  };
-
-  const filteredCycles = cycles.filter(c => {
-    if (user?.role === "admin") {
-      return c.active;
-    } else {
-      return c.student_id === student?.id && c.active;
-    }
-  });
+  const filteredCycles = cycles.filter(c =>
+    user?.role === "admin" ? c.active : (c.student_id === student?.id && c.active)
+  );
 
   const cyclesByStudent = filteredCycles.reduce((acc, cycle) => {
-    if (!acc[cycle.student_id]) {
-      acc[cycle.student_id] = [];
-    }
+    if (!acc[cycle.student_id]) acc[cycle.student_id] = [];
     acc[cycle.student_id].push(cycle);
     return acc;
   }, {});
 
+  // ── DETAIL VIEW ──────────────────────────────────────────────
+  if (detailCycle) {
+    const cycleSubstances = substances.filter(s => s.cycle_id === detailCycle.id);
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setDetailCycle(null)}
+            className="flex items-center gap-2 text-purple-400 hover:text-white transition-colors text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar
+          </button>
+        </div>
+
+        <div className="cyber-card rounded-xl p-5">
+          <h2 className="text-xl font-cyber text-white tracking-wider">{detailCycle.name}</h2>
+          <p className="text-purple-400/60 text-xs mt-1">
+            Início: {new Date(detailCycle.cycle_start_date + "T12:00:00").toLocaleDateString("pt-BR")}
+            {detailCycle.cycle_duration_weeks && ` • ${detailCycle.cycle_duration_weeks} semanas`}
+          </p>
+          {detailCycle.notes && <p className="text-purple-300/60 text-sm mt-2">{detailCycle.notes}</p>}
+        </div>
+
+        {/* Substances list */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-purple-300 text-sm font-cyber tracking-wider uppercase">Substâncias</p>
+            {user?.role === "admin" && (
+              <Button onClick={() => handleOpenSubstanceDialog(detailCycle.id)} size="sm" className="btn-neon-cyan text-xs">
+                <Plus className="w-3 h-3 mr-1" /> Adicionar
+              </Button>
+            )}
+          </div>
+
+          {cycleSubstances.length === 0 ? (
+            <div className="cyber-card rounded-xl p-8 text-center">
+              <Syringe className="w-8 h-8 mx-auto mb-3 text-purple-500/30" />
+              <p className="text-purple-400/40 text-sm">Nenhuma substância cadastrada</p>
+            </div>
+          ) : (
+            cycleSubstances.map((sub) => (
+              <div key={sub.id} className="cyber-card rounded-xl p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <Syringe className="w-5 h-5 text-cyan-400" />
+                    <div>
+                      <p className="text-white font-medium">{sub.substance}</p>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {sub.ester && (
+                          <Badge className="bg-purple-500/10 border-purple-500/30 text-purple-300 text-xs">
+                            {ESTER_LABELS[sub.ester] || sub.ester}
+                          </Badge>
+                        )}
+                        <Badge className="bg-pink-500/10 border-pink-500/30 text-pink-400 text-xs">
+                          {FREQ_LABELS[sub.application_frequency]}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  {user?.role === "admin" && (
+                    <div className="flex gap-1">
+                      <Button onClick={() => handleOpenSubstanceDialog(detailCycle.id, sub)} size="sm" variant="ghost" className="text-purple-400 hover:text-white h-7 w-7 p-0">
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                      <Button onClick={() => deleteSubstanceMut.mutate(sub.id)} size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 w-7 p-0">
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div>
+                    <p className="text-purple-400/50 text-xs">Semanal</p>
+                    <p className="text-white font-bold">{sub.dosage_mg_per_week} mg</p>
+                  </div>
+                  <div>
+                    <p className="text-cyan-400/50 text-xs">Por Aplicação</p>
+                    <p className="text-white font-bold">{sub.dosage_mg_per_application} mg</p>
+                  </div>
+                </div>
+                {sub.application_site && (
+                  <p className="text-purple-300/50 text-xs mt-2">Local: {sub.application_site}</p>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Weekly Calendar */}
+        {cycleSubstances.length > 0 && (
+          <WeeklyApplicationCalendar substances={cycleSubstances} />
+        )}
+
+        {/* Concentration Chart */}
+        {cycleSubstances.some(s => s.ester) && (
+          <CycleConcentrationChart
+            substances={cycleSubstances.filter(s => s.ester)}
+            cycleDurationWeeks={detailCycle.cycle_duration_weeks || 12}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // ── LIST VIEW ─────────────────────────────────────────────────
   return (
     <div className="space-y-6">
       <PageHeader
@@ -260,8 +306,7 @@ export default function CH() {
         action={
           user?.role === "admin" && (
             <Button onClick={() => handleOpenCycleDialog()} className="btn-neon-purple">
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Ciclo
+              <Plus className="w-4 h-4 mr-2" /> Novo Ciclo
             </Button>
           )
         }
@@ -278,13 +323,9 @@ export default function CH() {
             {user?.role === "admin" && (
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-cyan-500/20 border border-purple-500/30 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">
-                    {getStudentName(studentId).substring(0, 2).toUpperCase()}
-                  </span>
+                  <span className="text-white font-bold text-sm">{getStudentName(studentId).substring(0, 2).toUpperCase()}</span>
                 </div>
-                <h3 className="text-xl font-cyber text-white tracking-wider">
-                  {getStudentName(studentId)}
-                </h3>
+                <h3 className="text-xl font-cyber text-white tracking-wider">{getStudentName(studentId)}</h3>
               </div>
             )}
 
@@ -304,39 +345,26 @@ export default function CH() {
                           >
                             {isExpanded ? <ChevronUp className="w-4 h-4 text-purple-400" /> : <ChevronDown className="w-4 h-4 text-purple-400" />}
                           </button>
-                          <div className="flex-1">
-                            <h4 className="text-white font-medium text-lg">{cycle.name}</h4>
+                          {/* Click on name → detail view */}
+                          <button className="flex-1 text-left" onClick={() => setDetailCycle(cycle)}>
+                            <h4 className="text-white font-medium text-lg hover:text-purple-300 transition-colors">{cycle.name}</h4>
                             <p className="text-purple-400/60 text-xs">
-                              Início: {new Date(cycle.cycle_start_date).toLocaleDateString("pt-BR")}
+                              Início: {new Date(cycle.cycle_start_date + "T12:00:00").toLocaleDateString("pt-BR")}
                               {cycle.cycle_duration_weeks && ` • ${cycle.cycle_duration_weeks} semanas`}
+                              {cycleSubstances.length > 0 && ` • ${cycleSubstances.length} substância${cycleSubstances.length > 1 ? "s" : ""}`}
                             </p>
-                          </div>
+                          </button>
                         </div>
 
                         {user?.role === "admin" && (
                           <div className="flex items-center gap-2">
-                            <Button
-                              onClick={() => handleOpenSubstanceDialog(cycle.id)}
-                              size="sm"
-                              className="btn-neon-cyan text-xs"
-                            >
-                              <Plus className="w-3 h-3 mr-1" />
-                              Substância
+                            <Button onClick={() => handleOpenSubstanceDialog(cycle.id)} size="sm" className="btn-neon-cyan text-xs">
+                              <Plus className="w-3 h-3 mr-1" /> Substância
                             </Button>
-                            <Button
-                              onClick={() => handleOpenCycleDialog(cycle)}
-                              size="sm"
-                              variant="ghost"
-                              className="text-purple-400 hover:text-white"
-                            >
+                            <Button onClick={() => handleOpenCycleDialog(cycle)} size="sm" variant="ghost" className="text-purple-400 hover:text-white">
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button
-                              onClick={() => deleteCycleMut.mutate(cycle.id)}
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-400 hover:text-red-300"
-                            >
+                            <Button onClick={() => deleteCycleMut.mutate(cycle.id)} size="sm" variant="ghost" className="text-red-400 hover:text-red-300">
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -347,9 +375,7 @@ export default function CH() {
                     {isExpanded && (
                       <div className="p-4 space-y-3">
                         {cycleSubstances.length === 0 ? (
-                          <p className="text-purple-400/40 text-sm text-center py-4">
-                            Nenhuma substância adicionada
-                          </p>
+                          <p className="text-purple-400/40 text-sm text-center py-4">Nenhuma substância adicionada</p>
                         ) : (
                           cycleSubstances.map(substance => (
                             <div key={substance.id} className="bg-black/20 border border-purple-500/10 rounded-lg p-4">
@@ -358,33 +384,29 @@ export default function CH() {
                                   <Syringe className="w-5 h-5 text-cyan-400" />
                                   <div>
                                     <p className="text-white font-medium">{substance.substance}</p>
-                                    <Badge className="bg-pink-500/10 border-pink-500/30 text-pink-400 text-xs mt-1">
-                                      {frequencyLabels[substance.application_frequency]}
-                                    </Badge>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {substance.ester && (
+                                        <Badge className="bg-purple-500/10 border-purple-500/30 text-purple-300 text-xs">
+                                          {ESTER_LABELS[substance.ester] || substance.ester}
+                                        </Badge>
+                                      )}
+                                      <Badge className="bg-pink-500/10 border-pink-500/30 text-pink-400 text-xs">
+                                        {FREQ_LABELS[substance.application_frequency]}
+                                      </Badge>
+                                    </div>
                                   </div>
                                 </div>
                                 {user?.role === "admin" && (
                                   <div className="flex gap-2">
-                                    <Button
-                                      onClick={() => handleOpenSubstanceDialog(cycle.id, substance)}
-                                      size="sm"
-                                      variant="ghost"
-                                      className="text-purple-400 hover:text-white h-7 w-7 p-0"
-                                    >
+                                    <Button onClick={() => handleOpenSubstanceDialog(cycle.id, substance)} size="sm" variant="ghost" className="text-purple-400 hover:text-white h-7 w-7 p-0">
                                       <Edit className="w-3 h-3" />
                                     </Button>
-                                    <Button
-                                      onClick={() => deleteSubstanceMut.mutate(substance.id)}
-                                      size="sm"
-                                      variant="ghost"
-                                      className="text-red-400 hover:text-red-300 h-7 w-7 p-0"
-                                    >
+                                    <Button onClick={() => deleteSubstanceMut.mutate(substance.id)} size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 w-7 p-0">
                                       <Trash2 className="w-3 h-3" />
                                     </Button>
                                   </div>
                                 )}
                               </div>
-
                               <div className="grid grid-cols-2 gap-3">
                                 <div>
                                   <p className="text-purple-400/50 text-xs mb-1">Semanal</p>
@@ -395,19 +417,18 @@ export default function CH() {
                                   <p className="text-white text-sm font-bold">{substance.dosage_mg_per_application} mg</p>
                                 </div>
                               </div>
-
                               {substance.application_site && (
-                                <p className="text-purple-300/60 text-xs mt-2">
-                                  <span className="text-purple-400/50">Local: </span>{substance.application_site}
-                                </p>
-                              )}
-
-                              {substance.notes && (
-                                <p className="text-purple-300/70 text-xs mt-2">{substance.notes}</p>
+                                <p className="text-purple-300/60 text-xs mt-2"><span className="text-purple-400/50">Local: </span>{substance.application_site}</p>
                               )}
                             </div>
                           ))
                         )}
+                        <button
+                          onClick={() => setDetailCycle(cycle)}
+                          className="w-full py-2 rounded-lg border border-purple-500/20 text-purple-400/60 text-xs hover:border-purple-500/40 hover:text-purple-300 transition-all"
+                        >
+                          Ver gráfico de concentração →
+                        </button>
                       </div>
                     )}
                   </div>
@@ -422,72 +443,35 @@ export default function CH() {
       <Dialog open={cycleDialogOpen} onOpenChange={setCycleDialogOpen}>
         <DialogContent className="bg-[#0a0a16] border-purple-500/30 text-white max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-cyber text-purple-300">
-              {editingCycle ? "Editar Ciclo" : "Novo Ciclo"}
-            </DialogTitle>
+            <DialogTitle className="font-cyber text-purple-300">{editingCycle ? "Editar Ciclo" : "Novo Ciclo"}</DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4 mt-4">
             <div>
               <Label className="text-purple-300 text-xs">Aluno *</Label>
               <Select value={cycleFormData.student_id} onValueChange={(v) => setCycleFormData({ ...cycleFormData, student_id: v })}>
-                <SelectTrigger className="cyber-input mt-1">
-                  <SelectValue placeholder="Selecione o aluno" />
-                </SelectTrigger>
+                <SelectTrigger className="cyber-input mt-1"><SelectValue placeholder="Selecione o aluno" /></SelectTrigger>
                 <SelectContent>
-                  {students.filter(s => s.active).map(s => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                  ))}
+                  {students.filter(s => s.active).map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
-
             <div>
               <Label className="text-purple-300 text-xs">Nome do Ciclo *</Label>
-              <Input
-                value={cycleFormData.name}
-                onChange={(e) => setCycleFormData({ ...cycleFormData, name: e.target.value })}
-                className="cyber-input mt-1"
-                placeholder="Ex: Ciclo Bulking 2026"
-              />
+              <Input value={cycleFormData.name} onChange={(e) => setCycleFormData({ ...cycleFormData, name: e.target.value })} className="cyber-input mt-1" placeholder="Ex: Cruise - Testosterona" />
             </div>
-
             <div>
-              <Label className="text-purple-300 text-xs">Data de Início *</Label>
-              <Input
-                type="date"
-                value={cycleFormData.cycle_start_date}
-                onChange={(e) => setCycleFormData({ ...cycleFormData, cycle_start_date: e.target.value })}
-                className="cyber-input mt-1"
-              />
+              <Label className="text-purple-300 text-xs">Data de Início</Label>
+              <Input type="date" value={cycleFormData.cycle_start_date} onChange={(e) => setCycleFormData({ ...cycleFormData, cycle_start_date: e.target.value })} className="cyber-input mt-1" />
             </div>
-
             <div>
               <Label className="text-purple-300 text-xs">Duração (semanas)</Label>
-              <Input
-                type="number"
-                value={cycleFormData.cycle_duration_weeks}
-                onChange={(e) => setCycleFormData({ ...cycleFormData, cycle_duration_weeks: e.target.value })}
-                className="cyber-input mt-1"
-                placeholder="Ex: 12"
-              />
+              <Input type="number" value={cycleFormData.cycle_duration_weeks} onChange={(e) => setCycleFormData({ ...cycleFormData, cycle_duration_weeks: e.target.value })} className="cyber-input mt-1" placeholder="Ex: 12" />
             </div>
-
             <div>
               <Label className="text-purple-300 text-xs">Observações</Label>
-              <Textarea
-                value={cycleFormData.notes}
-                onChange={(e) => setCycleFormData({ ...cycleFormData, notes: e.target.value })}
-                className="cyber-input mt-1"
-                rows={3}
-              />
+              <Textarea value={cycleFormData.notes} onChange={(e) => setCycleFormData({ ...cycleFormData, notes: e.target.value })} className="cyber-input mt-1" rows={3} />
             </div>
-
-            <Button
-              onClick={handleSubmitCycle}
-              disabled={createCycleMut.isPending || updateCycleMut.isPending}
-              className="w-full btn-neon-purple"
-            >
+            <Button onClick={handleSubmitCycle} disabled={createCycleMut.isPending || updateCycleMut.isPending} className="w-full btn-neon-purple">
               {editingCycle ? "Atualizar" : "Criar Ciclo"}
             </Button>
           </div>
@@ -498,50 +482,46 @@ export default function CH() {
       <Dialog open={substanceDialogOpen} onOpenChange={setSubstanceDialogOpen}>
         <DialogContent className="bg-[#0a0a16] border-purple-500/30 text-white max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-cyber text-purple-300">
-              {editingSubstance ? "Editar Substância" : "Nova Substância"}
-            </DialogTitle>
+            <DialogTitle className="font-cyber text-purple-300">{editingSubstance ? "Editar Substância" : "Nova Substância"}</DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4 mt-4">
             <div>
               <Label className="text-purple-300 text-xs">Substância *</Label>
-              <Input
-                value={substanceFormData.substance}
-                onChange={(e) => setSubstanceFormData({ ...substanceFormData, substance: e.target.value })}
-                className="cyber-input mt-1"
-                placeholder="Ex: Testosterona, Trembolona..."
-              />
+              <Input value={substanceFormData.substance} onChange={(e) => setSubstanceFormData({ ...substanceFormData, substance: e.target.value })} className="cyber-input mt-1" placeholder="Ex: Testosterona, Trembolona..." />
             </div>
 
             <div>
-              <Label className="text-purple-300 text-xs">Dosagem Total (mg/semana) *</Label>
-              <Input
-                type="number"
-                value={substanceFormData.dosage_mg_per_week}
-                onChange={(e) => setSubstanceFormData({ ...substanceFormData, dosage_mg_per_week: e.target.value })}
-                className="cyber-input mt-1"
-                placeholder="Ex: 500"
-              />
+              <Label className="text-purple-300 text-xs">Éster</Label>
+              <Select value={substanceFormData.ester} onValueChange={(v) => setSubstanceFormData({ ...substanceFormData, ester: v })}>
+                <SelectTrigger className="cyber-input mt-1"><SelectValue placeholder="Selecione o éster" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="propionato">Propionato (t½ ~0.8 dias)</SelectItem>
+                  <SelectItem value="fenilpropionato">Fenilpropionato (t½ ~1.5 dias)</SelectItem>
+                  <SelectItem value="isocaproato">Isocaproato (t½ ~4 dias)</SelectItem>
+                  <SelectItem value="enantato">Enantato (t½ ~4.5 dias)</SelectItem>
+                  <SelectItem value="cipionato">Cipionato (t½ ~5 dias)</SelectItem>
+                  <SelectItem value="decanoato">Decanoato (t½ ~7.5 dias)</SelectItem>
+                  <SelectItem value="undecanoato">Undecanoato (t½ ~21 dias)</SelectItem>
+                  <SelectItem value="acetato">Acetato (t½ ~0.5 dias)</SelectItem>
+                  <SelectItem value="sem_ester">Sem Éster / Oral</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
-              <Label className="text-purple-300 text-xs">Dosagem por Aplicação (mg) *</Label>
-              <Input
-                type="number"
-                value={substanceFormData.dosage_mg_per_application}
-                onChange={(e) => setSubstanceFormData({ ...substanceFormData, dosage_mg_per_application: e.target.value })}
-                className="cyber-input mt-1"
-                placeholder="Ex: 250"
-              />
+              <Label className="text-purple-300 text-xs">Dosagem Total (mg/semana)</Label>
+              <Input type="number" value={substanceFormData.dosage_mg_per_week} onChange={(e) => setSubstanceFormData({ ...substanceFormData, dosage_mg_per_week: e.target.value })} className="cyber-input mt-1" placeholder="Ex: 500" />
+            </div>
+
+            <div>
+              <Label className="text-purple-300 text-xs">Dosagem por Aplicação (mg)</Label>
+              <Input type="number" value={substanceFormData.dosage_mg_per_application} onChange={(e) => setSubstanceFormData({ ...substanceFormData, dosage_mg_per_application: e.target.value })} className="cyber-input mt-1" placeholder="Ex: 250" />
             </div>
 
             <div>
               <Label className="text-purple-300 text-xs">Frequência de Aplicação</Label>
               <Select value={substanceFormData.application_frequency} onValueChange={(v) => setSubstanceFormData({ ...substanceFormData, application_frequency: v })}>
-                <SelectTrigger className="cyber-input mt-1">
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger className="cyber-input mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1x_semana">1x por semana</SelectItem>
                   <SelectItem value="2x_semana">2x por semana</SelectItem>
@@ -552,31 +532,38 @@ export default function CH() {
               </Select>
             </div>
 
+            {/* Days of week picker */}
+            <div>
+              <Label className="text-purple-300 text-xs">Dias de Aplicação (opcional)</Label>
+              <div className="flex gap-1.5 mt-2">
+                {DAY_NAMES.map((d, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => toggleDay(i)}
+                    className={`flex-1 py-2 rounded-lg text-[10px] font-bold border transition-all ${
+                      substanceFormData.application_days.includes(i)
+                        ? "border-cyan-500/60 bg-cyan-500/15 text-cyan-300"
+                        : "border-purple-500/20 bg-black/20 text-purple-400/50 hover:border-purple-500/40"
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div>
               <Label className="text-purple-300 text-xs">Local de Aplicação</Label>
-              <Input
-                value={substanceFormData.application_site}
-                onChange={(e) => setSubstanceFormData({ ...substanceFormData, application_site: e.target.value })}
-                className="cyber-input mt-1"
-                placeholder="Ex: Glúteo, Deltoide..."
-              />
+              <Input value={substanceFormData.application_site} onChange={(e) => setSubstanceFormData({ ...substanceFormData, application_site: e.target.value })} className="cyber-input mt-1" placeholder="Ex: Glúteo, Deltoide..." />
             </div>
 
             <div>
               <Label className="text-purple-300 text-xs">Observações</Label>
-              <Textarea
-                value={substanceFormData.notes}
-                onChange={(e) => setSubstanceFormData({ ...substanceFormData, notes: e.target.value })}
-                className="cyber-input mt-1"
-                rows={3}
-              />
+              <Textarea value={substanceFormData.notes} onChange={(e) => setSubstanceFormData({ ...substanceFormData, notes: e.target.value })} className="cyber-input mt-1" rows={2} />
             </div>
 
-            <Button
-              onClick={handleSubmitSubstance}
-              disabled={createSubstanceMut.isPending || updateSubstanceMut.isPending}
-              className="w-full btn-neon-purple"
-            >
+            <Button onClick={handleSubmitSubstance} disabled={createSubstanceMut.isPending || updateSubstanceMut.isPending} className="w-full btn-neon-purple">
               {editingSubstance ? "Atualizar" : "Adicionar Substância"}
             </Button>
           </div>

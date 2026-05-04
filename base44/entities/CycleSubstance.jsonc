@@ -1,0 +1,100 @@
+{
+  "name": "CycleSubstance",
+  "type": "object",
+  "properties": {
+    "cycle_id": {
+      "type": "string",
+      "description": "ID do ciclo"
+    },
+    "substance": {
+      "type": "string",
+      "description": "Nome da subst\u00e2ncia"
+    },
+    "ester": {
+      "type": "string",
+      "description": "\u00c9ster da subst\u00e2ncia",
+      "enum": [
+        "propionato",
+        "fenilpropionato",
+        "isocaproato",
+        "enantato",
+        "cipionato",
+        "decanoato",
+        "undecanoato",
+        "acetato",
+        "sem_ester"
+      ]
+    },
+    "dosage_mg_per_week": {
+      "type": "number",
+      "description": "Dosagem total em mg por semana"
+    },
+    "dosage_mg_per_application": {
+      "type": "number",
+      "description": "Dosagem em mg por aplica\u00e7\u00e3o"
+    },
+    "application_frequency": {
+      "type": "string",
+      "enum": [
+        "1x_semana",
+        "2x_semana",
+        "3x_semana",
+        "dia_sim_dia_nao",
+        "diario"
+      ],
+      "description": "Frequ\u00eancia de aplica\u00e7\u00e3o"
+    },
+    "application_days": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "Dias da semana para aplica\u00e7\u00e3o (0=Dom, 1=Seg, ..., 6=Sab)"
+    },
+    "application_site": {
+      "type": "string",
+      "description": "Local de aplica\u00e7\u00e3o (ex: gl\u00fateo, deltoide)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es sobre a subst\u00e2ncia"
+    }
+  },
+  "required": [
+    "cycle_id",
+    "substance",
+    "dosage_mg_per_week",
+    "dosage_mg_per_application"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
