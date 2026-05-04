@@ -6,6 +6,17 @@
       "type": "string",
       "description": "ID do ciclo"
     },
+    "category": {
+      "type": "string",
+      "description": "Categoria da subst\u00e2ncia",
+      "enum": [
+        "anabolizante",
+        "peptideo",
+        "farmaco",
+        "hormonio",
+        "outro"
+      ]
+    },
     "substance": {
       "type": "string",
       "description": "Nome da subst\u00e2ncia"
@@ -22,6 +33,11 @@
         "decanoato",
         "undecanoato",
         "acetato",
+        "hexaidrobenzilcarbonato",
+        "laurato",
+        "buciclato",
+        "base",
+        "suspensao",
         "sem_ester"
       ]
     },
@@ -33,6 +49,18 @@
       "type": "number",
       "description": "Dosagem em mg por aplica\u00e7\u00e3o"
     },
+    "dosage_unit": {
+      "type": "string",
+      "enum": [
+        "mg",
+        "ui",
+        "mcg",
+        "iu",
+        "ml"
+      ],
+      "default": "mg",
+      "description": "Unidade de dosagem"
+    },
     "application_frequency": {
       "type": "string",
       "enum": [
@@ -40,7 +68,9 @@
         "2x_semana",
         "3x_semana",
         "dia_sim_dia_nao",
-        "diario"
+        "diario",
+        "2x_dia",
+        "conforme_necessario"
       ],
       "description": "Frequ\u00eancia de aplica\u00e7\u00e3o"
     },
@@ -50,6 +80,17 @@
         "type": "number"
       },
       "description": "Dias da semana para aplica\u00e7\u00e3o (0=Dom, 1=Seg, ..., 6=Sab)"
+    },
+    "application_route": {
+      "type": "string",
+      "enum": [
+        "intramuscular",
+        "subcutaneo",
+        "oral",
+        "topico",
+        "intravenoso"
+      ],
+      "description": "Via de administra\u00e7\u00e3o"
     },
     "application_site": {
       "type": "string",

@@ -7,34 +7,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// SubstanceFormFields handles substance-specific selects internally
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Activity, Edit, Trash2, Syringe, ChevronDown, ChevronUp, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import CycleConcentrationChart from "../components/cycles/CycleConcentrationChart";
 import WeeklyApplicationCalendar from "../components/cycles/WeeklyApplicationCalendar";
+import SubstanceFormFields, { ESTER_OPTIONS, CATEGORY_LABELS } from "../components/cycles/SubstanceFormFields";
 
-const ESTER_LABELS = {
-  propionato: "Propionato",
-  fenilpropionato: "Fenilpropionato",
-  isocaproato: "Isocaproato",
-  enantato: "Enantato",
-  cipionato: "Cipionato",
-  decanoato: "Decanoato",
-  undecanoato: "Undecanoato",
-  acetato: "Acetato",
-  sem_ester: "Sem Éster",
-};
+const ESTER_LABELS = Object.fromEntries(ESTER_OPTIONS.map(e => [e.value, e.label]));
 
 const FREQ_LABELS = {
   "1x_semana": "1x/semana",
   "2x_semana": "2x/semana",
   "3x_semana": "3x/semana",
   "dia_sim_dia_nao": "Dia sim, dia não",
-  "diario": "Diário"
+  "diario": "Diário",
+  "2x_dia": "2x/dia",
+  "conforme_necessario": "Conforme necessário",
 };
-
-const DAY_NAMES = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 export default function CH() {
   const [user, setUser] = useState(null);
@@ -53,8 +45,10 @@ export default function CH() {
   });
 
   const [substanceFormData, setSubstanceFormData] = useState({
-    substance: "", ester: "", dosage_mg_per_week: "", dosage_mg_per_application: "",
-    application_frequency: "2x_semana", application_days: [], application_site: "", notes: ""
+    category: "", substance: "", ester: "", dosage_unit: "mg",
+    dosage_mg_per_week: "", dosage_mg_per_application: "",
+    application_frequency: "2x_semana", application_days: [],
+    application_route: "", application_site: "", notes: ""
   });
 
   useEffect(() => {
@@ -137,16 +131,21 @@ export default function CH() {
     if (substance) {
       setEditingSubstance(substance);
       setSubstanceFormData({
-        substance: substance.substance || "", ester: substance.ester || "",
+        category: substance.category || "",
+        substance: substance.substance || "",
+        ester: substance.ester || "",
+        dosage_unit: substance.dosage_unit || "mg",
         dosage_mg_per_week: substance.dosage_mg_per_week || "",
         dosage_mg_per_application: substance.dosage_mg_per_application || "",
         application_frequency: substance.application_frequency || "2x_semana",
         application_days: substance.application_days || [],
-        application_site: substance.application_site || "", notes: substance.notes || ""
+        application_route: substance.application_route || "",
+        application_site: substance.application_site || "",
+        notes: substance.notes || ""
       });
     } else {
       setEditingSubstance(null);
-      setSubstanceFormData({ substance: "", ester: "", dosage_mg_per_week: "", dosage_mg_per_application: "", application_frequency: "2x_semana", application_days: [], application_site: "", notes: "" });
+      setSubstanceFormData({ category: "", substance: "", ester: "", dosage_unit: "mg", dosage_mg_per_week: "", dosage_mg_per_application: "", application_frequency: "2x_semana", application_days: [], application_route: "", application_site: "", notes: "" });
     }
     setSubstanceDialogOpen(true);
   };
@@ -156,10 +155,14 @@ export default function CH() {
   const toggleDay = (day) => {
     setSubstanceFormData(prev => ({
       ...prev,
-      application_days: prev.application_days.includes(day)
+      application_days: (prev.application_days || []).includes(day)
         ? prev.application_days.filter(d => d !== day)
-        : [...prev.application_days, day].sort((a, b) => a - b)
+        : [...(prev.application_days || []), day].sort((a, b) => a - b)
     }));
+  };
+
+  const handleSubstanceFieldChange = (field, value) => {
+    setSubstanceFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmitCycle = () => {
@@ -484,86 +487,13 @@ export default function CH() {
           <DialogHeader>
             <DialogTitle className="font-cyber text-purple-300">{editingSubstance ? "Editar Substância" : "Nova Substância"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div>
-              <Label className="text-purple-300 text-xs">Substância *</Label>
-              <Input value={substanceFormData.substance} onChange={(e) => setSubstanceFormData({ ...substanceFormData, substance: e.target.value })} className="cyber-input mt-1" placeholder="Ex: Testosterona, Trembolona..." />
-            </div>
-
-            <div>
-              <Label className="text-purple-300 text-xs">Éster</Label>
-              <Select value={substanceFormData.ester} onValueChange={(v) => setSubstanceFormData({ ...substanceFormData, ester: v })}>
-                <SelectTrigger className="cyber-input mt-1"><SelectValue placeholder="Selecione o éster" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="propionato">Propionato (t½ ~0.8 dias)</SelectItem>
-                  <SelectItem value="fenilpropionato">Fenilpropionato (t½ ~1.5 dias)</SelectItem>
-                  <SelectItem value="isocaproato">Isocaproato (t½ ~4 dias)</SelectItem>
-                  <SelectItem value="enantato">Enantato (t½ ~4.5 dias)</SelectItem>
-                  <SelectItem value="cipionato">Cipionato (t½ ~5 dias)</SelectItem>
-                  <SelectItem value="decanoato">Decanoato (t½ ~7.5 dias)</SelectItem>
-                  <SelectItem value="undecanoato">Undecanoato (t½ ~21 dias)</SelectItem>
-                  <SelectItem value="acetato">Acetato (t½ ~0.5 dias)</SelectItem>
-                  <SelectItem value="sem_ester">Sem Éster / Oral</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="text-purple-300 text-xs">Dosagem Total (mg/semana)</Label>
-              <Input type="number" value={substanceFormData.dosage_mg_per_week} onChange={(e) => setSubstanceFormData({ ...substanceFormData, dosage_mg_per_week: e.target.value })} className="cyber-input mt-1" placeholder="Ex: 500" />
-            </div>
-
-            <div>
-              <Label className="text-purple-300 text-xs">Dosagem por Aplicação (mg)</Label>
-              <Input type="number" value={substanceFormData.dosage_mg_per_application} onChange={(e) => setSubstanceFormData({ ...substanceFormData, dosage_mg_per_application: e.target.value })} className="cyber-input mt-1" placeholder="Ex: 250" />
-            </div>
-
-            <div>
-              <Label className="text-purple-300 text-xs">Frequência de Aplicação</Label>
-              <Select value={substanceFormData.application_frequency} onValueChange={(v) => setSubstanceFormData({ ...substanceFormData, application_frequency: v })}>
-                <SelectTrigger className="cyber-input mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1x_semana">1x por semana</SelectItem>
-                  <SelectItem value="2x_semana">2x por semana</SelectItem>
-                  <SelectItem value="3x_semana">3x por semana</SelectItem>
-                  <SelectItem value="dia_sim_dia_nao">Dia sim, dia não</SelectItem>
-                  <SelectItem value="diario">Diário</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Days of week picker */}
-            <div>
-              <Label className="text-purple-300 text-xs">Dias de Aplicação (opcional)</Label>
-              <div className="flex gap-1.5 mt-2">
-                {DAY_NAMES.map((d, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => toggleDay(i)}
-                    className={`flex-1 py-2 rounded-lg text-[10px] font-bold border transition-all ${
-                      substanceFormData.application_days.includes(i)
-                        ? "border-cyan-500/60 bg-cyan-500/15 text-cyan-300"
-                        : "border-purple-500/20 bg-black/20 text-purple-400/50 hover:border-purple-500/40"
-                    }`}
-                  >
-                    {d}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-purple-300 text-xs">Local de Aplicação</Label>
-              <Input value={substanceFormData.application_site} onChange={(e) => setSubstanceFormData({ ...substanceFormData, application_site: e.target.value })} className="cyber-input mt-1" placeholder="Ex: Glúteo, Deltoide..." />
-            </div>
-
-            <div>
-              <Label className="text-purple-300 text-xs">Observações</Label>
-              <Textarea value={substanceFormData.notes} onChange={(e) => setSubstanceFormData({ ...substanceFormData, notes: e.target.value })} className="cyber-input mt-1" rows={2} />
-            </div>
-
-            <Button onClick={handleSubmitSubstance} disabled={createSubstanceMut.isPending || updateSubstanceMut.isPending} className="w-full btn-neon-purple">
+          <div className="mt-4">
+            <SubstanceFormFields
+              form={substanceFormData}
+              onChange={handleSubstanceFieldChange}
+              onToggleDay={toggleDay}
+            />
+            <Button onClick={handleSubmitSubstance} disabled={createSubstanceMut.isPending || updateSubstanceMut.isPending} className="w-full btn-neon-purple mt-4">
               {editingSubstance ? "Atualizar" : "Adicionar Substância"}
             </Button>
           </div>
