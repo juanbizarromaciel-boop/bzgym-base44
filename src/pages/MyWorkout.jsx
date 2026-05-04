@@ -269,17 +269,15 @@ export default function MyWorkout() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg border flex items-center justify-center flex-shrink-0 ${
-                      isToday ? "bg-purple-500/15 border-purple-500/30" : "bg-purple-900/20 border-purple-900/30"
-                    }`}>
-                      <Dumbbell className={`w-4 h-4 ${isToday ? "text-purple-400" : "text-purple-700"}`} />
+                    <div className="w-10 h-10 rounded-lg border flex items-center justify-center flex-shrink-0 bg-purple-500/10 border-purple-500/20">
+                      <Dumbbell className="w-4 h-4 text-purple-400" />
                     </div>
                     <div>
-                      <p className={`font-semibold ${isToday ? "text-white" : "text-white/60"}`}>{plan.name}</p>
+                      <p className="font-semibold text-white">{plan.name}</p>
                       <div className="flex items-center gap-2 mt-1">
                         {plan.day_of_week && (
-                          <Badge className={`text-xs ${isToday ? "bg-purple-500/20 border border-purple-500/30 text-purple-300" : "bg-purple-900/20 border border-purple-900/30 text-purple-600"}`}>
-                            {DAY_LABELS[plan.day_of_week]}
+                          <Badge className={`text-xs ${isToday ? "bg-purple-500/20 border border-purple-500/30 text-purple-300" : "bg-purple-900/20 border border-purple-900/30 text-purple-400/60"}`}>
+                            {DAY_LABELS[plan.day_of_week]}{isToday ? " · HOJE" : ""}
                           </Badge>
                         )}
                         <span className="text-xs text-purple-500/40 font-mono-cyber">{plan.exercises?.length || 0} exerc.</span>
