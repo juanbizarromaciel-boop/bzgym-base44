@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,11 @@ import PageHeader from "../components/shared/PageHeader";
 
 export default function PendingStudents() {
   const qc = useQueryClient();
+  const [currentUser, setCurrentUser] = useState(null);
+
+  React.useEffect(() => {
+    base44.auth.me().then(setCurrentUser).catch(() => {});
+  }, []);
 
   const { data: students = [] } = useQuery({
     queryKey: ["students"],
@@ -19,7 +24,7 @@ export default function PendingStudents() {
     mutationFn: ({ id, data }) => base44.entities.Student.update(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["students"] });
-      toast.success("Aluno atualizado!");
+      toast.success("Aluno ativado e vinculado!");
     }
   });
 
@@ -29,7 +34,7 @@ export default function PendingStudents() {
   const handleActivate = (student) => {
     updateMut.mutate({
       id: student.id,
-      data: { ...student, active: true }
+      data: { ...student, active: true, personal_id: currentUser?.email }
     });
   };
 
