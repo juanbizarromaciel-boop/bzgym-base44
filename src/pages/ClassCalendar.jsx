@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import {
   Calendar, DollarSign, Sparkles, Copy, Check, ChevronLeft, ChevronRight,
-  Clock, Trash2, Plus, MessageSquare, Loader2
+  Clock, Trash2, MessageSquare, Loader2
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -28,7 +28,6 @@ export default function ClassCalendar() {
   const [studentName, setStudentName] = useState("");
   const [personalName, setPersonalName] = useState("");
   const [generatedMessage, setGeneratedMessage] = useState("");
-  const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [students, setStudents] = useState([]);
   const [showFinanceModal, setShowFinanceModal] = useState(false);
@@ -132,38 +131,46 @@ export default function ClassCalendar() {
     if (totalClasses === 0) { toast.error("Selecione pelo menos um dia de aula"); return; }
     if (!rateNum) { toast.error("Informe o valor por hora"); return; }
 
-    const durationLabel = durationHours === 1 ? "1h" : durationHours % 1 === 0 ? `${durationHours}h` : `${classDuration}min`;
-    const valuePerClass = durationHours * rateNum;
-    const monthName = MONTH_NAMES[month] + "/" + year;
+    // Captura snapshot dos valores atuais no momento do clique
+    const snapDays = Object.entries(selectedDays).sort(([a], [b]) => a.localeCompare(b));
+    const snapTotal = snapDays.length;
+    const snapRate = parseFloat(hourlyRate) || 0;
+    const snapDurationHours = classDuration / 60;
+    const snapValuePerClass = snapDurationHours * snapRate;
+    const snapTotalValue = snapTotal * snapValuePerClass;
+    const snapMonth = currentDate.getMonth();
+    const snapYear = currentDate.getFullYear();
+    const snapMonthName = MONTH_NAMES[snapMonth] + "/" + snapYear;
+    const durationLabel = snapDurationHours === 1 ? "1h" : snapDurationHours % 1 === 0 ? `${snapDurationHours}h` : `${classDuration}min`;
     const pixKey = user?.email || "";
 
-    const classesList = sortedDays.map(([key, val]) => {
+    const classesList = snapDays.map(([key, val]) => {
       const d = new Date(key + "T00:00:00");
       const dayNum = format(d, "dd/MM");
       const weekDay = format(d, "EEEE", { locale: ptBR });
       return `${dayNum} — ${weekDay}, às ${val.time}`;
     }).join("\n");
 
-    const msg = `Olá, ${studentName || "[Nome do aluno]"}! Tudo bem?
+    const msg = `Olá, ${studentName.trim() || "[Nome do aluno]"}! Tudo bem?
 
-Segue o resumo das aulas realizadas em ${monthName}:
+Segue o resumo das aulas realizadas em ${snapMonthName}:
 
-Total de aulas: ${totalClasses}
+Total de aulas: ${snapTotal}
 Duração de cada aula: ${durationLabel}
-Valor por aula: ${formatCurrency(valuePerClass)}
-Valor total: ${formatCurrency(totalValue)}
+Valor por aula: ${formatCurrency(snapValuePerClass)}
+Valor total: ${formatCurrency(snapTotalValue)}
 
 Aulas realizadas:
 ${classesList}
 
-Valor referente ao mês: ${formatCurrency(totalValue)}
+Valor referente ao mês: ${formatCurrency(snapTotalValue)}
 
 Pix: ${pixKey}
 
 Obrigado pela confiança.
 
 Um abraço,
-${personalName || "[Seu nome]"}`;
+${personalName.trim() || "[Seu nome]"}`;
 
     setGeneratedMessage(msg);
   };
