@@ -154,8 +154,8 @@ export default function Finance() {
         </select>
       </div>
 
-      {/* Table */}
-      <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(168,85,247,0.15)' }}>
+      {/* Table — desktop only */}
+      <div className="hidden sm:block rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(168,85,247,0.15)' }}>
         <div className="grid grid-cols-12 px-4 py-2.5 text-[10px] font-mono-cyber uppercase tracking-widest"
           style={{ background: 'rgba(168,85,247,0.08)', borderBottom: '1px solid rgba(168,85,247,0.12)', color: 'rgba(192,132,252,0.5)' }}>
           <div className="col-span-3">Aluno</div>
@@ -219,6 +219,76 @@ export default function Finance() {
                     className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-red-500/10">
                     <Trash2 className="w-3 h-3 text-red-400/60" />
                   </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Cards — mobile only */}
+      <div className="sm:hidden space-y-3">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-12">
+            <DollarSign className="w-10 h-10 mx-auto mb-3 text-purple-500/20" />
+            <p className="text-sm" style={{ color: 'rgba(168,85,247,0.4)' }}>Nenhum pagamento encontrado</p>
+          </div>
+        ) : (
+          filtered.map((p) => {
+            const status = autoCheckOverdue(p);
+            const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pendente;
+            const Icon = cfg.icon;
+            return (
+              <div key={p.id} className="rounded-xl p-4 border space-y-3"
+                style={{ background: 'rgba(8,4,22,0.8)', borderColor: 'rgba(168,85,247,0.15)' }}>
+                {/* Top row: name + actions */}
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-base font-semibold text-white leading-snug">{getStudentName(p.student_id)}</p>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button onClick={() => { setEditingPayment(p); setShowForm(true); }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-purple-500/10">
+                      <Pencil className="w-4 h-4 text-purple-400" />
+                    </button>
+                    <button onClick={() => { if (window.confirm('Remover este pagamento?')) deleteMutation.mutate(p.id); }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-red-500/10">
+                      <Trash2 className="w-4 h-4 text-red-400/60" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Value + status */}
+                <div className="flex items-center justify-between">
+                  <p className="text-xl font-cyber" style={{ color: '#6ee7b7' }}>
+                    {p.amount ? formatMoney(p.amount) : '—'}
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+                    style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
+                    <Icon className="w-3.5 h-3.5" />
+                    {cfg.label}
+                  </span>
+                </div>
+
+                {/* Description + dates */}
+                <div className="space-y-1 pt-1 border-t" style={{ borderColor: 'rgba(168,85,247,0.1)' }}>
+                  {p.description && (
+                    <p className="text-sm" style={{ color: 'rgba(196,181,224,0.7)' }}>{p.description}</p>
+                  )}
+                  <div className="flex gap-4 flex-wrap">
+                    {p.due_date && (
+                      <p className="text-xs font-mono-cyber" style={{ color: 'rgba(192,132,252,0.6)' }}>
+                        Venc.: {formatDate(p.due_date)}
+                      </p>
+                    )}
+                    {p.payment_date && (
+                      <p className="text-xs font-mono-cyber" style={{ color: 'rgba(110,231,183,0.55)' }}>
+                        Pago: {formatDate(p.payment_date)}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             );
