@@ -11,6 +11,7 @@ import Chat from './pages/Chat';
 import PendingStudents from './pages/PendingStudents';
 import AICoach from './pages/AICoach';
 import AISettings from './pages/AISettings';
+import PersonalManagement from './pages/PersonalManagement';
 import Welcome from './pages/Welcome';
 import CH from './pages/CH';
 import PRBoard from './pages/PRBoard.jsx';
@@ -37,7 +38,7 @@ const AuthenticatedApp = () => {
     if (!isLoadingAuth && !authError) {
       base44.auth.me().then(async (u) => {
         setUser(u);
-        if (u.role !== 'admin') {
+        if (u.role !== 'admin' && u.role !== 'personal') {
           const students = await base44.entities.Student.list();
           const found = students.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
           setStudent(found);
@@ -71,8 +72,8 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Redirect logic for non-admin users
-  if (user && user.role !== 'admin') {
+  // Redirect logic for non-admin/non-personal users
+  if (user && user.role !== 'admin' && user.role !== 'personal') {
     // No student record -> go to onboarding
     if (!student) {
       return <Routes>
@@ -119,6 +120,7 @@ const AuthenticatedApp = () => {
       <Route path="/StudentDocuments" element={<LayoutWrapper currentPageName="StudentDocuments"><StudentDocuments /></LayoutWrapper>} />
       <Route path="/AICoach" element={<LayoutWrapper currentPageName="AICoach"><AICoach /></LayoutWrapper>} />
       <Route path="/AISettings" element={<LayoutWrapper currentPageName="AISettings"><AISettings /></LayoutWrapper>} />
+      <Route path="/PersonalManagement" element={<LayoutWrapper currentPageName="PersonalManagement"><PersonalManagement /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

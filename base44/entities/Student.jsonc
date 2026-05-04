@@ -1,0 +1,103 @@
+{
+  "name": "Student",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nome completo do aluno"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email do aluno"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Telefone do aluno"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "URL da foto do aluno"
+    },
+    "goal": {
+      "type": "string",
+      "enum": [
+        "hipertrofia",
+        "emagrecimento",
+        "resistencia",
+        "forca",
+        "saude"
+      ],
+      "description": "Objetivo do aluno"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es sobre o aluno"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o aluno est\u00e1 ativo"
+    },
+    "personal_id": {
+      "type": "string",
+      "description": "Email do Personal respons\u00e1vel pelo aluno"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "data.email": "{{user.email}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.email": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

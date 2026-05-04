@@ -6,7 +6,7 @@ import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
-  Sparkles, Settings
+  Sparkles, Settings, UserCog
 } from "lucide-react";
 import NotificationBell from "./components/notifications/NotificationBell";
 
@@ -64,6 +64,70 @@ const adminNavGroups = [
     items: [
       { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
       { name: "Config. IA", icon: Settings, page: "AISettings" },
+    ]
+  },
+  {
+    label: "Administração",
+    items: [
+      { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
+    ]
+  },
+  {
+    label: "Ferramentas",
+    items: [
+      { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+      { name: "Perfil", icon: UserCircle, page: "Profile" },
+    ]
+  },
+];
+
+const personalNavGroups = [
+  {
+    label: "Visão Geral",
+    items: [
+      { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+      { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
+    ]
+  },
+  {
+    label: "Meus Alunos",
+    items: [
+      { name: "Alunos", icon: Users, page: "Students" },
+      { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
+    ]
+  },
+  {
+    label: "Treinos",
+    items: [
+      { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
+      { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
+      { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
+    ]
+  },
+  {
+    label: "Evolução",
+    items: [
+      { name: "Progresso", icon: BarChart3, page: "Progress" },
+      { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
+    ]
+  },
+  {
+    label: "Nutrição",
+    items: [
+      { name: "Dietas", icon: Utensils, page: "Diet" },
+      { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
+    ]
+  },
+  {
+    label: "Comunicação",
+    items: [
+      { name: "Chat", icon: MessageSquare, page: "Chat" },
+    ]
+  },
+  {
+    label: "Saúde",
+    items: [
+      { name: "Saúde e Exames", icon: Activity, page: "CH" },
     ]
   },
   {
@@ -136,7 +200,8 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   const isAdmin = role === "admin";
-  const navGroups = isAdmin ? adminNavGroups : studentNavGroups;
+  const isPersonal = role === "personal";
+  const navGroups = isAdmin ? adminNavGroups : isPersonal ? personalNavGroups : studentNavGroups;
 
   const NavLink = ({ item }) => {
     const isActive = currentPageName === item.page;
@@ -226,8 +291,8 @@ export default function Layout({ children, currentPageName }) {
               : "border-cyan-500/15 bg-cyan-500/6"
             }`}>
             <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isAdmin ? "bg-purple-400" : "bg-cyan-400"}`} />
-            <span className={`text-[10px] font-medium tracking-widest uppercase ${isAdmin ? "text-purple-400/75" : "text-cyan-400/75"}`}>
-              {isAdmin ? "Personal Trainer" : "Aluno"}
+            <span className={`text-[10px] font-medium tracking-widest uppercase ${isAdmin ? "text-purple-400/75" : isPersonal ? "text-cyan-400/75" : "text-emerald-400/75"}`}>
+              {isAdmin ? "Administrador" : isPersonal ? "Personal Trainer" : "Aluno"}
             </span>
           </div>
           {userName && (

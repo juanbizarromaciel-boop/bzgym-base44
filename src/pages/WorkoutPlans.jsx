@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -33,10 +33,24 @@ export default function WorkoutPlans() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [duplicatePlan, setDuplicatePlan] = useState(null);
   const [dupeStudentId, setDupeStudentId] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
   const qc = useQueryClient();
 
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
-  const { data: plans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
+  useEffect(() => {
+    base44.auth.me().then(setCurrentUser).catch(() => {});
+  }, []);
+
+  const { data: allStudents = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
+  const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
+
+  // Personal filtra apenas seus alunos e planos
+  const isPersonal = currentUser?.role === "personal";
+  const students = isPersonal
+    ? allStudents.filter(s => s.personal_id === currentUser.email)
+    : allStudents;
+  const plans = isPersonal
+    ? allPlans.filter(p => p.personal_id === currentUser.email)
+    : allPlans;
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
 
   const createMut = useMutation({
@@ -59,6 +73,7 @@ export default function WorkoutPlans() {
       day_of_week: plan.day_of_week,
       exercises: plan.exercises || [],
       active: plan.active,
+      personal_id: currentUser?.role === "personal" ? currentUser.email : plan.personal_id,
     }),
     onSuccess: (newPlan) => {
       qc.invalidateQueries({ queryKey: ["plans"] });
@@ -88,9 +103,12 @@ export default function WorkoutPlans() {
 
   const handleSavePlan = () => {
     if (!planForm.name || !planForm.student_id) return;
+    const dataToSave = isPersonal
+      ? { ...planForm, personal_id: currentUser.email }
+      : planForm;
     editingPlan
-      ? updateMut.mutate({ id: editingPlan.id, data: planForm })
-      : createMut.mutate(planForm);
+      ? updateMut.mutate({ id: editingPlan.id, data: dataToSave })
+      : createMut.mutate(dataToSave);
   };
 
   const addOrUpdateExercise = (exerciseData) => {

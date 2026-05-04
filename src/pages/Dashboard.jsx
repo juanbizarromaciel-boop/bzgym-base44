@@ -31,6 +31,9 @@ export default function Dashboard() {
     return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" /></div>;
   }
 
+  // personal sees the same dashboard as admin (filtered by RLS on backend)
+  const isPersonal = role === "personal";
+
   const activeStudents = students.filter(s => s.active !== false);
   const studentsWithPlans = new Set(plans.map(p => p.student_id));
   const studentsWithoutPlan = activeStudents.filter(s => !studentsWithPlans.has(s.id));
@@ -111,7 +114,7 @@ export default function Dashboard() {
               {userName ? `OLÁ, ${userName.toUpperCase()}` : "DASHBOARD"}
             </h1>
             <p className="text-sm mt-2 font-mono-cyber" style={{ color: 'rgba(192,132,252,0.55)' }}>
-              // central de controle · personal trainer
+              {isPersonal ? "// central de controle · personal trainer" : "// central de controle · administrador"}
             </p>
           </div>
           {alerts.length === 0 && activeStudents.length > 0 && (

@@ -1,0 +1,147 @@
+{
+  "name": "WorkoutPlan",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string",
+      "description": "ID do aluno"
+    },
+    "personal_id": {
+      "type": "string",
+      "description": "Email do Personal respons\u00e1vel"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nome do treino (ex: Treino A - Peito/Tr\u00edceps)"
+    },
+    "day_of_week": {
+      "type": "string",
+      "enum": [
+        "segunda",
+        "terca",
+        "quarta",
+        "quinta",
+        "sexta",
+        "sabado",
+        "domingo"
+      ],
+      "description": "Dia da semana"
+    },
+    "exercises": {
+      "type": "array",
+      "description": "Lista de exerc\u00edcios do treino",
+      "items": {
+        "type": "object",
+        "properties": {
+          "exercise_id": {
+            "type": "string"
+          },
+          "exercise_name": {
+            "type": "string"
+          },
+          "sets": {
+            "type": "number"
+          },
+          "reps": {
+            "type": "string"
+          },
+          "load_kg": {
+            "type": "number"
+          },
+          "rest_seconds": {
+            "type": "number"
+          },
+          "technique": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "cluster",
+              "rest_pause",
+              "drop_set",
+              "super_set",
+              "giant_set",
+              "piramidal",
+              "fst7",
+              "myo_reps",
+              "tempo_controlado"
+            ]
+          },
+          "technique_details": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "student_id",
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        }
+      ]
+    }
+  }
+}

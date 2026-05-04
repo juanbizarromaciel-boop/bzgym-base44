@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -41,12 +41,22 @@ export default function Students() {
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const qc = useQueryClient();
 
-  const { data: students = [], isLoading } = useQuery({
+  useEffect(() => {
+    base44.auth.me().then(setCurrentUser).catch(() => {});
+  }, []);
+
+  const { data: allStudents = [], isLoading } = useQuery({
     queryKey: ["students"],
     queryFn: () => base44.entities.Student.list(),
   });
+
+  // Personal só vê seus próprios alunos; admin vê todos
+  const students = currentUser?.role === "personal"
+    ? allStudents.filter(s => s.personal_id === currentUser.email)
+    : allStudents;
 
   const createMut = useMutation({
     mutationFn: (data) => base44.entities.Student.create(data),
