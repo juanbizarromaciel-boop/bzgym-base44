@@ -14,6 +14,11 @@ import AISettings from './pages/AISettings';
 import PersonalManagement from './pages/PersonalManagement';
 import Finance from './pages/Finance';
 import ClassCalendar from './pages/ClassCalendar';
+import SubscriberDashboard from './pages/SubscriberDashboard';
+import AccessDenied from './pages/AccessDenied';
+import MyWorkout from './pages/MyWorkout';
+import MyDiet from './pages/MyDiet';
+import ExerciseLibrary from './pages/ExerciseLibrary';
 import Welcome from './pages/Welcome';
 import CH from './pages/CH';
 import PRBoard from './pages/PRBoard.jsx';
@@ -74,8 +79,28 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Redirect logic for non-admin/non-personal users
-  if (user && user.role !== 'admin' && user.role !== 'personal') {
+  // Role: recente — só pode fazer onboarding
+  if (user && user.role === 'recente') {
+    return <Routes>
+      <Route path="/Onboarding" element={<Onboarding />} />
+      <Route path="*" element={<Navigate to="/Onboarding" replace />} />
+    </Routes>;
+  }
+
+  // Role: assinante — acesso limitado
+  if (user && user.role === 'assinante') {
+    return <Routes>
+      <Route path="/" element={<LayoutWrapper currentPageName="SubscriberDashboard"><SubscriberDashboard /></LayoutWrapper>} />
+      <Route path="/SubscriberDashboard" element={<LayoutWrapper currentPageName="SubscriberDashboard"><SubscriberDashboard /></LayoutWrapper>} />
+      <Route path="/MyWorkout" element={<LayoutWrapper currentPageName="MyWorkout"><MyWorkout /></LayoutWrapper>} />
+      <Route path="/ExerciseLibrary" element={<LayoutWrapper currentPageName="ExerciseLibrary"><ExerciseLibrary /></LayoutWrapper>} />
+      <Route path="/MyDiet" element={<LayoutWrapper currentPageName="MyDiet"><MyDiet /></LayoutWrapper>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>;
+  }
+
+  // Redirect logic for non-admin/non-personal users (role: user)
+  if (user && user.role === 'user') {
     // No student record -> go to onboarding
     if (!student) {
       return <Routes>
@@ -125,6 +150,8 @@ const AuthenticatedApp = () => {
       <Route path="/PersonalManagement" element={<LayoutWrapper currentPageName="PersonalManagement"><PersonalManagement /></LayoutWrapper>} />
       <Route path="/Finance" element={<LayoutWrapper currentPageName="Finance"><Finance /></LayoutWrapper>} />
       <Route path="/ClassCalendar" element={<LayoutWrapper currentPageName="ClassCalendar"><ClassCalendar /></LayoutWrapper>} />
+      <Route path="/SubscriberDashboard" element={<LayoutWrapper currentPageName="SubscriberDashboard"><SubscriberDashboard /></LayoutWrapper>} />
+      <Route path="/AccessDenied" element={<AccessDenied />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

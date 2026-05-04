@@ -153,6 +153,34 @@ const personalNavGroups = [
   },
 ];
 
+const subscriberNavGroups = [
+  {
+    label: "Início",
+    items: [
+      { name: "Dashboard", icon: LayoutDashboard, page: "SubscriberDashboard" },
+    ]
+  },
+  {
+    label: "Treino",
+    items: [
+      { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+      { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
+    ]
+  },
+  {
+    label: "Nutrição",
+    items: [
+      { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
+    ]
+  },
+  {
+    label: "Conta",
+    items: [
+      { name: "Perfil", icon: UserCircle, page: "Profile" },
+    ]
+  },
+];
+
 const studentNavGroups = [
   {
     label: "Hoje",
@@ -215,7 +243,8 @@ export default function Layout({ children, currentPageName }) {
 
   const isAdmin = role === "admin";
   const isPersonal = role === "personal";
-  const navGroups = isAdmin ? adminNavGroups : isPersonal ? personalNavGroups : studentNavGroups;
+  const isSubscriber = role === "assinante";
+  const navGroups = isAdmin ? adminNavGroups : isPersonal ? personalNavGroups : isSubscriber ? subscriberNavGroups : studentNavGroups;
 
   const NavLink = ({ item }) => {
     const isActive = currentPageName === item.page;
@@ -305,8 +334,8 @@ export default function Layout({ children, currentPageName }) {
               : "border-cyan-500/15 bg-cyan-500/6"
             }`}>
             <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isAdmin ? "bg-purple-400" : "bg-cyan-400"}`} />
-            <span className={`text-[10px] font-medium tracking-widest uppercase ${isAdmin ? "text-purple-400/75" : isPersonal ? "text-cyan-400/75" : "text-emerald-400/75"}`}>
-              {isAdmin ? "Administrador" : isPersonal ? "Personal Trainer" : "Aluno"}
+            <span className={`text-[10px] font-medium tracking-widest uppercase ${isAdmin ? "text-purple-400/75" : isPersonal ? "text-cyan-400/75" : isSubscriber ? "text-yellow-400/75" : "text-emerald-400/75"}`}>
+              {isAdmin ? "Administrador" : isPersonal ? "Personal Trainer" : isSubscriber ? "Assinante" : "Aluno"}
             </span>
           </div>
           {userName && (
