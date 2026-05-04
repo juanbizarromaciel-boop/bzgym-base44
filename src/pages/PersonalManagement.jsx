@@ -32,7 +32,7 @@ export default function PersonalManagement() {
     queryFn: () => base44.entities.User.list(),
   });
 
-  const personals = allUsers.filter(u => u.role === "personal");
+  const personals = allUsers.filter(u => u.role === "personal" || u.role === "admin");
   const unlinkedStudents = students.filter(s => !s.personal_id);
 
   const updateStudentMut = useMutation({

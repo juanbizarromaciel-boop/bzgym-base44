@@ -43,14 +43,11 @@ export default function WorkoutPlans() {
   const { data: allStudents = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
 
-  // Personal filtra apenas seus alunos e planos
+  // Admin vê tudo; personal vê apenas seus alunos/planos
   const isPersonal = currentUser?.role === "personal";
-  const students = isPersonal
-    ? allStudents.filter(s => s.personal_id === currentUser.email)
-    : allStudents;
-  const plans = isPersonal
-    ? allPlans.filter(p => p.personal_id === currentUser.email)
-    : allPlans;
+  const isAdmin = currentUser?.role === "admin";
+  const students = isAdmin ? allStudents : allStudents.filter(s => s.personal_id === currentUser?.email);
+  const plans = isAdmin ? allPlans : allPlans.filter(p => p.personal_id === currentUser?.email);
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
 
   const createMut = useMutation({
@@ -73,7 +70,7 @@ export default function WorkoutPlans() {
       day_of_week: plan.day_of_week,
       exercises: plan.exercises || [],
       active: plan.active,
-      personal_id: currentUser?.role === "personal" ? currentUser.email : plan.personal_id,
+      personal_id: (currentUser?.role === "personal" || currentUser?.role === "admin") ? currentUser.email : plan.personal_id,
     }),
     onSuccess: (newPlan) => {
       qc.invalidateQueries({ queryKey: ["plans"] });
@@ -103,7 +100,7 @@ export default function WorkoutPlans() {
 
   const handleSavePlan = () => {
     if (!planForm.name || !planForm.student_id) return;
-    const dataToSave = isPersonal
+    const dataToSave = (isPersonal || isAdmin)
       ? { ...planForm, personal_id: currentUser.email }
       : planForm;
     editingPlan
