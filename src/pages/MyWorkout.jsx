@@ -10,6 +10,8 @@ import ExerciseTimers from "../components/workout/ExerciseTimers";
 import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
+import BlockedWorkoutBanner from "../components/finance/BlockedWorkoutBanner";
+import { usePaymentStatus } from "../hooks/usePaymentStatus";
 
 const DAY_MAP = { 0: "domingo", 1: "segunda", 2: "terca", 3: "quarta", 4: "quinta", 5: "sexta", 6: "sabado" };
 const DAY_LABELS = { segunda: "SEG", terca: "TER", quarta: "QUA", quinta: "QUI", sexta: "SEX", sabado: "SAB", domingo: "DOM" };
@@ -50,6 +52,7 @@ export default function MyWorkout() {
     }
   }, [user, students]);
 
+  const { blocked, personalName } = usePaymentStatus(student);
   const myPlans = student ? allPlans.filter(p => p.student_id === student.id && p.active !== false) : [];
   const selectedPlan = myPlans.find(p => p.id === selectedPlanId);
   const todayPlans = myPlans.filter(p => p.day_of_week === today);
@@ -112,6 +115,9 @@ export default function MyWorkout() {
     setSelectedVideo(videoUrl);
     setVideoDialogOpen(true);
   };
+
+  // Payment blocked
+  if (blocked) return <BlockedWorkoutBanner studentName={student?.name} personalName={personalName} />;
 
   // Loading
   if (!user) return (

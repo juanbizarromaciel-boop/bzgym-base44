@@ -6,7 +6,7 @@ import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
-  Sparkles, Settings, UserCog
+  Sparkles, Settings, UserCog, DollarSign
 } from "lucide-react";
 import NotificationBell from "./components/notifications/NotificationBell";
 
@@ -73,6 +73,12 @@ const adminNavGroups = [
     ]
   },
   {
+    label: "Financeiro",
+    items: [
+      { name: "Financeiro", icon: DollarSign, page: "Finance" },
+    ]
+  },
+  {
     label: "Ferramentas",
     items: [
       { name: "Cronômetro", icon: Timer, page: "TimerPage" },
@@ -128,6 +134,12 @@ const personalNavGroups = [
     label: "Saúde",
     items: [
       { name: "Saúde e Exames", icon: Activity, page: "CH" },
+    ]
+  },
+  {
+    label: "Financeiro",
+    items: [
+      { name: "Financeiro", icon: DollarSign, page: "Finance" },
     ]
   },
   {

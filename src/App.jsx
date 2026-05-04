@@ -12,6 +12,7 @@ import PendingStudents from './pages/PendingStudents';
 import AICoach from './pages/AICoach';
 import AISettings from './pages/AISettings';
 import PersonalManagement from './pages/PersonalManagement';
+import Finance from './pages/Finance';
 import Welcome from './pages/Welcome';
 import CH from './pages/CH';
 import PRBoard from './pages/PRBoard.jsx';
@@ -121,6 +122,7 @@ const AuthenticatedApp = () => {
       <Route path="/AICoach" element={<LayoutWrapper currentPageName="AICoach"><AICoach /></LayoutWrapper>} />
       <Route path="/AISettings" element={<LayoutWrapper currentPageName="AISettings"><AISettings /></LayoutWrapper>} />
       <Route path="/PersonalManagement" element={<LayoutWrapper currentPageName="PersonalManagement"><PersonalManagement /></LayoutWrapper>} />
+      <Route path="/Finance" element={<LayoutWrapper currentPageName="Finance"><Finance /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
