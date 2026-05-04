@@ -23,7 +23,18 @@ O treino deve ser revisado pelo professor antes de ser enviado ao aluno.
 Técnicas válidas: normal, cluster, rest_pause, drop_set, super_set, giant_set, piramidal, fst7, myo_reps, tempo_controlado
 Grupos musculares: peito, costas, ombros, biceps, triceps, pernas, gluteos, abdomen, panturrilha, antebraco, cardio`,
 
-  test: `Você é o BZ AI Coach, assistente do BZ Gym System. Responda com uma saudação curta e confirme que a conexão está funcionando. Responda em JSON: {"status": "ok", "message": "sua mensagem"}`
+  test: `Você é o BZ AI Coach, assistente do BZ Gym System. Responda com uma saudação curta e confirme que a conexão está funcionando. Responda em JSON: {"status": "ok", "message": "sua mensagem"}`,
+
+  exercise_desc: `Você é uma IA especialista em educação física brasileira.
+Gere uma descrição técnica e motivacional para o exercício informado.
+Seja direto, máximo 2 frases, em português.
+Responda APENAS em JSON: {"description": "texto da descrição"}`,
+
+  exercise_bulk: `Você é uma IA especialista em educação física brasileira.
+Receberá uma lista de exercícios em JSON e um comando do professor.
+Execute o comando em TODOS os exercícios e retorne a lista atualizada.
+Mantenha os campos id e name intactos. Retorne APENAS JSON válido.
+Formato: {"exercises": [{id, name, muscle_group, description, video_url}, ...]}`
 };
 
 Deno.serve(async (req) => {
