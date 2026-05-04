@@ -13,6 +13,7 @@ import AICoach from './pages/AICoach';
 import AISettings from './pages/AISettings';
 import PersonalManagement from './pages/PersonalManagement';
 import Finance from './pages/Finance';
+import ClassCalendar from './pages/ClassCalendar';
 import Welcome from './pages/Welcome';
 import CH from './pages/CH';
 import PRBoard from './pages/PRBoard.jsx';
@@ -123,6 +124,7 @@ const AuthenticatedApp = () => {
       <Route path="/AISettings" element={<LayoutWrapper currentPageName="AISettings"><AISettings /></LayoutWrapper>} />
       <Route path="/PersonalManagement" element={<LayoutWrapper currentPageName="PersonalManagement"><PersonalManagement /></LayoutWrapper>} />
       <Route path="/Finance" element={<LayoutWrapper currentPageName="Finance"><Finance /></LayoutWrapper>} />
+      <Route path="/ClassCalendar" element={<LayoutWrapper currentPageName="ClassCalendar"><ClassCalendar /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
