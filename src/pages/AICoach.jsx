@@ -5,9 +5,10 @@ import AIFoodGenerator from "../components/ai/AIFoodGenerator";
 import AIDietGenerator from "../components/ai/AIDietGenerator";
 import AIWorkoutGenerator from "../components/ai/AIWorkoutGenerator";
 import AIExerciseManager from "../components/ai/AIExerciseManager";
+import AIImageAnalyzer from "../components/ai/AIImageAnalyzer";
 import {
   Sparkles, Utensils, Dumbbell, ClipboardList,
-  Settings, Zap, Shield, Library, BrainCircuit
+  Settings, Zap, Shield, Library, BrainCircuit, Camera
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -113,6 +114,7 @@ export default function AICoach() {
             { value: "diet", icon: ClipboardList, label: "DIETA" },
             { value: "workout", icon: Dumbbell, label: "TREINO" },
             { value: "exercises", icon: Library, label: "EXERCÍCIOS" },
+            { value: "photo", icon: Camera, label: "FOTO IA" },
           ].map(({ value, icon: Icon, label }) => (
             <TabsTrigger key={value} value={value}
               className="flex-1 flex items-center justify-center gap-1.5 rounded-lg text-[10px] sm:text-xs font-semibold tracking-wider py-2.5 transition-all data-[state=active]:text-white data-[state=inactive]:text-purple-500/40"
@@ -135,6 +137,9 @@ export default function AICoach() {
         </TabsContent>
         <TabsContent value="exercises">
           <AIExerciseManager settings={settings} />
+        </TabsContent>
+        <TabsContent value="photo">
+          <AIImageAnalyzer settings={settings} />
         </TabsContent>
       </Tabs>
     </div>
