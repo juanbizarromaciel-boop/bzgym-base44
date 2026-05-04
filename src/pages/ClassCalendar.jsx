@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import {
   Calendar, DollarSign, Sparkles, Copy, Check, ChevronLeft, ChevronRight,
-  Clock, Trash2, Plus, MessageSquare
+  Clock, Trash2, Plus, MessageSquare, Loader2
 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -30,13 +30,66 @@ export default function ClassCalendar() {
   const [generatedMessage, setGeneratedMessage] = useState("");
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [showFinanceModal, setShowFinanceModal] = useState(false);
+  const [financeForm, setFinanceForm] = useState({ student_id: "", description: "", due_date: "" });
+  const [savingFinance, setSavingFinance] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
       setPersonalName(u.full_name || "");
     }).catch(() => {});
+    base44.entities.Student.list().then(setStudents).catch(() => {});
   }, []);
+
+  // Calcula o 5º dia útil do próximo mês
+  const getNextDueDate = (fromMonth, fromYear) => {
+    const nextMonth = fromMonth === 11 ? 0 : fromMonth + 1;
+    const nextYear = fromMonth === 11 ? fromYear + 1 : fromYear;
+    let count = 0;
+    let day = 1;
+    while (count < 5) {
+      const d = new Date(nextYear, nextMonth, day);
+      const weekday = d.getDay();
+      if (weekday !== 0 && weekday !== 6) count++;
+      if (count < 5) day++;
+    }
+    return format(new Date(nextYear, nextMonth, day), 'yyyy-MM-dd');
+  };
+
+  const openFinanceModal = () => {
+    const due = getNextDueDate(month, year);
+    const monthLabel = MONTH_NAMES[month] + "/" + year;
+    setFinanceForm({
+      student_id: "",
+      description: `Mensalidade ${monthLabel}`,
+      due_date: due,
+    });
+    setShowFinanceModal(true);
+  };
+
+  const saveToFinance = async () => {
+    if (!financeForm.student_id) { toast.error("Selecione um aluno."); return; }
+    if (!financeForm.due_date) { toast.error("Informe o vencimento."); return; }
+    setSavingFinance(true);
+    try {
+      await base44.entities.Payment.create({
+        student_id: financeForm.student_id,
+        personal_id: user?.email,
+        amount: totalValue || 0,
+        due_date: financeForm.due_date,
+        payment_date: "",
+        status: "pendente",
+        description: financeForm.description,
+      });
+      toast.success("Lançado no financeiro como pendente!");
+      setShowFinanceModal(false);
+    } catch (e) {
+      toast.error("Erro: " + e.message);
+    }
+    setSavingFinance(false);
+  };
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -384,10 +437,106 @@ Use sempre o mesmo padrão profissional. A mensagem deve ser em português brasi
               </>
             )}
           </button>
+
+          {/* Lançar no Financeiro */}
+          <button
+            onClick={openFinanceModal}
+            disabled={totalClasses === 0 || !rateNum}
+            className="w-full py-3.5 rounded-xl font-cyber text-sm tracking-widest transition-all flex items-center justify-center gap-2"
+            style={{
+              background: totalClasses === 0 || !rateNum ? 'rgba(16,185,129,0.03)' : 'rgba(16,185,129,0.12)',
+              border: `1px solid ${totalClasses === 0 || !rateNum ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.4)'}`,
+              color: totalClasses === 0 || !rateNum ? 'rgba(16,185,129,0.25)' : '#6ee7b7',
+              boxShadow: totalClasses === 0 || !rateNum ? 'none' : '0 0 16px rgba(16,185,129,0.12)',
+              cursor: totalClasses === 0 || !rateNum ? 'not-allowed' : 'pointer',
+            }}>
+            <DollarSign className="w-4 h-4" />
+            LANÇAR NO FINANCEIRO
+          </button>
         </div>
       </div>
 
       {/* Generated Message */}
+      {/* Finance Modal */}
+      {showFinanceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)' }}>
+          <div className="w-full max-w-md rounded-2xl p-6 relative" style={{ background: 'rgba(8,4,22,0.98)', border: '1px solid rgba(16,185,129,0.3)', boxShadow: '0 0 40px rgba(16,185,129,0.12)' }}>
+            <div className="absolute top-0 left-0 right-0 h-px rounded-t-2xl" style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.5), transparent)' }} />
+
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="font-cyber text-base text-white tracking-wide">LANÇAR NO FINANCEIRO</h2>
+                <p className="text-xs font-mono-cyber mt-0.5" style={{ color: 'rgba(110,231,183,0.4)' }}>Cobrança pendente — sem data de pagamento</p>
+              </div>
+              <button onClick={() => setShowFinanceModal(false)} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-emerald-500/10">
+                <span style={{ color: '#6ee7b7', fontSize: '1rem' }}>✕</span>
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {/* Total */}
+              <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(110,231,183,0.5)' }}>VALOR TOTAL</p>
+                <p className="font-cyber text-2xl mt-1" style={{ color: '#6ee7b7' }}>{formatCurrency(totalValue)}</p>
+                <p className="text-[10px] font-mono-cyber mt-0.5" style={{ color: 'rgba(110,231,183,0.4)' }}>
+                  {totalClasses} aulas × {durationHours}h × {formatCurrency(rateNum)}/h
+                </p>
+              </div>
+
+              {/* Aluno */}
+              <div>
+                <label className="text-[10px] font-mono-cyber block mb-1" style={{ color: 'rgba(110,231,183,0.5)', letterSpacing: '0.1em' }}>ALUNO</label>
+                <select
+                  value={financeForm.student_id}
+                  onChange={e => setFinanceForm(f => ({ ...f, student_id: e.target.value }))}
+                  style={{ background: 'rgba(4,2,14,0.7)', border: '1px solid rgba(16,185,129,0.25)', color: '#f0e6ff', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem', width: '100%', outline: 'none' }}>
+                  <option value="">Selecionar aluno...</option>
+                  {students.filter(s => s.active !== false).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
+
+              {/* Descrição */}
+              <div>
+                <label className="text-[10px] font-mono-cyber block mb-1" style={{ color: 'rgba(110,231,183,0.5)', letterSpacing: '0.1em' }}>DESCRIÇÃO</label>
+                <input
+                  type="text"
+                  value={financeForm.description}
+                  onChange={e => setFinanceForm(f => ({ ...f, description: e.target.value }))}
+                  style={{ background: 'rgba(4,2,14,0.7)', border: '1px solid rgba(16,185,129,0.25)', color: '#f0e6ff', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem', width: '100%', outline: 'none' }}
+                />
+              </div>
+
+              {/* Vencimento */}
+              <div>
+                <label className="text-[10px] font-mono-cyber block mb-1" style={{ color: 'rgba(110,231,183,0.5)', letterSpacing: '0.1em' }}>
+                  VENCIMENTO (5º DIA ÚTIL DO PRÓXIMO MÊS — EDITÁVEL)
+                </label>
+                <input
+                  type="date"
+                  value={financeForm.due_date}
+                  onChange={e => setFinanceForm(f => ({ ...f, due_date: e.target.value }))}
+                  style={{ background: 'rgba(4,2,14,0.7)', border: '1px solid rgba(16,185,129,0.25)', color: '#6ee7b7', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem', width: '100%', outline: 'none' }}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setShowFinanceModal(false)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium"
+                style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)', color: 'rgba(110,231,183,0.5)' }}>
+                Cancelar
+              </button>
+              <button onClick={saveToFinance} disabled={savingFinance}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
+                style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.45)', color: '#6ee7b7', boxShadow: '0 0 14px rgba(16,185,129,0.12)' }}>
+                {savingFinance ? <Loader2 className="w-4 h-4 animate-spin" /> : <DollarSign className="w-4 h-4" />}
+                Lançar Pendente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {generatedMessage && (
         <div className="rounded-xl border overflow-hidden"
           style={{ borderColor: 'rgba(168,85,247,0.25)', background: 'rgba(8,4,22,0.8)' }}>

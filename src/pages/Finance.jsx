@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import PaymentFormDialog from "../components/finance/PaymentFormDialog";
+import MarkPaidDialog from "../components/finance/MarkPaidDialog";
 import { format, isPast, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -23,6 +24,7 @@ export default function Finance() {
   const [editingPayment, setEditingPayment] = useState(null);
   const [filterStatus, setFilterStatus] = useState("todos");
   const [filterStudent, setFilterStudent] = useState("");
+  const [markPaidPayment, setMarkPaidPayment] = useState(null);
   const qc = useQueryClient();
 
   React.useEffect(() => {
@@ -204,11 +206,22 @@ export default function Finance() {
                   )}
                 </div>
                 <div className="col-span-2">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                    style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
-                    <Icon className="w-3 h-3" />
-                    {cfg.label}
-                  </span>
+                  {status !== 'pago' ? (
+                    <button
+                      onClick={() => setMarkPaidPayment(p)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all hover:opacity-80"
+                      style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color, cursor: 'pointer' }}
+                      title="Clique para marcar como pago">
+                      <Icon className="w-3 h-3" />
+                      {cfg.label}
+                    </button>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                      style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
+                      <Icon className="w-3 h-3" />
+                      {cfg.label}
+                    </span>
+                  )}
                 </div>
                 <div className="col-span-1 flex items-center justify-end gap-1">
                   <button onClick={() => { setEditingPayment(p); setShowForm(true); }}
@@ -265,11 +278,22 @@ export default function Finance() {
                   <p className="text-xl font-cyber" style={{ color: '#6ee7b7' }}>
                     {p.amount ? formatMoney(p.amount) : '—'}
                   </p>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
-                    style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
-                    <Icon className="w-3.5 h-3.5" />
-                    {cfg.label}
-                  </span>
+                  {status !== 'pago' ? (
+                    <button
+                      onClick={() => setMarkPaidPayment(p)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold hover:opacity-80 transition-all"
+                      style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}
+                      title="Toque para marcar como pago">
+                      <Icon className="w-3.5 h-3.5" />
+                      {cfg.label}
+                    </button>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+                      style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
+                      <Icon className="w-3.5 h-3.5" />
+                      {cfg.label}
+                    </span>
+                  )}
                 </div>
 
                 {/* Description + dates */}
@@ -295,6 +319,18 @@ export default function Finance() {
           })
         )}
       </div>
+
+      {markPaidPayment && (
+        <MarkPaidDialog
+          payment={markPaidPayment}
+          studentName={getStudentName(markPaidPayment.student_id)}
+          onClose={() => setMarkPaidPayment(null)}
+          onSaved={() => {
+            qc.invalidateQueries({ queryKey: ['payments'] });
+            setMarkPaidPayment(null);
+          }}
+        />
+      )}
 
       {showForm && (
         <PaymentFormDialog
