@@ -195,11 +195,12 @@ export default function Onboarding() {
             <label className="text-xs text-purple-400/50 font-mono-cyber tracking-wider uppercase">
               Ou escreva seu próprio objetivo
             </label>
-            <Input
+            <input
               placeholder="Ex: Preparação para maratona, reabilitação..."
               value={customGoal}
               onChange={(e) => { setCustomGoal(e.target.value); setSelectedGoal(""); }}
-              className="cyber-input"
+              className="w-full rounded-lg px-4 py-3 text-sm outline-none"
+              style={{ background: '#1a1030', border: '1px solid rgba(168,85,247,0.4)', color: '#ffffff', caretColor: '#c084fc' }}
             />
           </div>
         </div>
@@ -209,13 +210,14 @@ export default function Onboarding() {
           <label className="text-xs text-purple-400/50 font-mono-cyber tracking-wider uppercase mb-3 block">
             Telefone (WhatsApp) *
           </label>
-          <Input
+          <input
             type="tel"
             placeholder="(00) 00000-0000"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="cyber-input"
             required
+            className="w-full rounded-lg px-4 py-3 text-sm outline-none"
+            style={{ background: '#1a1030', border: '1px solid rgba(168,85,247,0.4)', color: '#ffffff', caretColor: '#c084fc' }}
           />
           <p className="text-[10px] text-purple-500/30 font-mono-cyber mt-2">
             // seu personal trainer entrará em contato
@@ -227,11 +229,13 @@ export default function Onboarding() {
           <label className="text-xs text-purple-400/50 font-mono-cyber tracking-wider uppercase mb-3 block">
             Informações adicionais (opcional)
           </label>
-          <Textarea
+          <textarea
             placeholder="Ex: Lesões, restrições médicas, experiência com treino..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="cyber-input min-h-[100px]"
+            rows={4}
+            className="w-full rounded-lg px-4 py-3 text-sm outline-none resize-none"
+            style={{ background: '#1a1030', border: '1px solid rgba(168,85,247,0.4)', color: '#ffffff', caretColor: '#c084fc' }}
           />
         </div>
 
