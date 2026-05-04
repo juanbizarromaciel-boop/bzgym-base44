@@ -128,11 +128,14 @@ export default function ClassCalendar() {
   const rateNum = parseFloat(hourlyRate) || 0;
   const totalValue = totalClasses * durationHours * rateNum;
 
-  const generateMessage = async () => {
+  const generateMessage = () => {
     if (totalClasses === 0) { toast.error("Selecione pelo menos um dia de aula"); return; }
     if (!rateNum) { toast.error("Informe o valor por hora"); return; }
-    setGenerating(true);
-    setGeneratedMessage("");
+
+    const durationLabel = durationHours === 1 ? "1h" : durationHours % 1 === 0 ? `${durationHours}h` : `${classDuration}min`;
+    const valuePerClass = durationHours * rateNum;
+    const monthName = MONTH_NAMES[month] + "/" + year;
+    const pixKey = user?.email || "";
 
     const classesList = sortedDays.map(([key, val]) => {
       const d = new Date(key + "T00:00:00");
@@ -141,45 +144,28 @@ export default function ClassCalendar() {
       return `${dayNum} — ${weekDay}, às ${val.time}`;
     }).join("\n");
 
-    const monthName = MONTH_NAMES[month] + "/" + year;
-    const durationLabel = durationHours === 1 ? "1h" : durationHours % 1 === 0 ? `${durationHours}h` : `${classDuration}min`;
-    const valuePerClass = durationHours * rateNum;
-    const pixKey = user?.email || "";
-
-    const prompt = `Gere uma mensagem de cobrança de personal trainer no EXATO padrão abaixo, substituindo apenas os dados indicados. NÃO adicione emojis, NÃO mude a estrutura, NÃO adicione frases motivacionais, NÃO mude o formato. Siga rigorosamente o padrão:
-
----
-Olá, ${studentName || "[Nome do aluno]"}! Tudo bem?
+    const msg = `Olá, ${studentName || "[Nome do aluno]"}! Tudo bem?
 
 Segue o resumo das aulas realizadas em ${monthName}:
 
-Total de aulas: ${totalClasses}  
-Duração de cada aula: ${durationLabel}  
-Valor por aula: ${formatCurrency(valuePerClass)}  
-Valor total: ${formatCurrency(totalValue)}  
+Total de aulas: ${totalClasses}
+Duração de cada aula: ${durationLabel}
+Valor por aula: ${formatCurrency(valuePerClass)}
+Valor total: ${formatCurrency(totalValue)}
 
 Aulas realizadas:
-${classesList}  
+${classesList}
 
-Valor referente ao mês: ${formatCurrency(totalValue)}  
+Valor referente ao mês: ${formatCurrency(totalValue)}
 
 Pix: ${pixKey}
 
 Obrigado pela confiança.
 
-Um abraço,  
-${personalName || "[Seu nome]"}
----
+Um abraço,
+${personalName || "[Seu nome]"}`;
 
-Retorne APENAS o texto da mensagem acima, sem explicações, sem comentários adicionais.`;
-
-    try {
-      const res = await base44.integrations.Core.InvokeLLM({ prompt });
-      setGeneratedMessage(res);
-    } catch (e) {
-      toast.error("Erro ao gerar mensagem");
-    }
-    setGenerating(false);
+    setGeneratedMessage(msg);
   };
 
   const copyMessage = () => {
@@ -422,28 +408,17 @@ Retorne APENAS o texto da mensagem acima, sem explicações, sem comentários ad
           {/* Generate button */}
           <button
             onClick={generateMessage}
-            disabled={generating || totalClasses === 0 || !rateNum}
+            disabled={totalClasses === 0 || !rateNum}
             className="w-full py-3.5 rounded-xl font-cyber text-sm tracking-widest transition-all flex items-center justify-center gap-2"
             style={{
-              background: generating || totalClasses === 0 || !rateNum
-                ? 'rgba(168,85,247,0.05)'
-                : 'linear-gradient(135deg, rgba(168,85,247,0.25), rgba(6,182,212,0.15))',
-              border: `1px solid ${generating || totalClasses === 0 || !rateNum ? 'rgba(168,85,247,0.1)' : 'rgba(168,85,247,0.5)'}`,
-              color: generating || totalClasses === 0 || !rateNum ? 'rgba(168,85,247,0.3)' : '#edd9ff',
-              boxShadow: generating || totalClasses === 0 || !rateNum ? 'none' : '0 0 20px rgba(168,85,247,0.2)',
-              cursor: generating || totalClasses === 0 || !rateNum ? 'not-allowed' : 'pointer',
+              background: totalClasses === 0 || !rateNum ? 'rgba(168,85,247,0.05)' : 'linear-gradient(135deg, rgba(168,85,247,0.25), rgba(6,182,212,0.15))',
+              border: `1px solid ${totalClasses === 0 || !rateNum ? 'rgba(168,85,247,0.1)' : 'rgba(168,85,247,0.5)'}`,
+              color: totalClasses === 0 || !rateNum ? 'rgba(168,85,247,0.3)' : '#edd9ff',
+              boxShadow: totalClasses === 0 || !rateNum ? 'none' : '0 0 20px rgba(168,85,247,0.2)',
+              cursor: totalClasses === 0 || !rateNum ? 'not-allowed' : 'pointer',
             }}>
-            {generating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
-                GERANDO COM IA...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                GERAR MENSAGEM COM IA
-              </>
-            )}
+            <Sparkles className="w-4 h-4" />
+            GERAR MENSAGEM
           </button>
 
           {/* Lançar no Financeiro */}
