@@ -136,34 +136,42 @@ export default function ClassCalendar() {
 
     const classesList = sortedDays.map(([key, val]) => {
       const d = new Date(key + "T00:00:00");
-      const dayName = format(d, "EEEE, dd 'de' MMMM", { locale: ptBR });
-      return `• ${dayName} às ${val.time}h`;
+      const dayNum = format(d, "dd/MM");
+      const weekDay = format(d, "EEEE", { locale: ptBR });
+      return `${dayNum} — ${weekDay}, às ${val.time}`;
     }).join("\n");
 
     const monthName = MONTH_NAMES[month] + "/" + year;
-    const prompt = `Você é um personal trainer profissional chamado "${personalName || "Personal"}". 
-Crie uma mensagem de cobrança mensal para o aluno${studentName ? ` "${studentName}"` : ""} referente ao mês de ${monthName}.
+    const durationLabel = durationHours === 1 ? "1h" : durationHours % 1 === 0 ? `${durationHours}h` : `${classDuration}min`;
+    const valuePerClass = durationHours * rateNum;
+    const pixKey = user?.email || "";
 
-Dados:
-- Total de aulas: ${totalClasses} aulas
-- Duração de cada aula: ${classDuration} minutos (${durationHours}h)
-- Valor por hora: ${formatCurrency(rateNum)}
-- Valor total: ${formatCurrency(totalValue)}
-- Aulas realizadas:
-${classesList}
+    const prompt = `Gere uma mensagem de cobrança de personal trainer no EXATO padrão abaixo, substituindo apenas os dados indicados. NÃO adicione emojis, NÃO mude a estrutura, NÃO adicione frases motivacionais, NÃO mude o formato. Siga rigorosamente o padrão:
 
-Crie uma mensagem de cobrança profissional, calorosa e valorizadora do trabalho do personal trainer. 
-A mensagem deve:
-1. Cumprimentar o aluno pelo nome (se tiver)
-2. Apresentar o resumo do mês de forma organizada e bonita com emojis
-3. Listar todas as aulas com data e horário
-4. Mostrar o cálculo de forma transparente (nº aulas × duração × valor hora = total)
-5. Valorizar a dedicação do aluno e o trabalho do personal
-6. Finalizar com uma mensagem motivacional e solicitar o pagamento de forma educada
-7. Usar emojis de forma elegante para tornar a mensagem mais visual
-8. Ser formatada para WhatsApp (use *negrito* e _itálico_ quando necessário)
+---
+Olá, ${studentName || "[Nome do aluno]"}! Tudo bem?
 
-Use sempre o mesmo padrão profissional. A mensagem deve ser em português brasileiro.`;
+Segue o resumo das aulas realizadas em ${monthName}:
+
+Total de aulas: ${totalClasses}  
+Duração de cada aula: ${durationLabel}  
+Valor por aula: ${formatCurrency(valuePerClass)}  
+Valor total: ${formatCurrency(totalValue)}  
+
+Aulas realizadas:
+${classesList}  
+
+Valor referente ao mês: ${formatCurrency(totalValue)}  
+
+Pix: ${pixKey}
+
+Obrigado pela confiança.
+
+Um abraço,  
+${personalName || "[Seu nome]"}
+---
+
+Retorne APENAS o texto da mensagem acima, sem explicações, sem comentários adicionais.`;
 
     try {
       const res = await base44.integrations.Core.InvokeLLM({ prompt });
