@@ -31,10 +31,13 @@ function BulkCommandPanel({ exercises, onRefresh }) {
   const [command, setCommand] = useState("");
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("all");
+  const [onlyEmpty, setOnlyEmpty] = useState(false);
   const [preview, setPreview] = useState(null);
   const qc = useQueryClient();
 
-  const targets = filter === "all" ? exercises : exercises.filter(e => e.muscle_group === filter);
+  const emptyCount = exercises.filter(e => !e.description).length;
+  const baseTargets = filter === "all" ? exercises : exercises.filter(e => e.muscle_group === filter);
+  const targets = onlyEmpty ? baseTargets.filter(e => !e.description) : baseTargets;
 
   const runCommand = async () => {
     if (!command.trim() || targets.length === 0) return;
@@ -120,6 +123,23 @@ function BulkCommandPanel({ exercises, onRefresh }) {
             );
           })}
         </div>
+        {/* Only empty toggle */}
+        {emptyCount > 0 && (
+          <button
+            onClick={() => setOnlyEmpty(v => !v)}
+            className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber transition-all"
+            style={onlyEmpty
+              ? { background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.4)', color: '#fbbf24' }
+              : { background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.15)', color: 'rgba(192,132,252,0.5)' }
+            }
+          >
+            <span className="w-3 h-3 rounded-sm border flex items-center justify-center flex-shrink-0"
+              style={{ borderColor: onlyEmpty ? '#fbbf24' : 'rgba(168,85,247,0.3)', background: onlyEmpty ? '#fbbf24' : 'transparent' }}>
+              {onlyEmpty && <span className="text-black text-[8px] font-bold">✓</span>}
+            </span>
+            Apenas sem descrição ({emptyCount})
+          </button>
+        )}
         <p className="text-[10px] font-mono-cyber mt-2" style={{ color: 'rgba(192,132,252,0.4)' }}>
           {targets.length} exercício{targets.length !== 1 ? "s" : ""} selecionado{targets.length !== 1 ? "s" : ""}
         </p>
