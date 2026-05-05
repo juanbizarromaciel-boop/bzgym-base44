@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Dumbbell, Sparkles, Search, Plus, Pencil, Trash2, Image,
-  FileText, Wand2, CheckCircle, X, Loader2, ChevronDown, ChevronUp
+  FileText, Wand2, CheckCircle, X, Loader2, ChevronDown, ChevronUp, Globe
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -215,19 +215,38 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
   };
 
   const generateDescription = async () => {
+    if (!form.name) { toast.error("Digite o nome do exercício primeiro"); return; }
     setGeneratingDesc(true);
     try {
       const res = await base44.functions.invoke("aiCoach", {
         type: "exercise_desc",
-        prompt: `Escreva uma descrição técnica e motivacional para o exercício: ${form.name}. Grupo muscular: ${MUSCLE_LABELS[form.muscle_group] || form.muscle_group}. Máximo 2 frases, direto ao ponto.`,
+        prompt: `Escreva uma descrição técnica e motivacional para o exercício: ${form.name}. Grupo muscular: ${MUSCLE_LABELS[form.muscle_group] || form.muscle_group}. Máximo 2 frases, direto ao ponto em português.`,
       });
-      const desc = res.data?.description || res.data?.response || "";
+      const desc = res.data?.description || res.data?.response || res.data?.text || "";
+      if (!desc) throw new Error("Resposta vazia da IA");
       setForm(f => ({ ...f, description: desc }));
       toast.success("Descrição gerada!");
     } catch (e) {
-      toast.error("Erro ao gerar descrição");
+      toast.error("Erro ao gerar descrição: " + e.message);
     }
     setGeneratingDesc(false);
+  };
+
+  const fetchHipertrofiaGif = async () => {
+    if (!form.name) { toast.error("Digite o nome do exercício primeiro"); return; }
+    setGeneratingImg(true);
+    try {
+      const res = await base44.functions.invoke("fetchExerciseGif", { exercise_name: form.name });
+      if (res.data?.gif_url) {
+        setForm(f => ({ ...f, video_url: res.data.gif_url }));
+        toast.success("GIF encontrado!");
+      } else {
+        toast.error("GIF não encontrado para este exercício");
+      }
+    } catch (e) {
+      toast.error("Erro ao buscar GIF");
+    }
+    setGeneratingImg(false);
   };
 
   const muscleColor = MUSCLE_COLORS[exercise.muscle_group] || "#6b7280";
@@ -315,22 +334,36 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                   style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.2)', color: '#e9d5ff' }} />
               </div>
 
-              {/* Image */}
+              {/* Image / GIF */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] font-mono-cyber text-purple-500/50 uppercase tracking-widest">URL da Foto / Vídeo</label>
-                  <button onClick={generateImage} disabled={generatingImg}
-                    className="text-[10px] font-mono-cyber flex items-center gap-1 px-2 py-1 rounded-lg transition-all hover:scale-105"
-                    style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.2)', color: '#22d3ee' }}>
-                    {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Image className="w-3 h-3" />}
-                    GERAR IMAGEM IA
-                  </button>
+                  <label className="text-[10px] font-mono-cyber text-purple-500/50 uppercase tracking-widest">GIF / Foto / Vídeo</label>
+                  <div className="flex gap-1.5">
+                    <button onClick={fetchHipertrofiaGif} disabled={generatingImg}
+                      className="text-[10px] font-mono-cyber flex items-center gap-1 px-2 py-1 rounded-lg transition-all hover:scale-105"
+                      style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }}>
+                      {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
+                      HIPERTROFIA.ORG
+                    </button>
+                    <button onClick={generateImage} disabled={generatingImg}
+                      className="text-[10px] font-mono-cyber flex items-center gap-1 px-2 py-1 rounded-lg transition-all hover:scale-105"
+                      style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.2)', color: '#22d3ee' }}>
+                      {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Image className="w-3 h-3" />}
+                      GERAR IA
+                    </button>
+                  </div>
                 </div>
                 <Input value={form.video_url || ""} onChange={e => setForm(f => ({ ...f, video_url: e.target.value }))}
-                  placeholder="https://..." className="cyber-input text-sm" />
+                  placeholder="https://... (URL de GIF, imagem ou vídeo)" className="cyber-input text-sm" />
                 {form.video_url && (
-                  <div className="mt-2 rounded-xl overflow-hidden border border-purple-900/25" style={{ maxHeight: 160 }}>
-                    <img src={form.video_url} alt="preview" className="w-full h-40 object-cover" onError={e => e.target.style.display = 'none'} />
+                  <div className="mt-2 rounded-xl overflow-hidden border border-purple-900/25" style={{ maxHeight: 180 }}>
+                    {form.video_url.endsWith('.gif') || form.video_url.includes('gif') ? (
+                      <img src={form.video_url} alt="preview" className="w-full object-contain bg-black/30" style={{ maxHeight: 180 }} onError={e => e.target.style.display = 'none'} />
+                    ) : form.video_url.match(/\.(mp4|webm|ogg)/) ? (
+                      <video src={form.video_url} controls className="w-full" style={{ maxHeight: 180 }} />
+                    ) : (
+                      <img src={form.video_url} alt="preview" className="w-full h-40 object-cover" onError={e => e.target.style.display = 'none'} />
+                    )}
                   </div>
                 )}
               </div>
@@ -352,12 +385,16 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                 <p className="text-xs text-purple-300/60 leading-relaxed border-l-2 border-purple-500/20 pl-3">{exercise.description}</p>
               )}
               {exercise.video_url && (
-                <div className="rounded-xl overflow-hidden border border-purple-900/20" style={{ maxHeight: 160 }}>
-                  <img src={exercise.video_url} alt={exercise.name} className="w-full h-40 object-cover" onError={e => e.target.style.display = 'none'} />
+                <div className="rounded-xl overflow-hidden border border-purple-900/20 bg-black/30" style={{ maxHeight: 200 }}>
+                  {exercise.video_url.match(/\.(mp4|webm|ogg)/) ? (
+                    <video src={exercise.video_url} controls className="w-full" style={{ maxHeight: 200 }} />
+                  ) : (
+                    <img src={exercise.video_url} alt={exercise.name} className="w-full object-contain" style={{ maxHeight: 200 }} onError={e => e.target.style.display = 'none'} />
+                  )}
                 </div>
               )}
               {!exercise.description && !exercise.video_url && (
-                <p className="text-xs text-purple-500/30 font-mono-cyber">// sem descrição ou foto — clique em editar para adicionar</p>
+                <p className="text-xs text-purple-500/30 font-mono-cyber">// sem descrição ou gif — clique em editar para adicionar</p>
               )}
             </>
           )}
@@ -445,6 +482,8 @@ export default function AIExerciseManager({ settings }) {
             placeholder="Descrição (opcional)" rows={2}
             className="w-full cyber-input rounded-xl p-3 text-sm resize-none mb-3"
             style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.2)', color: '#e9d5ff' }} />
+          <Input value={newForm.video_url || ""} onChange={e => setNewForm(f => ({ ...f, video_url: e.target.value }))}
+            placeholder="URL de GIF/foto (opcional)" className="cyber-input text-sm mb-3" />
           <div className="flex gap-2">
             <button onClick={() => setShowAdd(false)}
               className="flex-1 py-2 rounded-lg text-xs font-mono-cyber text-purple-500/50 border border-purple-900/20">

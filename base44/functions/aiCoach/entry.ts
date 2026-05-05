@@ -56,8 +56,8 @@ Deno.serve(async (req) => {
     const systemPrompt = SYSTEM_PROMPTS[type] || SYSTEM_PROMPTS.test;
 
     let userMessage = prompt;
-    if (context && Object.keys(context).length > 0) {
-      userMessage += `\n\nContexto adicional: ${JSON.stringify(context)}`;
+    if (context) {
+      userMessage += `\n\nContexto adicional: ${typeof context === 'string' ? context : JSON.stringify(context)}`;
     }
 
     const fullPrompt = `${systemPrompt}\n\n${userMessage}`;
