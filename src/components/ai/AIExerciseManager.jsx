@@ -263,11 +263,12 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
         <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden border border-purple-900/25"
           style={{ background: 'rgba(168,85,247,0.06)' }}>
           {exercise.video_url
-            ? <img src={exercise.video_url} alt={exercise.name} className="w-full h-full object-cover" />
-            : <div className="w-full h-full flex items-center justify-center">
-                <Dumbbell className="w-4 h-4 text-purple-600/40" />
-              </div>
-          }
+            ? <img src={exercise.video_url} alt={exercise.name} className="w-full h-full object-cover"
+                onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+            : null}
+          <div className="w-full h-full items-center justify-center" style={{ display: exercise.video_url ? 'none' : 'flex' }}>
+            <Dumbbell className="w-4 h-4 text-purple-600/40" />
+          </div>
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white truncate">{exercise.name}</p>
@@ -359,13 +360,11 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                 <Input value={form.video_url || ""} onChange={e => setForm(f => ({ ...f, video_url: e.target.value }))}
                   placeholder="https://... (URL de GIF, imagem ou vídeo)" className="cyber-input text-sm" />
                 {form.video_url && (
-                  <div className="mt-2 rounded-xl overflow-hidden border border-purple-900/25" style={{ maxHeight: 180 }}>
-                    {form.video_url.endsWith('.gif') || form.video_url.includes('gif') ? (
-                      <img src={form.video_url} alt="preview" className="w-full object-contain bg-black/30" style={{ maxHeight: 180 }} onError={e => e.target.style.display = 'none'} />
-                    ) : form.video_url.match(/\.(mp4|webm|ogg)/) ? (
-                      <video src={form.video_url} controls className="w-full" style={{ maxHeight: 180 }} />
+                  <div className="mt-2 rounded-xl overflow-hidden border border-purple-900/25 bg-black/30" style={{ maxHeight: 200 }}>
+                    {form.video_url.match(/\.(mp4|webm|ogg)(\?|$)/i) ? (
+                      <video src={form.video_url} controls className="w-full" style={{ maxHeight: 200 }} />
                     ) : (
-                      <img src={form.video_url} alt="preview" className="w-full h-40 object-cover" onError={e => e.target.style.display = 'none'} />
+                      <img src={form.video_url} alt="preview" className="w-full object-contain" style={{ maxHeight: 200 }} onError={e => { e.target.style.display='none'; }} />
                     )}
                   </div>
                 )}
@@ -389,7 +388,7 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
               )}
               {exercise.video_url && (
                 <div className="rounded-xl overflow-hidden border border-purple-900/20 bg-black/30" style={{ maxHeight: 200 }}>
-                  {exercise.video_url.match(/\.(mp4|webm|ogg)/) ? (
+                  {exercise.video_url.match(/\.(mp4|webm|ogg)(\?|$)/i) ? (
                     <video src={exercise.video_url} controls className="w-full" style={{ maxHeight: 200 }} />
                   ) : (
                     <img src={exercise.video_url} alt={exercise.name} className="w-full object-contain" style={{ maxHeight: 200 }} onError={e => e.target.style.display = 'none'} />

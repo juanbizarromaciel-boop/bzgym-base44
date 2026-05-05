@@ -1,7 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-// Map of known exercise names (pt-BR) → hipertrofia.org GIF URLs
-// Pattern: https://www.hipertrofia.org/blog/wp-content/uploads/YYYY/MM/slug.gif
 const EXERCISE_GIFS = {
   // Bíceps
   "rosca direta": "https://www.hipertrofia.org/blog/wp-content/uploads/2019/04/rosca-direta.gif",
@@ -120,34 +118,27 @@ function normalizeExerciseName(name) {
   return name
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9\s]/g, "")
     .trim();
 }
 
-function findGif(exerciseName) {
+function findGifUrl(exerciseName) {
   const normalized = normalizeExerciseName(exerciseName);
-  
-  // Exact match first
+
   for (const [key, url] of Object.entries(EXERCISE_GIFS)) {
-    if (normalizeExerciseName(key) === normalized) {
-      return url;
-    }
+    if (normalizeExerciseName(key) === normalized) return url;
   }
-  
-  // Partial match
+
   for (const [key, url] of Object.entries(EXERCISE_GIFS)) {
     const normalKey = normalizeExerciseName(key);
-    if (normalized.includes(normalKey) || normalKey.includes(normalized)) {
-      return url;
-    }
+    if (normalized.includes(normalKey) || normalKey.includes(normalized)) return url;
   }
-  
-  // Word overlap matching
+
   const words = normalized.split(" ").filter(w => w.length > 2);
   let bestMatch = null;
   let bestScore = 0;
-  
+
   for (const [key, url] of Object.entries(EXERCISE_GIFS)) {
     const keyWords = normalizeExerciseName(key).split(" ").filter(w => w.length > 2);
     const matches = words.filter(w => keyWords.some(kw => kw.includes(w) || w.includes(kw)));
@@ -157,7 +148,7 @@ function findGif(exerciseName) {
       bestMatch = url;
     }
   }
-  
+
   return bestMatch;
 }
 
@@ -177,12 +168,42 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'exercise_name é obrigatório' }, { status: 400 });
     }
 
-    const gifUrl = findGif(exercise_name);
+    const sourceUrl = findGifUrl(exercise_name);
 
+    if (!sourceUrl) {
+      return Response.json({ success: true, gif_url: null, found: false, exercise_name });
+    }
+
+    // Download the GIF server-side (no CORS/hotlink issues here)
+    const gifResponse = await fetch(sourceUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Referer': 'https://www.hipertrofia.org/',
+        'Accept': 'image/gif,image/*,*/*;q=0.8',
+      }
+    });
+
+    if (gifResponse.ok) {
+      const contentType = gifResponse.headers.get('content-type') || 'image/gif';
+      const buffer = await gifResponse.arrayBuffer();
+      const file = new File([buffer], 'exercise.gif', { type: contentType });
+
+      // Upload to Base44 public storage — no CORS issues when loaded in frontend
+      const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({ file });
+
+      return Response.json({
+        success: true,
+        gif_url: uploadResult.file_url,
+        found: true,
+        exercise_name
+      });
+    }
+
+    // Fallback: return source URL if download failed
     return Response.json({
       success: true,
-      gif_url: gifUrl,
-      found: !!gifUrl,
+      gif_url: sourceUrl,
+      found: true,
       exercise_name
     });
 
