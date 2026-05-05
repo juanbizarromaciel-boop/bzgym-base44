@@ -42,22 +42,39 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
-    if (!user || user.role !== 'admin') {
-      return Response.json({ error: 'Acesso negado. Apenas professores.' }, { status: 403 });
+    if (!user || (user.role !== 'admin' && user.role !== 'personal')) {
+      return Response.json({ error: 'Acesso negado. Apenas administradores e personais.' }, { status: 403 });
     }
 
     const body = await req.json();
     const { type, prompt, context } = body;
 
-    if (!type || !prompt) {
-      return Response.json({ error: 'Parâmetros obrigatórios: type, prompt' }, { status: 400 });
+    const ALLOWED_TYPES = ['food', 'diet', 'workout', 'test', 'exercise_desc', 'exercise_bulk'];
+    if (!type || !ALLOWED_TYPES.includes(type)) {
+      return Response.json({ error: `Tipo inválido. Permitidos: ${ALLOWED_TYPES.join(', ')}` }, { status: 400 });
+    }
+    if (!prompt || typeof prompt !== 'string') {
+      return Response.json({ error: 'Parâmetro "prompt" obrigatório' }, { status: 400 });
+    }
+    if (prompt.length > 8000) {
+      return Response.json({ error: 'Prompt muito longo (máx. 8000 caracteres)' }, { status: 400 });
     }
 
-    const systemPrompt = SYSTEM_PROMPTS[type] || SYSTEM_PROMPTS.test;
+    // personal só pode usar exercise_desc e exercise_bulk
+    const PERSONAL_ALLOWED = ['exercise_desc', 'exercise_bulk'];
+    if (user.role === 'personal' && !PERSONAL_ALLOWED.includes(type)) {
+      return Response.json({ error: 'Acesso negado para este tipo de operação.' }, { status: 403 });
+    }
 
-    let userMessage = prompt;
+    const systemPrompt = SYSTEM_PROMPTS[type];
+
+    let userMessage = prompt.slice(0, 8000);
     if (context) {
-      userMessage += `\n\nContexto adicional: ${typeof context === 'string' ? context : JSON.stringify(context)}`;
+      const contextStr = typeof context === 'string' ? context : JSON.stringify(context);
+      if (contextStr.length > 50000) {
+        return Response.json({ error: 'Contexto muito grande. Reduza o número de exercícios por vez.' }, { status: 400 });
+      }
+      userMessage += `\n\nContexto adicional: ${contextStr}`;
     }
 
     const fullPrompt = `${systemPrompt}\n\n${userMessage}`;
