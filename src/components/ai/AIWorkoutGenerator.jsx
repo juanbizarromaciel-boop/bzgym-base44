@@ -101,6 +101,11 @@ export default function AIWorkoutGenerator({ settings }) {
     queryFn: () => base44.entities.Student.list()
   });
 
+  const { data: exercises = [] } = useQuery({
+    queryKey: ['exercises'],
+    queryFn: () => base44.entities.Exercise.list()
+  });
+
   const handleGenerate = async () => {
     if (!prompt.trim()) { toast.error("Digite um comando."); return; }
     setLoading(true);
@@ -121,15 +126,63 @@ Retorne JSON com: workoutPlanName, goal, level, weeklyFrequency, split, observat
     setLoading(false);
   };
 
+  const MUSCLE_GUESS = {
+    peito: ['supino', 'crucifixo', 'crossover', 'peck deck', 'flexão', 'chest'],
+    costas: ['remada', 'puxada', 'pulldown', 'pullup', 'barra fixa', 'serrote', 'cavalinho', 'hiperextensão'],
+    ombros: ['desenvolvimento', 'elevação', 'arnold', 'militar', 'shoulder'],
+    biceps: ['rosca', 'curl', 'bicep'],
+    triceps: ['tríceps', 'tricep', 'extensão', 'testa', 'pulley', 'frances'],
+    pernas: ['agachamento', 'squat', 'leg', 'prensa', 'cadeira', 'mesa', 'stiff', 'terra', 'hack'],
+    gluteos: ['glúteo', 'hip thrust', 'elevação pélvica', 'abdução'],
+    abdomen: ['abdominal', 'plank', 'prancha', 'crunch', 'vacuum'],
+    panturrilha: ['panturrilha', 'gêmeos', 'calf'],
+    cardio: ['esteira', 'bicicleta', 'elíptico', 'hiit', 'corrida', 'pulo', 'corda'],
+  };
+
+  const guessMusleGroup = (name) => {
+    const lower = name.toLowerCase();
+    for (const [group, keywords] of Object.entries(MUSCLE_GUESS)) {
+      if (keywords.some(k => lower.includes(k))) return group;
+    }
+    return 'outro';
+  };
+
   const handleApply = async () => {
     if (!selectedStudent) { toast.error("Selecione um aluno para aplicar o treino."); return; }
     if (!plan?.days?.length) return;
     setApplying(true);
     try {
+      // Collect all exercise names from the generated plan
+      const allAIExercises = plan.days.flatMap(day =>
+        (day.exercises || []).map(ex => ({
+          name: ex.exerciseName || ex.exercise_name,
+          muscle_group: ex.muscleGroup || ex.muscle_group || guessMusleGroup(ex.exerciseName || ex.exercise_name || ''),
+        }))
+      );
+
+      // Find which ones don't exist in the library (case-insensitive)
+      const existingNames = new Set(exercises.map(e => e.name?.toLowerCase().trim()));
+      const newExercises = allAIExercises.filter(
+        ex => ex.name && !existingNames.has(ex.name.toLowerCase().trim())
+      );
+      // Deduplicate new ones
+      const uniqueNew = newExercises.filter((ex, idx, arr) =>
+        arr.findIndex(e => e.name.toLowerCase().trim() === ex.name.toLowerCase().trim()) === idx
+      );
+
+      // Create missing exercises in the library
+      if (uniqueNew.length > 0) {
+        await Promise.all(uniqueNew.map(ex =>
+          base44.entities.Exercise.create({ name: ex.name, muscle_group: ex.muscle_group })
+        ));
+        toast.info(`${uniqueNew.length} novo(s) exercício(s) adicionado(s) à biblioteca.`);
+      }
+
+      // Save workout plans
       let saved = 0;
       for (const day of plan.days) {
         const dow = DAY_MAP[(day.dayOfWeek || day.day_of_week || '').toLowerCase()] || 'segunda';
-        const exercises = (day.exercises || []).map((ex, i) => ({
+        const dayExercises = (day.exercises || []).map((ex, i) => ({
           exercise_name: ex.exerciseName || ex.exercise_name,
           sets: parseInt(ex.sets) || 3,
           reps: ex.reps || '8-12',
@@ -144,7 +197,7 @@ Retorne JSON com: workoutPlanName, goal, level, weeklyFrequency, split, observat
           student_id: selectedStudent,
           name: `${plan.workoutPlanName || plan.workout_plan_name} - ${day.dayName || day.day_name}`,
           day_of_week: dow,
-          exercises,
+          exercises: dayExercises,
           active: true,
         });
         saved++;
