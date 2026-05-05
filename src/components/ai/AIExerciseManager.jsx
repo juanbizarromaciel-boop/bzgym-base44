@@ -45,7 +45,10 @@ function BulkCommandPanel({ exercises, onRefresh }) {
         prompt: command,
         context: JSON.stringify(targets.map(e => ({ id: e.id, name: e.name, muscle_group: e.muscle_group, description: e.description || "" })))
       });
-      setPreview(res.data?.exercises || []);
+      // The API wraps the result in data.response
+      const exercises = res.data?.exercises || res.data?.response?.exercises || [];
+      if (exercises.length === 0) throw new Error("IA não retornou exercícios. Tente novamente.");
+      setPreview(exercises);
     } catch (e) {
       toast.error("Erro ao executar comando: " + e.message);
     }
@@ -222,7 +225,7 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
         type: "exercise_desc",
         prompt: `Escreva uma descrição técnica e motivacional para o exercício: ${form.name}. Grupo muscular: ${MUSCLE_LABELS[form.muscle_group] || form.muscle_group}. Máximo 2 frases, direto ao ponto em português.`,
       });
-      const desc = res.data?.description || res.data?.response || res.data?.text || "";
+      const desc = res.data?.description || res.data?.response?.description || res.data?.text || "";
       if (!desc) throw new Error("Resposta vazia da IA");
       setForm(f => ({ ...f, description: desc }));
       toast.success("Descrição gerada!");
