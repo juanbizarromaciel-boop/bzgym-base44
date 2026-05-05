@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
-  Library, LayoutDashboard, Utensils, BookOpen, Activity,
+  Library, LayoutDashboard, Utensils, BookOpen, Activity, GraduationCap,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
   Sparkles, Settings, UserCog, DollarSign, CalendarDays
 } from "lucide-react";
@@ -192,6 +192,7 @@ const studentNavGroups = [
     label: "Treino",
     items: [
       { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+      { name: "Aprender Exercícios", icon: BookOpen, page: "LearnExercises" },
       { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
     ]
   },

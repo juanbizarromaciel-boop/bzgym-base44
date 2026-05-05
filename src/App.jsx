@@ -24,6 +24,7 @@ import CH from './pages/CH';
 import PRBoard from './pages/PRBoard.jsx';
 import Profile from './pages/Profile.jsx';
 import StudentDocuments from './pages/StudentDocuments';
+import LearnExercises from './pages/LearnExercises';
 import { base44 } from '@/api/base44Client';
 import { useState, useEffect } from 'react';
 
@@ -145,6 +146,7 @@ const AuthenticatedApp = () => {
       <Route path="/PRBoard" element={<LayoutWrapper currentPageName="PRBoard"><PRBoard /></LayoutWrapper>} />
       <Route path="/Profile" element={<LayoutWrapper currentPageName="Profile"><Profile /></LayoutWrapper>} />
       <Route path="/StudentDocuments" element={<LayoutWrapper currentPageName="StudentDocuments"><StudentDocuments /></LayoutWrapper>} />
+      <Route path="/LearnExercises" element={<LayoutWrapper currentPageName="LearnExercises"><LearnExercises /></LayoutWrapper>} />
       <Route path="/AICoach" element={<LayoutWrapper currentPageName="AICoach"><AICoach /></LayoutWrapper>} />
       <Route path="/AISettings" element={<LayoutWrapper currentPageName="AISettings"><AISettings /></LayoutWrapper>} />
       <Route path="/PersonalManagement" element={<LayoutWrapper currentPageName="PersonalManagement"><PersonalManagement /></LayoutWrapper>} />
