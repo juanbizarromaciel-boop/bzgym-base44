@@ -48,8 +48,9 @@ function BulkCommandPanel({ exercises, onRefresh }) {
         prompt: command,
         context: JSON.stringify(targets.map(e => ({ id: e.id, name: e.name, muscle_group: e.muscle_group, description: e.description || "" })))
       });
-      // The API wraps the result in data.response
-      const exercises = res.data?.exercises || res.data?.response?.exercises || [];
+      // The API wraps: res.data.data.exercises or res.data.data.response.exercises
+      const d = res.data?.data;
+      const exercises = d?.exercises || d?.response?.exercises || [];
       if (exercises.length === 0) throw new Error("IA não retornou exercícios. Tente novamente.");
       setPreview(exercises);
     } catch (e) {
@@ -245,7 +246,8 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
         type: "exercise_desc",
         prompt: `Escreva uma descrição técnica e motivacional para o exercício: ${form.name}. Grupo muscular: ${MUSCLE_LABELS[form.muscle_group] || form.muscle_group}. Máximo 2 frases, direto ao ponto em português.`,
       });
-      const desc = res.data?.description || res.data?.response?.description || res.data?.text || "";
+      const d = res.data?.data;
+      const desc = d?.description || d?.response?.description || d?.text || "";
       if (!desc) throw new Error("Resposta vazia da IA");
       setForm(f => ({ ...f, description: desc }));
       toast.success("Descrição gerada!");
@@ -384,8 +386,16 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                     {form.video_url.match(/\.(mp4|webm|ogg)(\?|$)/i) ? (
                       <video src={form.video_url} controls className="w-full" style={{ maxHeight: 200 }} />
                     ) : (
-                      <img src={form.video_url} alt="preview" className="w-full object-contain" style={{ maxHeight: 200 }} onError={e => { e.target.style.display='none'; }} />
+                      <img src={form.video_url} alt="preview" className="w-full object-contain" style={{ maxHeight: 200 }}
+                        onError={e => {
+                          e.target.style.display='none';
+                          e.target.nextSibling.style.display='flex';
+                        }} />
                     )}
+                    <div className="hidden items-center justify-center py-4 text-[10px] font-mono-cyber text-purple-500/40 flex-col gap-1">
+                      <span>⚠ Preview bloqueado pelo site externo</span>
+                      <span style={{color:'rgba(168,85,247,0.3)'}}>Use o botão HIPERTROFIA.ORG para buscar via proxy</span>
+                    </div>
                   </div>
                 )}
               </div>
