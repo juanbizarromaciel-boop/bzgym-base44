@@ -34,56 +34,91 @@ export default function AICoach() {
   return (
     <div className="max-w-5xl">
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div className="relative mb-8 rounded-2xl overflow-hidden p-6"
-        style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(6,182,212,0.05) 60%, rgba(8,4,22,0.9) 100%)', border: '1px solid rgba(168,85,247,0.22)', boxShadow: '0 0 40px rgba(168,85,247,0.08), inset 0 1px 0 rgba(168,85,247,0.12)' }}>
+      <div className="relative mb-8 rounded-2xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(145deg, #0d0820 0%, #080418 50%, #060214 100%)',
+          border: '1px solid rgba(168,85,247,0.25)',
+          boxShadow: '0 0 0 1px rgba(168,85,247,0.06) inset, 0 20px 60px rgba(0,0,0,0.6)'
+        }}>
 
-        {/* Background orbs */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-          <div className="cyber-orb w-72 h-72 opacity-25" style={{ background: 'rgba(168,85,247,0.5)', top: '-80px', left: '-50px', animationDelay: '0s' }} />
-          <div className="cyber-orb w-48 h-48 opacity-15" style={{ background: 'rgba(6,182,212,0.5)', bottom: '-40px', right: '60px', animationDelay: '5s' }} />
-        </div>
+        {/* Top accent line */}
+        <div className="absolute top-0 left-0 right-0 h-px"
+          style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(168,85,247,0.8) 30%, rgba(6,182,212,0.6) 70%, transparent 100%)' }} />
 
-        <div className="relative z-10">
-          {/* Logo row */}
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.35), rgba(6,182,212,0.2))', border: '1px solid rgba(168,85,247,0.5)', boxShadow: '0 0 25px rgba(168,85,247,0.4)' }}>
-              <BrainCircuit className="w-7 h-7 text-purple-200" style={{ filter: 'drop-shadow(0 0 8px rgba(168,85,247,1))' }} />
+        {/* Side glow */}
+        <div className="absolute top-0 bottom-0 left-0 w-px"
+          style={{ background: 'linear-gradient(180deg, rgba(168,85,247,0.6) 0%, rgba(168,85,247,0.1) 60%, transparent 100%)' }} />
+
+        <div className="p-6">
+          {/* Top row: icon + title + badge */}
+          <div className="flex items-start justify-between gap-4 mb-5">
+            <div className="flex items-center gap-4">
+              {/* Icon */}
+              <div className="relative flex-shrink-0">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(168,85,247,0.25) 0%, rgba(88,28,235,0.2) 100%)',
+                    border: '1px solid rgba(168,85,247,0.45)',
+                    boxShadow: '0 0 20px rgba(168,85,247,0.25), inset 0 1px 0 rgba(255,255,255,0.05)'
+                  }}>
+                  <BrainCircuit className="w-7 h-7" style={{ color: '#e4b4ff', filter: 'drop-shadow(0 0 6px rgba(168,85,247,0.9))' }} />
+                </div>
+                {/* Pulse dot */}
+                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center"
+                  style={{ background: '#10b981', boxShadow: '0 0 8px rgba(16,185,129,0.9)' }}>
+                  <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                </div>
+              </div>
+
+              <div>
+                <p className="text-[9px] font-mono-cyber tracking-[0.45em] uppercase mb-1"
+                  style={{ color: 'rgba(192,132,252,0.45)' }}>
+                  powered by openai
+                </p>
+                <h1 className="font-cyber text-2xl md:text-3xl leading-none tracking-wider">
+                  <span style={{ color: '#ffffff' }}>BZ </span>
+                  <span style={{ color: '#c084fc', textShadow: '0 0 24px rgba(192,132,252,0.7)' }}>AI</span>
+                  <span style={{ color: '#ffffff' }}> COACH</span>
+                </h1>
+              </div>
             </div>
-            <div>
-              <p className="text-[9px] font-mono-cyber tracking-[0.4em] uppercase mb-0.5" style={{ color: 'rgba(192,132,252,0.55)' }}>
-                powered by openai
-              </p>
-              <h1 className="font-cyber text-3xl md:text-4xl leading-none"
-                style={{ color: '#fff', textShadow: '0 0 35px rgba(168,85,247,0.6), 0 0 70px rgba(168,85,247,0.2)' }}>
-                BZ <span style={{ color: '#c084fc', textShadow: '0 0 20px rgba(192,132,252,0.9)' }}>AI</span> COACH
-              </h1>
+
+            {/* Status pill */}
+            <div className="flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.22)' }}>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 neon-dot" />
+              <span className="text-[9px] font-mono-cyber text-emerald-400/80 tracking-wider">ONLINE</span>
             </div>
           </div>
 
-          <p className="text-sm leading-relaxed mb-5" style={{ color: 'rgba(210,190,240,0.75)', maxWidth: 520 }}>
+          {/* Description */}
+          <p className="text-sm leading-relaxed mb-5"
+            style={{ color: 'rgba(196,181,224,0.65)', maxWidth: 500 }}>
             Assistente inteligente para cadastro de alimentos, montagem de dietas, criação de treinos e gerenciamento da biblioteca de exercícios.
           </p>
 
+          {/* Divider */}
+          <div className="h-px mb-4" style={{ background: 'linear-gradient(90deg, rgba(168,85,247,0.15) 0%, rgba(168,85,247,0.05) 60%, transparent 100%)' }} />
+
           {/* Feature badges */}
           <div className="flex flex-wrap gap-2">
-            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-mono-cyber"
-              style={{ borderColor: 'rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.07)', color: '#6ee7b7' }}>
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber"
+              style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', color: '#6ee7b7' }}>
               <Shield className="w-3 h-3" /> Revisão antes de salvar
             </span>
-            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-mono-cyber"
-              style={{ borderColor: 'rgba(168,85,247,0.25)', background: 'rgba(168,85,247,0.07)', color: '#c084fc' }}>
-              <Zap className="w-3 h-3" /> API key segura no backend
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber"
+              style={{ background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.18)', color: '#c084fc' }}>
+              <Zap className="w-3 h-3" /> API key segura
             </span>
-            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-mono-cyber"
-              style={{ borderColor: 'rgba(6,182,212,0.25)', background: 'rgba(6,182,212,0.06)', color: '#22d3ee' }}>
-              <Sparkles className="w-3 h-3" /> Geração de imagens IA
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber"
+              style={{ background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.18)', color: '#22d3ee' }}>
+              <Sparkles className="w-3 h-3" /> Imagens com IA
             </span>
             {!settings?.enabled && (
               <Link to="/AISettings"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-mono-cyber transition-all hover:scale-105"
-                style={{ borderColor: 'rgba(245,158,11,0.35)', background: 'rgba(245,158,11,0.08)', color: '#fcd34d' }}>
-                <Settings className="w-3 h-3" /> Configurar API Key →
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber transition-all hover:scale-105"
+                style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.28)', color: '#fcd34d' }}>
+                <Settings className="w-3 h-3" /> Configurar →
               </Link>
             )}
           </div>
