@@ -8,9 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Utensils, Flame, Beef, Wheat, Droplets } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Utensils, Flame, Beef, Wheat, Droplets, FileDown } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
+import DietPdfExport from "../components/diet/DietPdfExport";
 
 const GOAL_LABELS = { bulking: "BULKING", cutting: "CUTTING", manutencao: "MANUTENÇÃO" };
 const GOAL_COLORS = {
@@ -127,6 +128,9 @@ export default function Diet() {
                       <Flame className="w-3.5 h-3.5" /> {plan.total_calories}
                     </span>
                   )}
+                  <span onClick={e => e.stopPropagation()}>
+                    <DietPdfExport plan={plan} studentName={st?.name || 'aluno'} />
+                  </span>
                   <button onClick={(e) => { e.stopPropagation(); openEdit(plan); }} className="p-1.5 text-purple-400/40 hover:text-purple-300 hover:bg-purple-500/10 rounded-lg transition-all">
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
