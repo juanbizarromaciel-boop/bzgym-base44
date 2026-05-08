@@ -4,10 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Sparkles, Loader2, Dumbbell, CheckCircle2, Save, Edit2, X,
-  ChevronDown, ChevronUp, AlertTriangle, Users
+  Sparkles, Loader2, Dumbbell, CheckCircle2, Save, X,
+  ChevronDown, ChevronUp, AlertTriangle, Users, PlusCircle, CheckCheck
 } from "lucide-react";
 import { toast } from "sonner";
+import AddExerciseToLibraryModal from "./AddExerciseToLibraryModal";
 
 const QUICK_PROMPTS = [
   "Monte um treino Upper/Lower 4x na semana para hipertrofia, aluno intermediário",
@@ -31,7 +32,7 @@ const DAY_MAP = {
   'thursday': 'quinta', 'friday': 'sexta', 'saturday': 'sabado', 'sunday': 'domingo',
 };
 
-function DayCard({ day, idx }) {
+function DayCard({ day, idx, onAddExercise, addedExercises }) {
   const [open, setOpen] = useState(idx === 0);
   return (
     <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'rgba(168,85,247,0.2)' }}>
@@ -60,29 +61,50 @@ function DayCard({ day, idx }) {
       </button>
       {open && (
         <div className="px-5 pb-4 pt-3 space-y-3" style={{ background: 'rgba(4,2,14,0.9)' }}>
-          {(day.exercises || []).map((ex, i) => (
-            <div key={i} className="p-3.5 rounded-xl border" style={{ background: 'rgba(168,85,247,0.04)', borderColor: 'rgba(168,85,247,0.12)' }}>
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <p className="font-semibold text-white text-sm">{ex.exerciseName || ex.exercise_name}</p>
-                <div className="flex gap-1.5 flex-shrink-0 flex-wrap">
-                  <Badge className="text-[10px]" style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.2)', color: '#c084fc' }}>
-                    {ex.sets}×{ex.reps}
-                  </Badge>
-                  {ex.technique && ex.technique !== 'normal' && (
-                    <Badge className="text-[10px]" style={{ background: 'rgba(236,72,153,0.12)', border: '1px solid rgba(236,72,153,0.2)', color: '#f9a8d4' }}>
-                      {ex.technique?.replace(/_/g, ' ')}
+          {(day.exercises || []).map((ex, i) => {
+            const exName = ex.exerciseName || ex.exercise_name || '';
+            const isAdded = addedExercises.has(exName.toLowerCase().trim());
+            return (
+              <div key={i} className="p-3.5 rounded-xl border" style={{ background: 'rgba(168,85,247,0.04)', borderColor: 'rgba(168,85,247,0.12)' }}>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <p className="font-semibold text-white text-sm">{exName}</p>
+                  <div className="flex gap-1.5 flex-shrink-0 flex-wrap">
+                    <Badge className="text-[10px]" style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.2)', color: '#c084fc' }}>
+                      {ex.sets}×{ex.reps}
                     </Badge>
+                    {ex.technique && ex.technique !== 'normal' && (
+                      <Badge className="text-[10px]" style={{ background: 'rgba(236,72,153,0.12)', border: '1px solid rgba(236,72,153,0.2)', color: '#f9a8d4' }}>
+                        {ex.technique?.replace(/_/g, ' ')}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 text-[11px] font-mono-cyber" style={{ color: 'rgba(192,132,252,0.55)' }}>
+                  {ex.rest && <span>⏱ {ex.rest}</span>}
+                  {(ex.rir || ex.rpe) && <span>RIR {ex.rir || ex.rpe}</span>}
+                  {ex.cadence && <span>Cad. {ex.cadence}</span>}
+                </div>
+                {ex.notes && <p className="text-xs mt-1.5 italic" style={{ color: 'rgba(196,181,224,0.5)' }}>{ex.notes}</p>}
+                {/* Add to library button */}
+                <div className="mt-3 pt-3 border-t" style={{ borderColor: 'rgba(168,85,247,0.1)' }}>
+                  {isAdded ? (
+                    <div className="flex items-center gap-1.5 text-xs" style={{ color: '#6ee7b7' }}>
+                      <CheckCheck className="w-3.5 h-3.5" />
+                      <span className="font-semibold">Exercício adicionado</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => onAddExercise(ex)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105"
+                      style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.3)', color: '#c084fc', boxShadow: '0 0 8px rgba(168,85,247,0.08)' }}>
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      Adicionar exercício
+                    </button>
                   )}
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 text-[11px] font-mono-cyber" style={{ color: 'rgba(192,132,252,0.55)' }}>
-                {ex.rest && <span>⏱ {ex.rest}</span>}
-                {(ex.rir || ex.rpe) && <span>RIR {ex.rir || ex.rpe}</span>}
-                {ex.cadence && <span>Cad. {ex.cadence}</span>}
-              </div>
-              {ex.notes && <p className="text-xs mt-1.5 italic" style={{ color: 'rgba(196,181,224,0.5)' }}>{ex.notes}</p>}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -95,6 +117,8 @@ export default function AIWorkoutGenerator({ settings }) {
   const [plan, setPlan] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState("");
   const [applying, setApplying] = useState(false);
+  const [addExerciseModal, setAddExerciseModal] = useState(null); // exercise object
+  const [addedExercises, setAddedExercises] = useState(new Set());
 
   const { data: students = [] } = useQuery({
     queryKey: ['students'],
@@ -278,6 +302,12 @@ Retorne JSON com: workoutPlanName, goal, level, weeklyFrequency, split, observat
         </div>
       )}
 
+      <AddExerciseToLibraryModal
+        exercise={addExerciseModal}
+        onClose={() => setAddExerciseModal(null)}
+        onSaved={(name) => setAddedExercises(prev => new Set([...prev, name.toLowerCase().trim()]))}
+      />
+
       {plan && (
         <div>
           {/* Plan summary */}
@@ -310,7 +340,15 @@ Retorne JSON com: workoutPlanName, goal, level, weeklyFrequency, split, observat
 
           {/* Days */}
           <div className="space-y-3 mb-5">
-            {(plan.days || []).map((day, i) => <DayCard key={i} day={day} idx={i} />)}
+            {(plan.days || []).map((day, i) => (
+              <DayCard
+                key={i}
+                day={day}
+                idx={i}
+                onAddExercise={ex => setAddExerciseModal(ex)}
+                addedExercises={addedExercises}
+              />
+            ))}
           </div>
 
           {/* Apply section */}
