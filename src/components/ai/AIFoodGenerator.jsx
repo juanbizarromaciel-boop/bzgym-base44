@@ -200,13 +200,14 @@ export default function AIFoodGenerator({ settings }) {
           onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleGenerate(); }}
           placeholder="Ex: Cadastre 100g de arroz branco cozido&#10;Ou vários: arroz, feijão, frango, ovo, banana..."
           rows={3}
-          className="w-full resize-none rounded-xl p-3.5 text-sm transition-all outline-none"
+          className="w-full resize-none rounded-xl p-3.5 text-sm transition-all outline-none placeholder-orange-400/40"
           style={{
-            background: 'rgba(4,2,14,0.7)',
-            border: '1px solid rgba(251,146,60,0.18)',
-            color: '#f0e6ff',
+            background: 'rgba(2,1,8,0.98)',
+            border: '1px solid rgba(251,146,60,0.35)',
+            color: '#f5e8ff',
             fontFamily: 'Inter, sans-serif',
             caretColor: '#fb923c',
+            boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.6)',
           }}
         />
 
