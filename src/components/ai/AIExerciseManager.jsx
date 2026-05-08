@@ -218,6 +218,7 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
   const [form, setForm] = useState({ ...exercise });
   const [generatingImg, setGeneratingImg] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const handleSave = async () => {
     await onSave(exercise.id, form);
@@ -267,6 +268,7 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
       const res = await base44.functions.invoke("fetchExerciseGif", payload);
       if (res.data?.gif_url) {
         setForm(f => ({ ...f, video_url: res.data.gif_url }));
+        setImgError(false);
         toast.success("GIF carregado via proxy!");
       } else {
         toast.error("GIF não encontrado para este exercício");
@@ -279,6 +281,7 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
 
   const handleVideoUrlChange = (url) => {
     setForm(f => ({ ...f, video_url: url }));
+    setImgError(false);
   };
 
   const muscleColor = MUSCLE_COLORS[exercise.muscle_group] || "#6b7280";
@@ -344,8 +347,9 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                 <div>
                   <label className="text-[10px] font-mono-cyber text-purple-500/50 uppercase tracking-widest block mb-1">Grupo Muscular</label>
                   <select value={form.muscle_group} onChange={e => setForm(f => ({ ...f, muscle_group: e.target.value }))}
-                    className="cyber-input w-full rounded-md px-3 py-2 text-sm">
-                    {MUSCLE_OPTIONS.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    className="w-full rounded-md px-3 py-2 text-sm"
+                    style={{ background: 'rgba(4,3,14,0.95)', border: '1px solid rgba(168,85,247,0.35)', color: '#edd9ff' }}>
+                    {MUSCLE_OPTIONS.map(([k, v]) => <option key={k} value={k} style={{ background: '#09060f', color: '#edd9ff' }}>{v}</option>)}
                   </select>
                 </div>
               </div>
@@ -402,20 +406,25 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                   )}
                 </div>
                 {form.video_url && (
-                  <div className="mt-2 rounded-xl overflow-hidden border border-purple-900/25 bg-black/30" style={{ maxHeight: 200 }}>
-                    {form.video_url.match(/\.(mp4|webm|ogg)(\?|$)/i) ? (
-                      <video src={form.video_url} controls className="w-full" style={{ maxHeight: 200 }} />
+                  <div className="mt-2 rounded-xl overflow-hidden border border-purple-900/25" style={{ background: 'rgba(0,0,0,0.5)', maxHeight: 220 }}>
+                    {imgError ? (
+                      <div className="flex flex-col items-center justify-center py-5 gap-2">
+                        <span className="text-[11px] font-mono-cyber text-yellow-500/70">⚠ Preview bloqueado pelo site externo</span>
+                        <button
+                          onClick={() => fetchHipertrofiaGif(form.video_url)}
+                          disabled={generatingImg}
+                          className="text-[10px] font-mono-cyber px-3 py-1.5 rounded-lg flex items-center gap-1"
+                          style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}>
+                          {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
+                          Carregar via proxy
+                        </button>
+                      </div>
+                    ) : form.video_url.match(/\.(mp4|webm|ogg)(\?|$)/i) ? (
+                      <video src={form.video_url} controls className="w-full" style={{ maxHeight: 220 }} />
                     ) : (
-                      <img src={form.video_url} alt="preview" className="w-full object-contain" style={{ maxHeight: 200 }}
-                        onError={e => {
-                          e.target.style.display='none';
-                          e.target.nextSibling.style.display='flex';
-                        }} />
+                      <img src={form.video_url} alt="preview" className="w-full object-contain" style={{ maxHeight: 220 }}
+                        onError={() => setImgError(true)} />
                     )}
-                    <div className="hidden items-center justify-center py-4 text-[10px] font-mono-cyber text-purple-500/40 flex-col gap-1">
-                      <span>⚠ Preview bloqueado pelo site externo</span>
-                      <span style={{color:'rgba(168,85,247,0.3)'}}>Use o botão HIPERTROFIA.ORG para buscar via proxy</span>
-                    </div>
                   </div>
                 )}
               </div>
