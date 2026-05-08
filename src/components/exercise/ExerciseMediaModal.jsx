@@ -269,29 +269,41 @@ export default function ExerciseMediaModal({ exercise, open, onClose, onSaved })
               ) : (
                 /* Review panel */
                 <div>
-                  <div className="rounded-xl overflow-hidden border border-purple-500/30 mb-4">
-                    <img src={aiPreview.url} alt="gerada" className="w-full object-contain" style={{ maxHeight: 260 }} />
+                  <div className="rounded-xl overflow-hidden border border-purple-500/30 mb-3">
+                    <img src={aiPreview.url} alt="gerada" className="w-full object-contain" style={{ maxHeight: 240 }} />
                   </div>
-                  <p className="text-[10px] font-mono-cyber text-amber-400/70 mb-3 text-center">
-                    ⚠ Imagem gerada. Revise antes de aprovar.
+
+                  {/* Prompt editor — always visible after generation */}
+                  <div className="rounded-xl p-3 mb-3" style={{ background: 'rgba(6,182,212,0.05)', border: '1px solid rgba(6,182,212,0.2)' }}>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Pencil className="w-3 h-3 text-cyan-400" />
+                      <span className="text-[10px] font-mono-cyber text-cyan-400/80">Editar detalhes do prompt e regerar</span>
+                    </div>
+                    <textarea
+                      value={aiPrompt || aiPreview.prompt || ""}
+                      onChange={e => setAiPrompt(e.target.value)}
+                      rows={4}
+                      placeholder="Descreva ajustes: ex: 'adicionar halteres', 'fundo mais escuro', 'mostrar posição de início'..."
+                      className="w-full rounded-lg p-2.5 text-xs resize-none mb-2"
+                      style={{ background: 'rgba(4,2,14,0.85)', border: '1px solid rgba(6,182,212,0.2)', color: '#e9d5ff' }}
+                    />
+                    <button onClick={() => handleGenerateAI(aiPrompt || aiPreview.prompt)} disabled={generatingAI}
+                      className="w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all disabled:opacity-40"
+                      style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)', color: '#67e8f9' }}>
+                      {generatingAI ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                      {generatingAI ? "Gerando..." : "Gerar com prompt editado"}
+                    </button>
+                  </div>
+
+                  <p className="text-[10px] font-mono-cyber text-amber-400/70 mb-2 text-center">
+                    ⚠ Revise a imagem antes de aprovar.
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     <button onClick={handleApproveAI} disabled={uploading}
                       className="py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5"
                       style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', color: '#6ee7b7' }}>
                       {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
-                      Aprovar
-                    </button>
-                    <button onClick={() => handleGenerateAI(aiPrompt || null)} disabled={generatingAI}
-                      className="py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5"
-                      style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.3)', color: '#c084fc' }}>
-                      {generatingAI ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RotateCcw className="w-3.5 h-3.5" />}
-                      Gerar novamente
-                    </button>
-                    <button onClick={() => setEditingPrompt(v => !v)}
-                      className="py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5"
-                      style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)', color: '#22d3ee' }}>
-                      <Pencil className="w-3.5 h-3.5" /> Editar prompt
+                      Aprovar e salvar
                     </button>
                     <button onClick={() => setAiPreview(null)}
                       className="py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5"
@@ -299,22 +311,6 @@ export default function ExerciseMediaModal({ exercise, open, onClose, onSaved })
                       <Trash2 className="w-3.5 h-3.5" /> Descartar
                     </button>
                   </div>
-                  {editingPrompt && (
-                    <div className="mt-3">
-                      <textarea
-                        value={aiPrompt || aiPreview.prompt || ""}
-                        onChange={e => setAiPrompt(e.target.value)}
-                        rows={4}
-                        className="w-full rounded-xl p-3 text-xs resize-none mb-2"
-                        style={{ background: 'rgba(4,2,14,0.85)', border: '1px solid rgba(168,85,247,0.2)', color: '#e9d5ff' }}
-                      />
-                      <button onClick={() => handleGenerateAI(aiPrompt)}
-                        className="w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5"
-                        style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.35)', color: '#e9d5ff' }}>
-                        <Sparkles className="w-3.5 h-3.5" /> Gerar com novo prompt
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
