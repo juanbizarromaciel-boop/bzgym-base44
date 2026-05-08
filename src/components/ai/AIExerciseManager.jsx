@@ -219,6 +219,8 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
   const [generatingImg, setGeneratingImg] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [showImgPrompt, setShowImgPrompt] = useState(false);
+  const [imgPrompt, setImgPrompt] = useState("");
 
   const handleSave = async () => {
     await onSave(exercise.id, form);
@@ -227,11 +229,15 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
 
   const generateImage = async () => {
     setGeneratingImg(true);
+    setShowImgPrompt(false);
     try {
+      const customPrompt = imgPrompt.trim();
+      const defaultPrompt = `Professional fitness photo of person performing ${form.name} exercise, gym setting, anatomical demonstration, high quality`;
       const res = await base44.integrations.Core.GenerateImage({
-        prompt: `Professional fitness photo of person performing ${form.name} exercise, gym setting, clean white background, anatomical demonstration, high quality`
+        prompt: customPrompt || defaultPrompt
       });
       setForm(f => ({ ...f, video_url: res.url }));
+      setImgError(false);
       toast.success("Imagem gerada!");
     } catch (e) {
       toast.error("Erro ao gerar imagem");
@@ -259,12 +265,18 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
   };
 
   const fetchHipertrofiaGif = async (urlToProxy = null) => {
-    if (!urlToProxy && !form.name) { toast.error("Digite o nome do exercício primeiro"); return; }
     setGeneratingImg(true);
     try {
-      const payload = urlToProxy
+      // If there's a URL in the field, proxy it; otherwise search by name
+      const currentUrl = form.video_url?.trim();
+      const payload = (urlToProxy && urlToProxy.startsWith('http'))
         ? { direct_url: urlToProxy }
-        : { exercise_name: form.name };
+        : (currentUrl && currentUrl.startsWith('http'))
+          ? { direct_url: currentUrl }
+          : form.name
+            ? { exercise_name: form.name }
+            : null;
+      if (!payload) { toast.error("Digite o nome ou cole uma URL primeiro"); setGeneratingImg(false); return; }
       const res = await base44.functions.invoke("fetchExerciseGif", payload);
       if (res.data?.gif_url) {
         setForm(f => ({ ...f, video_url: res.data.gif_url }));
@@ -373,46 +385,58 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
 
               {/* Image / GIF */}
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] font-mono-cyber text-purple-500/50 uppercase tracking-widest">GIF / Foto / Vídeo</label>
-                  <div className="flex gap-1.5">
-                    <button onClick={fetchHipertrofiaGif} disabled={generatingImg}
-                      className="text-[10px] font-mono-cyber flex items-center gap-1 px-2 py-1 rounded-lg transition-all hover:scale-105"
-                      style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', color: '#4ade80' }}>
-                      {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
-                      HIPERTROFIA.ORG
-                    </button>
+                <label className="text-[10px] font-mono-cyber text-purple-500/50 uppercase tracking-widest block mb-2">GIF / Foto / Vídeo</label>
+
+                {/* Action buttons row */}
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {/* Hipertrofia.org proxy */}
+                  <button onClick={() => fetchHipertrofiaGif(form.video_url || null)} disabled={generatingImg}
+                    className="text-[10px] font-mono-cyber flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all"
+                    style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}>
+                    {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
+                    HIPERTROFIA.ORG
+                  </button>
+
+                  {/* Gerar IA com prompt */}
+                  <button onClick={() => setShowImgPrompt(v => !v)} disabled={generatingImg}
+                    className="text-[10px] font-mono-cyber flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all"
+                    style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.3)', color: '#22d3ee' }}>
+                    <Image className="w-3 h-3" /> GERAR IA
+                  </button>
+                </div>
+
+                {/* AI Image prompt panel */}
+                {showImgPrompt && (
+                  <div className="mb-2 p-3 rounded-xl" style={{ background: 'rgba(6,182,212,0.05)', border: '1px solid rgba(6,182,212,0.2)' }}>
+                    <p className="text-[10px] font-mono-cyber text-cyan-400/70 mb-1.5">Descreva como a imagem deve ser gerada (opcional):</p>
+                    <textarea
+                      value={imgPrompt}
+                      onChange={e => setImgPrompt(e.target.value)}
+                      placeholder={`Ex: Pessoa fazendo ${form.name || 'o exercício'} de lado, fundo preto, iluminação dramática, homem musculoso...`}
+                      rows={2}
+                      className="w-full rounded-lg p-2 text-xs resize-none mb-2"
+                      style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(6,182,212,0.2)', color: '#e9d5ff' }}
+                    />
                     <button onClick={generateImage} disabled={generatingImg}
-                      className="text-[10px] font-mono-cyber flex items-center gap-1 px-2 py-1 rounded-lg transition-all hover:scale-105"
-                      style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.2)', color: '#22d3ee' }}>
-                      {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Image className="w-3 h-3" />}
-                      GERAR IA
+                      className="w-full py-2 rounded-lg text-[10px] font-mono-cyber flex items-center justify-center gap-1.5 transition-all"
+                      style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)', color: '#22d3ee' }}>
+                      {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                      GERAR IMAGEM
                     </button>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Input value={form.video_url || ""} onChange={e => handleVideoUrlChange(e.target.value)}
-                    placeholder="https://... (URL de GIF, imagem ou vídeo)" className="cyber-input text-sm flex-1" />
-                  {form.video_url && form.video_url.includes('hipertrofia.org') && !form.video_url.startsWith('https://cdn.') && !form.video_url.includes('base44') && (
-                    <button
-                      onClick={() => fetchHipertrofiaGif(form.video_url)}
-                      disabled={generatingImg}
-                      title="Carregar via proxy para evitar bloqueio"
-                      className="px-2 py-1 rounded-lg text-[10px] font-mono-cyber flex items-center gap-1 flex-shrink-0"
-                      style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}>
-                      {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
-                      PROXY
-                    </button>
-                  )}
-                </div>
+                )}
+
+                {/* URL input */}
+                <Input value={form.video_url || ""} onChange={e => handleVideoUrlChange(e.target.value)}
+                  placeholder="Cole qualquer URL de GIF, foto ou vídeo" className="cyber-input text-sm mb-2" />
+
+                {/* Preview */}
                 {form.video_url && (
-                  <div className="mt-2 rounded-xl overflow-hidden border border-purple-900/25" style={{ background: 'rgba(0,0,0,0.5)', maxHeight: 220 }}>
+                  <div className="rounded-xl overflow-hidden border border-purple-900/25" style={{ background: 'rgba(0,0,0,0.5)', maxHeight: 220 }}>
                     {imgError ? (
                       <div className="flex flex-col items-center justify-center py-5 gap-2">
-                        <span className="text-[11px] font-mono-cyber text-yellow-500/70">⚠ Preview bloqueado pelo site externo</span>
-                        <button
-                          onClick={() => fetchHipertrofiaGif(form.video_url)}
-                          disabled={generatingImg}
+                        <span className="text-[11px] font-mono-cyber text-yellow-500/70">⚠ Preview bloqueado — use proxy ou gere pela IA</span>
+                        <button onClick={() => fetchHipertrofiaGif(form.video_url)} disabled={generatingImg}
                           className="text-[10px] font-mono-cyber px-3 py-1.5 rounded-lg flex items-center gap-1"
                           style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}>
                           {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
@@ -535,8 +559,9 @@ export default function AIExerciseManager({ settings }) {
             <Input value={newForm.name} onChange={e => setNewForm(f => ({ ...f, name: e.target.value }))}
               placeholder="Nome do exercício" className="cyber-input text-sm" />
             <select value={newForm.muscle_group} onChange={e => setNewForm(f => ({ ...f, muscle_group: e.target.value }))}
-              className="cyber-input w-full rounded-md px-3 py-2 text-sm">
-              {MUSCLE_OPTIONS.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              className="w-full rounded-md px-3 py-2 text-sm"
+              style={{ background: 'rgba(4,3,14,0.95)', border: '1px solid rgba(168,85,247,0.35)', color: '#edd9ff' }}>
+              {MUSCLE_OPTIONS.map(([k, v]) => <option key={k} value={k} style={{ background: '#09060f', color: '#edd9ff' }}>{v}</option>)}
             </select>
           </div>
           <textarea value={newForm.description} onChange={e => setNewForm(f => ({ ...f, description: e.target.value }))}
