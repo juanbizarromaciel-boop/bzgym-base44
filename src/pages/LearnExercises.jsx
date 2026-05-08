@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
-import { Search, Dumbbell, BookOpen, ChevronDown, ChevronUp, PlayCircle, FileText, Image } from "lucide-react";
+import { Search, Dumbbell, BookOpen, ChevronDown, ChevronUp, FileText, Image, Film } from "lucide-react";
 
 const MUSCLE_LABELS = {
   peito: "Peito", costas: "Costas", ombros: "Ombros", biceps: "Bíceps",
@@ -20,11 +20,36 @@ const MUSCLE_COLORS = {
 
 const MUSCLE_OPTIONS = Object.entries(MUSCLE_LABELS);
 
+const MUSCLE_DEFAULTS = {
+  peito: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80",
+  costas: "https://images.unsplash.com/photo-1603287681836-b174ce5074c2?w=400&q=80",
+  ombros: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&q=80",
+  biceps: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80",
+  triceps: "https://images.unsplash.com/photo-1530822847156-5df684ec5105?w=400&q=80",
+  pernas: "https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=400&q=80",
+  gluteos: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80",
+  abdomen: "https://images.unsplash.com/photo-1571019613576-2b22c76fd955?w=400&q=80",
+  panturrilha: "https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=400&q=80",
+  cardio: "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=400&q=80",
+  outro: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80",
+};
+
+function isYouTubeEmbed(url) { return url?.includes("youtube.com/embed/"); }
+function isVideo(url) { return url?.match(/\.(mp4|webm)(\?|$)/i); }
+
 function ExerciseCard({ exercise }) {
   const [expanded, setExpanded] = useState(false);
+  const [mediaTab, setMediaTab] = useState("photo"); // "photo" | "video"
   const muscleColor = MUSCLE_COLORS[exercise.muscle_group] || "#6b7280";
-  const hasMedia = !!exercise.video_url;
+
+  const imageUrl = exercise.image_url || exercise.video_url; // retrocompat: fallback to video_url for old data
+  const videoUrl = exercise.video_url && !exercise.image_url ? null : exercise.video_url; // only show as video if image_url is separate
+  const hasImage = !!imageUrl;
+  const hasVideo = !!exercise.video_url && (!!exercise.image_url || isYouTubeEmbed(exercise.video_url) || isVideo(exercise.video_url));
   const hasDesc = !!exercise.description;
+
+  // Thumbnail: prefer image_url, fallback to video_url (if image), fallback to muscle default
+  const thumbUrl = exercise.image_url || (exercise.video_url && !isYouTubeEmbed(exercise.video_url) && !isVideo(exercise.video_url) ? exercise.video_url : null) || MUSCLE_DEFAULTS[exercise.muscle_group];
 
   return (
     <div
@@ -45,18 +70,13 @@ function ExerciseCard({ exercise }) {
           className="w-14 h-14 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center border"
           style={{ background: `${muscleColor}12`, borderColor: `${muscleColor}30` }}
         >
-          {hasMedia ? (
-            <img
-              src={exercise.video_url}
-              alt={exercise.name}
-              className="w-full h-full object-cover"
-              onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
-            />
-          ) : null}
-          <div
-            className="w-full h-full items-center justify-center"
-            style={{ display: hasMedia ? 'none' : 'flex' }}
-          >
+          <img
+            src={thumbUrl}
+            alt={exercise.name}
+            className="w-full h-full object-cover"
+            onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+          />
+          <div className="w-full h-full items-center justify-center" style={{ display: 'none' }}>
             <Dumbbell className="w-6 h-6" style={{ color: `${muscleColor}80` }} />
           </div>
         </div>
@@ -76,9 +96,14 @@ function ExerciseCard({ exercise }) {
                 <FileText className="w-2.5 h-2.5" /> descrição
               </span>
             )}
-            {hasMedia && (
+            {hasImage && (
               <span className="text-[10px] text-cyan-400/40 font-mono-cyber flex items-center gap-1">
-                <Image className="w-2.5 h-2.5" /> gif/foto
+                <Image className="w-2.5 h-2.5" /> foto
+              </span>
+            )}
+            {hasVideo && (
+              <span className="text-[10px] text-pink-400/40 font-mono-cyber flex items-center gap-1">
+                <Film className="w-2.5 h-2.5" /> vídeo
               </span>
             )}
           </div>
@@ -93,34 +118,64 @@ function ExerciseCard({ exercise }) {
       {/* Expanded content */}
       {expanded && (
         <div className="px-4 pb-5 border-t border-purple-900/15 pt-4 space-y-4">
-          {/* Media */}
-          {hasMedia && (
-            <div
-              className="rounded-xl overflow-hidden border"
-              style={{ borderColor: `${muscleColor}25`, background: 'rgba(0,0,0,0.4)', maxHeight: 280 }}
-            >
-              {exercise.video_url.match(/\.(mp4|webm|ogg)(\?|$)/i) ? (
-                <video src={exercise.video_url} controls className="w-full" style={{ maxHeight: 280 }} />
-              ) : (
-                <img
-                  src={exercise.video_url}
-                  alt={exercise.name}
-                  className="w-full object-contain"
-                  style={{ maxHeight: 280 }}
-                  onError={e => { e.target.style.display = 'none'; }}
-                />
+
+          {/* Media tabs - only show if both exist */}
+          {(hasImage || hasVideo) && (
+            <>
+              {hasVideo && (
+                <div className="flex gap-2">
+                  <button onClick={() => setMediaTab("photo")}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber transition-all"
+                    style={mediaTab === "photo"
+                      ? { background: 'rgba(168,85,247,0.2)', border: '1px solid rgba(168,85,247,0.45)', color: '#e9d5ff' }
+                      : { background: 'rgba(168,85,247,0.04)', border: '1px solid rgba(168,85,247,0.12)', color: 'rgba(192,132,252,0.4)' }}>
+                    <Image className="w-3 h-3" /> Foto
+                  </button>
+                  <button onClick={() => setMediaTab("video")}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber transition-all"
+                    style={mediaTab === "video"
+                      ? { background: 'rgba(6,182,212,0.18)', border: '1px solid rgba(6,182,212,0.45)', color: '#67e8f9' }
+                      : { background: 'rgba(6,182,212,0.03)', border: '1px solid rgba(6,182,212,0.12)', color: 'rgba(103,232,249,0.4)' }}>
+                    <Film className="w-3 h-3" /> Vídeo
+                  </button>
+                </div>
               )}
-            </div>
+
+              {/* Photo display */}
+              {(mediaTab === "photo" || !hasVideo) && hasImage && (
+                <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${muscleColor}25`, background: 'rgba(0,0,0,0.4)' }}>
+                  <img
+                    src={imageUrl}
+                    alt={exercise.name}
+                    className="w-full object-contain"
+                    style={{ maxHeight: 300 }}
+                    onError={e => { e.target.style.display = 'none'; }}
+                  />
+                </div>
+              )}
+
+              {/* Video display */}
+              {mediaTab === "video" && hasVideo && (
+                <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(6,182,212,0.25)', background: 'rgba(0,0,0,0.4)' }}>
+                  {isYouTubeEmbed(exercise.video_url) ? (
+                    <div style={{ aspectRatio: '16/9' }}>
+                      <iframe src={exercise.video_url} className="w-full h-full" allowFullScreen title={exercise.name} />
+                    </div>
+                  ) : isVideo(exercise.video_url) ? (
+                    <video src={exercise.video_url} controls className="w-full" style={{ maxHeight: 300 }} />
+                  ) : (
+                    <img src={exercise.video_url} alt={exercise.name} className="w-full object-contain" style={{ maxHeight: 300 }} />
+                  )}
+                </div>
+              )}
+            </>
           )}
 
           {/* Description */}
           {hasDesc ? (
             <div
               className="rounded-xl p-4 border-l-2"
-              style={{
-                background: 'rgba(168,85,247,0.04)',
-                borderLeftColor: `${muscleColor}60`,
-              }}
+              style={{ background: 'rgba(168,85,247,0.04)', borderLeftColor: `${muscleColor}60` }}
             >
               <p className="text-[10px] font-mono-cyber uppercase tracking-widest mb-2" style={{ color: `${muscleColor}80` }}>
                 Como executar

@@ -24,44 +24,29 @@ function isVideo(url) {
 }
 
 /**
- * Renders exercise media with auto-fallback priority:
- * 1. video_url (uploaded video/gif/image/youtube embed/ai image)
- * 2. default muscle group image
- * 3. placeholder icon
+ * Renders exercise image (image_url, with fallback to video_url for retrocompat, then muscle default).
+ * For video display use exercise.video_url separately.
  */
 export default function ExerciseMediaDisplay({ exercise, maxHeight = 220, className = "" }) {
-  const [urlFailed, setUrlFailed] = useState(false);
+  const [primaryFailed, setPrimaryFailed] = useState(false);
   const [defaultFailed, setDefaultFailed] = useState(false);
 
-  const primaryUrl = exercise?.video_url;
+  // Priority: image_url → video_url (if it's an image/gif, not video/youtube) → muscle default
+  const imageUrl = exercise?.image_url;
+  const legacyUrl = exercise?.video_url && !isYouTubeEmbed(exercise?.video_url) && !isVideo(exercise?.video_url)
+    ? exercise.video_url
+    : null;
   const fallbackUrl = MUSCLE_DEFAULTS[exercise?.muscle_group] || MUSCLE_DEFAULTS.outro;
 
-  // Use primary if available and not failed
-  const url = (!urlFailed && primaryUrl) ? primaryUrl : (!defaultFailed ? fallbackUrl : null);
+  const primaryUrl = imageUrl || legacyUrl;
+  const url = (!primaryFailed && primaryUrl) ? primaryUrl : (!defaultFailed ? fallbackUrl : null);
 
   if (!url) {
     return (
       <div className={`flex flex-col items-center justify-center gap-2 rounded-xl border border-purple-900/15 ${className}`}
         style={{ minHeight: 100, background: 'rgba(168,85,247,0.03)' }}>
         <ImageIcon className="w-6 h-6 text-purple-600/25" />
-        <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(168,85,247,0.3)' }}>Nenhuma mídia cadastrada para este exercício.</p>
-      </div>
-    );
-  }
-
-  if (isYouTubeEmbed(url)) {
-    return (
-      <div className={`rounded-xl overflow-hidden border border-purple-900/20 ${className}`} style={{ aspectRatio: '16/9' }}>
-        <iframe src={url} className="w-full h-full" allowFullScreen title={exercise?.name} />
-      </div>
-    );
-  }
-
-  if (isVideo(url)) {
-    return (
-      <div className={`rounded-xl overflow-hidden border border-purple-900/20 bg-black/40 ${className}`}>
-        <video src={url} controls className="w-full" style={{ maxHeight }}
-          onError={() => { if (!urlFailed) setUrlFailed(true); else setDefaultFailed(true); }} />
+        <p className="text-[10px] font-mono-cyber" style={{ color: 'rgba(168,85,247,0.3)' }}>Nenhuma mídia cadastrada.</p>
       </div>
     );
   }
@@ -74,8 +59,8 @@ export default function ExerciseMediaDisplay({ exercise, maxHeight = 220, classN
         className="w-full object-contain"
         style={{ maxHeight }}
         onError={() => {
-          if (!urlFailed && primaryUrl) { setUrlFailed(true); }
-          else { setDefaultFailed(true); }
+          if (!primaryFailed && primaryUrl) setPrimaryFailed(true);
+          else setDefaultFailed(true);
         }}
       />
     </div>
