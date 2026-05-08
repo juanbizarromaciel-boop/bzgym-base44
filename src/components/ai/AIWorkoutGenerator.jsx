@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Sparkles, Loader2, Dumbbell, CheckCircle2, Save, X,
-  ChevronDown, ChevronUp, AlertTriangle, Users, PlusCircle, CheckCheck
+  ChevronDown, ChevronUp, AlertTriangle, Users, PlusCircle, CheckCheck, Image
 } from "lucide-react";
 import { toast } from "sonner";
 import AddExerciseToLibraryModal from "./AddExerciseToLibraryModal";
+import ExerciseMediaModal from "@/components/exercise/ExerciseMediaModal";
 
 const QUICK_PROMPTS = [
   "Monte um treino Upper/Lower 4x na semana para hipertrofia, aluno intermediário",
@@ -32,8 +33,9 @@ const DAY_MAP = {
   'thursday': 'quinta', 'friday': 'sexta', 'saturday': 'sabado', 'sunday': 'domingo',
 };
 
-function DayCard({ day, idx, onAddExercise, addedExercises }) {
+function DayCard({ day, idx, onAddExercise, addedExercises, addedExerciseIds }) {
   const [open, setOpen] = useState(idx === 0);
+  const [mediaModalEx, setMediaModalEx] = useState(null);
   return (
     <div className="rounded-xl border overflow-hidden" style={{ borderColor: 'rgba(168,85,247,0.2)' }}>
       <button onClick={() => setOpen(!open)}
@@ -85,8 +87,8 @@ function DayCard({ day, idx, onAddExercise, addedExercises }) {
                   {ex.cadence && <span>Cad. {ex.cadence}</span>}
                 </div>
                 {ex.notes && <p className="text-xs mt-1.5 italic" style={{ color: 'rgba(196,181,224,0.5)' }}>{ex.notes}</p>}
-                {/* Add to library button */}
-                <div className="mt-3 pt-3 border-t" style={{ borderColor: 'rgba(168,85,247,0.1)' }}>
+                {/* Add to library + media buttons */}
+                <div className="mt-3 pt-3 border-t flex flex-wrap gap-2" style={{ borderColor: 'rgba(168,85,247,0.1)' }}>
                   {isAdded ? (
                     <div className="flex items-center gap-1.5 text-xs" style={{ color: '#6ee7b7' }}>
                       <CheckCheck className="w-3.5 h-3.5" />
@@ -101,12 +103,27 @@ function DayCard({ day, idx, onAddExercise, addedExercises }) {
                       Adicionar exercício
                     </button>
                   )}
+                  {isAdded && addedExerciseIds?.[exName.toLowerCase().trim()] && (
+                    <button
+                      onClick={() => setMediaModalEx({ id: addedExerciseIds[exName.toLowerCase().trim()], name: exName, muscle_group: ex.muscle_group || 'outro', description: ex.notes || '' })}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105"
+                      style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.3)', color: '#22d3ee' }}>
+                      <Image className="w-3.5 h-3.5" />
+                      Adicionar mídia
+                    </button>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
       )}
+      <ExerciseMediaModal
+        exercise={mediaModalEx}
+        open={!!mediaModalEx}
+        onClose={() => setMediaModalEx(null)}
+        onSaved={() => setMediaModalEx(null)}
+      />
     </div>
   );
 }
@@ -119,6 +136,7 @@ export default function AIWorkoutGenerator({ settings }) {
   const [applying, setApplying] = useState(false);
   const [addExerciseModal, setAddExerciseModal] = useState(null); // exercise object
   const [addedExercises, setAddedExercises] = useState(new Set());
+  const [addedExerciseIds, setAddedExerciseIds] = useState({}); // name.lower -> id
 
   const { data: students = [] } = useQuery({
     queryKey: ['students'],
@@ -305,7 +323,11 @@ Retorne JSON com: workoutPlanName, goal, level, weeklyFrequency, split, observat
       <AddExerciseToLibraryModal
         exercise={addExerciseModal}
         onClose={() => setAddExerciseModal(null)}
-        onSaved={(name) => setAddedExercises(prev => new Set([...prev, name.toLowerCase().trim()]))}
+        onSaved={(name, savedId) => {
+          const key = name.toLowerCase().trim();
+          setAddedExercises(prev => new Set([...prev, key]));
+          if (savedId) setAddedExerciseIds(prev => ({ ...prev, [key]: savedId }));
+        }}
       />
 
       {plan && (
@@ -347,6 +369,7 @@ Retorne JSON com: workoutPlanName, goal, level, weeklyFrequency, split, observat
                 idx={i}
                 onAddExercise={ex => setAddExerciseModal(ex)}
                 addedExercises={addedExercises}
+                addedExerciseIds={addedExerciseIds}
               />
             ))}
           </div>

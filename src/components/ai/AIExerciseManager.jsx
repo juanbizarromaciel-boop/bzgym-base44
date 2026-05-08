@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Dumbbell, Sparkles, Search, Plus, Pencil, Trash2, Image,
-  FileText, Wand2, CheckCircle, X, Loader2, ChevronDown, ChevronUp, Globe
+  FileText, Wand2, CheckCircle, X, Loader2, ChevronDown, ChevronUp
 } from "lucide-react";
 import { toast } from "sonner";
+import ExerciseMediaModal from "@/components/exercise/ExerciseMediaModal";
+import ExerciseMediaDisplay from "@/components/exercise/ExerciseMediaDisplay";
 
 const MUSCLE_LABELS = {
   peito: "Peito", costas: "Costas", ombros: "Ombros", biceps: "Bíceps",
@@ -216,33 +218,13 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ ...exercise });
-  const [generatingImg, setGeneratingImg] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
-  const [imgError, setImgError] = useState(false);
-  const [showImgPrompt, setShowImgPrompt] = useState(false);
-  const [imgPrompt, setImgPrompt] = useState("");
+  const [mediaModal, setMediaModal] = useState(false);
+  const [localExercise, setLocalExercise] = useState(exercise);
 
   const handleSave = async () => {
     await onSave(exercise.id, form);
     setEditing(false);
-  };
-
-  const generateImage = async () => {
-    setGeneratingImg(true);
-    setShowImgPrompt(false);
-    try {
-      const customPrompt = imgPrompt.trim();
-      const defaultPrompt = `Ultra realistic image, modern gym, dark background, cinematic lighting, premium aesthetic, subtle neon purple #a855f7 details, clean composition, full focus on the exercise "${form.name}", proportional body, correct anatomy, sharp equipment, easy to interpret movement, no text, no logos, no cluttered background. The image must look like official material from a professional workout app. Biomechanically accurate posture: correct starting and ending position, proper joint alignment, primary and secondary muscles visible, common errors avoided. Equipment used must be realistic and match the exercise. Do not invent non-existent equipment. Do not exaggerate muscles. Do not add extra limbs. Prioritize didactic clarity over exaggerated aesthetics. Exercise: ${form.name}.`;
-      const res = await base44.integrations.Core.GenerateImage({
-        prompt: customPrompt || defaultPrompt
-      });
-      setForm(f => ({ ...f, video_url: res.url }));
-      setImgError(false);
-      toast.success("Imagem gerada!");
-    } catch (e) {
-      toast.error("Erro ao gerar imagem");
-    }
-    setGeneratingImg(false);
   };
 
   const generateDescription = async () => {
@@ -264,38 +246,6 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
     setGeneratingDesc(false);
   };
 
-  const fetchHipertrofiaGif = async (urlToProxy = null) => {
-    setGeneratingImg(true);
-    try {
-      // If there's a URL in the field, proxy it; otherwise search by name
-      const currentUrl = form.video_url?.trim();
-      const payload = (urlToProxy && urlToProxy.startsWith('http'))
-        ? { direct_url: urlToProxy }
-        : (currentUrl && currentUrl.startsWith('http'))
-          ? { direct_url: currentUrl }
-          : form.name
-            ? { exercise_name: form.name }
-            : null;
-      if (!payload) { toast.error("Digite o nome ou cole uma URL primeiro"); setGeneratingImg(false); return; }
-      const res = await base44.functions.invoke("fetchExerciseGif", payload);
-      if (res.data?.gif_url) {
-        setForm(f => ({ ...f, video_url: res.data.gif_url }));
-        setImgError(false);
-        toast.success("GIF carregado via proxy!");
-      } else {
-        toast.error("GIF não encontrado para este exercício");
-      }
-    } catch (e) {
-      toast.error("Erro ao buscar GIF");
-    }
-    setGeneratingImg(false);
-  };
-
-  const handleVideoUrlChange = (url) => {
-    setForm(f => ({ ...f, video_url: url }));
-    setImgError(false);
-  };
-
   const muscleColor = MUSCLE_COLORS[exercise.muscle_group] || "#6b7280";
 
   return (
@@ -306,13 +256,13 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
         {/* Image thumbnail */}
         <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden border border-purple-900/25"
           style={{ background: 'rgba(168,85,247,0.06)' }}>
-          {exercise.video_url
-            ? <img src={exercise.video_url} alt={exercise.name} className="w-full h-full object-cover"
-                onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
-            : null}
-          <div className="w-full h-full items-center justify-center" style={{ display: exercise.video_url ? 'none' : 'flex' }}>
-            <Dumbbell className="w-4 h-4 text-purple-600/40" />
-          </div>
+          {localExercise.video_url
+            ? <img src={localExercise.video_url} alt={localExercise.name} className="w-full h-full object-cover"
+                onError={e => e.target.style.display = 'none'} />
+            : <div className="w-full h-full flex items-center justify-center">
+                <Dumbbell className="w-4 h-4 text-purple-600/40" />
+              </div>
+          }
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white truncate">{exercise.name}</p>
@@ -326,9 +276,9 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                 <FileText className="w-2.5 h-2.5" /> desc.
               </span>
             )}
-            {exercise.video_url && (
+            {localExercise.video_url && (
               <span className="text-[9px] text-cyan-500/40 font-mono-cyber flex items-center gap-1">
-                <Image className="w-2.5 h-2.5" /> foto
+                <Image className="w-2.5 h-2.5" /> mídia
               </span>
             )}
           </div>
@@ -383,74 +333,17 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                   style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.2)', color: '#e9d5ff' }} />
               </div>
 
-              {/* Image / GIF */}
+              {/* Media */}
               <div>
-                <label className="text-[10px] font-mono-cyber text-purple-500/50 uppercase tracking-widest block mb-2">GIF / Foto / Vídeo</label>
-
-                {/* Action buttons row */}
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {/* Hipertrofia.org proxy */}
-                  <button onClick={() => fetchHipertrofiaGif(form.video_url || null)} disabled={generatingImg}
-                    className="text-[10px] font-mono-cyber flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all"
-                    style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}>
-                    {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
-                    HIPERTROFIA.ORG
-                  </button>
-
-                  {/* Gerar IA com prompt */}
-                  <button onClick={() => setShowImgPrompt(v => !v)} disabled={generatingImg}
-                    className="text-[10px] font-mono-cyber flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all"
-                    style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.3)', color: '#22d3ee' }}>
-                    <Image className="w-3 h-3" /> GERAR IA
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[10px] font-mono-cyber text-purple-500/50 uppercase tracking-widest">Mídia do exercício</label>
+                  <button onClick={() => setMediaModal(true)}
+                    className="text-[10px] font-mono-cyber flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all hover:scale-105"
+                    style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.3)', color: '#c084fc' }}>
+                    <Image className="w-3 h-3" /> ADICIONAR MÍDIA
                   </button>
                 </div>
-
-                {/* AI Image prompt panel */}
-                {showImgPrompt && (
-                  <div className="mb-2 p-3 rounded-xl" style={{ background: 'rgba(6,182,212,0.05)', border: '1px solid rgba(6,182,212,0.2)' }}>
-                    <p className="text-[10px] font-mono-cyber text-cyan-400/70 mb-1.5">Descreva como a imagem deve ser gerada (opcional):</p>
-                    <textarea
-                      value={imgPrompt}
-                      onChange={e => setImgPrompt(e.target.value)}
-                      placeholder={`Ex: ângulo lateral, atleta feminina, iluminação roxa, foco nos glúteos... (deixe vazio para usar o padrão premium automático)`}
-                      rows={2}
-                      className="w-full rounded-lg p-2 text-xs resize-none mb-2"
-                      style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(6,182,212,0.2)', color: '#e9d5ff' }}
-                    />
-                    <button onClick={generateImage} disabled={generatingImg}
-                      className="w-full py-2 rounded-lg text-[10px] font-mono-cyber flex items-center justify-center gap-1.5 transition-all"
-                      style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)', color: '#22d3ee' }}>
-                      {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                      GERAR IMAGEM
-                    </button>
-                  </div>
-                )}
-
-                {/* URL input */}
-                <Input value={form.video_url || ""} onChange={e => handleVideoUrlChange(e.target.value)}
-                  placeholder="Cole qualquer URL de GIF, foto ou vídeo" className="cyber-input text-sm mb-2" />
-
-                {/* Preview */}
-                {form.video_url && (
-                  <div className="rounded-xl overflow-hidden border border-purple-900/25" style={{ background: 'rgba(0,0,0,0.5)', maxHeight: 220 }}>
-                    {imgError ? (
-                      <div className="flex flex-col items-center justify-center py-5 gap-2">
-                        <span className="text-[11px] font-mono-cyber text-yellow-500/70">⚠ Preview bloqueado — use proxy ou gere pela IA</span>
-                        <button onClick={() => fetchHipertrofiaGif(form.video_url)} disabled={generatingImg}
-                          className="text-[10px] font-mono-cyber px-3 py-1.5 rounded-lg flex items-center gap-1"
-                          style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}>
-                          {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
-                          Carregar via proxy
-                        </button>
-                      </div>
-                    ) : form.video_url.match(/\.(mp4|webm|ogg)(\?|$)/i) ? (
-                      <video src={form.video_url} controls className="w-full" style={{ maxHeight: 220 }} />
-                    ) : (
-                      <img src={form.video_url} alt="preview" className="w-full object-contain" style={{ maxHeight: 220 }}
-                        onError={() => setImgError(true)} />
-                    )}
-                  </div>
-                )}
+                <ExerciseMediaDisplay exercise={localExercise} maxHeight={180} />
               </div>
 
               <div className="flex gap-2 pt-1">
@@ -466,25 +359,26 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
             </>
           ) : (
             <>
-              {exercise.description && (
-                <p className="text-xs text-purple-300/60 leading-relaxed border-l-2 border-purple-500/20 pl-3">{exercise.description}</p>
+              {localExercise.description && (
+                <p className="text-xs text-purple-300/60 leading-relaxed border-l-2 border-purple-500/20 pl-3">{localExercise.description}</p>
               )}
-              {exercise.video_url && (
-                <div className="rounded-xl overflow-hidden border border-purple-900/20 bg-black/30" style={{ maxHeight: 200 }}>
-                  {exercise.video_url.match(/\.(mp4|webm|ogg)(\?|$)/i) ? (
-                    <video src={exercise.video_url} controls className="w-full" style={{ maxHeight: 200 }} />
-                  ) : (
-                    <img src={exercise.video_url} alt={exercise.name} className="w-full object-contain" style={{ maxHeight: 200 }} onError={e => e.target.style.display = 'none'} />
-                  )}
-                </div>
-              )}
-              {!exercise.description && !exercise.video_url && (
-                <p className="text-xs text-purple-500/30 font-mono-cyber">// sem descrição ou gif — clique em editar para adicionar</p>
-              )}
+              <ExerciseMediaDisplay exercise={localExercise} maxHeight={200} />
+              <button onClick={() => setMediaModal(true)}
+                className="w-full py-2 rounded-lg text-[10px] font-mono-cyber flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01]"
+                style={{ background: 'rgba(168,85,247,0.07)', border: '1px solid rgba(168,85,247,0.18)', color: 'rgba(192,132,252,0.6)' }}>
+                <Image className="w-3 h-3" /> Adicionar / trocar mídia
+              </button>
             </>
           )}
         </div>
       )}
+
+      <ExerciseMediaModal
+        exercise={localExercise}
+        open={mediaModal}
+        onClose={() => setMediaModal(false)}
+        onSaved={(updated) => setLocalExercise(updated)}
+      />
     </div>
   );
 }

@@ -67,24 +67,27 @@ export default function AddExerciseToLibraryModal({ exercise, onClose, onSaved }
     if (!form.name.trim()) { toast.error("Nome obrigatório"); return; }
     setSaving(true);
     try {
+      let savedId = null;
       if (action === 'update' && duplicate) {
         await base44.entities.Exercise.update(duplicate.id, {
           muscle_group: form.muscle_group,
           description: form.description,
         });
+        savedId = duplicate.id;
         toast.success(`Exercício "${form.name}" atualizado na biblioteca!`);
       } else {
         const saveName = action === 'new'
           ? `${form.name} (variação)`
           : form.name;
-        await base44.entities.Exercise.create({
+        const created = await base44.entities.Exercise.create({
           name: saveName,
           muscle_group: form.muscle_group,
           description: form.description,
         });
+        savedId = created?.id;
         toast.success(`Exercício "${saveName}" adicionado à biblioteca!`);
       }
-      onSaved(form.name);
+      onSaved(form.name, savedId);
       onClose();
     } catch (e) {
       toast.error("Erro ao salvar: " + e.message);
