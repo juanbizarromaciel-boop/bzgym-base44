@@ -168,11 +168,12 @@ Retorne JSON com: dietName, goal, totalCalories, totalProtein, totalCarbs, total
           rows={4}
           className="w-full resize-none rounded-xl p-3.5 text-sm transition-all outline-none"
           style={{
-            background: 'rgba(4,2,14,0.7)',
-            border: '1px solid rgba(16,185,129,0.15)',
-            color: '#f0e6ff',
+            background: 'rgba(2,1,8,0.98)',
+            border: '1px solid rgba(16,185,129,0.35)',
+            color: '#f5e8ff',
             fontFamily: 'Inter, sans-serif',
             caretColor: '#10b981',
+            boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.6)',
           }}
         />
 

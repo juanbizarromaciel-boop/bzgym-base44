@@ -279,11 +279,12 @@ Retorne JSON com: workoutPlanName, goal, level, weeklyFrequency, split, observat
           rows={4}
           className="w-full resize-none rounded-xl p-3.5 text-sm transition-all outline-none"
           style={{
-            background: 'rgba(4,2,14,0.7)',
-            border: '1px solid rgba(168,85,247,0.15)',
-            color: '#f0e6ff',
+            background: 'rgba(2,1,8,0.98)',
+            border: '1px solid rgba(168,85,247,0.35)',
+            color: '#f5e8ff',
             fontFamily: 'Inter, sans-serif',
             caretColor: '#a855f7',
+            boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.6)',
           }}
         />
 
