@@ -232,7 +232,7 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
     setShowImgPrompt(false);
     try {
       const customPrompt = imgPrompt.trim();
-      const defaultPrompt = `Professional fitness photo of person performing ${form.name} exercise, gym setting, anatomical demonstration, high quality`;
+      const defaultPrompt = `Ultra realistic image, modern gym, dark background, cinematic lighting, premium aesthetic, subtle neon purple #a855f7 details, clean composition, full focus on the exercise "${form.name}", proportional body, correct anatomy, sharp equipment, easy to interpret movement, no text, no logos, no cluttered background. The image must look like official material from a professional workout app. Biomechanically accurate posture: correct starting and ending position, proper joint alignment, primary and secondary muscles visible, common errors avoided. Equipment used must be realistic and match the exercise. Do not invent non-existent equipment. Do not exaggerate muscles. Do not add extra limbs. Prioritize didactic clarity over exaggerated aesthetics. Exercise: ${form.name}.`;
       const res = await base44.integrations.Core.GenerateImage({
         prompt: customPrompt || defaultPrompt
       });
@@ -412,7 +412,7 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                     <textarea
                       value={imgPrompt}
                       onChange={e => setImgPrompt(e.target.value)}
-                      placeholder={`Ex: Pessoa fazendo ${form.name || 'o exercício'} de lado, fundo preto, iluminação dramática, homem musculoso...`}
+                      placeholder={`Ex: ângulo lateral, atleta feminina, iluminação roxa, foco nos glúteos... (deixe vazio para usar o padrão premium automático)`}
                       rows={2}
                       className="w-full rounded-lg p-2 text-xs resize-none mb-2"
                       style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(6,182,212,0.2)', color: '#e9d5ff' }}
