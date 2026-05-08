@@ -162,10 +162,29 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { exercise_name } = body;
+    const { exercise_name, direct_url } = body;
 
-    if (!exercise_name) {
-      return Response.json({ error: 'exercise_name é obrigatório' }, { status: 400 });
+    if (!exercise_name && !direct_url) {
+      return Response.json({ error: 'exercise_name ou direct_url é obrigatório' }, { status: 400 });
+    }
+
+    // If a direct URL was provided (e.g. user pasted a hipertrofia.org URL), proxy it directly
+    if (direct_url) {
+      const gifResponse = await fetch(direct_url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Referer': 'https://www.hipertrofia.org/',
+          'Accept': 'image/gif,image/*,*/*;q=0.8',
+        }
+      });
+      if (gifResponse.ok) {
+        const contentType = gifResponse.headers.get('content-type') || 'image/gif';
+        const buffer = await gifResponse.arrayBuffer();
+        const file = new File([buffer], 'exercise.gif', { type: contentType });
+        const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({ file });
+        return Response.json({ success: true, gif_url: uploadResult.file_url, found: true });
+      }
+      return Response.json({ success: true, gif_url: direct_url, found: true });
     }
 
     const sourceUrl = findGifUrl(exercise_name);

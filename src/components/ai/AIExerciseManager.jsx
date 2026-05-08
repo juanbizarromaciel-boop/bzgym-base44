@@ -257,14 +257,17 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
     setGeneratingDesc(false);
   };
 
-  const fetchHipertrofiaGif = async () => {
-    if (!form.name) { toast.error("Digite o nome do exercício primeiro"); return; }
+  const fetchHipertrofiaGif = async (urlToProxy = null) => {
+    if (!urlToProxy && !form.name) { toast.error("Digite o nome do exercício primeiro"); return; }
     setGeneratingImg(true);
     try {
-      const res = await base44.functions.invoke("fetchExerciseGif", { exercise_name: form.name });
+      const payload = urlToProxy
+        ? { direct_url: urlToProxy }
+        : { exercise_name: form.name };
+      const res = await base44.functions.invoke("fetchExerciseGif", payload);
       if (res.data?.gif_url) {
         setForm(f => ({ ...f, video_url: res.data.gif_url }));
-        toast.success("GIF encontrado!");
+        toast.success("GIF carregado via proxy!");
       } else {
         toast.error("GIF não encontrado para este exercício");
       }
@@ -272,6 +275,10 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
       toast.error("Erro ao buscar GIF");
     }
     setGeneratingImg(false);
+  };
+
+  const handleVideoUrlChange = (url) => {
+    setForm(f => ({ ...f, video_url: url }));
   };
 
   const muscleColor = MUSCLE_COLORS[exercise.muscle_group] || "#6b7280";
@@ -379,8 +386,21 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                     </button>
                   </div>
                 </div>
-                <Input value={form.video_url || ""} onChange={e => setForm(f => ({ ...f, video_url: e.target.value }))}
-                  placeholder="https://... (URL de GIF, imagem ou vídeo)" className="cyber-input text-sm" />
+                <div className="flex gap-2">
+                  <Input value={form.video_url || ""} onChange={e => handleVideoUrlChange(e.target.value)}
+                    placeholder="https://... (URL de GIF, imagem ou vídeo)" className="cyber-input text-sm flex-1" />
+                  {form.video_url && form.video_url.includes('hipertrofia.org') && !form.video_url.startsWith('https://cdn.') && !form.video_url.includes('base44') && (
+                    <button
+                      onClick={() => fetchHipertrofiaGif(form.video_url)}
+                      disabled={generatingImg}
+                      title="Carregar via proxy para evitar bloqueio"
+                      className="px-2 py-1 rounded-lg text-[10px] font-mono-cyber flex items-center gap-1 flex-shrink-0"
+                      style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80' }}>
+                      {generatingImg ? <Loader2 className="w-3 h-3 animate-spin" /> : <Globe className="w-3 h-3" />}
+                      PROXY
+                    </button>
+                  )}
+                </div>
                 {form.video_url && (
                   <div className="mt-2 rounded-xl overflow-hidden border border-purple-900/25 bg-black/30" style={{ maxHeight: 200 }}>
                     {form.video_url.match(/\.(mp4|webm|ogg)(\?|$)/i) ? (
