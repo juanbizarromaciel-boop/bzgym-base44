@@ -117,17 +117,27 @@ function BulkCommandPanel({ exercises, onRefresh }) {
             video_url: e.video_url || ""
           }));
 
-      const res = await base44.functions.invoke("aiCoach", {
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("TIMEOUT")), 120000)
+      );
+      const invokePromise = base44.functions.invoke("aiCoach", {
         type: "exercise_bulk",
         prompt: fullPrompt,
         context: JSON.stringify(exercisesToSend)
       });
+
+      const res = await Promise.race([invokePromise, timeoutPromise]);
+
       const d = res.data?.data;
       const result = d?.exercises || d?.response?.exercises || [];
-      if (result.length === 0) throw new Error("IA não retornou exercícios. Tente reformular.");
+      if (result.length === 0) throw new Error("IA não retornou exercícios. Tente reformular o comando.");
       setPreview(result);
     } catch (e) {
-      toast.error("Erro: " + (e.response?.data?.error || e.message));
+      if (e.message === "TIMEOUT") {
+        toast.error("Tempo limite excedido. Tente com menos exercícios ou um comando mais simples.");
+      } else {
+        toast.error("Erro: " + (e.response?.data?.error || e.message || "Falha na IA"));
+      }
     }
     setLoading(false);
   };
