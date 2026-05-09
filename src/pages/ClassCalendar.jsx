@@ -30,6 +30,7 @@ export default function ClassCalendar() {
   const [generatedMessage, setGeneratedMessage] = useState("");
   const [copied, setCopied] = useState(false);
   const [students, setStudents] = useState([]);
+  const [pixKey, setPixKey] = useState("");
   const [showFinanceModal, setShowFinanceModal] = useState(false);
   const [financeForm, setFinanceForm] = useState({ student_id: "", description: "", due_date: "" });
   const [savingFinance, setSavingFinance] = useState(false);
@@ -38,6 +39,7 @@ export default function ClassCalendar() {
     base44.auth.me().then(u => {
       setUser(u);
       setPersonalName(u.full_name || "");
+      setPixKey(u.email || "");
     }).catch(() => {});
     base44.entities.Student.list().then(setStudents).catch(() => {});
   }, []);
@@ -142,7 +144,7 @@ export default function ClassCalendar() {
     const snapYear = currentDate.getFullYear();
     const snapMonthName = MONTH_NAMES[snapMonth] + "/" + snapYear;
     const durationLabel = snapDurationHours === 1 ? "1h" : snapDurationHours % 1 === 0 ? `${snapDurationHours}h` : `${classDuration}min`;
-    const pixKey = user?.email || "";
+    const snapPixKey = pixKey || user?.email || "";
 
     const classesList = snapDays.map(([key, val]) => {
       const d = new Date(key + "T00:00:00");
@@ -165,7 +167,7 @@ ${classesList}
 
 Valor referente ao mês: ${formatCurrency(snapTotalValue)}
 
-Pix: ${pixKey}
+Pix: ${snapPixKey}
 
 Obrigado pela confiança.
 
@@ -226,6 +228,16 @@ ${personalName.trim() || "[Seu nome]"}`;
                   value={personalName}
                   onChange={e => setPersonalName(e.target.value)}
                   placeholder="Seu nome"
+                  className="w-full rounded-lg px-3 py-2 text-sm outline-none"
+                  style={{ background: 'rgba(4,2,14,0.7)', border: '1px solid rgba(168,85,247,0.2)', color: '#edd9ff' }}
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="text-[10px] font-mono-cyber text-purple-400/50 tracking-wider uppercase mb-1 block">Chave Pix</label>
+                <input
+                  value={pixKey}
+                  onChange={e => setPixKey(e.target.value)}
+                  placeholder="Email, CPF ou chave Pix"
                   className="w-full rounded-lg px-3 py-2 text-sm outline-none"
                   style={{ background: 'rgba(4,2,14,0.7)', border: '1px solid rgba(168,85,247,0.2)', color: '#edd9ff' }}
                 />
