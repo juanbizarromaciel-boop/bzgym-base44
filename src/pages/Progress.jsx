@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -44,30 +45,23 @@ export default function Progress() {
   const [selectedExercise, setSelectedExercise] = useState("all");
   const [selectedMuscle, setSelectedMuscle] = useState("all");
   const [period, setPeriod] = useState("weekly");
-  const [userRole, setUserRole] = useState(null);
-
-  useEffect(() => {
-    base44.auth.me().then((u) => {
-      setUserRole(u?.role || "user");
-    }).catch(() => setUserRole("user"));
-  }, []);
+  const { user: currentUser, isAdmin } = useCurrentUser();
+  const userRole = currentUser?.role || null;
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: logs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list() });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
 
-  const isAdmin = userRole === "admin";
+  // isAdmin already comes from useCurrentUser
 
   // For students: auto-select their own student record
   useEffect(() => {
-    if (!isAdmin && userRole && students.length > 0) {
-      base44.auth.me().then((u) => {
-        const found = students.find(s => s.email?.toLowerCase() === u?.email?.toLowerCase());
-        if (found) setSelectedStudentId(found.id);
-      }).catch(() => {});
+    if (!isAdmin && currentUser && students.length > 0) {
+      const found = students.find(s => s.email?.toLowerCase() === currentUser.email?.toLowerCase());
+      if (found) setSelectedStudentId(found.id);
     }
-  }, [isAdmin, userRole, students]);
+  }, [isAdmin, currentUser, students]);
 
   const studentLogs = useMemo(() => {
     return logs.filter((l) => l.student_id === selectedStudentId).sort((a, b) => new Date(a.date) - new Date(b.date));

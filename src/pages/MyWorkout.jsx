@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag } from "lucide-react";
@@ -18,7 +20,8 @@ const DAY_LABELS = { segunda: "SEG", terca: "TER", quarta: "QUA", quinta: "QUI",
 const GOAL_LABELS = { hipertrofia: "HIPERTROFIA", emagrecimento: "EMAGRECIMENTO", resistencia: "RESISTÊNCIA", forca: "FORÇA", saude: "SAÚDE" };
 
 export default function MyWorkout() {
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const { user } = useCurrentUser();
   const [student, setStudent] = useState(null);
   const [selectedPlanId, setSelectedPlanId] = useState(null);
   const [setsData, setSetsData] = useState({});
@@ -30,10 +33,6 @@ export default function MyWorkout() {
 
   const today = DAY_MAP[new Date().getDay()];
 
-  useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
-  }, []);
-
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list() });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
@@ -43,9 +42,9 @@ export default function MyWorkout() {
     if (user && students.length > 0) {
       const found = students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase());
       if (!found || !found.goal) {
-        window.location.href = "/Onboarding";
+        navigate("/Onboarding", { replace: true });
       } else if (!found.active) {
-        window.location.href = "/Welcome";
+        navigate("/Welcome", { replace: true });
       } else {
         setStudent(found);
       }
@@ -103,7 +102,7 @@ export default function MyWorkout() {
   const finishWorkout = () => {
     setWorkoutDone(true);
     setTimeout(() => {
-      window.location.href = "/Progress";
+      navigate("/Progress");
     }, 3000);
   };
 
@@ -129,7 +128,7 @@ export default function MyWorkout() {
   // Not linked to a student or not active yet
   if (user && students.length > 0 && (!student || !student.active)) {
     if (student && !student.active) {
-      window.location.href = "/Welcome";
+      navigate("/Welcome", { replace: true });
       return null;
     }
     return (

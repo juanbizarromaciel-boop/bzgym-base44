@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   Users, Dumbbell, ClipboardList, TrendingUp, MessageSquare,
   UserPlus, Activity, Clock, CheckCircle2, ChevronRight,
@@ -10,15 +12,10 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function Dashboard() {
-  const [role, setRole] = useState(null);
-  const [userName, setUserName] = useState("");
-
-  useEffect(() => {
-    base44.auth.me().then((u) => {
-      setRole(u?.role || "user");
-      setUserName(u?.full_name?.split(" ")[0] || "");
-    }).catch(() => setRole("user"));
-  }, []);
+  const navigate = useNavigate();
+  const { user, loading: userLoading } = useCurrentUser();
+  const role = user?.role || null;
+  const userName = user?.full_name?.split(" ")[0] || "";
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: plans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
@@ -26,9 +23,13 @@ export default function Dashboard() {
   const { data: messages = [] } = useQuery({ queryKey: ["messages"], queryFn: () => base44.entities.ChatMessage.list() });
   const { data: pendingStudents = [] } = useQuery({ queryKey: ["pending"], queryFn: () => base44.entities.Student.filter({ active: false }) });
 
-  if (role === "user") {
-    window.location.href = "/StudentDashboard";
+  if (userLoading) {
     return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" /></div>;
+  }
+
+  if (role === "user") {
+    navigate("/StudentDashboard", { replace: true });
+    return null;
   }
 
   // personal sees the same dashboard as admin (filtered by RLS on backend)

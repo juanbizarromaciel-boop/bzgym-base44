@@ -33,12 +33,11 @@ export function usePaymentStatus(student) {
 
         if (effectiveStatus === 'atrasado') {
           setBlocked(true);
-          // Try to get personal name
+          // Try to get personal name — filter by email instead of listing all users
           if (student.personal_id) {
             try {
-              const users = await base44.entities.User.list();
-              const personal = users.find(u => u.email === student.personal_id);
-              if (personal) setPersonalName(personal.full_name || personal.email);
+              const users = await base44.entities.User.filter({ email: student.personal_id });
+              if (users?.length > 0) setPersonalName(users[0].full_name || users[0].email);
             } catch { /* ignore */ }
           }
         }
