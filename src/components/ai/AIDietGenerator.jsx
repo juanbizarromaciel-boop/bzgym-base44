@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import DietEditor from "./DietEditor";
+import AIRefinementChat from "./AIRefinementChat";
 
 const QUICK_PROMPTS = [
   "Monte uma dieta de cutting com 2200 kcal e 150g de proteína",
@@ -162,6 +163,11 @@ Retorne JSON com: dietName, goal, totalCalories, totalProtein, totalCarbs, total
           </div>
           <p className="text-xs font-mono-cyber" style={{ color: 'rgba(16,185,129,0.6)' }}>Montando plano alimentar...</p>
         </div>
+      )}
+
+      {/* AI Refinement Chat */}
+      {diet && !loading && (
+        <AIRefinementChat type="diet" plan={diet} onPlanChange={setDiet} />
       )}
 
       {/* Full editable diet editor */}

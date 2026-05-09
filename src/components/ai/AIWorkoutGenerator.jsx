@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 import AddExerciseToLibraryModal from "./AddExerciseToLibraryModal";
 import ExerciseMediaModal from "@/components/exercise/ExerciseMediaModal";
+import AIRefinementChat from "./AIRefinementChat";
 
 const QUICK_PROMPTS = [
   "Monte um treino Upper/Lower 4x na semana para hipertrofia, aluno intermediário",
@@ -374,6 +375,9 @@ Retorne JSON com: workoutPlanName, goal, level, weeklyFrequency, split, observat
               />
             ))}
           </div>
+
+          {/* AI Refinement Chat */}
+          <AIRefinementChat type="workout" plan={plan} onPlanChange={setPlan} />
 
           {/* Apply section */}
           <div className="rounded-xl p-5 border" style={{ background: 'rgba(6,4,18,0.95)', borderColor: 'rgba(16,185,129,0.25)' }}>

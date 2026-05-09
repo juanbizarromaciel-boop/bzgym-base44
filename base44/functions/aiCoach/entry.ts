@@ -34,7 +34,25 @@ Responda APENAS em JSON: {"description": "texto da descrição"}`,
 Receberá uma lista de exercícios em JSON e um comando do professor.
 Execute o comando em TODOS os exercícios e retorne a lista atualizada.
 Mantenha os campos id e name intactos. Retorne APENAS JSON válido.
-Formato: {"exercises": [{id, name, muscle_group, description, video_url}, ...]}`
+Formato: {"exercises": [{id, name, muscle_group, description, image_url, video_url}, ...]}`,
+
+  workout_refine: `Você é uma IA auxiliar de prescrição de treinos para professores de educação física brasileiros.
+Receberá um plano de treino completo em JSON e um pedido de alteração do professor.
+Analise o plano e aplique EXATAMENTE as alterações solicitadas, mantendo o restante intacto.
+Responda SEMPRE em JSON com dois campos:
+- "message": string curta confirmando o que foi feito (ex: "Troquei o supino por variações com halteres no Dia A e B.")
+- "plan": o plano completo atualizado com a mesma estrutura do original
+Responda APENAS em JSON válido, sem markdown, sem texto extra.`,
+
+  diet_refine: `Você é uma IA auxiliar de planejamento nutricional para professores brasileiros.
+Receberá um plano alimentar completo em JSON e um pedido de alteração do professor.
+Analise a dieta e aplique EXATAMENTE as alterações solicitadas, mantendo o restante intacto.
+Recalcule os macros e calorias totais após as mudanças.
+Responda SEMPRE em JSON com dois campos:
+- "message": string curta confirmando o que foi feito (ex: "Substituí o leite por leite de amêndoas e ajustei os macros.")
+- "plan": a dieta completa atualizada com a mesma estrutura do original
+Responda APENAS em JSON válido, sem markdown, sem texto extra.
+AVISO: Esta IA é apenas ferramenta auxiliar. Dietas clínicas exigem nutricionista habilitado.`
 };
 
 Deno.serve(async (req) => {
@@ -49,7 +67,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { type, prompt, context } = body;
 
-    const ALLOWED_TYPES = ['food', 'diet', 'workout', 'test', 'exercise_desc', 'exercise_bulk'];
+    const ALLOWED_TYPES = ['food', 'diet', 'workout', 'test', 'exercise_desc', 'exercise_bulk', 'workout_refine', 'diet_refine'];
     if (!type || !ALLOWED_TYPES.includes(type)) {
       return Response.json({ error: `Tipo inválido. Permitidos: ${ALLOWED_TYPES.join(', ')}` }, { status: 400 });
     }
@@ -67,14 +85,19 @@ Deno.serve(async (req) => {
     }
 
     const systemPrompt = SYSTEM_PROMPTS[type];
+    const { history } = body;
 
     let userMessage = prompt.slice(0, 8000);
     if (context) {
       const contextStr = typeof context === 'string' ? context : JSON.stringify(context);
       if (contextStr.length > 50000) {
-        return Response.json({ error: 'Contexto muito grande. Reduza o número de exercícios por vez.' }, { status: 400 });
+        return Response.json({ error: 'Contexto muito grande.' }, { status: 400 });
       }
-      userMessage += `\n\nContexto adicional: ${contextStr}`;
+      userMessage += `\n\nPlano atual (JSON):\n${contextStr}`;
+    }
+    if (history) {
+      const histStr = typeof history === 'string' ? history : JSON.stringify(history);
+      userMessage += `\n\nHistórico da conversa:\n${histStr}`;
     }
 
     const fullPrompt = `${systemPrompt}\n\n${userMessage}`;
