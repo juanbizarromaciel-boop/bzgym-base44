@@ -29,7 +29,7 @@ const PACKAGES = [
       "Plano alimentar com macros calculados",
       "Protocolo de ciclo hormonal monitorado",
       "Ajustes mensais conforme evolução",
-      "Suporte direto via chat",
+      "Suporte direto via whatsapp",
     ],
   },
   {
@@ -42,7 +42,7 @@ const PACKAGES = [
       "Planilha de treino periodizada",
       "Plano alimentar com macros ajustados",
       "Revisão mensal de cargas e dieta",
-      "Suporte direto via chat",
+      "Suporte direto via whatsapp",
     ],
   },
   {
@@ -55,7 +55,7 @@ const PACKAGES = [
       "Planilha de treino avançada",
       "Protocolo de ciclo hormonal personalizado",
       "Ajustes conforme fase do ciclo",
-      "Suporte direto via chat",
+      "Suporte direto via whatsapp",
     ],
   },
   {
@@ -68,7 +68,7 @@ const PACKAGES = [
       "Plano alimentar especializado",
       "Protocolo hormonal detalhado",
       "Ajuste nutricional por fase do ciclo",
-      "Suporte direto via chat",
+      "Suporte direto via whatsapp",
     ],
   },
   {
@@ -81,7 +81,7 @@ const PACKAGES = [
       "Planilha de treino personalizada",
       "Periodização por mesociclos",
       "Ajustes mensais de volume e intensidade",
-      "Suporte direto via chat",
+      "Suporte direto via whatsapp",
     ],
   },
   {
@@ -94,7 +94,7 @@ const PACKAGES = [
       "Plano alimentar com macros individualizados",
       "Cardápio semanal rotativo",
       "Estratégia de refeição pré e pós-treino",
-      "Suporte direto via chat",
+      "Suporte direto via whatsapp",
     ],
   },
   {
@@ -107,7 +107,7 @@ const PACKAGES = [
       "Protocolo hormonal completo",
       "Dosagens individualizadas",
       "Planejamento de TPC",
-      "Suporte direto via chat",
+      "Suporte direto via whatsapp",
     ],
   },
 ];
@@ -209,7 +209,6 @@ ${pkg.description}
 O que está incluso:
 ${highlightsList}
 
-━━━━━━━━━━━━━━━━━━━━
 💰 INVESTIMENTO
 ━━━━━━━━━━━━━━━━━━━━
 Valor: *${formatCurrency(valueNum)}*
@@ -218,8 +217,6 @@ Referência: ${monthLabel}
 Pix: ${pixKey}
 
 ━━━━━━━━━━━━━━━━━━━━
-
-Você está investindo no que há de mais importante: o seu corpo e a sua evolução. Cada detalhe do seu protocolo é pensado com dedicação e ciência para que você alcance seus melhores resultados. 🚀
 
 Qualquer dúvida estou à disposição!
 
