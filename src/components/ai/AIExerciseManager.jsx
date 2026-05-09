@@ -29,30 +29,85 @@ const MUSCLE_COLORS = {
 const MUSCLE_OPTIONS = Object.entries(MUSCLE_LABELS);
 
 // ── AI Chat Command Panel ────────────────────────────────────────────────────
-const EXAMPLES = [
-  "Supino Reto\nFoto: https://exemplo.com/supino.gif\nVídeo: https://youtube.com/watch?v=abc123",
-  "Adicione descrição técnica para todos os exercícios de peito",
-  "Agachamento\nFoto: https://exemplo.com/agach.gif",
+
+const SCOPE_OPTIONS = [
+  { key: "ai_specified", label: "Especificados na IA", icon: "✦" },
+  { key: "all", label: "Todos", icon: "◈" },
+  { key: "no_desc", label: "Sem descrição", icon: "∅" },
+  { key: "no_media", label: "Sem foto e vídeo", icon: "⊘" },
+  { key: "no_photo", label: "Só sem foto", icon: "⬚" },
+  { key: "no_video", label: "Só sem vídeo", icon: "▷" },
 ];
+
+const EDIT_MODE_OPTIONS = [
+  { key: "all", label: "Tudo", icon: "◈" },
+  { key: "desc_only", label: "Só descrição", icon: "≡" },
+  { key: "photo_only", label: "Só foto", icon: "⬚" },
+  { key: "video_only", label: "Só vídeo", icon: "▷" },
+  { key: "media_only", label: "Foto + Vídeo", icon: "⊞" },
+];
+
+function ChipSelect({ options, value, onChange }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {options.map(opt => (
+        <button key={opt.key} onClick={() => onChange(opt.key)}
+          className="px-2.5 py-1 rounded-lg text-[10px] font-mono-cyber transition-all"
+          style={value === opt.key
+            ? { background: 'rgba(168,85,247,0.22)', border: '1px solid rgba(168,85,247,0.55)', color: '#e9d5ff' }
+            : { background: 'rgba(168,85,247,0.04)', border: '1px solid rgba(168,85,247,0.15)', color: 'rgba(192,132,252,0.45)' }}>
+          <span className="mr-1 opacity-70">{opt.icon}</span>{opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 function BulkCommandPanel({ exercises, onRefresh }) {
   const [command, setCommand] = useState("");
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [scope, setScope] = useState("ai_specified");
+  const [editMode, setEditMode] = useState("all");
   const qc = useQueryClient();
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) runCommand();
   };
 
+  // Filter exercises based on scope
+  const getScopedExercises = () => {
+    switch (scope) {
+      case "all": return exercises;
+      case "no_desc": return exercises.filter(e => !e.description);
+      case "no_media": return exercises.filter(e => !e.image_url && !e.video_url);
+      case "no_photo": return exercises.filter(e => !e.image_url);
+      case "no_video": return exercises.filter(e => !e.video_url);
+      default: return exercises; // ai_specified: send all, let AI decide from prompt
+    }
+  };
+
+  // Build prompt suffix based on editMode
+  const getEditModeInstruction = () => {
+    switch (editMode) {
+      case "desc_only": return "\n\nIMPORTANTE: Edite APENAS a descrição. Não altere image_url nem video_url.";
+      case "photo_only": return "\n\nIMPORTANTE: Edite APENAS o campo image_url. Não altere description nem video_url.";
+      case "video_only": return "\n\nIMPORTANTE: Edite APENAS o campo video_url. Não altere description nem image_url.";
+      case "media_only": return "\n\nIMPORTANTE: Edite APENAS image_url e video_url. Não altere a description.";
+      default: return "";
+    }
+  };
+
   const runCommand = async () => {
     if (!command.trim()) return;
     setLoading(true);
     try {
+      const scopedExercises = getScopedExercises();
+      const fullPrompt = command + getEditModeInstruction();
       const res = await base44.functions.invoke("aiCoach", {
         type: "exercise_bulk",
-        prompt: command,
-        context: JSON.stringify(exercises.map(e => ({
+        prompt: fullPrompt,
+        context: JSON.stringify(scopedExercises.map(e => ({
           id: e.id,
           name: e.name,
           muscle_group: e.muscle_group,
@@ -77,9 +132,15 @@ function BulkCommandPanel({ exercises, onRefresh }) {
     try {
       await Promise.all(preview.map(ex => {
         const upd = {};
-        if (ex.description !== undefined) upd.description = ex.description;
-        if (ex.image_url !== undefined) upd.image_url = ex.image_url;
-        if (ex.video_url !== undefined) upd.video_url = ex.video_url;
+        if (editMode === "all" || editMode === "desc_only") {
+          if (ex.description !== undefined) upd.description = ex.description;
+        }
+        if (editMode === "all" || editMode === "photo_only" || editMode === "media_only") {
+          if (ex.image_url !== undefined) upd.image_url = ex.image_url;
+        }
+        if (editMode === "all" || editMode === "video_only" || editMode === "media_only") {
+          if (ex.video_url !== undefined) upd.video_url = ex.video_url;
+        }
         return base44.entities.Exercise.update(ex.id, upd);
       }));
       toast.success(`${preview.length} exercício(s) atualizado(s)!`);
@@ -93,6 +154,8 @@ function BulkCommandPanel({ exercises, onRefresh }) {
     setLoading(false);
   };
 
+  const scopedCount = scope === "ai_specified" ? null : getScopedExercises().length;
+
   return (
     <div className="cyber-card rounded-xl border border-purple-900/25 p-5 mb-6">
       {/* Header */}
@@ -104,18 +167,24 @@ function BulkCommandPanel({ exercises, onRefresh }) {
         <div>
           <p className="text-sm font-semibold text-white">Editar Exercícios com IA</p>
           <p className="text-[10px] font-mono-cyber text-purple-500/50">
-            Descreva o que quer editar — nome, foto, vídeo ou descrição — tudo no mesmo texto
+            Configure o escopo e o que editar, depois descreva o comando
           </p>
         </div>
       </div>
 
-      {/* Hint box */}
-      <div className="mb-3 px-3 py-2.5 rounded-xl text-[10px] font-mono-cyber leading-relaxed"
-        style={{ background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.12)', color: 'rgba(192,132,252,0.55)' }}>
-        <span className="text-purple-400/70">Exemplos de mensagens:</span><br />
-        · <span className="text-cyan-400/60">Supino Reto · Foto: https://... · Vídeo: https://...</span><br />
-        · <span className="text-cyan-400/60">Agachamento · Foto: https://...</span><br />
-        · <span className="text-cyan-400/60">Gere descrição técnica para todos os exercícios de costas</span>
+      {/* Scope selector */}
+      <div className="mb-3">
+        <p className="text-[9px] font-mono-cyber text-purple-500/40 uppercase tracking-widest mb-2">
+          Exercícios alvo
+          {scopedCount !== null && <span className="ml-2 text-purple-400/60">· {scopedCount} selecionados</span>}
+        </p>
+        <ChipSelect options={SCOPE_OPTIONS} value={scope} onChange={setScope} />
+      </div>
+
+      {/* Edit mode selector */}
+      <div className="mb-4">
+        <p className="text-[9px] font-mono-cyber text-purple-500/40 uppercase tracking-widest mb-2">O que editar</p>
+        <ChipSelect options={EDIT_MODE_OPTIONS} value={editMode} onChange={setEditMode} />
       </div>
 
       {/* Textarea */}
@@ -124,8 +193,10 @@ function BulkCommandPanel({ exercises, onRefresh }) {
           value={command}
           onChange={e => setCommand(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={"Ex:\nSupino Reto\nFoto: https://link-da-foto.gif\nVídeo: https://youtube.com/watch?v=...\n\nAgachamento\nFoto: https://outro-link.gif"}
-          rows={6}
+          placeholder={scope === "ai_specified"
+            ? "Ex:\nSupino Reto\nFoto: https://link-da-foto.gif\nVídeo: https://youtube.com/watch?v=...\n\nAgachamento\nFoto: https://outro-link.gif"
+            : "Ex: Gere descrições técnicas em português para todos os exercícios selecionados"}
+          rows={5}
           className="w-full cyber-input rounded-xl p-3 text-sm resize-none"
           style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.25)', color: '#e9d5ff' }}
         />
@@ -156,16 +227,16 @@ function BulkCommandPanel({ exercises, onRefresh }) {
             {preview.map(ex => (
               <div key={ex.id} className="px-4 py-3 space-y-1">
                 <p className="text-xs font-semibold text-white">{ex.name}</p>
-                {ex.description && (
+                {ex.description && (editMode === "all" || editMode === "desc_only") && (
                   <p className="text-[11px] text-purple-300/60 leading-relaxed">{ex.description}</p>
                 )}
-                {ex.image_url && (
+                {ex.image_url && (editMode === "all" || editMode === "photo_only" || editMode === "media_only") && (
                   <div className="flex items-center gap-1.5">
                     <Image className="w-3 h-3 text-cyan-400 flex-shrink-0" />
                     <p className="text-[10px] text-cyan-400/70 font-mono-cyber truncate">{ex.image_url}</p>
                   </div>
                 )}
-                {ex.video_url && (
+                {ex.video_url && (editMode === "all" || editMode === "video_only" || editMode === "media_only") && (
                   <div className="flex items-center gap-1.5">
                     <Video className="w-3 h-3 text-pink-400 flex-shrink-0" />
                     <p className="text-[10px] text-pink-400/70 font-mono-cyber truncate">{ex.video_url}</p>
