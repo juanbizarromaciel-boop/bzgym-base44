@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     let userMessage = prompt.slice(0, 8000);
     if (context) {
       const contextStr = typeof context === 'string' ? context : JSON.stringify(context);
-      if (contextStr.length > 50000) {
+      if (contextStr.length > 80000) {
         return Response.json({ error: 'Contexto muito grande.' }, { status: 400 });
       }
       userMessage += `\n\nPlano atual (JSON):\n${contextStr}`;

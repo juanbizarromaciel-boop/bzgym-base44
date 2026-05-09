@@ -104,24 +104,30 @@ function BulkCommandPanel({ exercises, onRefresh }) {
     try {
       const scopedExercises = getScopedExercises();
       const fullPrompt = command + getEditModeInstruction();
+
+      // For ai_specified, send exercise index so AI can match by name; for others send full list (capped at 80)
+      const exercisesToSend = scope === "ai_specified"
+        ? exercises.map(e => ({ id: e.id, name: e.name, muscle_group: e.muscle_group }))
+        : scopedExercises.slice(0, 80).map(e => ({
+            id: e.id,
+            name: e.name,
+            muscle_group: e.muscle_group,
+            description: e.description || "",
+            image_url: e.image_url || "",
+            video_url: e.video_url || ""
+          }));
+
       const res = await base44.functions.invoke("aiCoach", {
         type: "exercise_bulk",
         prompt: fullPrompt,
-        context: JSON.stringify(scopedExercises.map(e => ({
-          id: e.id,
-          name: e.name,
-          muscle_group: e.muscle_group,
-          description: e.description || "",
-          image_url: e.image_url || "",
-          video_url: e.video_url || ""
-        })))
+        context: JSON.stringify(exercisesToSend)
       });
       const d = res.data?.data;
       const result = d?.exercises || d?.response?.exercises || [];
       if (result.length === 0) throw new Error("IA não retornou exercícios. Tente reformular.");
       setPreview(result);
     } catch (e) {
-      toast.error("Erro: " + e.message);
+      toast.error("Erro: " + (e.response?.data?.error || e.message));
     }
     setLoading(false);
   };
