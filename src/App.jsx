@@ -14,6 +14,7 @@ import AISettings from './pages/AISettings';
 import PersonalManagement from './pages/PersonalManagement';
 import Finance from './pages/Finance';
 import ClassCalendar from './pages/ClassCalendar';
+import ConsultancyBilling from './pages/ConsultancyBilling';
 import SubscriberDashboard from './pages/SubscriberDashboard';
 import AccessDenied from './pages/AccessDenied';
 import MyWorkout from './pages/MyWorkout';
@@ -152,6 +153,7 @@ const AuthenticatedApp = () => {
       <Route path="/PersonalManagement" element={<LayoutWrapper currentPageName="PersonalManagement"><PersonalManagement /></LayoutWrapper>} />
       <Route path="/Finance" element={<LayoutWrapper currentPageName="Finance"><Finance /></LayoutWrapper>} />
       <Route path="/ClassCalendar" element={<LayoutWrapper currentPageName="ClassCalendar"><ClassCalendar /></LayoutWrapper>} />
+      <Route path="/ConsultancyBilling" element={<LayoutWrapper currentPageName="ConsultancyBilling"><ConsultancyBilling /></LayoutWrapper>} />
       <Route path="/SubscriberDashboard" element={<LayoutWrapper currentPageName="SubscriberDashboard"><SubscriberDashboard /></LayoutWrapper>} />
       <Route path="/AccessDenied" element={<AccessDenied />} />
       <Route path="*" element={<PageNotFound />} />
