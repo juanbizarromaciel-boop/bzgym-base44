@@ -136,6 +136,11 @@
       "user_condition": {
         "role": "admin"
       }
+    },
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
     }
   }
 }
