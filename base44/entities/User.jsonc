@@ -13,6 +13,11 @@
       ],
       "default": "recente",
       "description": "Cargo do usu\u00e1rio"
+    },
+    "student_id": {
+      "type": "string",
+      "description": "ID do registro Student vinculado a este usu\u00e1rio"
     }
-  }
+  },
+  "required": []
 }

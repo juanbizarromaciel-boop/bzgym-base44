@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, Mail, Target, FileText, CheckCircle } from "lucide-react";
+import { UserPlus, Mail, Target, FileText, CheckCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 
@@ -31,11 +31,34 @@ export default function PendingStudents() {
   const pendingStudents = students.filter(s => s.active === false);
   const activeStudents = students.filter(s => s.active === true);
 
-  const handleActivate = (student) => {
-    updateMut.mutate({
+  const [syncing, setSyncing] = useState(false);
+  const handleSyncStudentIds = async () => {
+    setSyncing(true);
+    let count = 0;
+    for (const student of activeStudents) {
+      if (!student.email) continue;
+      const users = await base44.entities.User.filter({ email: student.email });
+      if (users.length > 0 && !users[0].student_id) {
+        await base44.entities.User.update(users[0].id, { student_id: student.id });
+        count++;
+      }
+    }
+    setSyncing(false);
+    toast.success(`${count} aluno(s) sincronizado(s)!`);
+  };
+
+  const handleActivate = async (student) => {
+    await updateMut.mutateAsync({
       id: student.id,
       data: { ...student, active: true, personal_id: currentUser?.email }
     });
+    // Salvar student_id no perfil do usuário para que as RLS funcionem
+    if (student.email) {
+      const users = await base44.entities.User.filter({ email: student.email });
+      if (users.length > 0) {
+        await base44.entities.User.update(users[0].id, { student_id: student.id });
+      }
+    }
   };
 
   return (
@@ -44,11 +67,17 @@ export default function PendingStudents() {
         title="Novos Alunos"
         subtitle="Gerencie solicitações de cadastro"
         action={
-          pendingStudents.length > 0 && (
-            <Badge className="bg-pink-500/20 border border-pink-500/30 text-pink-300 text-sm">
-              {pendingStudents.length} pendente{pendingStudents.length > 1 ? "s" : ""}
-            </Badge>
-          )
+          <div className="flex items-center gap-2">
+            {pendingStudents.length > 0 && (
+              <Badge className="bg-pink-500/20 border border-pink-500/30 text-pink-300 text-sm">
+                {pendingStudents.length} pendente{pendingStudents.length > 1 ? "s" : ""}
+              </Badge>
+            )}
+            <Button onClick={handleSyncStudentIds} disabled={syncing} size="sm" variant="outline" className="border-purple-500/30 text-purple-400 hover:text-white text-xs">
+              <RefreshCw className={`w-3 h-3 mr-1 ${syncing ? "animate-spin" : ""}`} />
+              Sincronizar IDs
+            </Button>
+          </div>
         }
       />
 
