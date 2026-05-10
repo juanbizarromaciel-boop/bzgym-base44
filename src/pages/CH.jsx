@@ -186,7 +186,7 @@ export default function CH() {
   const toggleCycleExpand = (cycleId) => setExpandedCycles(prev => ({ ...prev, [cycleId]: !prev[cycleId] }));
 
   const filteredCycles = cycles.filter(c =>
-    user?.role === "admin" ? c.active : (c.student_id === student?.id && c.active)
+    user?.role === "admin" ? c.active : c.active
   );
 
   const cyclesByStudent = filteredCycles.reduce((acc, cycle) => {
