@@ -311,6 +311,7 @@ export default function CH() {
     <div className="space-y-6">
       <PageHeader
         title="Ciclos Hormonais"
+        accentColor="#84cc16"
         subtitle="Gerenciar ciclos e substâncias anabolizantes"
         action={
           user?.role === "admin" && (

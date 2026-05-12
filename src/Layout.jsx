@@ -13,201 +13,132 @@ import NotificationBell from "./components/notifications/NotificationBell";
 import CyberNav from "./components/navigation/CyberNav";
 
 const adminNavGroups = [
-  {
-    label: "Visão Geral",
-    items: [
-      { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
-      { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
-    ]
-  },
-  {
-    label: "Alunos",
-    items: [
-      { name: "Alunos", icon: Users, page: "Students" },
-      { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-    ]
-  },
-  {
-    label: "Treinos",
-    items: [
-      { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
-      { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
-      { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
-    ]
-  },
-  {
-    label: "Evolução",
-    items: [
-      { name: "Progresso", icon: BarChart3, page: "Progress" },
-      { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-    ]
-  },
-  {
-    label: "Nutrição",
-    items: [
-      { name: "Dietas", icon: Utensils, page: "Diet" },
-      { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
-    ]
-  },
-  {
-    label: "Comunicação",
-    items: [{ name: "Chat", icon: MessageSquare, page: "Chat" }]
-  },
-  {
-    label: "Saúde",
-    items: [{ name: "Saúde e Exames", icon: Activity, page: "CH" }]
-  },
-  {
-    label: "Inteligência Artificial",
-    items: [
-      { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
-      { name: "Config. IA", icon: Settings, page: "AISettings" },
-    ]
-  },
-  {
-    label: "Administração",
-    items: [{ name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" }]
-  },
-  {
-    label: "Financeiro",
-    items: [
-      { name: "Financeiro", icon: DollarSign, page: "Finance" },
-      { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
-      { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
-    ]
-  },
-  {
-    label: "Ferramentas",
-    items: [
-      { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-      { name: "Perfil", icon: UserCircle, page: "Profile" },
-    ]
-  },
+  { label: "Visão Geral", color: "#a855f7", items: [
+    { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+    { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
+  ]},
+  { label: "Alunos", color: "#06b6d4", items: [
+    { name: "Alunos", icon: Users, page: "Students" },
+    { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
+  ]},
+  { label: "Treinos", color: "#ec4899", items: [
+    { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
+    { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
+    { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
+  ]},
+  { label: "Evolução", color: "#f59e0b", items: [
+    { name: "Progresso", icon: BarChart3, page: "Progress" },
+    { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
+  ]},
+  { label: "Nutrição", color: "#10b981", items: [
+    { name: "Dietas", icon: Utensils, page: "Diet" },
+    { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
+  ]},
+  { label: "Comunicação", color: "#06b6d4", items: [
+    { name: "Chat", icon: MessageSquare, page: "Chat" },
+  ]},
+  { label: "Saúde", color: "#84cc16", items: [
+    { name: "Saúde e Exames", icon: Activity, page: "CH" },
+  ]},
+  { label: "Inteligência Artificial", color: "#a855f7", items: [
+    { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
+    { name: "Config. IA", icon: Settings, page: "AISettings" },
+  ]},
+  { label: "Administração", color: "#f97316", items: [
+    { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
+  ]},
+  { label: "Financeiro", color: "#10b981", items: [
+    { name: "Financeiro", icon: DollarSign, page: "Finance" },
+    { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
+    { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
+  ]},
+  { label: "Ferramentas", color: "#8b5cf6", items: [
+    { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+    { name: "Perfil", icon: UserCircle, page: "Profile" },
+  ]},
 ];
 
 const personalNavGroups = [
-  {
-    label: "Visão Geral",
-    items: [
-      { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
-      { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
-    ]
-  },
-  {
-    label: "Meus Alunos",
-    items: [
-      { name: "Alunos", icon: Users, page: "Students" },
-      { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-    ]
-  },
-  {
-    label: "Treinos",
-    items: [
-      { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
-      { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
-      { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
-    ]
-  },
-  {
-    label: "Evolução",
-    items: [
-      { name: "Progresso", icon: BarChart3, page: "Progress" },
-      { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-    ]
-  },
-  {
-    label: "Nutrição",
-    items: [
-      { name: "Dietas", icon: Utensils, page: "Diet" },
-      { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
-    ]
-  },
-  {
-    label: "Comunicação",
-    items: [{ name: "Chat", icon: MessageSquare, page: "Chat" }]
-  },
-  {
-    label: "Saúde",
-    items: [{ name: "Saúde e Exames", icon: Activity, page: "CH" }]
-  },
-  {
-    label: "Financeiro",
-    items: [
-      { name: "Financeiro", icon: DollarSign, page: "Finance" },
-      { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
-      { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
-    ]
-  },
-  {
-    label: "Ferramentas",
-    items: [
-      { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-      { name: "Perfil", icon: UserCircle, page: "Profile" },
-    ]
-  },
+  { label: "Visão Geral", color: "#a855f7", items: [
+    { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+    { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
+  ]},
+  { label: "Meus Alunos", color: "#06b6d4", items: [
+    { name: "Alunos", icon: Users, page: "Students" },
+    { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
+  ]},
+  { label: "Treinos", color: "#ec4899", items: [
+    { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
+    { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
+    { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
+  ]},
+  { label: "Evolução", color: "#f59e0b", items: [
+    { name: "Progresso", icon: BarChart3, page: "Progress" },
+    { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
+  ]},
+  { label: "Nutrição", color: "#10b981", items: [
+    { name: "Dietas", icon: Utensils, page: "Diet" },
+    { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
+  ]},
+  { label: "Comunicação", color: "#06b6d4", items: [
+    { name: "Chat", icon: MessageSquare, page: "Chat" },
+  ]},
+  { label: "Saúde", color: "#84cc16", items: [
+    { name: "Saúde e Exames", icon: Activity, page: "CH" },
+  ]},
+  { label: "Financeiro", color: "#10b981", items: [
+    { name: "Financeiro", icon: DollarSign, page: "Finance" },
+    { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
+    { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
+  ]},
+  { label: "Ferramentas", color: "#8b5cf6", items: [
+    { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+    { name: "Perfil", icon: UserCircle, page: "Profile" },
+  ]},
 ];
 
 const subscriberNavGroups = [
-  {
-    label: "Início",
-    items: [{ name: "Dashboard", icon: LayoutDashboard, page: "SubscriberDashboard" }]
-  },
-  {
-    label: "Treino",
-    items: [
-      { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
-      { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
-    ]
-  },
-  {
-    label: "Nutrição",
-    items: [{ name: "Minha Dieta", icon: Utensils, page: "MyDiet" }]
-  },
-  {
-    label: "Conta",
-    items: [{ name: "Perfil", icon: UserCircle, page: "Profile" }]
-  },
+  { label: "Início", color: "#a855f7", items: [
+    { name: "Dashboard", icon: LayoutDashboard, page: "SubscriberDashboard" },
+  ]},
+  { label: "Treino", color: "#ec4899", items: [
+    { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+    { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
+  ]},
+  { label: "Nutrição", color: "#10b981", items: [
+    { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
+  ]},
+  { label: "Conta", color: "#8b5cf6", items: [
+    { name: "Perfil", icon: UserCircle, page: "Profile" },
+  ]},
 ];
 
 const studentNavGroups = [
-  {
-    label: "Hoje",
-    items: [{ name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" }]
-  },
-  {
-    label: "Treino",
-    items: [
-      { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
-      { name: "Aprender Exercícios", icon: BookOpen, page: "LearnExercises" },
-      { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-    ]
-  },
-  {
-    label: "Nutrição",
-    items: [{ name: "Minha Dieta", icon: Utensils, page: "MyDiet" }]
-  },
-  {
-    label: "Evolução",
-    items: [
-      { name: "Progresso", icon: BarChart3, page: "Progress" },
-      { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-    ]
-  },
-  {
-    label: "Comunicação",
-    items: [{ name: "Chat", icon: MessageSquare, page: "Chat" }]
-  },
-  {
-    label: "Saúde",
-    items: [{ name: "Saúde e Exames", icon: Activity, page: "CH" }]
-  },
-  {
-    label: "Conta",
-    items: [
-      { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-      { name: "Perfil", icon: UserCircle, page: "Profile" },
-    ]
-  },
+  { label: "Hoje", color: "#a855f7", items: [
+    { name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" },
+  ]},
+  { label: "Treino", color: "#ec4899", items: [
+    { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+    { name: "Aprender Exercícios", icon: BookOpen, page: "LearnExercises" },
+    { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
+  ]},
+  { label: "Nutrição", color: "#10b981", items: [
+    { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
+  ]},
+  { label: "Evolução", color: "#f59e0b", items: [
+    { name: "Progresso", icon: BarChart3, page: "Progress" },
+    { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
+  ]},
+  { label: "Comunicação", color: "#06b6d4", items: [
+    { name: "Chat", icon: MessageSquare, page: "Chat" },
+  ]},
+  { label: "Saúde", color: "#84cc16", items: [
+    { name: "Saúde e Exames", icon: Activity, page: "CH" },
+  ]},
+  { label: "Conta", color: "#8b5cf6", items: [
+    { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+    { name: "Perfil", icon: UserCircle, page: "Profile" },
+  ]},
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -229,36 +160,43 @@ export default function Layout({ children, currentPageName }) {
     : isSubscriber ? subscriberNavGroups
     : studentNavGroups;
 
-  const NavLink = ({ item }) => {
+  const NavLink = ({ item, groupColor = "#a855f7" }) => {
     const isActive = currentPageName === item.page;
+    const c = groupColor;
     return (
-      <motion.div whileHover={{ x: isActive ? 0 : 3 }} transition={{ duration: 0.15 }}>
+      <motion.div whileHover={{ x: isActive ? 0 : 2 }} transition={{ duration: 0.13 }}>
         <Link
           to={createPageUrl(item.page)}
-          className={`
-            relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-200 mx-2
-            ${isActive
-              ? "border border-purple-500/30"
-              : "border border-transparent hover:border-purple-900/40"
-            }
-          `}
+          className="relative flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 mx-2"
           style={isActive ? {
-            background: 'linear-gradient(135deg, rgba(168,85,247,0.18), rgba(168,85,247,0.08))',
-            boxShadow: '0 0 12px rgba(168,85,247,0.12), inset 0 1px 0 rgba(168,85,247,0.1)'
-          } : {}}
+            background: `linear-gradient(135deg, ${c}1e, ${c}0d)`,
+            border: `1px solid ${c}35`,
+            boxShadow: `0 0 10px ${c}18, inset 0 1px 0 ${c}12`,
+          } : {
+            border: '1px solid transparent',
+          }}
         >
           {isActive && (
             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full"
-              style={{ background: '#c084fc', boxShadow: '0 0 8px rgba(192,132,252,1)' }} />
+              style={{ background: c, boxShadow: `0 0 7px ${c}` }} />
           )}
-          <item.icon className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${isActive ? "text-purple-400" : "text-purple-500/50"}`}
-            style={isActive ? { filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.8))' } : {}} />
-          <span className={`text-xs tracking-wide font-medium transition-colors ${
-            isActive ? "text-purple-100" : "text-purple-300/55 hover:text-purple-200"
-          }`}>{item.name}</span>
+          <item.icon
+            className="w-3.5 h-3.5 flex-shrink-0"
+            style={{
+              color: isActive ? '#fff' : `${c}66`,
+              filter: isActive ? `drop-shadow(0 0 4px #fff) drop-shadow(0 0 7px ${c})` : `drop-shadow(0 0 2px ${c}44)`,
+            }}
+          />
+          <span className="text-xs font-medium leading-tight"
+            style={{
+              color: isActive ? '#ffffff' : 'rgba(210,180,240,0.6)',
+              textShadow: isActive ? `0 0 8px ${c}, 0 0 18px ${c}88` : 'none',
+            }}>
+            {item.name}
+          </span>
           {isActive && (
             <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
-              style={{ background: '#c084fc', boxShadow: '0 0 6px rgba(192,132,252,0.9)' }} />
+              style={{ background: c, boxShadow: `0 0 6px ${c}` }} />
           )}
         </Link>
       </motion.div>
@@ -320,13 +258,20 @@ export default function Layout({ children, currentPageName }) {
         <nav className="flex-1 py-3 overflow-y-auto scrollbar-thin">
           {navGroups.map((group) => (
             <div key={group.label} className="mb-3">
-              <p className="text-[9px] uppercase tracking-[0.3em] font-bold px-5 mb-1.5"
-                style={{ color: 'rgba(192,132,252,0.45)', letterSpacing: '0.35em' }}>
-                {group.label}
-              </p>
+              <div className="flex items-center gap-1.5 px-5 mb-1.5">
+                <div className="h-px flex-1"
+                  style={{ background: `linear-gradient(90deg, ${group.color}55, transparent)` }} />
+                <p className="text-[8px] uppercase tracking-[0.28em] font-bold font-mono-cyber whitespace-nowrap"
+                  style={{
+                    color: group.color,
+                    textShadow: `0 0 6px ${group.color}, 0 0 14px ${group.color}55`,
+                  }}>
+                  {group.label}
+                </p>
+              </div>
               <div className="space-y-0.5">
                 {group.items.map((item) => (
-                  <NavLink key={item.page} item={item} />
+                  <NavLink key={item.page} item={item} groupColor={group.color} />
                 ))}
               </div>
             </div>

@@ -117,6 +117,7 @@ export default function Students() {
     <div>
       <PageHeader
         title="Alunos"
+        accentColor="#06b6d4"
         subtitle={`${students.filter((s) => s.active !== false).length} alunos ativos`}
         action={
           <button onClick={() => setDialogOpen(true)} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium tracking-wider flex items-center gap-2">

@@ -94,6 +94,7 @@ export default function ExerciseLibrary() {
     <div>
       <PageHeader
         title="Exercícios"
+        accentColor="#ec4899"
         subtitle={`${exercises.length} exercícios cadastrados`}
         action={
           <div className="flex gap-2">

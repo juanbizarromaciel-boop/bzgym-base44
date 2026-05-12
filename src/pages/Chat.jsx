@@ -81,6 +81,7 @@ export default function Chat() {
     <div>
       <PageHeader
         title="Chat"
+        accentColor="#06b6d4"
         subtitle={isTrainer ? "Converse com seus alunos" : "Fale com seu personal trainer"}
         action={unreadCount > 0 && (
           <Badge className="bg-pink-500/20 border border-pink-500/30 text-pink-300">

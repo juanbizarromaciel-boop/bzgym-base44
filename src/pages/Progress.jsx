@@ -196,7 +196,7 @@ export default function Progress() {
 
   return (
     <div>
-      <PageHeader title="Evolução" subtitle="Volume de treino · kg × reps" />
+      <PageHeader title="Evolução" accentColor="#f59e0b" subtitle="Volume de treino · kg × reps" />
 
       <div className="flex flex-wrap gap-3 mb-6">
         {isAdmin && (

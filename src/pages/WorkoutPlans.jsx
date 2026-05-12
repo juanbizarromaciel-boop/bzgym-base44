@@ -143,6 +143,7 @@ export default function WorkoutPlans() {
     <div>
       <PageHeader
         title="Treinos"
+        accentColor="#ec4899"
         subtitle="Monte treinos personalizados para seus alunos"
         action={
           <button onClick={() => setPlanDialogOpen(true)} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium tracking-wider flex items-center gap-2">

@@ -72,6 +72,7 @@ export default function Diet() {
     <div>
       <PageHeader
         title="Dietas"
+        accentColor="#10b981"
         subtitle="Planos nutricionais dos alunos"
         action={
           <button onClick={openCreate} className="btn-neon-purple px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 tracking-wider">
