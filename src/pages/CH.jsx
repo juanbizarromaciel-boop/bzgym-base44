@@ -54,10 +54,10 @@ export default function CH() {
   useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
-      if (u.role !== "admin") {
-        base44.entities.Student.list().then(students => {
-          const found = students.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
-          setStudent(found);
+      if (u.role !== "admin" && u.role !== "personal") {
+        base44.entities.Student.list().then(allStudents => {
+          const found = allStudents.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
+          setStudent(found || null);
         });
       }
     });
@@ -70,13 +70,15 @@ export default function CH() {
   });
 
   const { data: cycles = [] } = useQuery({
-    queryKey: ["cycles"],
-    queryFn: () => base44.entities.Cycle.list("-created_date", 100)
+    queryKey: ["cycles", user?.role, student?.id],
+    queryFn: () => base44.entities.Cycle.list("-created_date", 100),
+    enabled: !!user && (user.role === "admin" || !!student)
   });
 
   const { data: substances = [] } = useQuery({
-    queryKey: ["substances"],
-    queryFn: () => base44.entities.CycleSubstance.list("-created_date", 200)
+    queryKey: ["substances", user?.role, student?.id],
+    queryFn: () => base44.entities.CycleSubstance.list("-created_date", 200),
+    enabled: !!user && (user.role === "admin" || !!student)
   });
 
   const createCycleMut = useMutation({
@@ -185,9 +187,13 @@ export default function CH() {
   const getStudentName = (studentId) => students.find(st => st.id === studentId)?.name || "Aluno";
   const toggleCycleExpand = (cycleId) => setExpandedCycles(prev => ({ ...prev, [cycleId]: !prev[cycleId] }));
 
-  const filteredCycles = cycles.filter(c =>
-    user?.role === "admin" ? c.active : c.active
-  );
+  const filteredCycles = cycles.filter(c => {
+    if (!c.active) return false;
+    if (user?.role === "admin") return true;
+    // Aluno: filtrar pelos ciclos do seu próprio student record
+    if (student) return c.student_id === student.id;
+    return false;
+  });
 
   const cyclesByStudent = filteredCycles.reduce((acc, cycle) => {
     if (!acc[cycle.student_id]) acc[cycle.student_id] = [];
