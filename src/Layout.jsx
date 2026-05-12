@@ -4,12 +4,13 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
-  Library, LayoutDashboard, Utensils, BookOpen, Activity, GraduationCap,
+  Dumbbell, Users, ClipboardList, BarChart3, Timer,
+  Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
   Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase
 } from "lucide-react";
 import NotificationBell from "./components/notifications/NotificationBell";
+import CyberNav from "./components/navigation/CyberNav";
 
 const adminNavGroups = [
   {
@@ -50,15 +51,11 @@ const adminNavGroups = [
   },
   {
     label: "Comunicação",
-    items: [
-      { name: "Chat", icon: MessageSquare, page: "Chat" },
-    ]
+    items: [{ name: "Chat", icon: MessageSquare, page: "Chat" }]
   },
   {
     label: "Saúde",
-    items: [
-      { name: "Saúde e Exames", icon: Activity, page: "CH" },
-    ]
+    items: [{ name: "Saúde e Exames", icon: Activity, page: "CH" }]
   },
   {
     label: "Inteligência Artificial",
@@ -69,9 +66,7 @@ const adminNavGroups = [
   },
   {
     label: "Administração",
-    items: [
-      { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
-    ]
+    items: [{ name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" }]
   },
   {
     label: "Financeiro",
@@ -129,15 +124,11 @@ const personalNavGroups = [
   },
   {
     label: "Comunicação",
-    items: [
-      { name: "Chat", icon: MessageSquare, page: "Chat" },
-    ]
+    items: [{ name: "Chat", icon: MessageSquare, page: "Chat" }]
   },
   {
     label: "Saúde",
-    items: [
-      { name: "Saúde e Exames", icon: Activity, page: "CH" },
-    ]
+    items: [{ name: "Saúde e Exames", icon: Activity, page: "CH" }]
   },
   {
     label: "Financeiro",
@@ -159,9 +150,7 @@ const personalNavGroups = [
 const subscriberNavGroups = [
   {
     label: "Início",
-    items: [
-      { name: "Dashboard", icon: LayoutDashboard, page: "SubscriberDashboard" },
-    ]
+    items: [{ name: "Dashboard", icon: LayoutDashboard, page: "SubscriberDashboard" }]
   },
   {
     label: "Treino",
@@ -172,24 +161,18 @@ const subscriberNavGroups = [
   },
   {
     label: "Nutrição",
-    items: [
-      { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
-    ]
+    items: [{ name: "Minha Dieta", icon: Utensils, page: "MyDiet" }]
   },
   {
     label: "Conta",
-    items: [
-      { name: "Perfil", icon: UserCircle, page: "Profile" },
-    ]
+    items: [{ name: "Perfil", icon: UserCircle, page: "Profile" }]
   },
 ];
 
 const studentNavGroups = [
   {
     label: "Hoje",
-    items: [
-      { name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" },
-    ]
+    items: [{ name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" }]
   },
   {
     label: "Treino",
@@ -201,9 +184,7 @@ const studentNavGroups = [
   },
   {
     label: "Nutrição",
-    items: [
-      { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
-    ]
+    items: [{ name: "Minha Dieta", icon: Utensils, page: "MyDiet" }]
   },
   {
     label: "Evolução",
@@ -214,15 +195,11 @@ const studentNavGroups = [
   },
   {
     label: "Comunicação",
-    items: [
-      { name: "Chat", icon: MessageSquare, page: "Chat" },
-    ]
+    items: [{ name: "Chat", icon: MessageSquare, page: "Chat" }]
   },
   {
     label: "Saúde",
-    items: [
-      { name: "Saúde e Exames", icon: Activity, page: "CH" },
-    ]
+    items: [{ name: "Saúde e Exames", icon: Activity, page: "CH" }]
   },
   {
     label: "Conta",
@@ -234,7 +211,6 @@ const studentNavGroups = [
 ];
 
 export default function Layout({ children, currentPageName }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [role, setRole] = useState(null);
   const [userName, setUserName] = useState("");
 
@@ -248,48 +224,51 @@ export default function Layout({ children, currentPageName }) {
   const isAdmin = role === "admin";
   const isPersonal = role === "personal";
   const isSubscriber = role === "assinante";
-  const navGroups = isAdmin ? adminNavGroups : isPersonal ? personalNavGroups : isSubscriber ? subscriberNavGroups : studentNavGroups;
+  const navGroups = isAdmin ? adminNavGroups
+    : isPersonal ? personalNavGroups
+    : isSubscriber ? subscriberNavGroups
+    : studentNavGroups;
 
   const NavLink = ({ item }) => {
     const isActive = currentPageName === item.page;
     return (
       <motion.div whileHover={{ x: isActive ? 0 : 3 }} transition={{ duration: 0.15 }}>
-      <Link
-        to={createPageUrl(item.page)}
-        onClick={() => setSidebarOpen(false)}
-        className={`
-          relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-200 mx-2
-          ${isActive
-            ? "border border-purple-500/30"
-            : "border border-transparent hover:border-purple-900/40"
-          }
-        `}
-        style={isActive ? {
-          background: 'linear-gradient(135deg, rgba(168,85,247,0.18), rgba(168,85,247,0.08))',
-          boxShadow: '0 0 12px rgba(168,85,247,0.12), inset 0 1px 0 rgba(168,85,247,0.1)'
-        } : {}}
-      >
-        {isActive && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full"
-            style={{ background: '#c084fc', boxShadow: '0 0 8px rgba(192,132,252,1)' }} />
-        )}
-        <item.icon className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${isActive ? "text-purple-400" : "text-purple-500/50"}`}
-          style={isActive ? { filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.8))' } : {}} />
-        <span className={`text-xs tracking-wide font-medium transition-colors ${
-          isActive ? "text-purple-100" : "text-purple-300/55 hover:text-purple-200"
-        }`}>{item.name}</span>
-        {isActive && (
-          <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
-            style={{ background: '#c084fc', boxShadow: '0 0 6px rgba(192,132,252,0.9)' }} />
-        )}
-      </Link>
+        <Link
+          to={createPageUrl(item.page)}
+          className={`
+            relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all duration-200 mx-2
+            ${isActive
+              ? "border border-purple-500/30"
+              : "border border-transparent hover:border-purple-900/40"
+            }
+          `}
+          style={isActive ? {
+            background: 'linear-gradient(135deg, rgba(168,85,247,0.18), rgba(168,85,247,0.08))',
+            boxShadow: '0 0 12px rgba(168,85,247,0.12), inset 0 1px 0 rgba(168,85,247,0.1)'
+          } : {}}
+        >
+          {isActive && (
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full"
+              style={{ background: '#c084fc', boxShadow: '0 0 8px rgba(192,132,252,1)' }} />
+          )}
+          <item.icon className={`w-3.5 h-3.5 flex-shrink-0 transition-colors ${isActive ? "text-purple-400" : "text-purple-500/50"}`}
+            style={isActive ? { filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.8))' } : {}} />
+          <span className={`text-xs tracking-wide font-medium transition-colors ${
+            isActive ? "text-purple-100" : "text-purple-300/55 hover:text-purple-200"
+          }`}>{item.name}</span>
+          {isActive && (
+            <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
+              style={{ background: '#c084fc', boxShadow: '0 0 6px rgba(192,132,252,0.9)' }} />
+          )}
+        </Link>
       </motion.div>
     );
   };
 
   return (
     <div className="min-h-screen bg-[#02020a] bg-grid text-white" style={{ color: '#f0e6ff' }}>
-      {/* Mobile Header */}
+
+      {/* Mobile Header — apenas no mobile, usando CyberNav */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black/97 backdrop-blur-md border-b border-purple-900/20 px-4 py-3 flex items-center justify-between">
         <div className="flex items-baseline gap-0.5">
           <span className="font-cyber font-black text-2xl leading-none select-none italic"
@@ -299,30 +278,21 @@ export default function Layout({ children, currentPageName }) {
         </div>
         <div className="flex items-center gap-2">
           <NotificationBell />
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-purple-400 hover:text-white p-1.5 rounded-lg hover:bg-purple-500/10 transition-all"
-          >
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          {/* ⚡ CyberNav — substitui o menu de 3 traços */}
+          <CyberNav role={role} currentPageName={currentPageName} userName={userName} />
         </div>
       </div>
 
-      {/* Sidebar */}
-      <aside className={`
-        fixed top-0 left-0 h-full w-60 z-40
-        border-r
-        transition-transform duration-300 ease-out flex flex-col
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0
-      `} style={{
-        background: 'linear-gradient(180deg, rgba(8,4,22,0.99) 0%, rgba(4,2,14,0.99) 100%)',
-        borderColor: 'rgba(168,85,247,0.18)',
-        boxShadow: '4px 0 30px rgba(0,0,0,0.6), inset -1px 0 0 rgba(168,85,247,0.08)'
-      }}>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex fixed top-0 left-0 h-full w-60 z-40 flex-col border-r"
+        style={{
+          background: 'linear-gradient(180deg, rgba(8,4,22,0.99) 0%, rgba(4,2,14,0.99) 100%)',
+          borderColor: 'rgba(168,85,247,0.18)',
+          boxShadow: '4px 0 30px rgba(0,0,0,0.6), inset -1px 0 0 rgba(168,85,247,0.08)'
+        }}>
 
         {/* Logo */}
-        <div className="px-5 py-4 border-b border-purple-900/15 hidden lg:block">
+        <div className="px-5 py-4 border-b border-purple-900/15">
           <div className="flex items-baseline gap-1">
             <span className="font-cyber font-black text-3xl leading-none select-none italic"
               style={{ color: '#ffffff', textShadow: '0 0 10px rgba(168,85,247,0.8)' }}>B</span>
@@ -335,10 +305,7 @@ export default function Layout({ children, currentPageName }) {
         {/* Role Badge */}
         <div className="px-4 py-3 border-b border-purple-900/15">
           <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border
-            ${isAdmin
-              ? "border-purple-500/15 bg-purple-500/6"
-              : "border-cyan-500/15 bg-cyan-500/6"
-            }`}>
+            ${isAdmin ? "border-purple-500/15 bg-purple-500/6" : "border-cyan-500/15 bg-cyan-500/6"}`}>
             <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isAdmin ? "bg-purple-400" : "bg-cyan-400"}`} />
             <span className={`text-[10px] font-medium tracking-widest uppercase ${isAdmin ? "text-purple-400/75" : isPersonal ? "text-cyan-400/75" : isSubscriber ? "text-yellow-400/75" : "text-emerald-400/75"}`}>
               {isAdmin ? "Administrador" : isPersonal ? "Personal Trainer" : isSubscriber ? "Assinante" : "Aluno"}
@@ -350,7 +317,7 @@ export default function Layout({ children, currentPageName }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-3 overflow-y-auto mt-12 lg:mt-0 scrollbar-thin">
+        <nav className="flex-1 py-3 overflow-y-auto scrollbar-thin">
           {navGroups.map((group) => (
             <div key={group.label} className="mb-3">
               <p className="text-[9px] uppercase tracking-[0.3em] font-bold px-5 mb-1.5"
@@ -371,17 +338,6 @@ export default function Layout({ children, currentPageName }) {
           <p className="text-[9px] text-purple-500/15 font-mono-cyber tracking-widest">BZ · GYM SYSTEM</p>
         </div>
       </aside>
-
-      {/* Mobile Overlay */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            className="fixed inset-0 bg-black/75 z-30 lg:hidden"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setSidebarOpen(false)} />
-        )}
-      </AnimatePresence>
 
       {/* Main Content */}
       <main className="lg:ml-60 pt-16 lg:pt-0 min-h-screen">
