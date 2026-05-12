@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import MuscleMap from "../components/workout/MuscleMap";
+import { motion } from "framer-motion";
+import { fadeUp, stagger, scaleIn, slideLeft, pageTransition } from "@/lib/animations";
 
 const GOAL_LABELS = {
   hipertrofia: "HIPERTROFIA", emagrecimento: "EMAGRECIMENTO",
@@ -86,10 +88,11 @@ export default function StudentDashboard() {
   ];
 
   return (
-    <div className="space-y-8 max-w-4xl">
+    <motion.div className="space-y-8 max-w-4xl"
+      variants={pageTransition} initial="hidden" animate="show">
 
       {/* Header */}
-      <div className="relative">
+      <motion.div className="relative" variants={fadeUp}>
         <p className="text-[10px] font-mono-cyber text-purple-500/35 tracking-[0.3em] uppercase mb-2">{todayDate}</p>
         <h1 className="font-cyber text-3xl md:text-4xl text-white tracking-widest leading-none"
           style={{ textShadow: '0 0 30px rgba(168,85,247,0.3)' }}>
@@ -113,10 +116,11 @@ export default function StudentDashboard() {
           )}
         </div>
         <div className="mt-5 h-px bg-gradient-to-r from-purple-500/30 via-purple-500/10 to-transparent" />
-      </div>
+      </motion.div>
 
       {/* Today's Workout Card */}
-      <div className="relative rounded-2xl p-6 border overflow-hidden transition-all"
+      <motion.div variants={scaleIn}
+        className="relative rounded-2xl p-6 border overflow-hidden"
         style={{
           background: todayPlan
             ? 'radial-gradient(ellipse at top left, rgba(168,85,247,0.08), transparent 60%), rgba(4,4,12,0.95)'
@@ -171,10 +175,11 @@ export default function StudentDashboard() {
             </span>
           ) : null}
         </div>
-      </div>
+      </motion.div>
 
       {/* Message Alert */}
       {unreadMessages.length > 0 && (
+        <motion.div variants={slideLeft}>
         <Link to="/Chat"
           className="flex items-center gap-3 px-5 py-3.5 rounded-xl border border-cyan-500/25 bg-cyan-500/5 text-cyan-300 hover:bg-cyan-500/8 transition-all group">
           <div className="w-2 h-2 rounded-full bg-cyan-400 neon-dot flex-shrink-0" />
@@ -184,12 +189,15 @@ export default function StudentDashboard() {
           </span>
           <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-60 -translate-x-1 group-hover:translate-x-0 transition-all" />
         </Link>
+        </motion.div>
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+        variants={stagger(0.08)} initial="hidden" animate="show">
         {stats.map((s, i) => (
-          <div key={i} className="relative rounded-xl p-5 border overflow-hidden"
+          <motion.div key={i} variants={scaleIn} whileHover={{ scale: 1.04, transition: { duration: 0.15 } }}
+            className="relative rounded-xl p-5 border overflow-hidden"
             style={{
               background: `radial-gradient(ellipse at top left, ${s.glow}, transparent 70%), rgba(4,4,12,0.95)`,
               borderColor: `${s.accent}22`,
@@ -201,16 +209,18 @@ export default function StudentDashboard() {
               {s.value}
             </p>
             <p className="text-[10px] text-purple-400/40 font-mono-cyber mt-1 uppercase tracking-wider">{s.label}</p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Quick Actions */}
-      <div>
+      <motion.div variants={fadeUp}>
         <p className="text-[10px] font-mono-cyber text-purple-500/35 uppercase tracking-[0.25em] mb-3">▸ acesso rápido</p>
-        <div className="grid grid-cols-4 gap-3">
+        <motion.div className="grid grid-cols-4 gap-3"
+          variants={stagger(0.07)} initial="hidden" animate="show">
           {quickActions.map((a, i) => (
-            <a key={i} href={a.href}
+            <motion.div key={i} variants={fadeUp} whileHover={{ scale: 1.06, transition: { duration: 0.15 } }}>
+            <a href={a.href}
               className="flex flex-col items-center gap-3 p-4 rounded-xl border border-purple-900/20 bg-black/50 hover:bg-black/80 transition-all group">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110"
                 style={{ background: `${a.accent}15`, border: `1px solid ${a.accent}25` }}>
@@ -218,31 +228,35 @@ export default function StudentDashboard() {
               </div>
               <span className="text-xs font-medium text-white/55 group-hover:text-white/90 transition-colors text-center">{a.label}</span>
             </a>
+            </motion.div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Muscle Map */}
       {allExercises.length > 0 && (
-        <div className="rounded-2xl p-6 border border-purple-900/20 bg-black/40">
+        <motion.div variants={scaleIn}
+          className="rounded-2xl p-6 border border-purple-900/20 bg-black/40">
           <div className="flex items-center gap-2 mb-5">
             <Activity className="w-4 h-4 text-purple-400" />
             <p className="text-[11px] font-mono-cyber text-purple-400/60 uppercase tracking-[0.2em]">Mapa Muscular</p>
           </div>
           <MuscleMap exercises={allExercises} size="lg" showLabels={true} />
-        </div>
+        </motion.div>
       )}
 
       {/* My Plans */}
       {myPlans.length > 0 && (
-        <div>
+        <motion.div variants={fadeUp}>
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-mono-cyber text-purple-500/35 uppercase tracking-[0.25em]">▸ meus treinos</p>
             <a href="/MyWorkout" className="text-[11px] text-purple-400/50 hover:text-purple-400 transition-colors font-mono-cyber">ver todos →</a>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-3"
+            variants={stagger(0.07)} initial="hidden" animate="show">
             {myPlans.slice(0, 4).map((plan, i) => (
-              <a key={i} href="/MyWorkout"
+              <motion.div key={i} variants={slideLeft} whileHover={{ x: 3, transition: { duration: 0.15 } }}>
+              <a href="/MyWorkout"
                 className="flex items-center gap-4 p-4 rounded-xl border border-purple-900/20 bg-black/40 hover:border-purple-500/25 transition-all group"
                 style={{ background: 'rgba(4,4,12,0.8)' }}>
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -257,11 +271,12 @@ export default function StudentDashboard() {
                 </div>
                 <ChevronRight className="w-4 h-4 text-purple-500/20 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all" />
               </a>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
-    </div>
+    </motion.div>
   );
 }

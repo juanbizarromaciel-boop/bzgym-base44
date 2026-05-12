@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { motion } from "framer-motion";
+import { fadeUp, stagger, scaleIn, slideLeft, pageTransition } from "@/lib/animations";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -97,10 +99,11 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-8 max-w-5xl">
+    <motion.div className="space-y-8 max-w-5xl"
+      variants={pageTransition} initial="hidden" animate="show">
 
       {/* Header */}
-      <div className="relative">
+      <motion.div className="relative" variants={fadeUp}>
         <p className="text-[10px] font-mono-cyber tracking-[0.35em] uppercase mb-3"
           style={{ color: 'rgba(192,132,252,0.6)' }}>
           ◈ {todayDate}
@@ -131,11 +134,11 @@ export default function Dashboard() {
           <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, rgba(168,85,247,0.6), rgba(6,182,212,0.3), transparent)' }} />
           <div className="w-2 h-px bg-purple-500/60" />
         </div>
-      </div>
+      </motion.div>
 
       {/* Alerts */}
       {alerts.length > 0 && (
-        <div>
+        <motion.div variants={fadeUp}>
           <div className="flex items-center gap-2 mb-3">
             <Bell className="w-3.5 h-3.5" style={{ color: 'rgba(192,132,252,0.7)' }} />
             <p className="text-[10px] font-mono-cyber uppercase tracking-[0.3em]" style={{ color: 'rgba(192,132,252,0.6)' }}>Alertas do Sistema</p>
@@ -144,24 +147,29 @@ export default function Dashboard() {
               {alerts.length}
             </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-2"
+            variants={stagger(0.06)} initial="hidden" animate="show">
             {alerts.map((alert, i) => (
-              <Link key={i} to={alert.link}
-                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all hover:brightness-125 hover:scale-[1.01] group ${alertStyle[alert.color]}`}
-                style={{ backdropFilter: 'blur(8px)' }}>
-                <alert.icon className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm flex-1 font-semibold">{alert.text}</span>
-                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-70 -translate-x-1 group-hover:translate-x-0 transition-all" />
-              </Link>
+              <motion.div key={i} variants={slideLeft}>
+                <Link to={alert.link}
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all hover:brightness-125 hover:scale-[1.01] group ${alertStyle[alert.color]}`}
+                  style={{ backdropFilter: 'blur(8px)' }}>
+                  <alert.icon className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm flex-1 font-semibold">{alert.text}</span>
+                  <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-70 -translate-x-1 group-hover:translate-x-0 transition-all" />
+                </Link>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+        variants={stagger(0.08)} initial="hidden" animate="show">
         {stats.map((s, i) => (
-          <div key={i} className="relative rounded-xl p-5 border overflow-hidden transition-all hover:scale-[1.02] cursor-default"
+          <motion.div key={i} variants={scaleIn} whileHover={{ scale: 1.03, transition: { duration: 0.18 } }}
+            className="relative rounded-xl p-5 border overflow-hidden cursor-default"
             style={{
               background: `radial-gradient(ellipse at top left, ${s.glow}, transparent 65%), rgba(6,4,18,0.95)`,
               borderColor: `${s.accent}30`,
@@ -181,17 +189,19 @@ export default function Dashboard() {
             </p>
             <p className="text-sm mt-1.5 font-semibold" style={{ color: 'rgba(240,230,255,0.85)' }}>{s.label}</p>
             <p className="text-[11px] font-mono-cyber mt-0.5" style={{ color: 'rgba(192,132,252,0.55)' }}>{s.sub}</p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Quick Actions */}
-      <div>
+      <motion.div variants={fadeUp}>
         <p className="text-[10px] font-mono-cyber uppercase tracking-[0.3em] mb-3"
           style={{ color: 'rgba(192,132,252,0.55)' }}>▸ ações rápidas</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <motion.div className="grid grid-cols-2 md:grid-cols-4 gap-3"
+          variants={stagger(0.07)} initial="hidden" animate="show">
           {quickActions.map((a, i) => (
-            <Link key={i} to={createPageUrl(a.page)}
+            <motion.div key={i} variants={fadeUp} whileHover={{ scale: 1.04, transition: { duration: 0.15 } }}>
+            <Link to={createPageUrl(a.page)}
               className="relative flex flex-col items-center gap-3 p-5 rounded-xl border transition-all group overflow-hidden hover:scale-[1.03]"
               style={{
                 borderColor: `${a.accent}22`,
@@ -214,12 +224,13 @@ export default function Dashboard() {
               <span className="relative text-xs font-semibold text-center transition-colors"
                 style={{ color: 'rgba(240,230,255,0.7)' }}>{a.label}</span>
             </Link>
+            </motion.div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Recent Sessions */}
-      <div>
+      <motion.div variants={fadeUp}>
         <div className="flex items-center justify-between mb-3">
           <p className="text-[10px] font-mono-cyber uppercase tracking-[0.3em]"
             style={{ color: 'rgba(192,132,252,0.55)' }}>▸ feed de treinos</p>
@@ -252,7 +263,11 @@ export default function Dashboard() {
                 const student = getStudent(session.student_id);
                 const plan = getPlan(session.plan_id);
                 return (
-                  <div key={i} className="flex items-center gap-4 px-5 py-3.5 transition-colors group"
+                  <motion.div key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05, duration: 0.3, ease: [0.22,1,0.36,1] }}
+                    className="flex items-center gap-4 px-5 py-3.5 transition-colors group"
                     style={{ ':hover': { background: 'rgba(168,85,247,0.04)' } }}
                     onMouseEnter={e => e.currentTarget.style.background='rgba(168,85,247,0.04)'}
                     onMouseLeave={e => e.currentTarget.style.background='transparent'}>
@@ -275,14 +290,14 @@ export default function Dashboard() {
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" style={{ boxShadow: '0 0 8px rgba(16,185,129,0.9)' }} />
                       <span className="text-[11px] font-mono-cyber" style={{ color: 'rgba(192,132,252,0.45)' }}>{formatDate(session.date)}</span>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
 
-    </div>
+    </motion.div>
   );
 }

@@ -11,6 +11,8 @@ import {
   Settings, Zap, Shield, Library, BrainCircuit, Camera
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { fadeUp, stagger, scaleIn, pageTransition } from "@/lib/animations";
 
 export default function AICoach() {
   const [settings, setSettings] = useState(null);
@@ -32,9 +34,10 @@ export default function AICoach() {
   }
 
   return (
-    <div className="max-w-5xl">
+    <motion.div className="max-w-5xl"
+      variants={pageTransition} initial="hidden" animate="show">
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div className="relative mb-8 rounded-2xl overflow-hidden"
+      <motion.div className="relative mb-8 rounded-2xl overflow-hidden" variants={scaleIn}
         style={{
           background: 'linear-gradient(145deg, #0d0820 0%, #080418 50%, #060214 100%)',
           border: '1px solid rgba(168,85,247,0.25)',
@@ -123,11 +126,11 @@ export default function AICoach() {
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* ── Warning if disabled ─────────────────────────────────── */}
       {settings && !settings.enabled && (
-        <div className="mb-6 p-4 rounded-xl border flex items-start gap-3"
+        <motion.div className="mb-6 p-4 rounded-xl border flex items-start gap-3" variants={fadeUp}
           style={{ borderColor: 'rgba(245,158,11,0.25)', background: 'rgba(245,158,11,0.06)' }}>
           <Zap className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
           <div>
@@ -137,10 +140,11 @@ export default function AICoach() {
               <Link to="/AISettings" className="text-amber-400 hover:underline">Ativar nas configurações →</Link>
             </p>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* ── Tabs ────────────────────────────────────────────────── */}
+      <motion.div variants={fadeUp}>
       <Tabs defaultValue="food">
         <TabsList className="w-full mb-6 p-1 rounded-xl gap-1"
           style={{ background: 'rgba(6,4,18,0.97)', border: '1px solid rgba(168,85,247,0.18)' }}>
@@ -150,11 +154,11 @@ export default function AICoach() {
             { value: "workout", icon: Dumbbell, label: "TREINO" },
             { value: "exercises", icon: Library, label: "EXERCÍCIOS" },
             { value: "photo", icon: Camera, label: "FOTO IA" },
-          ].map(({ value, icon: Icon, label }) => (
+          ].map(({ value, icon: TabIcon, label }) => (
             <TabsTrigger key={value} value={value}
               className="flex-1 flex items-center justify-center gap-1.5 rounded-lg text-[10px] sm:text-xs font-semibold tracking-wider py-2.5 transition-all data-[state=active]:text-white data-[state=inactive]:text-purple-500/40"
               style={{ '--tw-ring-color': 'transparent' }}>
-              <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <TabIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">{label}</span>
               <span className="sm:hidden">{label.slice(0, 4)}</span>
             </TabsTrigger>
@@ -162,21 +166,32 @@ export default function AICoach() {
         </TabsList>
 
         <TabsContent value="food">
-          <AIFoodGenerator settings={settings} />
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <AIFoodGenerator settings={settings} />
+          </motion.div>
         </TabsContent>
         <TabsContent value="diet">
-          <AIDietGenerator settings={settings} />
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <AIDietGenerator settings={settings} />
+          </motion.div>
         </TabsContent>
         <TabsContent value="workout">
-          <AIWorkoutGenerator settings={settings} />
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <AIWorkoutGenerator settings={settings} />
+          </motion.div>
         </TabsContent>
         <TabsContent value="exercises">
-          <AIExerciseManager settings={settings} />
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <AIExerciseManager settings={settings} />
+          </motion.div>
         </TabsContent>
         <TabsContent value="photo">
-          <AIImageAnalyzer settings={settings} />
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <AIImageAnalyzer settings={settings} />
+          </motion.div>
         </TabsContent>
       </Tabs>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

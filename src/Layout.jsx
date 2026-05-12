@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer, Menu, X,
   Library, LayoutDashboard, Utensils, BookOpen, Activity, GraduationCap,
@@ -252,6 +253,7 @@ export default function Layout({ children, currentPageName }) {
   const NavLink = ({ item }) => {
     const isActive = currentPageName === item.page;
     return (
+      <motion.div whileHover={{ x: isActive ? 0 : 3 }} transition={{ duration: 0.15 }}>
       <Link
         to={createPageUrl(item.page)}
         onClick={() => setSidebarOpen(false)}
@@ -281,6 +283,7 @@ export default function Layout({ children, currentPageName }) {
             style={{ background: '#c084fc', boxShadow: '0 0 6px rgba(192,132,252,0.9)' }} />
         )}
       </Link>
+      </motion.div>
     );
   };
 
@@ -370,18 +373,28 @@ export default function Layout({ children, currentPageName }) {
       </aside>
 
       {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/75 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/75 z-30 lg:hidden"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setSidebarOpen(false)} />
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
       <main className="lg:ml-60 pt-16 lg:pt-0 min-h-screen">
         <div className="hidden lg:block fixed top-5 right-6 z-30">
           <NotificationBell />
         </div>
-        <div className="p-4 md:p-8">
+        <motion.div className="p-4 md:p-8"
+          key={typeof window !== 'undefined' ? window.location.pathname : 'page'}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
           {children}
-        </div>
+        </motion.div>
       </main>
     </div>
   );
