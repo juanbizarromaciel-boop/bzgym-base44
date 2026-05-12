@@ -98,6 +98,13 @@ function BulkCommandPanel({ exercises, onRefresh }) {
     }
   };
 
+  const getYouTubeEmbed = (url) => {
+    if (!url) return null;
+    if (url.includes("youtube.com/embed/")) return url;
+    const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+  };
+
   // Parse manual "ExerciseName\nFoto: url\nVídeo: url" blocks from command text
   const parseManualLinks = () => {
     const lines = command.split("\n");
@@ -114,7 +121,11 @@ function BulkCommandPanel({ exercises, onRefresh }) {
       if (fotoMatch) {
         if (current) current.image_url = fotoMatch[1].trim();
       } else if (videoMatch) {
-        if (current) current.video_url = videoMatch[1].trim();
+        if (current) {
+          const rawUrl = videoMatch[1].trim();
+          // Convert YouTube watch URLs to embed format
+          current.video_url = getYouTubeEmbed(rawUrl) || rawUrl;
+        }
       } else {
         // New exercise name line — find matching exercise by name (fuzzy)
         const nameClean = trimmed.toLowerCase();

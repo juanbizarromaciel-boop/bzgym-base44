@@ -23,25 +23,53 @@ function isVideo(url) {
   return url?.match(/\.(mp4|webm)(\?|$)/i);
 }
 
+function getYouTubeEmbed(url) {
+  if (!url) return null;
+  // Already an embed URL
+  if (url.includes("youtube.com/embed/")) return url;
+  // Watch URL or youtu.be
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+}
+
 /**
- * Renders exercise image (image_url, with fallback to video_url for retrocompat, then muscle default).
- * For video display use exercise.video_url separately.
+ * Renders exercise media: YouTube embed, MP4/WEBM video, image, or GIF.
+ * Priority: video_url (if video/youtube) → image_url → video_url as image (legacy) → muscle default
  */
 export default function ExerciseMediaDisplay({ exercise, maxHeight = 220, className = "" }) {
-  const [primaryFailed, setPrimaryFailed] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
   const [defaultFailed, setDefaultFailed] = useState(false);
 
-  // Priority: image_url → video_url (if it's an image/gif, not video/youtube) → muscle default
+  const videoUrl = exercise?.video_url;
   const imageUrl = exercise?.image_url;
-  const legacyUrl = exercise?.video_url && !isYouTubeEmbed(exercise?.video_url) && !isVideo(exercise?.video_url)
-    ? exercise.video_url
-    : null;
   const fallbackUrl = MUSCLE_DEFAULTS[exercise?.muscle_group] || MUSCLE_DEFAULTS.outro;
 
-  const primaryUrl = imageUrl || legacyUrl;
-  const url = (!primaryFailed && primaryUrl) ? primaryUrl : (!defaultFailed ? fallbackUrl : null);
+  // 1. YouTube embed (video_url is a youtube link)
+  const youtubeEmbed = getYouTubeEmbed(videoUrl);
+  if (youtubeEmbed) {
+    return (
+      <div className={`rounded-xl overflow-hidden border border-purple-900/20 bg-black/30 ${className}`}
+        style={{ aspectRatio: '16/9', maxHeight }}>
+        <iframe src={youtubeEmbed} className="w-full h-full" allowFullScreen title={exercise?.name}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+      </div>
+    );
+  }
 
-  if (!url) {
+  // 2. Direct video file (mp4/webm)
+  if (isVideo(videoUrl)) {
+    return (
+      <div className={`rounded-xl overflow-hidden border border-purple-900/20 bg-black/30 ${className}`}>
+        <video src={videoUrl} controls className="w-full object-contain" style={{ maxHeight }} />
+      </div>
+    );
+  }
+
+  // 3. Image (image_url → video_url as legacy image → muscle default)
+  const primaryUrl = imageUrl || (videoUrl && !isYouTubeEmbed(videoUrl) && !isVideo(videoUrl) ? videoUrl : null);
+  const displayUrl = (!imgFailed && primaryUrl) ? primaryUrl : (!defaultFailed ? fallbackUrl : null);
+
+  if (!displayUrl) {
     return (
       <div className={`flex flex-col items-center justify-center gap-2 rounded-xl border border-purple-900/15 ${className}`}
         style={{ minHeight: 100, background: 'rgba(168,85,247,0.03)' }}>
@@ -54,12 +82,12 @@ export default function ExerciseMediaDisplay({ exercise, maxHeight = 220, classN
   return (
     <div className={`rounded-xl overflow-hidden border border-purple-900/20 bg-black/30 ${className}`}>
       <img
-        src={url}
+        src={displayUrl}
         alt={exercise?.name}
         className="w-full object-contain"
         style={{ maxHeight }}
         onError={() => {
-          if (!primaryFailed && primaryUrl) setPrimaryFailed(true);
+          if (!imgFailed && primaryUrl) setImgFailed(true);
           else setDefaultFailed(true);
         }}
       />
