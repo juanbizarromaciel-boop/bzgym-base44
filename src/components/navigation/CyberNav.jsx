@@ -266,9 +266,9 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
             >
               <div className="flex items-center gap-2">
                 <span className="font-cyber font-black text-2xl leading-none italic"
-                  style={{ color: '#fff', textShadow: '0 0 12px rgba(168,85,247,1), 0 0 24px rgba(168,85,247,0.5)' }}>B</span>
+                  style={{ color: '#fff', textShadow: '0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(168,85,247,0.8), 0 0 40px rgba(168,85,247,0.4)' }}>B</span>
                 <span className="font-cyber font-black text-2xl leading-none italic"
-                  style={{ color: '#c084fc', textShadow: '0 0 14px rgba(192,132,252,1), 0 0 28px rgba(192,132,252,0.5)' }}>Z</span>
+                  style={{ color: '#e9d5ff', textShadow: '0 0 10px rgba(192,132,252,1), 0 0 22px rgba(192,132,252,0.8), 0 0 44px rgba(168,85,247,0.5)' }}>Z</span>
                 <motion.span
                   className="text-[8px] font-mono-cyber tracking-[0.35em] uppercase ml-1"
                   initial={{ opacity: 0 }}
@@ -351,7 +351,10 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
                       <div className="h-px flex-1"
                         style={{ background: `linear-gradient(90deg, ${group.color}60, transparent)` }} />
                       <p className="text-[7px] font-bold tracking-[0.28em] uppercase font-mono-cyber whitespace-nowrap"
-                        style={{ color: `${group.color}70` }}>
+                        style={{
+                          color: group.color,
+                          textShadow: `0 0 8px ${group.color}, 0 0 16px ${group.color}60`,
+                        }}>
                         {group.label}
                       </p>
                     </div>
@@ -388,13 +391,16 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
                                 }}>
                                 <item.icon style={{
                                   width: 10, height: 10,
-                                  color: isActive ? group.color : `${group.color}45`,
-                                  filter: isActive ? `drop-shadow(0 0 5px ${group.color})` : 'none',
+                                  color: isActive ? '#fff' : `${group.color}70`,
+                                  filter: isActive ? `drop-shadow(0 0 4px #fff) drop-shadow(0 0 8px ${group.color})` : `drop-shadow(0 0 3px ${group.color}50)`,
                                 }} />
                               </div>
                               <span
                                 className="text-[11px] font-medium leading-tight flex-1"
-                                style={{ color: isActive ? '#ede0ff' : 'rgba(170,140,210,0.48)' }}
+                                style={{
+                                  color: isActive ? '#ffffff' : 'rgba(210,180,240,0.72)',
+                                  textShadow: isActive ? `0 0 10px ${group.color}, 0 0 20px ${group.color}80` : 'none',
+                                }}
                               >
                                 {item.name}
                               </span>
