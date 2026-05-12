@@ -98,10 +98,60 @@ function BulkCommandPanel({ exercises, onRefresh }) {
     }
   };
 
+  // Parse manual "ExerciseName\nFoto: url\nVídeo: url" blocks from command text
+  const parseManualLinks = () => {
+    const lines = command.split("\n");
+    const results = [];
+    let current = null;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+
+      const fotoMatch = trimmed.match(/^(?:foto|imagem|image|photo)\s*[:：]\s*(.+)$/i);
+      const videoMatch = trimmed.match(/^(?:v[íi]deo|video)\s*[:：]\s*(.+)$/i);
+
+      if (fotoMatch) {
+        if (current) current.image_url = fotoMatch[1].trim();
+      } else if (videoMatch) {
+        if (current) current.video_url = videoMatch[1].trim();
+      } else {
+        // New exercise name line — find matching exercise by name (fuzzy)
+        const nameClean = trimmed.toLowerCase();
+        const found = exercises.find(e =>
+          e.name?.toLowerCase().includes(nameClean) ||
+          nameClean.includes(e.name?.toLowerCase())
+        );
+        if (found) {
+          current = { id: found.id, name: found.name, muscle_group: found.muscle_group, image_url: found.image_url || "", video_url: found.video_url || "" };
+          results.push(current);
+        } else {
+          current = null;
+        }
+      }
+    }
+    return results.filter(r => r.image_url || r.video_url);
+  };
+
+  const hasManualLinks = () => {
+    return /^(?:foto|imagem|image|photo|v[íi]deo|video)\s*[:：]/im.test(command);
+  };
+
   const runCommand = async () => {
     if (!command.trim()) return;
     setLoading(true);
     try {
+      // If command contains manual "Foto: url / Vídeo: url" pattern, parse directly without AI
+      if (scope === "ai_specified" && hasManualLinks()) {
+        const parsed = parseManualLinks();
+        if (parsed.length === 0) {
+          throw new Error("Nenhum exercício reconhecido. Verifique os nomes e o formato: NomeExercicio\\nFoto: url\\nVídeo: url");
+        }
+        setPreview(parsed);
+        setLoading(false);
+        return;
+      }
+
       const scopedExercises = getScopedExercises();
       const fullPrompt = command + getEditModeInstruction();
 
@@ -210,10 +260,8 @@ function BulkCommandPanel({ exercises, onRefresh }) {
           onChange={e => setCommand(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={scope === "ai_specified"
-            ? "Ex: Busque no YouTube um vídeo em português para cada exercício e preencha o video_url. Para a foto, busque um GIF de execução."
-            : editMode === "photo_only" || editMode === "media_only" || editMode === "video_only"
-              ? "Ex: Busque no YouTube vídeos em português de boa execução técnica para cada exercício e preencha o video_url. Para fotos, busque GIFs de execução."
-              : "Ex: Gere descrições técnicas em português para todos os exercícios selecionados"}
+            ? "Formato para links manuais:\nLeg Press Unilateral\nFoto: https://link-da-foto.jpg\nVídeo: https://youtube.com/watch?v=...\n\nAgachamento Livre com Barra\nFoto: https://...\nVídeo: https://..."
+            : "Ex: Gere descrições técnicas em português para todos os exercícios selecionados"}
           rows={5}
           className="w-full cyber-input rounded-xl p-3 text-sm resize-none"
           style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.25)', color: '#e9d5ff' }}
