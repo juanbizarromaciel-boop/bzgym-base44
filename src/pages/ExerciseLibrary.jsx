@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Pencil, Trash2, Dumbbell } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Dumbbell, Download } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
 
 const muscleGroups = {
@@ -74,6 +74,18 @@ export default function ExerciseLibrary() {
     editing ? updateMut.mutate({ id: editing.id, data: form }) : createMut.mutate(form);
   };
 
+  const exportNames = () => {
+    const sorted = [...exercises].sort((a, b) => a.name.localeCompare(b.name));
+    const text = sorted.map((e) => e.name).join("\n");
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "exercicios.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const filtered = exercises
     .filter((e) => e.name?.toLowerCase().includes(search.toLowerCase()))
     .filter((e) => filterGroup === "all" || e.muscle_group === filterGroup);
@@ -84,9 +96,14 @@ export default function ExerciseLibrary() {
         title="Exercícios"
         subtitle={`${exercises.length} exercícios cadastrados`}
         action={
-          <button onClick={() => setDialogOpen(true)} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium tracking-wider flex items-center gap-2">
-            <Plus className="w-4 h-4" /> NOVO EXERCÍCIO
-          </button>
+          <div className="flex gap-2">
+            <button onClick={exportNames} className="btn-neon-cyan px-4 py-2 rounded-lg text-sm font-medium tracking-wider flex items-center gap-2">
+              <Download className="w-4 h-4" /> EXPORTAR
+            </button>
+            <button onClick={() => setDialogOpen(true)} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium tracking-wider flex items-center gap-2">
+              <Plus className="w-4 h-4" /> NOVO EXERCÍCIO
+            </button>
+          </div>
         }
       />
 
