@@ -210,8 +210,10 @@ function BulkCommandPanel({ exercises, onRefresh }) {
           onChange={e => setCommand(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={scope === "ai_specified"
-            ? "Ex:\nSupino Reto\nFoto: https://link-da-foto.gif\nVídeo: https://youtube.com/watch?v=...\n\nAgachamento\nFoto: https://outro-link.gif"
-            : "Ex: Gere descrições técnicas em português para todos os exercícios selecionados"}
+            ? "Ex: Busque no YouTube um vídeo em português para cada exercício e preencha o video_url. Para a foto, busque um GIF de execução."
+            : editMode === "photo_only" || editMode === "media_only" || editMode === "video_only"
+              ? "Ex: Busque no YouTube vídeos em português de boa execução técnica para cada exercício e preencha o video_url. Para fotos, busque GIFs de execução."
+              : "Ex: Gere descrições técnicas em português para todos os exercícios selecionados"}
           rows={5}
           className="w-full cyber-input rounded-xl p-3 text-sm resize-none"
           style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.25)', color: '#e9d5ff' }}

@@ -30,11 +30,17 @@ Gere uma descrição técnica e motivacional para o exercício informado.
 Seja direto, máximo 2 frases, em português.
 Responda APENAS em JSON: {"description": "texto da descrição"}`,
 
-  exercise_bulk: `Você é uma IA especialista em educação física brasileira.
+  exercise_bulk: `Você é uma IA especialista em educação física brasileira com acesso à internet.
 Receberá uma lista de exercícios em JSON e um comando do professor.
 Execute o comando em TODOS os exercícios e retorne a lista atualizada.
 Mantenha os campos id e name intactos. Retorne APENAS JSON válido.
-Formato: {"exercises": [{id, name, muscle_group, description, image_url, video_url}, ...]}`,
+Formato: {"exercises": [{id, name, muscle_group, description, image_url, video_url}, ...]}
+
+REGRAS PARA LINKS DE MÍDIA:
+- Quando solicitado para buscar fotos/imagens: use a internet para encontrar GIFs ou imagens reais do exercício. Prefira links diretos de .gif ou .jpg de fontes confiáveis de fitness (ex: Bodybuilding.com, Muscle & Strength, etc). O link deve ser uma URL direta de imagem.
+- Quando solicitado para buscar vídeos: use a internet para encontrar o link real do YouTube do exercício em português. O campo video_url deve ser o link completo do YouTube (ex: https://www.youtube.com/watch?v=XXXX) com boa execução técnica em português.
+- NUNCA invente links. Se não encontrar um link real, deixe o campo vazio "".
+- Para buscas de mídia, pesquise ativamente na internet antes de responder.`,
 
   workout_refine: `Você é uma IA auxiliar de prescrição de treinos para professores de educação física brasileiros.
 Receberá um plano de treino completo em JSON e um pedido de alteração do professor.
@@ -102,10 +108,24 @@ Deno.serve(async (req) => {
 
     const fullPrompt = `${systemPrompt}\n\n${userMessage}`;
 
+    // exercise_bulk com busca de mídia usa modelo com internet
+    const needsInternet = type === 'exercise_bulk' && (
+      prompt.toLowerCase().includes('foto') ||
+      prompt.toLowerCase().includes('video') ||
+      prompt.toLowerCase().includes('vídeo') ||
+      prompt.toLowerCase().includes('imagem') ||
+      prompt.toLowerCase().includes('link') ||
+      prompt.toLowerCase().includes('mídia') ||
+      prompt.toLowerCase().includes('midia') ||
+      prompt.toLowerCase().includes('youtube') ||
+      prompt.toLowerCase().includes('gif')
+    );
+
     // Use Base44 InvokeLLM - no API key needed
     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: fullPrompt,
-      model: 'claude_sonnet_4_6',
+      model: needsInternet ? 'gemini_3_1_pro' : 'claude_sonnet_4_6',
+      add_context_from_internet: needsInternet,
       response_json_schema: type !== 'test' ? {
         type: 'object',
         additionalProperties: true
@@ -127,7 +147,7 @@ Deno.serve(async (req) => {
       prompt: prompt.slice(0, 500),
       response_summary: JSON.stringify(result).slice(0, 300),
       tokens_used: 0,
-      model: 'claude_sonnet_4_6',
+      model: needsInternet ? 'gemini_3_1_pro' : 'claude_sonnet_4_6',
       status: 'success'
     });
 
@@ -135,7 +155,7 @@ Deno.serve(async (req) => {
       success: true,
       data: parsed,
       tokens_used: 0,
-      model: 'claude_sonnet_4_6'
+      model: needsInternet ? 'gemini_3_1_pro' : 'claude_sonnet_4_6'
     });
 
   } catch (error) {
