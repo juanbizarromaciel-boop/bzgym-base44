@@ -31,9 +31,14 @@ const techniqueColors = {
 
 function getYoutubeEmbed(url) {
   if (!url) return null;
+  if (url.includes("youtube.com/embed/")) return url + (url.includes("?") ? "&autoplay=1" : "?autoplay=1");
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
   if (match) return `https://www.youtube.com/embed/${match[1]}?autoplay=1`;
-  return url;
+  return null; // not a youtube URL
+}
+
+function isVideoFile(url) {
+  return url?.match(/\.(mp4|webm|ogg)(\?|$)/i);
 }
 
 export default function ExerciseCard({ exercise, index, onEdit, onRemove, showActions = true, videoUrl }) {
@@ -44,6 +49,7 @@ export default function ExerciseCard({ exercise, index, onEdit, onRemove, showAc
 
   const resolvedVideoUrl = videoUrl || exercise.video_url;
   const embedUrl = getYoutubeEmbed(resolvedVideoUrl);
+  const isDirectVideo = !embedUrl && isVideoFile(resolvedVideoUrl);
 
   return (
     <>
@@ -177,11 +183,19 @@ export default function ExerciseCard({ exercise, index, onEdit, onRemove, showAc
                 allow="autoplay; encrypted-media"
               />
             </div>
+          ) : isDirectVideo ? (
+            <video
+              src={resolvedVideoUrl}
+              controls
+              autoPlay
+              className="w-full"
+              style={{ maxHeight: '60vh' }}
+            />
           ) : (
             <div className="flex flex-col items-center justify-center py-10 gap-3">
               <Video className="w-8 h-8 text-purple-500/20" />
               <p className="text-xs text-purple-500/40 font-mono-cyber text-center">
-                // vídeo ainda não foi feito,<br />mas será feito em breve!
+                // nenhum vídeo cadastrado para este exercício
               </p>
             </div>
           )}

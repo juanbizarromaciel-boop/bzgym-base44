@@ -489,15 +489,32 @@ export default function MyWorkout() {
       {/* Video Dialog */}
       <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
         <DialogContent className="bg-[#0a0a16] border-purple-500/30 text-white max-w-3xl p-0">
-          {selectedVideo && (
-            <video
-              src={selectedVideo}
-              controls
-              autoPlay
-              className="w-full rounded-lg"
-              style={{ maxHeight: '80vh' }}
-            />
-          )}
+          {selectedVideo && (() => {
+            // YouTube
+            const ytMatch = selectedVideo.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/);
+            if (ytMatch) {
+              return (
+                <div className="relative w-full rounded-lg overflow-hidden" style={{paddingBottom: '56.25%'}}>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1`}
+                    className="absolute inset-0 w-full h-full"
+                    allowFullScreen
+                    allow="autoplay; encrypted-media"
+                  />
+                </div>
+              );
+            }
+            // Direct video file
+            return (
+              <video
+                src={selectedVideo}
+                controls
+                autoPlay
+                className="w-full rounded-lg"
+                style={{ maxHeight: '80vh' }}
+              />
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>
