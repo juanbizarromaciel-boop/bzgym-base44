@@ -8,401 +8,405 @@ import {
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
   Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase,
-  Zap, X, Syringe
+  Zap, X
 } from "lucide-react";
 
-// ─── Nav groups por role ───────────────────────────────────────────────────
+// ─── Nav data ────────────────────────────────────────────────────────────────
 
 const adminNavGroups = [
-  {
-    label: "Visão Geral", color: "#a855f7",
-    items: [
-      { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
-      { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
-    ]
-  },
-  {
-    label: "Alunos", color: "#06b6d4",
-    items: [
-      { name: "Alunos", icon: Users, page: "Students" },
-      { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-    ]
-  },
-  {
-    label: "Treinos", color: "#ec4899",
-    items: [
-      { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
-      { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
-      { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
-    ]
-  },
-  {
-    label: "Evolução", color: "#f59e0b",
-    items: [
-      { name: "Progresso", icon: BarChart3, page: "Progress" },
-      { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-    ]
-  },
-  {
-    label: "Nutrição", color: "#10b981",
-    items: [
-      { name: "Dietas", icon: Utensils, page: "Diet" },
-      { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
-    ]
-  },
-  {
-    label: "Comunicação", color: "#06b6d4",
-    items: [{ name: "Chat", icon: MessageSquare, page: "Chat" }]
-  },
-  {
-    label: "Saúde", color: "#84cc16",
-    items: [
-      { name: "Saúde e Exames", icon: Activity, page: "CH" },
-    ]
-  },
-  {
-    label: "Inteligência Artificial", color: "#a855f7",
-    items: [
-      { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
-      { name: "Config. IA", icon: Settings, page: "AISettings" },
-    ]
-  },
-  {
-    label: "Administração", color: "#f97316",
-    items: [
-      { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
-    ]
-  },
-  {
-    label: "Financeiro", color: "#10b981",
-    items: [
-      { name: "Financeiro", icon: DollarSign, page: "Finance" },
-      { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
-      { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
-    ]
-  },
-  {
-    label: "Ferramentas", color: "#8b5cf6",
-    items: [
-      { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-      { name: "Perfil", icon: UserCircle, page: "Profile" },
-    ]
-  },
+  { label: "Visão Geral", color: "#a855f7", items: [
+    { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+    { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
+  ]},
+  { label: "Alunos", color: "#06b6d4", items: [
+    { name: "Alunos", icon: Users, page: "Students" },
+    { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
+  ]},
+  { label: "Treinos", color: "#ec4899", items: [
+    { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
+    { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
+    { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
+  ]},
+  { label: "Evolução", color: "#f59e0b", items: [
+    { name: "Progresso", icon: BarChart3, page: "Progress" },
+    { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
+  ]},
+  { label: "Nutrição", color: "#10b981", items: [
+    { name: "Dietas", icon: Utensils, page: "Diet" },
+    { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
+  ]},
+  { label: "Comunicação", color: "#06b6d4", items: [
+    { name: "Chat", icon: MessageSquare, page: "Chat" },
+  ]},
+  { label: "Saúde", color: "#84cc16", items: [
+    { name: "Saúde e Exames", icon: Activity, page: "CH" },
+  ]},
+  { label: "Inteligência Artificial", color: "#a855f7", items: [
+    { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
+    { name: "Config. IA", icon: Settings, page: "AISettings" },
+  ]},
+  { label: "Administração", color: "#f97316", items: [
+    { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
+  ]},
+  { label: "Financeiro", color: "#10b981", items: [
+    { name: "Financeiro", icon: DollarSign, page: "Finance" },
+    { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
+    { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
+  ]},
+  { label: "Ferramentas", color: "#8b5cf6", items: [
+    { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+    { name: "Perfil", icon: UserCircle, page: "Profile" },
+  ]},
 ];
 
 const personalNavGroups = [
-  {
-    label: "Visão Geral", color: "#a855f7",
-    items: [
-      { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
-      { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
-    ]
-  },
-  {
-    label: "Meus Alunos", color: "#06b6d4",
-    items: [
-      { name: "Alunos", icon: Users, page: "Students" },
-      { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-    ]
-  },
-  {
-    label: "Treinos", color: "#ec4899",
-    items: [
-      { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
-      { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
-      { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
-    ]
-  },
-  {
-    label: "Evolução", color: "#f59e0b",
-    items: [
-      { name: "Progresso", icon: BarChart3, page: "Progress" },
-      { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-    ]
-  },
-  {
-    label: "Nutrição", color: "#10b981",
-    items: [
-      { name: "Dietas", icon: Utensils, page: "Diet" },
-      { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
-    ]
-  },
-  {
-    label: "Comunicação", color: "#06b6d4",
-    items: [{ name: "Chat", icon: MessageSquare, page: "Chat" }]
-  },
-  {
-    label: "Saúde", color: "#84cc16",
-    items: [{ name: "Saúde e Exames", icon: Activity, page: "CH" }]
-  },
-  {
-    label: "Financeiro", color: "#10b981",
-    items: [
-      { name: "Financeiro", icon: DollarSign, page: "Finance" },
-      { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
-      { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
-    ]
-  },
-  {
-    label: "Ferramentas", color: "#8b5cf6",
-    items: [
-      { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-      { name: "Perfil", icon: UserCircle, page: "Profile" },
-    ]
-  },
+  { label: "Visão Geral", color: "#a855f7", items: [
+    { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+    { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
+  ]},
+  { label: "Meus Alunos", color: "#06b6d4", items: [
+    { name: "Alunos", icon: Users, page: "Students" },
+    { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
+  ]},
+  { label: "Treinos", color: "#ec4899", items: [
+    { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
+    { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
+    { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
+  ]},
+  { label: "Evolução", color: "#f59e0b", items: [
+    { name: "Progresso", icon: BarChart3, page: "Progress" },
+    { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
+  ]},
+  { label: "Nutrição", color: "#10b981", items: [
+    { name: "Dietas", icon: Utensils, page: "Diet" },
+    { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
+  ]},
+  { label: "Comunicação", color: "#06b6d4", items: [
+    { name: "Chat", icon: MessageSquare, page: "Chat" },
+  ]},
+  { label: "Saúde", color: "#84cc16", items: [
+    { name: "Saúde e Exames", icon: Activity, page: "CH" },
+  ]},
+  { label: "Financeiro", color: "#10b981", items: [
+    { name: "Financeiro", icon: DollarSign, page: "Finance" },
+    { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
+    { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
+  ]},
+  { label: "Ferramentas", color: "#8b5cf6", items: [
+    { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+    { name: "Perfil", icon: UserCircle, page: "Profile" },
+  ]},
 ];
 
 const studentNavGroups = [
-  {
-    label: "Hoje", color: "#a855f7",
-    items: [{ name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" }]
-  },
-  {
-    label: "Treino", color: "#ec4899",
-    items: [
-      { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
-      { name: "Aprender Exercícios", icon: BookOpen, page: "LearnExercises" },
-      { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-    ]
-  },
-  {
-    label: "Nutrição", color: "#10b981",
-    items: [{ name: "Minha Dieta", icon: Utensils, page: "MyDiet" }]
-  },
-  {
-    label: "Evolução", color: "#f59e0b",
-    items: [
-      { name: "Progresso", icon: BarChart3, page: "Progress" },
-      { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-    ]
-  },
-  {
-    label: "Comunicação", color: "#06b6d4",
-    items: [{ name: "Chat", icon: MessageSquare, page: "Chat" }]
-  },
-  {
-    label: "Saúde", color: "#84cc16",
-    items: [{ name: "Saúde e Exames", icon: Activity, page: "CH" }]
-  },
-  {
-    label: "Conta", color: "#8b5cf6",
-    items: [
-      { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-      { name: "Perfil", icon: UserCircle, page: "Profile" },
-    ]
-  },
+  { label: "Hoje", color: "#a855f7", items: [
+    { name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" },
+  ]},
+  { label: "Treino", color: "#ec4899", items: [
+    { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+    { name: "Aprender Exercícios", icon: BookOpen, page: "LearnExercises" },
+    { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
+  ]},
+  { label: "Nutrição", color: "#10b981", items: [
+    { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
+  ]},
+  { label: "Evolução", color: "#f59e0b", items: [
+    { name: "Progresso", icon: BarChart3, page: "Progress" },
+    { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
+  ]},
+  { label: "Comunicação", color: "#06b6d4", items: [
+    { name: "Chat", icon: MessageSquare, page: "Chat" },
+  ]},
+  { label: "Saúde", color: "#84cc16", items: [
+    { name: "Saúde e Exames", icon: Activity, page: "CH" },
+  ]},
+  { label: "Conta", color: "#8b5cf6", items: [
+    { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+    { name: "Perfil", icon: UserCircle, page: "Profile" },
+  ]},
 ];
 
 const subscriberNavGroups = [
-  {
-    label: "Início", color: "#a855f7",
-    items: [{ name: "Dashboard", icon: LayoutDashboard, page: "SubscriberDashboard" }]
-  },
-  {
-    label: "Treino", color: "#ec4899",
-    items: [
-      { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
-      { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
-    ]
-  },
-  {
-    label: "Nutrição", color: "#10b981",
-    items: [{ name: "Minha Dieta", icon: Utensils, page: "MyDiet" }]
-  },
-  {
-    label: "Conta", color: "#8b5cf6",
-    items: [{ name: "Perfil", icon: UserCircle, page: "Profile" }]
-  },
+  { label: "Início", color: "#a855f7", items: [
+    { name: "Dashboard", icon: LayoutDashboard, page: "SubscriberDashboard" },
+  ]},
+  { label: "Treino", color: "#ec4899", items: [
+    { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+    { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
+  ]},
+  { label: "Nutrição", color: "#10b981", items: [
+    { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
+  ]},
+  { label: "Conta", color: "#8b5cf6", items: [
+    { name: "Perfil", icon: UserCircle, page: "Profile" },
+  ]},
 ];
 
-// ─── 3 raios animados ───────────────────────────────────────────────────────
+// ─── 3 raios ─────────────────────────────────────────────────────────────────
 function ThreeZaps({ active }) {
   return (
-    <div className="flex items-center gap-0.5">
+    <div className="flex items-center gap-[2px]">
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
           animate={active
-            ? { opacity: [1, 0.4, 1], scaleY: [1, 1.35, 0.85, 1] }
-            : { opacity: 1, scaleY: 1 }
+            ? { opacity: [1, 0.3, 1], y: [0, -2, 0], scaleY: [1, 1.4, 0.9, 1] }
+            : { opacity: 0.75, y: 0, scaleY: 1 }
           }
-          transition={{ duration: 0.7, delay: i * 0.1, repeat: active ? Infinity : 0, repeatDelay: 1.2 }}
-          style={{ display: 'flex', transformOrigin: 'center' }}
+          transition={{
+            duration: 0.65, delay: i * 0.1,
+            repeat: active ? Infinity : 0, repeatDelay: 1.4
+          }}
+          style={{ transformOrigin: 'center bottom' }}
         >
-          <Zap
-            style={{
-              width: 14, height: 14,
-              color: active ? '#c084fc' : 'rgba(192,132,252,0.75)',
-              filter: active ? 'drop-shadow(0 0 5px #c084fc)' : 'none',
-              transform: `rotate(${(i - 1) * 10}deg)`,
-            }}
-          />
+          <Zap style={{
+            width: 13, height: 13,
+            color: active ? '#d8b4fe' : 'rgba(192,132,252,0.65)',
+            filter: active ? 'drop-shadow(0 0 6px #c084fc) drop-shadow(0 0 12px rgba(192,132,252,0.6))' : 'none',
+            transform: `rotate(${(i - 1) * 12}deg)`,
+          }} />
         </motion.div>
       ))}
     </div>
   );
 }
 
-// ─── Overlay portal ─────────────────────────────────────────────────────────
+// ─── Overlay ──────────────────────────────────────────────────────────────────
 function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
-  // Fechar com ESC
   useEffect(() => {
     if (!open) return;
-    const handler = (e) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    const fn = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", fn);
+    return () => window.removeEventListener("keydown", fn);
   }, [open, onClose]);
 
-  // Bloquear scroll do body quando aberto
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 16, scale: 0.96 },
-    visible: (i) => ({
-      opacity: 1, y: 0, scale: 1,
-      transition: { duration: 0.3, delay: i * 0.045, ease: [0.22, 1, 0.36, 1] }
-    }),
-    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.15 } }
-  };
 
   return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
-          key="cyber-nav-overlay"
+          key="cyber-nav"
           className="fixed inset-0 flex flex-col"
           style={{ zIndex: 9999 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
-          {/* Blur backdrop */}
-          <div
+          {/* === Backdrop com blur real === */}
+          <motion.div
             className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
             style={{
-              backdropFilter: 'blur(18px)',
-              WebkitBackdropFilter: 'blur(18px)',
-              background: 'rgba(2,2,10,0.88)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              background: 'rgba(2,2,10,0.85)',
             }}
             onClick={onClose}
           />
 
-          {/* Orbs de fundo */}
+          {/* === Orbs decorativos animados === */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div style={{
-              position: 'absolute', top: '-10%', left: '-10%',
-              width: 300, height: 300, borderRadius: '50%',
-              background: 'rgba(168,85,247,0.07)', filter: 'blur(60px)'
-            }} />
-            <div style={{
-              position: 'absolute', bottom: '-5%', right: '-5%',
-              width: 250, height: 250, borderRadius: '50%',
-              background: 'rgba(6,182,212,0.06)', filter: 'blur(60px)'
-            }} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              style={{
+                position: 'absolute', top: '-15%', left: '-10%',
+                width: 400, height: 400, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)',
+                filter: 'blur(30px)',
+              }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+              style={{
+                position: 'absolute', bottom: '-10%', right: '-8%',
+                width: 350, height: 350, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(6,182,212,0.09) 0%, transparent 70%)',
+                filter: 'blur(30px)',
+              }}
+            />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, delay: 0.15 }}
+              style={{
+                position: 'absolute', top: '40%', left: '40%',
+                width: 250, height: 250, borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(236,72,153,0.05) 0%, transparent 70%)',
+                filter: 'blur(40px)',
+              }}
+            />
           </div>
 
-          {/* Conteúdo */}
+          {/* === Conteúdo principal === */}
           <div className="relative flex flex-col h-full" style={{ zIndex: 1 }}>
 
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-              style={{ borderBottom: '1px solid rgba(168,85,247,0.12)' }}>
+            <motion.div
+              className="flex items-center justify-between px-5 py-4 flex-shrink-0"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3, delay: 0.05 }}
+              style={{ borderBottom: '1px solid rgba(168,85,247,0.12)' }}
+            >
               <div className="flex items-center gap-2">
                 <span className="font-cyber font-black text-2xl leading-none italic"
-                  style={{ color: '#fff', textShadow: '0 0 10px rgba(168,85,247,0.9)' }}>B</span>
+                  style={{ color: '#fff', textShadow: '0 0 12px rgba(168,85,247,1), 0 0 24px rgba(168,85,247,0.5)' }}>B</span>
                 <span className="font-cyber font-black text-2xl leading-none italic"
-                  style={{ color: '#c084fc', textShadow: '0 0 12px rgba(192,132,252,1)' }}>Z</span>
-                <span className="text-[9px] font-mono-cyber tracking-[0.3em] uppercase ml-1"
-                  style={{ color: 'rgba(168,85,247,0.35)' }}>NAV</span>
+                  style={{ color: '#c084fc', textShadow: '0 0 14px rgba(192,132,252,1), 0 0 28px rgba(192,132,252,0.5)' }}>Z</span>
+                <motion.span
+                  className="text-[8px] font-mono-cyber tracking-[0.35em] uppercase ml-1"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  style={{ color: 'rgba(168,85,247,0.4)' }}
+                >
+                  NAVIGATOR
+                </motion.span>
                 {userName && (
-                  <span className="ml-2 text-[10px] font-mono-cyber truncate max-w-[140px]"
-                    style={{ color: 'rgba(192,132,252,0.35)' }}>{userName}</span>
+                  <motion.span
+                    className="ml-2 text-[9px] font-mono-cyber truncate max-w-[130px]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.25 }}
+                    style={{ color: 'rgba(192,132,252,0.3)' }}
+                  >
+                    {userName}
+                  </motion.span>
                 )}
               </div>
 
               <motion.button
                 onClick={onClose}
+                whileHover={{ rotate: 90, scale: 1.1 }}
                 whileTap={{ scale: 0.85 }}
-                whileHover={{ rotate: 90 }}
                 transition={{ duration: 0.2 }}
                 className="w-9 h-9 rounded-full flex items-center justify-center"
                 style={{
                   border: '1px solid rgba(168,85,247,0.35)',
                   background: 'rgba(168,85,247,0.1)',
                   color: '#c084fc',
+                  boxShadow: '0 0 12px rgba(168,85,247,0.2)',
                 }}
               >
-                <X style={{ width: 16, height: 16 }} />
+                <X style={{ width: 15, height: 15 }} />
               </motion.button>
-            </div>
+            </motion.div>
+
+            {/* Linha neon top */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              exit={{ scaleX: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              style={{
+                height: 1, flexShrink: 0,
+                background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.8), rgba(6,182,212,0.5), rgba(236,72,153,0.3), transparent)',
+                transformOrigin: 'left',
+              }}
+            />
 
             {/* Grid de navegação */}
-            <div className="flex-1 overflow-y-auto px-4 py-4">
-              <div className="grid grid-cols-2 gap-2.5 pb-8">
+            <div className="flex-1 overflow-y-auto px-4 py-5">
+              <div className="grid grid-cols-2 gap-3 pb-10">
                 {navGroups.map((group, gi) => (
                   <motion.div
                     key={group.label}
-                    custom={gi}
-                    variants={itemVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="rounded-xl p-3"
+                    initial={{ opacity: 0, y: 20, scale: 0.94 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.96 }}
+                    transition={{
+                      duration: 0.38,
+                      delay: gi * 0.04,
+                      ease: [0.22, 1, 0.36, 1]
+                    }}
+                    className="rounded-2xl p-3 relative overflow-hidden"
                     style={{
-                      background: `linear-gradient(135deg, rgba(6,4,18,0.95), rgba(4,2,14,0.98))`,
-                      border: `1px solid ${group.color}20`,
-                      boxShadow: `0 0 24px ${group.color}08, inset 0 1px 0 ${group.color}15`,
+                      background: `linear-gradient(145deg, rgba(6,4,18,0.97) 0%, rgba(3,2,12,0.99) 100%)`,
+                      border: `1px solid ${group.color}1a`,
+                      boxShadow: `0 4px 20px rgba(0,0,0,0.4), 0 0 0 0.5px ${group.color}10, inset 0 1px 0 ${group.color}12`,
                     }}
                   >
+                    {/* Reflexo sutil no topo do card */}
+                    <div className="absolute top-0 left-0 right-0 h-px"
+                      style={{ background: `linear-gradient(90deg, transparent, ${group.color}40, transparent)` }} />
+
                     {/* Label do grupo */}
                     <div className="flex items-center gap-1.5 mb-2.5">
                       <div className="h-px flex-1"
-                        style={{ background: `linear-gradient(90deg, ${group.color}70, transparent)` }} />
-                      <p className="text-[7px] font-bold tracking-[0.3em] uppercase font-mono-cyber whitespace-nowrap"
-                        style={{ color: `${group.color}80` }}>
+                        style={{ background: `linear-gradient(90deg, ${group.color}60, transparent)` }} />
+                      <p className="text-[7px] font-bold tracking-[0.28em] uppercase font-mono-cyber whitespace-nowrap"
+                        style={{ color: `${group.color}70` }}>
                         {group.label}
                       </p>
                     </div>
 
                     {/* Itens */}
                     <div className="space-y-0.5">
-                      {group.items.map((item) => {
+                      {group.items.map((item, ii) => {
                         const isActive = currentPageName === item.page;
                         return (
-                          <Link
+                          <motion.div
                             key={item.page}
-                            to={createPageUrl(item.page)}
-                            onClick={onClose}
-                            className="flex items-center gap-2 px-2 py-2 rounded-lg transition-all"
-                            style={{
-                              background: isActive ? `${group.color}16` : 'transparent',
-                              border: isActive ? `1px solid ${group.color}30` : '1px solid transparent',
-                            }}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: gi * 0.04 + ii * 0.03 + 0.1, duration: 0.25 }}
                           >
-                            <item.icon
+                            <Link
+                              to={createPageUrl(item.page)}
+                              onClick={onClose}
+                              className="flex items-center gap-2 px-2 py-2 rounded-xl transition-all group/link"
                               style={{
-                                width: 12, height: 12, flexShrink: 0,
-                                color: isActive ? group.color : `${group.color}50`,
-                                filter: isActive ? `drop-shadow(0 0 5px ${group.color})` : 'none',
+                                background: isActive
+                                  ? `linear-gradient(135deg, ${group.color}20, ${group.color}0a)`
+                                  : 'transparent',
+                                border: isActive
+                                  ? `1px solid ${group.color}35`
+                                  : '1px solid transparent',
+                                boxShadow: isActive ? `0 0 16px ${group.color}15` : 'none',
                               }}
-                            />
-                            <span className="text-[11px] font-medium leading-tight"
-                              style={{ color: isActive ? '#f0e6ff' : 'rgba(180,150,220,0.5)' }}>
-                              {item.name}
-                            </span>
-                            {isActive && (
-                              <div className="ml-auto w-1 h-1 rounded-full flex-shrink-0"
-                                style={{ background: group.color, boxShadow: `0 0 6px ${group.color}` }} />
-                            )}
-                          </Link>
+                            >
+                              <div className="flex-shrink-0 w-5 h-5 rounded-lg flex items-center justify-center"
+                                style={{
+                                  background: isActive ? `${group.color}20` : 'transparent',
+                                  border: isActive ? `1px solid ${group.color}30` : '1px solid transparent',
+                                }}>
+                                <item.icon style={{
+                                  width: 10, height: 10,
+                                  color: isActive ? group.color : `${group.color}45`,
+                                  filter: isActive ? `drop-shadow(0 0 5px ${group.color})` : 'none',
+                                }} />
+                              </div>
+                              <span
+                                className="text-[11px] font-medium leading-tight flex-1"
+                                style={{ color: isActive ? '#ede0ff' : 'rgba(170,140,210,0.48)' }}
+                              >
+                                {item.name}
+                              </span>
+                              {isActive && (
+                                <motion.div
+                                  layoutId={`dot-${item.page}`}
+                                  className="w-1 h-1 rounded-full flex-shrink-0"
+                                  style={{ background: group.color, boxShadow: `0 0 8px ${group.color}` }}
+                                />
+                              )}
+                            </Link>
+                          </motion.div>
                         );
                       })}
                     </div>
@@ -411,9 +415,18 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
               </div>
             </div>
 
-            {/* Bottom scan line */}
-            <div className="h-px flex-shrink-0"
-              style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), rgba(6,182,212,0.3), transparent)' }} />
+            {/* Bottom scan line animada */}
+            <motion.div
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{ scaleX: 1, opacity: 1 }}
+              exit={{ scaleX: 0, opacity: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              style={{
+                height: 1, flexShrink: 0,
+                background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.5), rgba(168,85,247,0.8), rgba(236,72,153,0.4), transparent)',
+                transformOrigin: 'right',
+              }}
+            />
           </div>
         </motion.div>
       )}
@@ -422,7 +435,7 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
   );
 }
 
-// ─── Componente principal ────────────────────────────────────────────────────
+// ─── Export principal ─────────────────────────────────────────────────────────
 export default function CyberNav({ role, currentPageName, userName }) {
   const [open, setOpen] = useState(false);
 
@@ -437,15 +450,15 @@ export default function CyberNav({ role, currentPageName, userName }) {
 
   return (
     <>
-      {/* Botão 3 raios */}
       <motion.button
         onClick={() => setOpen((v) => !v)}
+        whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.88 }}
-        className="relative p-2 rounded-lg"
+        className="relative p-2 rounded-xl"
         style={{
-          background: open ? 'rgba(168,85,247,0.15)' : 'transparent',
-          border: open ? '1px solid rgba(168,85,247,0.45)' : '1px solid transparent',
-          boxShadow: open ? '0 0 14px rgba(168,85,247,0.4)' : 'none',
+          background: open ? 'rgba(168,85,247,0.18)' : 'transparent',
+          border: open ? '1px solid rgba(168,85,247,0.5)' : '1px solid transparent',
+          boxShadow: open ? '0 0 18px rgba(168,85,247,0.45), inset 0 0 8px rgba(168,85,247,0.08)' : 'none',
           transition: 'all 0.2s ease',
         }}
       >
