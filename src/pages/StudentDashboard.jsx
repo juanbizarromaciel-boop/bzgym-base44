@@ -2,21 +2,21 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Dumbbell, TrendingUp, Target, Calendar, Award,
-  ChevronRight, Flame, MessageSquare, Zap, CheckCircle2,
-  Clock, ClipboardList, Activity
+  Dumbbell, TrendingUp, Target, MessageSquare,
+  ChevronRight, CheckCircle2, Clock, Utensils,
+  BookOpen, Trophy, Activity, Zap
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import MuscleMap from "../components/workout/MuscleMap";
 import { motion } from "framer-motion";
-import { fadeUp, stagger, scaleIn, slideLeft, pageTransition } from "@/lib/animations";
 
 const GOAL_LABELS = {
-  hipertrofia: "HIPERTROFIA", emagrecimento: "EMAGRECIMENTO",
-  resistencia: "RESISTÊNCIA", forca: "FORÇA", saude: "SAÚDE"
+  hipertrofia: "Hipertrofia", emagrecimento: "Emagrecimento",
+  resistencia: "Resistência", forca: "Força", saude: "Saúde"
 };
-
 const DAY_MAP = { 0: "domingo", 1: "segunda", 2: "terca", 3: "quarta", 4: "quinta", 5: "sexta", 6: "sabado" };
+
+const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 
 export default function StudentDashboard() {
   const [user, setUser] = useState(null);
@@ -52,13 +52,9 @@ export default function StudentDashboard() {
   const myPlans = workoutPlans.filter(plan => plan.student_id === student.id && plan.active !== false);
   const unreadMessages = messages.filter(m => m.student_id === student.id && m.is_trainer && !m.read);
 
-  const last7Days = new Date();
-  last7Days.setDate(last7Days.getDate() - 7);
+  const last7Days = new Date(); last7Days.setDate(last7Days.getDate() - 7);
   const recentLogs = myLogs.filter(log => new Date(log.date) >= last7Days);
   const uniqueWorkoutDates = [...new Set(recentLogs.map(log => log.date))].length;
-  const totalVolume = recentLogs.reduce((sum, log) =>
-    sum + (log.sets_completed?.reduce((s, set) => s + (set.reps_done * set.load_kg), 0) || 0), 0);
-  const maxLoad = Math.max(...myLogs.map(log => log.max_load_kg || 0), 0);
 
   const todayDow = DAY_MAP[new Date().getDay()];
   const todayPlan = myPlans.find(p => p.day_of_week === todayDow);
@@ -66,74 +62,77 @@ export default function StudentDashboard() {
 
   const sortedLogs = [...myLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
   const lastLog = sortedLogs[0];
-  const daysSince = lastLog?.date
-    ? Math.floor((new Date() - new Date(lastLog.date)) / 86400000)
-    : null;
+  const daysSince = lastLog?.date ? Math.floor((new Date() - new Date(lastLog.date)) / 86400000) : null;
 
-  const allExercises = myPlans.flatMap(p => p.exercises || []);
   const todayDate = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
-  const stats = [
-    { label: "Treinos / Semana", value: uniqueWorkoutDates, icon: Calendar, accent: "#06b6d4", glow: "rgba(6,182,212,0.15)" },
-    { label: "Volume (kg×reps)", value: totalVolume > 0 ? `${Math.round(totalVolume / 1000)}k` : "—", icon: Flame, accent: "#ec4899", glow: "rgba(236,72,153,0.15)" },
-    { label: "Carga Máxima", value: maxLoad > 0 ? `${maxLoad}kg` : "—", icon: Award, accent: "#f59e0b", glow: "rgba(245,158,11,0.15)" },
-    { label: "Planos Ativos", value: myPlans.length, icon: ClipboardList, accent: "#a855f7", glow: "rgba(168,85,247,0.15)" },
-  ];
-
   const quickActions = [
-    { label: "Meu Treino", icon: Dumbbell, href: "/MyWorkout", accent: "#a855f7" },
-    { label: "Progresso", icon: TrendingUp, href: "/Progress", accent: "#06b6d4" },
-    { label: "Minha Dieta", icon: Target, href: "/MyDiet", accent: "#ec4899" },
-    { label: "Chat", icon: MessageSquare, href: "/Chat", accent: "#10b981" },
+    { label: "Meu Treino", icon: Dumbbell, path: "/MyWorkout", accent: "#a855f7" },
+    { label: "Minha Dieta", icon: Utensils, path: "/MyDiet", accent: "#10b981" },
+    { label: "Progresso", icon: TrendingUp, path: "/Progress", accent: "#06b6d4" },
+    { label: "Chat", icon: MessageSquare, path: "/Chat", accent: "#ec4899" },
+    { label: "Exercícios", icon: BookOpen, path: "/LearnExercises", accent: "#f59e0b" },
+    { label: "Mural PRs", icon: Trophy, path: "/PRBoard", accent: "#f59e0b" },
+    { label: "Documentos", icon: Activity, path: "/StudentDocuments", accent: "#06b6d4" },
+    { label: "Saúde", icon: Target, path: "/CH", accent: "#84cc16" },
   ];
 
   return (
-    <motion.div className="space-y-8 max-w-4xl"
-      variants={pageTransition} initial="hidden" animate="show">
+    <motion.div className="space-y-7 max-w-4xl" initial="hidden" animate="show" variants={stagger}>
 
       {/* Header */}
-      <motion.div className="relative" variants={fadeUp}>
-        <p className="text-[10px] font-mono-cyber text-purple-500/35 tracking-[0.3em] uppercase mb-2">{todayDate}</p>
-        <h1 className="font-cyber text-3xl md:text-4xl text-white tracking-widest leading-none"
-          style={{ textShadow: '0 0 30px rgba(168,85,247,0.3)' }}>
-          OLÁ, {student.name?.split(" ")[0]?.toUpperCase()}
-        </h1>
-        <div className="flex flex-wrap items-center gap-2 mt-3">
-          {student.goal && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-purple-500/20 bg-purple-500/5 text-xs font-mono-cyber text-purple-400/70">
-              <Target className="w-3 h-3" />
-              {GOAL_LABELS[student.goal] || student.goal}
-            </span>
-          )}
-          {daysSince !== null && (
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-mono-cyber
-              ${daysSince === 0 ? "border-emerald-500/25 bg-emerald-500/5 text-emerald-400"
-                : daysSince <= 2 ? "border-cyan-500/25 bg-cyan-500/5 text-cyan-400"
-                : "border-orange-500/25 bg-orange-500/5 text-orange-400"}`}>
-              <Clock className="w-3 h-3" />
-              {daysSince === 0 ? "Treinou hoje!" : `Último treino há ${daysSince} dia${daysSince > 1 ? "s" : ""}`}
-            </span>
+      <motion.div variants={fadeUp}>
+        <p className="text-[10px] font-mono-cyber tracking-[0.35em] uppercase mb-2" style={{ color: 'rgba(192,132,252,0.55)' }}>
+          ◈ {todayDate}
+        </p>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="font-cyber text-3xl md:text-4xl font-black tracking-widest"
+              style={{ color: '#ffffff', textShadow: '0 0 40px rgba(168,85,247,0.5)' }}>
+              OLÁ, {student.name?.split(" ")[0]?.toUpperCase()}
+            </h1>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              {student.goal && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-purple-500/20 bg-purple-500/5 text-xs font-mono-cyber text-purple-400/70">
+                  <Target className="w-3 h-3" />
+                  {GOAL_LABELS[student.goal] || student.goal}
+                </span>
+              )}
+              {daysSince !== null && (
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-mono-cyber
+                  ${daysSince === 0 ? "border-emerald-500/25 bg-emerald-500/5 text-emerald-400"
+                    : daysSince <= 2 ? "border-cyan-500/25 bg-cyan-500/5 text-cyan-400"
+                    : "border-orange-500/25 bg-orange-500/5 text-orange-400"}`}>
+                  <Clock className="w-3 h-3" />
+                  {daysSince === 0 ? "Treinou hoje!" : `Último treino há ${daysSince} dia${daysSince > 1 ? "s" : ""}`}
+                </span>
+              )}
+            </div>
+          </div>
+          {todayLogged && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/8">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-xs text-emerald-300 font-mono-cyber">treino concluído</span>
+            </div>
           )}
         </div>
-        <div className="mt-5 h-px bg-gradient-to-r from-purple-500/30 via-purple-500/10 to-transparent" />
+        <div className="mt-4 h-px" style={{ background: 'linear-gradient(90deg, rgba(168,85,247,0.6), rgba(6,182,212,0.3), transparent)' }} />
       </motion.div>
 
       {/* Today's Workout Card */}
-      <motion.div variants={scaleIn}
-        className="relative rounded-2xl p-6 border overflow-hidden"
+      <motion.div variants={fadeUp}
+        className="relative rounded-2xl p-5 border overflow-hidden"
         style={{
           background: todayPlan
             ? 'radial-gradient(ellipse at top left, rgba(168,85,247,0.08), transparent 60%), rgba(4,4,12,0.95)'
             : 'rgba(4,4,12,0.85)',
           borderColor: todayPlan ? 'rgba(168,85,247,0.25)' : 'rgba(168,85,247,0.1)',
-          boxShadow: todayPlan ? '0 0 30px rgba(168,85,247,0.06)' : 'none'
         }}>
-        {/* Top accent */}
         {todayPlan && (
           <div className="absolute top-0 left-0 right-0 h-px"
             style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)' }} />
         )}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{
@@ -152,130 +151,90 @@ export default function StudentDashboard() {
                   ? todayLogged
                     ? "✓ Sessão registrada hoje"
                     : `${todayPlan.exercises?.length || 0} exercícios · pronto para iniciar`
-                  : "Descanse ou faça treino livre"}
+                  : `${uniqueWorkoutDates} treino${uniqueWorkoutDates !== 1 ? "s" : ""} essa semana`}
               </p>
             </div>
           </div>
-          {todayPlan && !todayLogged ? (
+          {todayPlan && !todayLogged && (
             <Link to="/MyWorkout"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
+              className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
               style={{
                 background: 'rgba(168,85,247,0.2)',
                 border: '1px solid rgba(168,85,247,0.35)',
                 color: '#e9d5ff',
-                boxShadow: '0 0 20px rgba(168,85,247,0.15)'
               }}>
               <Zap className="w-4 h-4" />
               Iniciar
             </Link>
-          ) : todayLogged ? (
-            <span className="flex items-center gap-1.5 text-emerald-400 text-xs font-mono-cyber">
+          )}
+          {todayLogged && (
+            <span className="flex-shrink-0 flex items-center gap-1.5 text-emerald-400 text-xs font-mono-cyber">
               <CheckCircle2 className="w-4 h-4" />
               Concluído
             </span>
-          ) : null}
+          )}
         </div>
       </motion.div>
 
       {/* Message Alert */}
       {unreadMessages.length > 0 && (
-        <motion.div variants={slideLeft}>
-        <Link to="/Chat"
-          className="flex items-center gap-3 px-5 py-3.5 rounded-xl border border-cyan-500/25 bg-cyan-500/5 text-cyan-300 hover:bg-cyan-500/8 transition-all group">
-          <div className="w-2 h-2 rounded-full bg-cyan-400 neon-dot flex-shrink-0" />
-          <MessageSquare className="w-4 h-4 flex-shrink-0" />
-          <span className="text-sm flex-1 font-medium">
-            {unreadMessages.length} mensagem{unreadMessages.length > 1 ? "ns" : ""} nova{unreadMessages.length > 1 ? "s" : ""} do professor
-          </span>
-          <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-60 -translate-x-1 group-hover:translate-x-0 transition-all" />
-        </Link>
+        <motion.div variants={fadeUp}>
+          <Link to="/Chat"
+            className="flex items-center gap-3 px-5 py-3.5 rounded-xl border border-cyan-500/25 bg-cyan-500/5 text-cyan-300 hover:bg-cyan-500/10 transition-all group">
+            <div className="w-2 h-2 rounded-full bg-cyan-400 flex-shrink-0" style={{ boxShadow: '0 0 6px rgba(6,182,212,0.9)' }} />
+            <MessageSquare className="w-4 h-4 flex-shrink-0" />
+            <span className="text-sm flex-1 font-medium">
+              {unreadMessages.length} mensagem{unreadMessages.length > 1 ? "ns" : ""} nova{unreadMessages.length > 1 ? "s" : ""} do professor
+            </span>
+            <ChevronRight className="w-4 h-4 opacity-60" />
+          </Link>
         </motion.div>
       )}
 
       {/* Stats */}
-      <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-3"
-        variants={stagger(0.08)} initial="hidden" animate="show">
-        {stats.map((s, i) => (
-          <motion.div key={i} variants={scaleIn} whileHover={{ scale: 1.04, transition: { duration: 0.15 } }}
-            className="relative rounded-xl p-5 border overflow-hidden"
-            style={{
-              background: `radial-gradient(ellipse at top left, ${s.glow}, transparent 70%), rgba(4,4,12,0.95)`,
-              borderColor: `${s.accent}22`,
-            }}>
+      <motion.div variants={fadeUp} className="grid grid-cols-3 gap-3">
+        {[
+          { label: "Treinos / semana", value: uniqueWorkoutDates, accent: "#a855f7" },
+          { label: "Planos ativos", value: myPlans.length, accent: "#06b6d4" },
+          { label: "Total de treinos", value: myLogs.length, accent: "#10b981" },
+        ].map((s, i) => (
+          <div key={i} className="rounded-xl p-4 border relative overflow-hidden"
+            style={{ background: 'rgba(6,4,18,0.95)', borderColor: `${s.accent}28` }}>
             <div className="absolute top-0 left-0 right-0 h-px"
-              style={{ background: `linear-gradient(90deg, transparent, ${s.accent}44, transparent)` }} />
-            <s.icon className="w-4 h-4 mb-4 opacity-70" style={{ color: s.accent }} />
-            <p className="font-cyber text-2xl font-bold" style={{ color: s.accent }}>
-              {s.value}
-            </p>
-            <p className="text-[10px] text-purple-400/40 font-mono-cyber mt-1 uppercase tracking-wider">{s.label}</p>
-          </motion.div>
+              style={{ background: `linear-gradient(90deg, transparent, ${s.accent}70, transparent)` }} />
+            <p className="font-cyber text-3xl font-black" style={{ color: s.accent }}>{s.value}</p>
+            <p className="text-xs mt-1" style={{ color: 'rgba(192,132,252,0.6)' }}>{s.label}</p>
+          </div>
         ))}
       </motion.div>
 
       {/* Quick Actions */}
       <motion.div variants={fadeUp}>
-        <p className="text-[10px] font-mono-cyber text-purple-500/35 uppercase tracking-[0.25em] mb-3">▸ acesso rápido</p>
-        <motion.div className="grid grid-cols-4 gap-3"
-          variants={stagger(0.07)} initial="hidden" animate="show">
+        <p className="text-[10px] font-mono-cyber uppercase tracking-[0.3em] mb-3"
+          style={{ color: 'rgba(192,132,252,0.55)' }}>▸ acesso rápido</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {quickActions.map((a, i) => (
-            <motion.div key={i} variants={fadeUp} whileHover={{ scale: 1.06, transition: { duration: 0.15 } }}>
-            <a href={a.href}
-              className="flex flex-col items-center gap-3 p-4 rounded-xl border border-purple-900/20 bg-black/50 hover:bg-black/80 transition-all group">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-all group-hover:scale-110"
-                style={{ background: `${a.accent}15`, border: `1px solid ${a.accent}25` }}>
-                <a.icon className="w-5 h-5" style={{ color: a.accent }} />
+            <Link key={i} to={a.path}
+              className="relative flex flex-col items-center gap-3 p-5 rounded-xl border transition-all group overflow-hidden hover:scale-[1.03]"
+              style={{
+                borderColor: `${a.accent}22`,
+                background: `linear-gradient(135deg, rgba(6,4,18,0.97), rgba(4,2,14,0.97))`,
+              }}>
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: `radial-gradient(ellipse at center, ${a.accent}12, transparent 70%)` }} />
+              <div className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: `linear-gradient(90deg, transparent, ${a.accent}70, transparent)` }} />
+              <div className="relative w-11 h-11 rounded-xl flex items-center justify-center transition-all group-hover:scale-110"
+                style={{ background: `${a.accent}18`, border: `1px solid ${a.accent}35` }}>
+                <a.icon className="w-5 h-5" style={{ color: a.accent, filter: `drop-shadow(0 0 5px ${a.accent})` }} />
               </div>
-              <span className="text-xs font-medium text-white/55 group-hover:text-white/90 transition-colors text-center">{a.label}</span>
-            </a>
-            </motion.div>
+              <span className="relative text-xs font-semibold text-center" style={{ color: 'rgba(240,230,255,0.75)' }}>
+                {a.label}
+              </span>
+            </Link>
           ))}
-        </motion.div>
+        </div>
       </motion.div>
-
-      {/* Muscle Map */}
-      {allExercises.length > 0 && (
-        <motion.div variants={scaleIn}
-          className="rounded-2xl p-6 border border-purple-900/20 bg-black/40">
-          <div className="flex items-center gap-2 mb-5">
-            <Activity className="w-4 h-4 text-purple-400" />
-            <p className="text-[11px] font-mono-cyber text-purple-400/60 uppercase tracking-[0.2em]">Mapa Muscular</p>
-          </div>
-          <MuscleMap exercises={allExercises} size="lg" showLabels={true} />
-        </motion.div>
-      )}
-
-      {/* My Plans */}
-      {myPlans.length > 0 && (
-        <motion.div variants={fadeUp}>
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-mono-cyber text-purple-500/35 uppercase tracking-[0.25em]">▸ meus treinos</p>
-            <a href="/MyWorkout" className="text-[11px] text-purple-400/50 hover:text-purple-400 transition-colors font-mono-cyber">ver todos →</a>
-          </div>
-          <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-3"
-            variants={stagger(0.07)} initial="hidden" animate="show">
-            {myPlans.slice(0, 4).map((plan, i) => (
-              <motion.div key={i} variants={slideLeft} whileHover={{ x: 3, transition: { duration: 0.15 } }}>
-              <a href="/MyWorkout"
-                className="flex items-center gap-4 p-4 rounded-xl border border-purple-900/20 bg-black/40 hover:border-purple-500/25 transition-all group"
-                style={{ background: 'rgba(4,4,12,0.8)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.18)' }}>
-                  <Dumbbell className="w-5 h-5 text-purple-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{plan.name}</p>
-                  <p className="text-[11px] text-purple-400/40 font-mono-cyber mt-0.5">
-                    {plan.exercises?.length || 0} exercícios · {plan.day_of_week || "livre"}
-                  </p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-purple-500/20 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all" />
-              </a>
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.div>
-      )}
 
     </motion.div>
   );
