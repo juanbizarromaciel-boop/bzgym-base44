@@ -86,6 +86,9 @@ const personalNavGroups = [
   { label: "Saúde", color: "#84cc16", items: [
     { name: "Saúde e Exames", icon: Activity, page: "CH" },
   ]},
+  { label: "Inteligência Artificial", color: "#a855f7", items: [
+    { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
+  ]},
   { label: "Financeiro", color: "#10b981", items: [
     { name: "Financeiro", icon: DollarSign, page: "Finance" },
     { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
