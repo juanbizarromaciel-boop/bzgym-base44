@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,14 +25,21 @@ export default function StudentWorkout() {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [workoutFinished, setWorkoutFinished] = useState(false);
   const qc = useQueryClient();
+  const { user: currentUser } = useCurrentUser();
 
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
+  const { data: allStudents = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
+
+  const isAdmin = currentUser?.role === "admin";
+  const students = isAdmin
+    ? allStudents.filter(s => s.active !== false)
+    : allStudents.filter(s => s.active !== false && s.personal_id === currentUser?.email);
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
   const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list() });
 
-  const studentPlans = allPlans.filter((p) => p.student_id === selectedStudentId);
-  const selectedPlan = allPlans.find((p) => p.id === selectedPlanId);
+  const myPlans = isAdmin ? allPlans : allPlans.filter(p => p.personal_id === currentUser?.email);
+  const studentPlans = myPlans.filter((p) => p.student_id === selectedStudentId);
+  const selectedPlan = myPlans.find((p) => p.id === selectedPlanId);
 
   const logMut = useMutation({
     mutationFn: (data) => base44.entities.WorkoutLog.create(data),
