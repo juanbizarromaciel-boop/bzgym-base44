@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, UserCircle, AlertTriangle, Copy } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, UserCircle, AlertTriangle, Copy, EyeOff, Eye, Archive } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
 import ExerciseCard from "../components/workout/ExerciseCard";
 import ExerciseFormDialog from "../components/workout/ExerciseFormDialog";
@@ -128,13 +128,25 @@ export default function WorkoutPlans() {
   const getStudentName = (id) => students.find((s) => s.id === id)?.name || "—";
 
   const [expandedStudent, setExpandedStudent] = useState(null);
+  const [showArchived, setShowArchived] = useState({}); // studentId -> bool
+
+  const toggleArchiveVisibility = (studentId) =>
+    setShowArchived(prev => ({ ...prev, [studentId]: !prev[studentId] }));
+
+  const toggleActivePlan = (plan) => {
+    updateMut.mutate({ id: plan.id, data: { ...plan, active: plan.active === false ? true : false } });
+  };
 
   const filteredPlans = filterStudent === "all" ? plans : plans.filter((p) => p.student_id === filterStudent);
 
-  // Group plans by student
+  // Group plans by student — active and archived separately
   const plansByStudent = students
-    .map(s => ({ student: s, plans: filteredPlans.filter(p => p.student_id === s.id) }))
-    .filter(g => g.plans.length > 0);
+    .map(s => ({
+      student: s,
+      activePlans: filteredPlans.filter(p => p.student_id === s.id && p.active !== false),
+      archivedPlans: filteredPlans.filter(p => p.student_id === s.id && p.active === false),
+    }))
+    .filter(g => g.activePlans.length > 0 || g.archivedPlans.length > 0);
 
   // Plans with no matching student
   const orphanPlans = filteredPlans.filter(p => !students.find(s => s.id === p.student_id));
@@ -167,8 +179,74 @@ export default function WorkoutPlans() {
       </div>
 
       <div className="space-y-4">
-        {plansByStudent.map(({ student, plans: studentPlans }) => {
+        {plansByStudent.map(({ student, activePlans, archivedPlans }) => {
           const isOpen = expandedStudent === student.id || filterStudent === student.id;
+          const totalPlans = activePlans.length + archivedPlans.length;
+          const archiveOpen = showArchived[student.id];
+
+          const PlanRow = ({ plan, isArchived }) => (
+            <div key={plan.id} className="bg-black/20">
+              <div
+                className="pl-10 pr-5 py-4 flex items-center justify-between cursor-pointer hover:bg-purple-500/3 transition-all"
+                onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-6 rounded-full" style={{
+                    background: isArchived ? 'linear-gradient(to bottom, #6b7280, #4b5563)' : 'linear-gradient(to bottom, #a855f7, #06b6d4)',
+                    opacity: isArchived ? 0.3 : 0.5,
+                    boxShadow: isArchived ? 'none' : '0 0 6px rgba(168,85,247,0.4)'
+                  }} />
+                  <div>
+                    <h3 className={`font-medium text-sm ${isArchived ? 'text-purple-400/40' : 'text-white'}`}>{plan.name}</h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      {plan.day_of_week && (
+                        <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px]">
+                          {days[plan.day_of_week]}
+                        </Badge>
+                      )}
+                      <Badge className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px]">
+                        {plan.exercises?.length || 0} exerc.
+                      </Badge>
+                      {isArchived && (
+                        <Badge className="bg-gray-500/10 border border-gray-500/20 text-gray-400 text-[10px]">oculto</Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Button variant="ghost" size="icon" className={`h-7 w-7 ${isArchived ? 'text-emerald-500/50 hover:text-emerald-400' : 'text-purple-400/40 hover:text-amber-400'}`}
+                    title={isArchived ? "Restaurar treino" : "Ocultar treino"}
+                    onClick={(e) => { e.stopPropagation(); toggleActivePlan(plan); }}>
+                    {isArchived ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-cyan-300" title="Duplicar" onClick={(e) => { e.stopPropagation(); setDuplicatePlan(plan); setDupeStudentId(plan.student_id); }}>
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                  <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center h-7 w-7">
+                    <WorkoutPdfExport studentId={plan.student_id} studentName={getStudentName(plan.student_id)} planId={plan.id} compact={true} />
+                  </div>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-purple-300" onClick={(e) => { e.stopPropagation(); openEditPlan(plan); }}>
+                    <Pencil className="w-3 h-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-pink-400" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(plan.id); }}>
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                  {expandedPlan === plan.id ? <ChevronUp className="w-3.5 h-3.5 text-purple-500/40" /> : <ChevronDown className="w-3.5 h-3.5 text-purple-500/40" />}
+                </div>
+              </div>
+              {expandedPlan === plan.id && (
+                <div className="pl-12 pr-5 pb-4 space-y-2 border-t border-purple-900/10 pt-3">
+                  {plan.exercises?.map((ex, idx) => (
+                    <ExerciseCard key={idx} exercise={ex} index={idx} showActions={false} />
+                  ))}
+                  {(!plan.exercises || plan.exercises.length === 0) && (
+                    <p className="text-sm text-purple-500/30 text-center py-4 font-mono-cyber">// nenhum exercício adicionado</p>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+
           return (
             <div key={student.id} className="cyber-card rounded-xl border border-purple-900/25 overflow-hidden">
               {/* Student Folder Header */}
@@ -182,18 +260,21 @@ export default function WorkoutPlans() {
                   </div>
                   <div className="text-left">
                     <p className="font-semibold text-white text-sm">{student.name}</p>
-                    <p className="text-[10px] font-mono-cyber text-purple-500/40 mt-0.5">{studentPlans.length} treino{studentPlans.length !== 1 ? "s" : ""}</p>
+                    <p className="text-[10px] font-mono-cyber text-purple-500/40 mt-0.5">
+                      {activePlans.length} ativo{activePlans.length !== 1 ? "s" : ""}
+                      {archivedPlans.length > 0 && ` · ${archivedPlans.length} oculto${archivedPlans.length !== 1 ? "s" : ""}`}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1">
-                    {studentPlans.slice(0, 4).map(p => (
+                    {activePlans.slice(0, 4).map(p => (
                       <span key={p.id} className="text-[9px] px-2 py-0.5 rounded font-mono-cyber"
                         style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)', color: 'rgba(192,132,252,0.7)' }}>
                         {p.name.length > 10 ? p.name.slice(0, 10) + "…" : p.name}
                       </span>
                     ))}
-                    {studentPlans.length > 4 && <span className="text-[9px] text-purple-500/40 font-mono-cyber self-center">+{studentPlans.length - 4}</span>}
+                    {activePlans.length > 4 && <span className="text-[9px] text-purple-500/40 font-mono-cyber self-center">+{activePlans.length - 4}</span>}
                   </div>
                   {isOpen ? <ChevronUp className="w-4 h-4 text-purple-500/40" /> : <ChevronDown className="w-4 h-4 text-purple-500/40" />}
                 </div>
@@ -202,56 +283,33 @@ export default function WorkoutPlans() {
               {/* Plans inside this student folder */}
               {isOpen && (
                 <div className="border-t border-purple-900/20 divide-y divide-purple-900/10">
-                  {studentPlans.map((plan) => (
-                    <div key={plan.id} className="bg-black/20">
-                      <div
-                        className="pl-10 pr-5 py-4 flex items-center justify-between cursor-pointer hover:bg-purple-500/3 transition-all"
-                        onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}
+                  {/* Active plans */}
+                  {activePlans.map((plan) => <PlanRow key={plan.id} plan={plan} isArchived={false} />)}
+
+                  {activePlans.length === 0 && archivedPlans.length === 0 && (
+                    <p className="text-sm text-purple-500/30 text-center py-6 font-mono-cyber">// nenhum treino</p>
+                  )}
+
+                  {/* Archived folder */}
+                  {archivedPlans.length > 0 && (
+                    <div>
+                      <button
+                        className="w-full flex items-center gap-2 pl-10 pr-5 py-3 hover:bg-amber-500/3 transition-all"
+                        onClick={() => toggleArchiveVisibility(student.id)}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(to bottom, #a855f7, #06b6d4)', opacity: 0.5, boxShadow: '0 0 6px rgba(168,85,247,0.4)' }} />
-                          <div>
-                            <h3 className="font-medium text-white text-sm">{plan.name}</h3>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              {plan.day_of_week && (
-                                <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px]">
-                                  {days[plan.day_of_week]}
-                                </Badge>
-                              )}
-                              <Badge className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px]">
-                                {plan.exercises?.length || 0} exerc.
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-cyan-300" title="Duplicar" onClick={(e) => { e.stopPropagation(); setDuplicatePlan(plan); setDupeStudentId(plan.student_id); }}>
-                            <Copy className="w-3 h-3" />
-                          </Button>
-                          <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center h-7 w-7">
-                            <WorkoutPdfExport studentId={plan.student_id} studentName={getStudentName(plan.student_id)} planId={plan.id} compact={true} />
-                          </div>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-purple-300" onClick={(e) => { e.stopPropagation(); openEditPlan(plan); }}>
-                            <Pencil className="w-3 h-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-pink-400" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(plan.id); }}>
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                          {expandedPlan === plan.id ? <ChevronUp className="w-3.5 h-3.5 text-purple-500/40" /> : <ChevronDown className="w-3.5 h-3.5 text-purple-500/40" />}
-                        </div>
-                      </div>
-                      {expandedPlan === plan.id && (
-                        <div className="pl-12 pr-5 pb-4 space-y-2 border-t border-purple-900/10 pt-3">
-                          {plan.exercises?.map((ex, idx) => (
-                            <ExerciseCard key={idx} exercise={ex} index={idx} showActions={false} />
-                          ))}
-                          {(!plan.exercises || plan.exercises.length === 0) && (
-                            <p className="text-sm text-purple-500/30 text-center py-4 font-mono-cyber">// nenhum exercício adicionado</p>
-                          )}
+                        <Archive className="w-3.5 h-3.5 text-amber-500/50" />
+                        <span className="text-[10px] font-mono-cyber text-amber-500/50 tracking-wider">
+                          TREINOS OCULTOS ({archivedPlans.length})
+                        </span>
+                        {archiveOpen ? <ChevronUp className="w-3 h-3 text-amber-500/40 ml-auto" /> : <ChevronDown className="w-3 h-3 text-amber-500/40 ml-auto" />}
+                      </button>
+                      {archiveOpen && (
+                        <div className="bg-amber-500/2 border-t border-amber-900/20 divide-y divide-purple-900/10">
+                          {archivedPlans.map((plan) => <PlanRow key={plan.id} plan={plan} isArchived={true} />)}
                         </div>
                       )}
                     </div>
-                  ))}
+                  )}
                 </div>
               )}
             </div>
