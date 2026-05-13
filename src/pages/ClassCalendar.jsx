@@ -40,8 +40,11 @@ export default function ClassCalendar() {
       setUser(u);
       setPersonalName(u.full_name || "");
       setPixKey(u.email || "");
+      base44.entities.Student.list().then(all => {
+        const filtered = u.role === 'admin' ? all : all.filter(s => s.personal_id === u.email);
+        setStudents(filtered.filter(s => s.active !== false));
+      }).catch(() => {});
     }).catch(() => {});
-    base44.entities.Student.list().then(setStudents).catch(() => {});
   }, []);
 
   // Calcula o 5º dia útil do próximo mês

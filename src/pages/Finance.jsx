@@ -32,14 +32,22 @@ export default function Finance() {
   }, []);
 
   const { data: payments = [], isLoading } = useQuery({
-    queryKey: ['payments'],
+    queryKey: ['payments', user?.email],
     queryFn: () => base44.entities.Payment.list('-due_date'),
+    enabled: !!user,
   });
 
   const { data: students = [] } = useQuery({
-    queryKey: ['students'],
+    queryKey: ['students', user?.email],
     queryFn: () => base44.entities.Student.list(),
+    enabled: !!user,
   });
+
+  const isAdmin = user?.role === 'admin';
+
+  // Personal só vê seus próprios pagamentos e alunos
+  const filteredPayments = isAdmin ? payments : payments.filter(p => p.personal_id === user?.email);
+  const filteredStudents = isAdmin ? students : students.filter(s => s.personal_id === user?.email);
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Payment.delete(id),
@@ -60,16 +68,16 @@ export default function Finance() {
     return p.status;
   };
 
-  const filtered = payments.filter(p => {
+  const filtered = filteredPayments.filter(p => {
     const st = filterStatus === "todos" ? true : autoCheckOverdue(p) === filterStatus;
     const stu = filterStudent ? p.student_id === filterStudent : true;
     return st && stu;
   });
 
   // Stats
-  const totalPago = payments.filter(p => p.status === 'pago').reduce((a, p) => a + (p.amount || 0), 0);
-  const totalPendente = payments.filter(p => autoCheckOverdue(p) !== 'pago').reduce((a, p) => a + (p.amount || 0), 0);
-  const atrasados = payments.filter(p => autoCheckOverdue(p) === 'atrasado');
+  const totalPago = filteredPayments.filter(p => p.status === 'pago').reduce((a, p) => a + (p.amount || 0), 0);
+  const totalPendente = filteredPayments.filter(p => autoCheckOverdue(p) !== 'pago').reduce((a, p) => a + (p.amount || 0), 0);
+  const atrasados = filteredPayments.filter(p => autoCheckOverdue(p) === 'atrasado');
 
   const formatMoney = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const formatDate = (d) => { try { return format(parseISO(d), 'dd/MM/yyyy', { locale: ptBR }); } catch { return d; } };
@@ -105,7 +113,7 @@ export default function Finance() {
           { label: "Total Recebido", value: formatMoney(totalPago), color: '#6ee7b7', border: 'rgba(16,185,129,0.25)', bg: 'rgba(16,185,129,0.07)', icon: TrendingUp },
           { label: "A Receber", value: formatMoney(totalPendente), color: '#fcd34d', border: 'rgba(245,158,11,0.25)', bg: 'rgba(245,158,11,0.07)', icon: Clock },
           { label: "Atrasados", value: atrasados.length, color: '#fca5a5', border: 'rgba(239,68,68,0.25)', bg: 'rgba(239,68,68,0.07)', icon: AlertTriangle },
-          { label: "Alunos", value: [...new Set(payments.map(p => p.student_id))].length, color: '#c084fc', border: 'rgba(168,85,247,0.25)', bg: 'rgba(168,85,247,0.07)', icon: Users },
+          { label: "Alunos", value: [...new Set(filteredPayments.map(p => p.student_id))].length, color: '#c084fc', border: 'rgba(168,85,247,0.25)', bg: 'rgba(168,85,247,0.07)', icon: Users },
         ].map((s, i) => (
           <div key={i} className="rounded-xl p-4 border" style={{ background: s.bg, borderColor: s.border }}>
             <div className="flex items-center justify-between mb-2">
@@ -152,7 +160,7 @@ export default function Finance() {
           className="flex-1 min-w-[160px] rounded-lg px-3 py-1.5 text-xs outline-none"
           style={{ background: 'rgba(4,2,14,0.7)', border: '1px solid rgba(168,85,247,0.2)', color: 'rgba(210,190,240,0.7)' }}>
           <option value="">Todos os alunos</option>
-          {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+          {filteredStudents.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
       </div>
 
@@ -335,7 +343,7 @@ export default function Finance() {
       {showForm && (
         <PaymentFormDialog
           payment={editingPayment}
-          students={students.filter(s => s.active !== false)}
+          students={filteredStudents.filter(s => s.active !== false)}
           personalId={user?.email}
           onClose={() => { setShowForm(false); setEditingPayment(null); }}
           onSaved={handleSaved}

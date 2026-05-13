@@ -132,8 +132,11 @@ export default function ConsultancyBilling() {
       setUser(u);
       setPersonalName(u.full_name || "");
       setPixKey(u.email || "");
+      base44.entities.Student.list().then(all => {
+        const byPersonal = u.role === 'admin' ? all : all.filter(s => s.personal_id === u.email);
+        setStudents(byPersonal.filter(st => st.active !== false));
+      }).catch(() => {});
     }).catch(() => {});
-    base44.entities.Student.list().then(s => setStudents(s.filter(st => st.active !== false))).catch(() => {});
   }, []);
 
   const selectedPackage = PACKAGES.find(p => p.id === selectedPackageId);
