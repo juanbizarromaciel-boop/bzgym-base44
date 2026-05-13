@@ -72,7 +72,7 @@ export default function StudentDashboard() {
     { label: "Progresso", icon: TrendingUp, path: "/Progress", accent: "#06b6d4" },
     { label: "Chat", icon: MessageSquare, path: "/Chat", accent: "#ec4899" },
     { label: "Exercícios", icon: BookOpen, path: "/LearnExercises", accent: "#f59e0b" },
-    { label: "Mural PRs", icon: Trophy, path: "/PRBoard", accent: "#f59e0b" },
+    { label: "Mural PRs", icon: Trophy, path: "/PRBoard", accent: "#ec4899" },
     { label: "Documentos", icon: Activity, path: "/StudentDocuments", accent: "#06b6d4" },
     { label: "Saúde", icon: Target, path: "/CH", accent: "#84cc16" },
   ];
