@@ -84,12 +84,6 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Prompt muito longo (máx. 8000 caracteres)' }, { status: 400 });
     }
 
-    // personal só pode usar exercise_desc e exercise_bulk
-    const PERSONAL_ALLOWED = ['exercise_desc', 'exercise_bulk'];
-    if (user.role === 'personal' && !PERSONAL_ALLOWED.includes(type)) {
-      return Response.json({ error: 'Acesso negado para este tipo de operação.' }, { status: 403 });
-    }
-
     const systemPrompt = SYSTEM_PROMPTS[type];
     const { history } = body;
 
