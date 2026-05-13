@@ -17,10 +17,15 @@ import { fadeUp, stagger, scaleIn, pageTransition } from "@/lib/animations";
 export default function AICoach() {
   const [settings, setSettings] = useState(null);
   const [loadingSettings, setLoadingSettings] = useState(true);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    base44.entities.AISettings.list().then(list => {
+    Promise.all([
+      base44.entities.AISettings.list(),
+      base44.auth.me(),
+    ]).then(([list, user]) => {
       setSettings(list[0] || null);
+      setUserRole(user?.role || "user");
       setLoadingSettings(false);
     }).catch(() => setLoadingSettings(false));
   }, []);
@@ -152,7 +157,7 @@ export default function AICoach() {
             { value: "food", icon: Utensils, label: "ALIMENTOS" },
             { value: "diet", icon: ClipboardList, label: "DIETA" },
             { value: "workout", icon: Dumbbell, label: "TREINO" },
-            { value: "exercises", icon: Library, label: "EXERCÍCIOS" },
+            ...(userRole === "admin" ? [{ value: "exercises", icon: Library, label: "EXERCÍCIOS" }] : []),
             { value: "photo", icon: Camera, label: "FOTO IA" },
           ].map(({ value, icon: TabIcon, label }) => (
             <TabsTrigger key={value} value={value}
@@ -180,11 +185,13 @@ export default function AICoach() {
             <AIWorkoutGenerator settings={settings} />
           </motion.div>
         </TabsContent>
-        <TabsContent value="exercises">
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-            <AIExerciseManager settings={settings} />
-          </motion.div>
-        </TabsContent>
+        {userRole === "admin" && (
+          <TabsContent value="exercises">
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+              <AIExerciseManager settings={settings} />
+            </motion.div>
+          </TabsContent>
+        )}
         <TabsContent value="photo">
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
             <AIImageAnalyzer settings={settings} />
