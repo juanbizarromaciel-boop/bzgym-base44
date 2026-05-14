@@ -9,12 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Utensils, Flame, Beef, Wheat, Droplets } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Utensils, Flame, Beef, Wheat, Droplets, ChevronRight, Clock } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 import { motion } from "framer-motion";
 import DietPdfExport from "../components/diet/DietPdfExport";
 import MealFoodEditor from "../components/diet/MealFoodEditor";
+import MealDetailModal from "../components/diet/MealDetailModal";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -39,7 +40,8 @@ export default function Diet() {
   const [form, setForm] = useState(emptyPlan);
   const [expandedId, setExpandedId] = useState(null);
   const [filterStudent, setFilterStudent] = useState("all");
-  const [deleteConfirm, setDeleteConfirm] = useState(null); // plan to delete
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [mealDetail, setMealDetail] = useState(null); // { plan, mealIndex }
   const qc = useQueryClient();
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
@@ -89,6 +91,23 @@ export default function Diet() {
 
   const filtered = filterStudent === "all" ? plans : plans.filter(p => p.student_id === filterStudent);
   const getStudent = (id) => students.find(s => s.id === id);
+
+  // Save meal items change from MealDetailModal
+  const handleMealSave = (plan, mealIndex, newItems) => {
+    const meals = (plan.meals || []).map((m, i) => {
+      if (i !== mealIndex) return m;
+      const cal = newItems.reduce((s, it) => s + (it.calories || 0), 0);
+      return { ...m, items: newItems, calories: cal };
+    });
+    const all = meals.flatMap(m => m.items || []);
+    const totals = {
+      total_calories: all.reduce((s, it) => s + (it.calories || 0), 0),
+      protein_g: parseFloat(all.reduce((s, it) => s + (it.protein_g || 0), 0).toFixed(1)),
+      carbs_g: parseFloat(all.reduce((s, it) => s + (it.carbs_g || 0), 0).toFixed(1)),
+      fat_g: parseFloat(all.reduce((s, it) => s + (it.fat_g || 0), 0).toFixed(1)),
+    };
+    updateMut.mutate({ id: plan.id, d: { ...plan, meals, ...totals } });
+  };
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger}>
@@ -184,45 +203,48 @@ export default function Diet() {
                       ))}
                     </div>
                   )}
-                  {/* Meals */}
+                  {/* Meals — clickable cards */}
                   {plan.meals?.length > 0 && (
-                   <div className="space-y-2">
-                     {plan.meals.map((meal, i) => (
-                       <div key={i} className="p-3 rounded-lg border border-purple-900/15 bg-black/30">
-                         <div className="flex items-center gap-2 mb-2">
-                           <div className="w-6 h-6 rounded-md bg-purple-500/10 border border-purple-500/15 flex items-center justify-center flex-shrink-0">
-                             <span className="font-cyber text-[9px] text-purple-400">{i + 1}</span>
-                           </div>
-                           <p className="text-sm font-medium text-white">{meal.name}</p>
-                           {meal.time && <span className="text-xs text-purple-400/40 font-mono-cyber">{meal.time}</span>}
-                           {meal.calories > 0 && <span className="text-xs text-orange-400 font-mono-cyber ml-auto">{Math.round(meal.calories)} kcal</span>}
-                         </div>
-                         {/* Individual food items */}
-                         {(meal.items || []).length > 0 && (
-                           <div className="space-y-1 ml-8">
-                             {(meal.items || []).map((item, j) => (
-                               <div key={j} className="flex items-center justify-between py-1 border-b border-purple-900/10 last:border-0">
-                                 <div className="flex items-center gap-2">
-                                   <span className="text-xs text-white">{item.food_name}</span>
-                                   <span className="text-[10px] text-purple-500/40 font-mono-cyber">{item.quantity_g}g</span>
-                                 </div>
-                                 <div className="flex items-center gap-2 text-[10px] font-mono-cyber">
-                                   <span className="text-orange-400/70">{item.calories} kcal</span>
-                                   <span className="text-pink-400/70">{item.protein_g}g P</span>
-                                   <span className="text-yellow-400/70">{item.carbs_g}g C</span>
-                                   <span className="text-cyan-400/70">{item.fat_g}g G</span>
-                                 </div>
-                               </div>
-                             ))}
-                           </div>
-                         )}
-                         {/* Legado: texto livre */}
-                         {!(meal.items?.length) && meal.foods && (
-                           <p className="text-xs text-purple-400/40 ml-8 leading-relaxed">{meal.foods}</p>
-                         )}
-                       </div>
-                     ))}
-                   </div>
+                    <div className="space-y-2">
+                      {plan.meals.map((meal, i) => {
+                        const mealCal = Math.round((meal.items || []).reduce((s, it) => s + (it.calories || 0), 0) || meal.calories || 0);
+                        const mealProt = (meal.items || []).reduce((s, it) => s + (it.protein_g || 0), 0).toFixed(1);
+                        const mealCarb = (meal.items || []).reduce((s, it) => s + (it.carbs_g || 0), 0).toFixed(1);
+                        const mealFat = (meal.items || []).reduce((s, it) => s + (it.fat_g || 0), 0).toFixed(1);
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => setMealDetail({ plan, mealIndex: i })}
+                            className="w-full text-left rounded-xl border p-3 hover:border-purple-500/30 hover:bg-purple-500/5 transition-all group"
+                            style={{ background: 'rgba(0,0,0,0.4)', borderColor: 'rgba(168,85,247,0.15)' }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/15 flex items-center justify-center flex-shrink-0">
+                                  <span className="font-cyber text-[9px] text-purple-400">{i + 1}</span>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-white">{meal.name}</p>
+                                  <div className="flex items-center gap-2 mt-0.5 text-[9px] font-mono-cyber">
+                                    {meal.time && <span className="text-purple-400/40 flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />{meal.time}</span>}
+                                    <span className="text-purple-500/30">{(meal.items || []).length} alimentos</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="text-right hidden sm:block">
+                                  <p className="text-xs font-cyber text-orange-400">{mealCal} kcal</p>
+                                  <p className="text-[9px] font-mono-cyber text-purple-500/30">
+                                    P:{mealProt}g · C:{mealCarb}g · G:{mealFat}g
+                                  </p>
+                                </div>
+                                <ChevronRight className="w-4 h-4 text-purple-500/30 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all" />
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
                   {plan.notes && <p className="text-xs text-purple-400/30 font-mono-cyber mt-3 italic">// {plan.notes}</p>}
                 </div>
@@ -347,6 +369,15 @@ export default function Diet() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Meal detail modal */}
+      <MealDetailModal
+        open={!!mealDetail}
+        onClose={() => setMealDetail(null)}
+        meal={mealDetail ? mealDetail.plan.meals[mealDetail.mealIndex] : null}
+        mealIndex={mealDetail?.mealIndex}
+        onSave={(mealIndex, newItems) => handleMealSave(mealDetail.plan, mealIndex, newItems)}
+        readOnly={false}
+      />
     </motion.div>
   );
 }
