@@ -76,13 +76,25 @@ export default function DietPdfExport({ plan, studentName }) {
         }
         y += 14;
 
-        // Foods
-        const foodStr = meal.foods || '';
-        if (foodStr) {
+        // Foods — individual items or legacy text
+        const foodItems = meal.items || [];
+        if (foodItems.length > 0) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8.5);
+          foodItems.forEach(item => {
+            checkPage(7);
+            doc.setTextColor(220, 210, 240);
+            doc.text(`• ${item.food_name}`, margin + 6, y);
+            doc.setTextColor(150, 130, 190);
+            const macroStr = `${item.quantity_g}g  |  ${item.calories} kcal  |  P: ${item.protein_g}g  C: ${item.carbs_g}g  G: ${item.fat_g}g`;
+            doc.text(macroStr, w - margin - 2, y, { align: 'right' });
+            y += lineH;
+          });
+        } else if (meal.foods) {
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(9);
           doc.setTextColor(190, 175, 215);
-          const lines = doc.splitTextToSize(foodStr, w - margin * 2 - 8);
+          const lines = doc.splitTextToSize(meal.foods, w - margin * 2 - 8);
           lines.forEach(line => {
             checkPage(8);
             doc.text(line, margin + 6, y);

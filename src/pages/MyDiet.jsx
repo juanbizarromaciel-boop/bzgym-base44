@@ -128,10 +128,11 @@ export default function MyDiet() {
                   {plan.meals?.length > 0 && (
                     <div className="cyber-card rounded-xl border border-purple-900/20 p-4">
                       <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-3">Refeições do dia</p>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {plan.meals.map((meal, i) => (
-                          <div key={i} className="rounded-xl p-4 border border-purple-900/15 hover:border-purple-500/20 transition-all" style={{ background: 'rgba(0,0,0,0.4)' }}>
-                            <div className="flex items-center justify-between mb-2">
+                          <div key={i} className="rounded-xl border border-purple-900/15 hover:border-purple-500/20 transition-all overflow-hidden" style={{ background: 'rgba(0,0,0,0.4)' }}>
+                            {/* Meal header */}
+                            <div className="flex items-center justify-between px-4 py-3 border-b border-purple-900/15">
                               <div className="flex items-center gap-2">
                                 <div className="w-6 h-6 rounded-md bg-purple-500/10 border border-purple-500/15 flex items-center justify-center flex-shrink-0">
                                   <span className="font-cyber text-[9px] text-purple-400">{i + 1}</span>
@@ -148,12 +149,46 @@ export default function MyDiet() {
                                 {meal.calories > 0 && (
                                   <div className="flex items-center gap-1">
                                     <Flame className="w-3 h-3 text-orange-400/70" />
-                                    <span className="text-xs font-mono-cyber text-orange-400/70">{meal.calories} kcal</span>
+                                    <span className="text-xs font-mono-cyber text-orange-400/70">{Math.round(meal.calories)} kcal</span>
                                   </div>
                                 )}
                               </div>
                             </div>
-                            {meal.foods && <p className="text-xs text-purple-300/50 leading-relaxed pl-8">{meal.foods}</p>}
+
+                            {/* Food items */}
+                            {(meal.items || []).length > 0 && (
+                              <div className="divide-y divide-purple-900/10">
+                                {(meal.items || []).map((item, j) => (
+                                  <div key={j} className="flex items-center justify-between px-4 py-2.5">
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <span className="text-sm text-white font-medium truncate">{item.food_name}</span>
+                                      <span className="text-[10px] text-purple-500/40 font-mono-cyber flex-shrink-0">{item.quantity_g}g</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] font-mono-cyber flex-shrink-0 ml-3">
+                                      <span className="text-orange-400/80">{item.calories} kcal</span>
+                                      <span className="text-pink-400/80 hidden sm:inline">{item.protein_g}g P</span>
+                                      <span className="text-yellow-400/80 hidden sm:inline">{item.carbs_g}g C</span>
+                                      <span className="text-cyan-400/80 hidden sm:inline">{item.fat_g}g G</span>
+                                    </div>
+                                  </div>
+                                ))}
+                                {/* Meal total */}
+                                <div className="flex items-center justify-between px-4 py-2 bg-purple-500/5">
+                                  <span className="text-[10px] font-mono-cyber text-purple-500/40 tracking-wider">TOTAL DA REFEIÇÃO</span>
+                                  <div className="flex items-center gap-3 text-[10px] font-mono-cyber">
+                                    <span className="text-orange-400">{Math.round((meal.items || []).reduce((s, it) => s + (it.calories || 0), 0))} kcal</span>
+                                    <span className="text-pink-400 hidden sm:inline">{((meal.items || []).reduce((s, it) => s + (it.protein_g || 0), 0)).toFixed(1)}g P</span>
+                                    <span className="text-yellow-400 hidden sm:inline">{((meal.items || []).reduce((s, it) => s + (it.carbs_g || 0), 0)).toFixed(1)}g C</span>
+                                    <span className="text-cyan-400 hidden sm:inline">{((meal.items || []).reduce((s, it) => s + (it.fat_g || 0), 0)).toFixed(1)}g G</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Legado: texto livre */}
+                            {!(meal.items?.length) && meal.foods && (
+                              <p className="text-xs text-purple-300/50 leading-relaxed px-4 py-3">{meal.foods}</p>
+                            )}
                           </div>
                         ))}
                       </div>

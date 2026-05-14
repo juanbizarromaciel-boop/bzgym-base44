@@ -6,16 +6,18 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Utensils, Flame, Beef, Wheat, Droplets, FileDown } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Utensils, Flame, Beef, Wheat, Droplets } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 import { motion } from "framer-motion";
+import DietPdfExport from "../components/diet/DietPdfExport";
+import MealFoodEditor from "../components/diet/MealFoodEditor";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-import DietPdfExport from "../components/diet/DietPdfExport";
 
 const GOAL_LABELS = { bulking: "BULKING", cutting: "CUTTING", manutencao: "MANUTENÇÃO" };
 const GOAL_COLORS = {
@@ -29,7 +31,7 @@ const emptyPlan = {
   total_calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0,
   meals: [], notes: "", active: true
 };
-const emptyMeal = { name: "", time: "", calories: 0, foods: "" };
+const emptyMeal = { name: "", time: "", calories: 0, items: [] };
 
 export default function Diet() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -51,16 +53,32 @@ export default function Diet() {
   const openEdit = (p) => { setEditing(p); setForm({ ...p }); setDialogOpen(true); };
   const closeDialog = () => { setDialogOpen(false); setEditing(null); };
 
+  // Auto-calc total macros from all meal items
+  const recalcTotals = (meals) => {
+    const all = (meals || []).flatMap(m => m.items || []);
+    return {
+      total_calories: all.reduce((s, it) => s + (it.calories || 0), 0),
+      protein_g: parseFloat(all.reduce((s, it) => s + (it.protein_g || 0), 0).toFixed(1)),
+      carbs_g: parseFloat(all.reduce((s, it) => s + (it.carbs_g || 0), 0).toFixed(1)),
+      fat_g: parseFloat(all.reduce((s, it) => s + (it.fat_g || 0), 0).toFixed(1)),
+    };
+  };
+
   const handleSave = () => {
     if (!form.student_id || !form.name) { toast.error("Aluno e nome são obrigatórios"); return; }
-    if (editing) updateMut.mutate({ id: editing.id, d: form });
-    else createMut.mutate(form);
+    const totals = recalcTotals(form.meals);
+    const data = { ...form, ...totals };
+    if (editing) updateMut.mutate({ id: editing.id, d: data });
+    else createMut.mutate(data);
   };
 
   const addMeal = () => setForm({ ...form, meals: [...(form.meals || []), { ...emptyMeal }] });
   const updateMeal = (idx, field, val) => {
     const meals = [...(form.meals || [])];
     meals[idx] = { ...meals[idx], [field]: val };
+    if (field === "items") {
+      meals[idx].calories = val.reduce((s, it) => s + (it.calories || 0), 0);
+    }
     setForm({ ...form, meals });
   };
   const removeMeal = (idx) => {
@@ -168,23 +186,43 @@ export default function Diet() {
                   )}
                   {/* Meals */}
                   {plan.meals?.length > 0 && (
-                    <div className="space-y-2">
-                      {plan.meals.map((meal, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-purple-900/15 bg-black/30">
-                          <div className="w-7 h-7 rounded-md bg-purple-500/10 border border-purple-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <span className="font-cyber text-[10px] text-purple-400">{i + 1}</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium text-white">{meal.name}</p>
-                              {meal.time && <span className="text-xs text-purple-400/40 font-mono-cyber">{meal.time}</span>}
-                              {meal.calories > 0 && <span className="text-xs text-orange-400 font-mono-cyber">{meal.calories} kcal</span>}
-                            </div>
-                            {meal.foods && <p className="text-xs text-purple-400/40 mt-1 leading-relaxed">{meal.foods}</p>}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                   <div className="space-y-2">
+                     {plan.meals.map((meal, i) => (
+                       <div key={i} className="p-3 rounded-lg border border-purple-900/15 bg-black/30">
+                         <div className="flex items-center gap-2 mb-2">
+                           <div className="w-6 h-6 rounded-md bg-purple-500/10 border border-purple-500/15 flex items-center justify-center flex-shrink-0">
+                             <span className="font-cyber text-[9px] text-purple-400">{i + 1}</span>
+                           </div>
+                           <p className="text-sm font-medium text-white">{meal.name}</p>
+                           {meal.time && <span className="text-xs text-purple-400/40 font-mono-cyber">{meal.time}</span>}
+                           {meal.calories > 0 && <span className="text-xs text-orange-400 font-mono-cyber ml-auto">{Math.round(meal.calories)} kcal</span>}
+                         </div>
+                         {/* Individual food items */}
+                         {(meal.items || []).length > 0 && (
+                           <div className="space-y-1 ml-8">
+                             {(meal.items || []).map((item, j) => (
+                               <div key={j} className="flex items-center justify-between py-1 border-b border-purple-900/10 last:border-0">
+                                 <div className="flex items-center gap-2">
+                                   <span className="text-xs text-white">{item.food_name}</span>
+                                   <span className="text-[10px] text-purple-500/40 font-mono-cyber">{item.quantity_g}g</span>
+                                 </div>
+                                 <div className="flex items-center gap-2 text-[10px] font-mono-cyber">
+                                   <span className="text-orange-400/70">{item.calories} kcal</span>
+                                   <span className="text-pink-400/70">{item.protein_g}g P</span>
+                                   <span className="text-yellow-400/70">{item.carbs_g}g C</span>
+                                   <span className="text-cyan-400/70">{item.fat_g}g G</span>
+                                 </div>
+                               </div>
+                             ))}
+                           </div>
+                         )}
+                         {/* Legado: texto livre */}
+                         {!(meal.items?.length) && meal.foods && (
+                           <p className="text-xs text-purple-400/40 ml-8 leading-relaxed">{meal.foods}</p>
+                         )}
+                       </div>
+                     ))}
+                   </div>
                   )}
                   {plan.notes && <p className="text-xs text-purple-400/30 font-mono-cyber mt-3 italic">// {plan.notes}</p>}
                 </div>
@@ -251,42 +289,46 @@ export default function Diet() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { label: "KCAL", field: "total_calories" },
-                { label: "PROT (g)", field: "protein_g" },
-                { label: "CARB (g)", field: "carbs_g" },
-                { label: "GORD (g)", field: "fat_g" },
-              ].map(m => (
-                <div key={m.field}>
-                  <Label className="text-purple-400/60 text-[10px] tracking-wider">{m.label}</Label>
-                  <Input type="number" value={form[m.field] || ""} onChange={e => setForm({ ...form, [m.field]: parseFloat(e.target.value) || 0 })} className="cyber-input mt-1 text-center" />
-                </div>
-              ))}
+            {/* Macros são calculados automaticamente a partir dos alimentos */}
+            <div className="p-3 rounded-lg border border-purple-900/20 bg-black/20">
+              <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-wider mb-2">// macros calculados automaticamente pelos alimentos</p>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { label: "KCAL", val: recalcTotals(form.meals).total_calories, color: "text-orange-400" },
+                  { label: "PROT", val: `${recalcTotals(form.meals).protein_g}g`, color: "text-pink-400" },
+                  { label: "CARB", val: `${recalcTotals(form.meals).carbs_g}g`, color: "text-yellow-400" },
+                  { label: "GORD", val: `${recalcTotals(form.meals).fat_g}g`, color: "text-cyan-400" },
+                ].map(m => (
+                  <div key={m.label} className="text-center">
+                    <p className={`font-cyber text-sm ${m.color}`}>{m.val}</p>
+                    <p className="text-[9px] font-mono-cyber text-purple-500/40">{m.label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Meals */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label className="text-purple-400/60 text-xs tracking-wider">REFEIÇÕES</Label>
-                <button onClick={addMeal} className="btn-neon-cyan px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1">
-                  <Plus className="w-3 h-3" /> ADICIONAR
+                <button type="button" onClick={addMeal} className="btn-neon-cyan px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1">
+                  <Plus className="w-3 h-3" /> ADICIONAR REFEIÇÃO
                 </button>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {(form.meals || []).map((meal, idx) => (
-                  <div key={idx} className="p-3 rounded-lg border border-purple-900/25 bg-black/30 space-y-2">
-                    <div className="grid grid-cols-3 gap-2">
-                      <Input value={meal.name} onChange={e => updateMeal(idx, "name", e.target.value)} placeholder="Café da manhã" className="cyber-input text-xs" />
-                      <Input value={meal.time} onChange={e => updateMeal(idx, "time", e.target.value)} placeholder="07:00" className="cyber-input text-xs" />
-                      <div className="flex gap-1">
-                        <Input type="number" value={meal.calories || ""} onChange={e => updateMeal(idx, "calories", parseFloat(e.target.value) || 0)} placeholder="kcal" className="cyber-input text-xs text-center" />
-                        <button onClick={() => removeMeal(idx)} className="p-2 text-pink-400/50 hover:text-pink-400 hover:bg-pink-500/10 rounded-lg transition-all">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                  <div key={idx} className="p-3 rounded-lg border border-purple-900/25 bg-black/30 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Input value={meal.name} onChange={e => updateMeal(idx, "name", e.target.value)} placeholder="Café da manhã" className="cyber-input text-xs flex-1" />
+                      <Input value={meal.time} onChange={e => updateMeal(idx, "time", e.target.value)} placeholder="07:00" className="cyber-input text-xs w-20" />
+                      <button type="button" onClick={() => removeMeal(idx)} className="p-2 text-pink-400/50 hover:text-pink-400 hover:bg-pink-500/10 rounded-lg transition-all flex-shrink-0">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <Textarea value={meal.foods} onChange={e => updateMeal(idx, "foods", e.target.value)} placeholder="Ex: 3 ovos mexidos, 2 fatias de pão integral, 1 banana..." className="cyber-input text-xs h-16" />
+                    <MealFoodEditor
+                      items={meal.items || []}
+                      onChange={(items) => updateMeal(idx, "items", items)}
+                    />
                   </div>
                 ))}
               </div>

@@ -49,7 +49,38 @@
             "type": "number"
           },
           "foods": {
-            "type": "string"
+            "type": "string",
+            "description": "Campo legado (texto livre)"
+          },
+          "items": {
+            "type": "array",
+            "description": "Alimentos individuais da refei\u00e7\u00e3o",
+            "items": {
+              "type": "object",
+              "properties": {
+                "food_id": {
+                  "type": "string"
+                },
+                "food_name": {
+                  "type": "string"
+                },
+                "quantity_g": {
+                  "type": "number"
+                },
+                "calories": {
+                  "type": "number"
+                },
+                "protein_g": {
+                  "type": "number"
+                },
+                "carbs_g": {
+                  "type": "number"
+                },
+                "fat_g": {
+                  "type": "number"
+                }
+              }
+            }
           }
         }
       }
