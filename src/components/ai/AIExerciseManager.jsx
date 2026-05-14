@@ -53,11 +53,11 @@ function BulkCommandPanel({ exercises, onRefresh }) {
       const t = line.trim();
       if (!t) continue;
 
-      const fotoMatch = t.match(/^(?:foto|imagem|image|photo)\s*[:：]\s*(.+)$/i);
+      const gifMatch = t.match(/^(?:gif|foto|imagem|image|photo)\s*[:：]\s*(.+)$/i);
       const videoMatch = t.match(/^(?:v[íi]deo|video)\s*[:：]\s*(.+)$/i);
 
-      if (fotoMatch) {
-        if (current) current.image_url = fotoMatch[1].trim();
+      if (gifMatch) {
+        if (current) current.image_url = gifMatch[1].trim();
       } else if (videoMatch) {
         if (current) {
           const raw = videoMatch[1].trim();
@@ -140,19 +140,18 @@ function BulkCommandPanel({ exercises, onRefresh }) {
       {/* Format example */}
       <div className="mb-3 p-3 rounded-lg text-[10px] font-mono-cyber leading-relaxed"
         style={{ background: 'rgba(6,182,212,0.05)', border: '1px solid rgba(6,182,212,0.15)', color: 'rgba(103,232,249,0.6)' }}>
-        <span className="text-cyan-400/80 block mb-1">// Exemplo de formato:</span>
+        <span className="text-cyan-400/80 block mb-1">// Exemplo de formato (use o nome EXATO do exercício):</span>
         Agachamento Livre<br/>
-        Foto: https://site.com/agachamento.gif<br/>
-        Vídeo: https://youtube.com/watch?v=XXXXX<br/>
+        GIF: https://site.com/agachamento.gif<br/>
         <br/>
         Supino Reto<br/>
-        Foto: https://site.com/supino.gif
+        GIF: https://site.com/supino.gif
       </div>
 
       <textarea
         value={text}
         onChange={e => setText(e.target.value)}
-        placeholder={"Nome do Exercício\nFoto: https://...\nVídeo: https://...\n\nOutro Exercício\nFoto: https://..."}
+        placeholder={"Nome do Exercício\nGIF: https://...\n\nOutro Exercício\nGIF: https://..."}
         rows={7}
         className="w-full rounded-xl p-3 text-sm resize-none mb-3"
         style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.25)', color: '#e9d5ff' }}
@@ -254,8 +253,8 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
         {/* Image thumbnail */}
         <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden border border-purple-900/25"
           style={{ background: 'rgba(168,85,247,0.06)' }}>
-          {localExercise.video_url
-            ? <img src={localExercise.video_url} alt={localExercise.name} className="w-full h-full object-cover"
+          {localExercise.image_url
+            ? <img src={localExercise.image_url} alt={localExercise.name} className="w-full h-full object-cover"
                 onError={e => e.target.style.display = 'none'} />
             : <div className="w-full h-full flex items-center justify-center">
                 <Dumbbell className="w-4 h-4 text-purple-600/40" />
@@ -274,9 +273,9 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                 <FileText className="w-2.5 h-2.5" /> desc.
               </span>
             )}
-            {localExercise.video_url && (
+            {localExercise.image_url && (
               <span className="text-[9px] text-cyan-500/40 font-mono-cyber flex items-center gap-1">
-                <Image className="w-2.5 h-2.5" /> mídia
+                <Image className="w-2.5 h-2.5" /> gif
               </span>
             )}
           </div>
