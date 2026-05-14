@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Utensils, Flame, Beef, Wheat, Droplets, FileDown } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
+import { motion } from "framer-motion";
+
+const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 import DietPdfExport from "../components/diet/DietPdfExport";
 
 const GOAL_LABELS = { bulking: "BULKING", cutting: "CUTTING", manutencao: "MANUTENÇÃO" };
@@ -69,7 +73,7 @@ export default function Diet() {
   const getStudent = (id) => students.find(s => s.id === id);
 
   return (
-    <div>
+    <motion.div initial="hidden" animate="show" variants={stagger}>
       <PageHeader
         title="Dietas"
         accentColor="#10b981"
@@ -82,7 +86,7 @@ export default function Diet() {
       />
 
       {/* Filter */}
-      <div className="mb-6">
+      <motion.div variants={fadeUp} className="mb-6">
         <Select value={filterStudent} onValueChange={setFilterStudent}>
           <SelectTrigger className="cyber-input w-full sm:w-64">
             <SelectValue placeholder="Filtrar por aluno" />
@@ -92,21 +96,22 @@ export default function Diet() {
             {students.map(s => <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>)}
           </SelectContent>
         </Select>
-      </div>
+      </motion.div>
 
       {/* Plans list */}
-      <div className="space-y-3">
+      <motion.div variants={stagger} className="space-y-3">
         {filtered.length === 0 && (
-          <div className="text-center py-16 text-purple-500/30">
+          <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/30">
             <Utensils className="w-12 h-12 mx-auto mb-4 opacity-20" />
             <p className="font-mono-cyber text-sm">// nenhuma dieta cadastrada</p>
-          </div>
+          </motion.div>
         )}
         {filtered.map(plan => {
           const st = getStudent(plan.student_id);
           const isExpanded = expandedId === plan.id;
           return (
-            <div key={plan.id} className="cyber-card rounded-xl border border-purple-900/20 overflow-hidden">
+            <motion.div key={plan.id} variants={fadeUp} whileHover={{ scale: 1.005 }} transition={{ duration: 0.15 }}
+              className="cyber-card rounded-xl border border-purple-900/20 overflow-hidden">
               <div
                 className="flex items-center justify-between p-4 cursor-pointer hover:bg-purple-500/5 transition-all"
                 onClick={() => setExpandedId(isExpanded ? null : plan.id)}
@@ -184,10 +189,10 @@ export default function Diet() {
                   {plan.notes && <p className="text-xs text-purple-400/30 font-mono-cyber mt-3 italic">// {plan.notes}</p>}
                 </div>
               )}
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
@@ -300,6 +305,6 @@ export default function Diet() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

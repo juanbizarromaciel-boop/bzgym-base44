@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Send, MessageCircle, User } from "lucide-react";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 
@@ -78,7 +79,7 @@ export default function Chat() {
   );
 
   return (
-    <div>
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.22,1,0.36,1] }}>
       <PageHeader
         title="Chat"
         accentColor="#06b6d4"
@@ -181,6 +182,6 @@ export default function Chat() {
           </p>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

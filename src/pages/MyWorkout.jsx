@@ -6,6 +6,10 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 import { toast } from "sonner";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ExerciseTimers from "../components/workout/ExerciseTimers";
@@ -193,9 +197,9 @@ export default function MyWorkout() {
 
   // Plan selection
   if (!selectedPlanId) return (
-    <div>
+    <motion.div initial="hidden" animate="show" variants={stagger}>
       {/* Hero */}
-      <div className="mb-8">
+      <motion.div variants={fadeUp} className="mb-8">
         <div className="flex items-center gap-3 mb-1">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-purple-900/40" />
           <span className="text-[10px] font-mono-cyber text-purple-500/30 tracking-[0.25em]">
@@ -216,11 +220,11 @@ export default function MyWorkout() {
             <span className="text-xs font-mono-cyber text-purple-400/60 tracking-wider">{GOAL_LABELS[student.goal] || student.goal}</span>
           </div>
         )}
-      </div>
+        </motion.div>
 
-      {/* Today's workout highlight */}
+        {/* Today's workout highlight */}
       {todayPlans.length > 0 && (
-        <div
+        <motion.div variants={fadeUp}
           className="mb-6 rounded-xl p-5 border"
           style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.06), rgba(6,182,212,0.03))', borderColor: 'rgba(168,85,247,0.3)', boxShadow: '0 0 25px rgba(168,85,247,0.08)' }}
         >
@@ -239,11 +243,11 @@ export default function MyWorkout() {
               </button>
             </div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* All plans */}
-      <div>
+      <motion.div variants={fadeUp}>
         <div className="flex items-center justify-between mb-4">
           <p className="text-[10px] text-purple-500/40 font-mono-cyber uppercase tracking-[0.25em] flex items-center gap-2">
             <Calendar className="w-3 h-3" /> Todos os treinos
@@ -255,11 +259,11 @@ export default function MyWorkout() {
             />
           )}
         </div>
-        <div className="space-y-2">
+        <motion.div variants={stagger} className="space-y-2">
           {myPlans.map(plan => {
             const isToday = plan.day_of_week === today;
             return (
-              <button
+              <motion.button variants={fadeUp} whileHover={{ scale: 1.01 }} transition={{ duration: 0.15 }}
                 key={plan.id}
                 onClick={() => setSelectedPlanId(plan.id)}
                 className={`w-full text-left rounded-xl p-4 border transition-all group ${
@@ -285,25 +289,25 @@ export default function MyWorkout() {
                   </div>
                   <ChevronRight className="w-5 h-5 text-purple-600/40 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
                 </div>
-              </button>
+              </motion.button>
             );
           })}
           {myPlans.length === 0 && (
-            <div className="text-center py-16 text-purple-500/30">
+            <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/30">
               <Dumbbell className="w-12 h-12 mx-auto mb-4 opacity-20" />
               <p className="font-mono-cyber text-sm">// nenhum treino atribuído<br />// fale com seu personal</p>
-            </div>
+            </motion.div>
           )}
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 
   // Workout execution
   const progress = selectedPlan.exercises?.length ? (completedExercises.size / selectedPlan.exercises.length) * 100 : 0;
 
   return (
-    <div>
+    <motion.div initial="hidden" animate="show" variants={stagger}>
       {/* Muscle Map */}
       <div className="cyber-card rounded-xl p-5 border border-purple-900/20 mb-5">
         <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">Grupos Musculares - {selectedPlan?.name}</p>
@@ -361,13 +365,13 @@ export default function MyWorkout() {
       )}
 
       {/* Exercises */}
-      <div className="space-y-4">
+      <motion.div variants={stagger} className="space-y-4">
         {selectedPlan.exercises?.map((exercise, exerciseIdx) => {
           const isCompleted = completedExercises.has(exerciseIdx);
           const sets = setsData[exerciseIdx] || initSets(exerciseIdx, exercise.sets);
 
           return (
-            <div
+            <motion.div variants={fadeUp}
               key={exerciseIdx}
               className={`cyber-card rounded-xl p-5 border transition-all ${
                 isCompleted ? "border-cyan-500/20" : "border-purple-900/20"
@@ -481,10 +485,10 @@ export default function MyWorkout() {
                   <span className="text-xs font-mono-cyber text-cyan-400 tracking-wider">✓ CONCLUÍDO</span>
                 </div>
               )}
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Video Dialog */}
       <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
@@ -517,6 +521,6 @@ export default function MyWorkout() {
           })()}
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

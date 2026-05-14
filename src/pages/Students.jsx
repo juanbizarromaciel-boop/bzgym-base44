@@ -15,6 +15,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, UserCircle, Phone, Mail, Target, Pencil, Trash2, Camera } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
+import { motion } from "framer-motion";
+
+const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 
 const goals = {
   hipertrofia: "Hipertrofia",
@@ -114,7 +118,7 @@ export default function Students() {
   );
 
   return (
-    <div>
+    <motion.div initial="hidden" animate="show" variants={stagger}>
       <PageHeader
         title="Alunos"
         accentColor="#06b6d4"
@@ -126,18 +130,22 @@ export default function Students() {
         }
       />
 
-      <div className="relative mb-6">
+      <motion.div variants={fadeUp} className="relative mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-500/50" />
         <Input placeholder="Buscar aluno..." value={search} onChange={(e) => setSearch(e.target.value)} className="cyber-input pl-10" />
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filtered.map((student) => (
-          <div key={student.id} className="cyber-card rounded-xl p-5 border border-purple-900/20 hover:border-purple-500/30 transition-all group">
+          <motion.div key={student.id} variants={fadeUp} whileHover={{ scale: 1.02, y: -2 }} transition={{ duration: 0.18 }}
+            className="cyber-card rounded-xl p-5 border border-purple-900/20 hover:border-purple-500/40 transition-all group relative overflow-hidden"
+            style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}>
+            <div className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.6), transparent)' }} />
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-full overflow-hidden bg-purple-500/10 border border-purple-500/20 flex items-center justify-center"
-                  style={{boxShadow: '0 0 10px rgba(168,85,247,0.1)'}}>
+                  style={{boxShadow: '0 0 10px rgba(168,85,247,0.15)'}}>
                   {student.photo_url
                     ? <img src={student.photo_url} alt={student.name} className="w-full h-full object-cover" />
                     : <UserCircle className="w-6 h-6 text-purple-400" />
@@ -163,9 +171,9 @@ export default function Students() {
               {student.email && <div className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" />{student.email}</div>}
               {student.phone && <div className="flex items-center gap-2"><Phone className="w-3.5 h-3.5" />{student.phone}</div>}
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       <Dialog open={dialogOpen} onOpenChange={closeDialog}>
         <DialogContent className="border border-purple-900/40 text-white max-w-md" style={{background: '#04040e'}}>
@@ -224,6 +232,6 @@ export default function Students() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

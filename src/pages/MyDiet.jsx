@@ -4,6 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Utensils, Flame, Clock, Calculator } from "lucide-react";
+import { motion } from "framer-motion";
+
+const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 import MacroDonutChart from "../components/diet/MacroDonutChart";
 import CalorieSimulator from "../components/diet/CalorieSimulator";
 
@@ -57,17 +61,17 @@ export default function MyDiet() {
   );
 
   return (
-    <div>
+    <motion.div initial="hidden" animate="show" variants={stagger}>
       {/* Header */}
-      <div className="mb-6">
+      <motion.div variants={fadeUp} className="mb-6">
         <p className="text-[10px] font-mono-cyber text-purple-500/30 tracking-[0.4em] mb-1">PLANO NUTRICIONAL</p>
         <h1 className="font-cyber text-3xl text-white tracking-widest" style={{ textShadow: '0 0 20px rgba(168,85,247,0.4)' }}>
           MINHA DIETA
         </h1>
-      </div>
+      </motion.div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 p-1 rounded-xl border border-purple-900/20 bg-black/40" style={{ width: 'fit-content' }}>
+      <motion.div variants={fadeUp} className="flex gap-1 mb-6 p-1 rounded-xl border border-purple-900/20 bg-black/40" style={{ width: 'fit-content' }}>
         {TABS.map(tab => (
           <button
             key={tab.id}
@@ -82,20 +86,20 @@ export default function MyDiet() {
             {tab.label}
           </button>
         ))}
-      </div>
+      </motion.div>
 
       {/* PLANO TAB */}
       {activeTab === "plano" && (
         <>
           {myPlans.length === 0 ? (
-            <div className="text-center py-20 text-purple-500/30">
+            <motion.div variants={fadeUp} className="text-center py-20 text-purple-500/30">
               <Utensils className="w-16 h-16 mx-auto mb-4 opacity-20" />
               <p className="font-mono-cyber text-sm">// nenhuma dieta atribuída<br />// fale com seu personal</p>
-            </div>
+            </motion.div>
           ) : (
-            <div className="space-y-6">
+            <motion.div variants={stagger} className="space-y-6">
               {myPlans.map(plan => (
-                <div key={plan.id} className="space-y-3">
+                <motion.div key={plan.id} variants={fadeUp} className="space-y-3">
                   {/* Plan header */}
                   <div
                     className="cyber-card rounded-xl border border-purple-900/20 p-5"
@@ -159,9 +163,9 @@ export default function MyDiet() {
                   {plan.notes && (
                     <p className="text-xs text-purple-400/30 font-mono-cyber px-2 italic">// {plan.notes}</p>
                   )}
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </>
       )}
@@ -191,6 +195,6 @@ export default function MyDiet() {
           )}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

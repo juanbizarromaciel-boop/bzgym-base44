@@ -11,6 +11,10 @@ import {
 } from "recharts";
 import { TrendingUp, TrendingDown, Minus, Zap, Dumbbell, Calendar } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
+import { motion } from "framer-motion";
+
+const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 import MuscleMap from "../components/workout/MuscleMap";
 import { format, subDays, subWeeks, subMonths, startOfWeek, startOfMonth, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -195,10 +199,10 @@ export default function Progress() {
   };
 
   return (
-    <div>
+    <motion.div initial="hidden" animate="show" variants={stagger}>
       <PageHeader title="Evolução" accentColor="#f59e0b" subtitle="Volume de treino · kg × reps" />
 
-      <div className="flex flex-wrap gap-3 mb-6">
+      <motion.div variants={fadeUp} className="flex flex-wrap gap-3 mb-6">
         {isAdmin && (
           <Select value={selectedStudentId} onValueChange={(v) => { setSelectedStudentId(v); setSelectedExercise("all"); setSelectedMuscle("all"); }}>
             <SelectTrigger className="w-full sm:w-56 cyber-input">
@@ -244,19 +248,19 @@ export default function Progress() {
             </div>
           </>
         )}
-      </div>
+      </motion.div>
 
       {selectedStudentId && filteredLogs.length > 0 && (
-        <>
+        <motion.div variants={stagger}>
           {filteredLogs.length > 0 && (
-            <div className="cyber-card rounded-xl p-5 border border-purple-900/20 mb-6">
+            <motion.div variants={fadeUp} className="cyber-card rounded-xl p-5 border border-purple-900/20 mb-6">
               <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">Músculos Trabalhados no Período</p>
               <MuscleMap loggedExercises={filteredLogs} exerciseLibrary={exercises} size="md" showLabels={true} />
-            </div>
+            </motion.div>
           )}
 
           {trend && (
-            <div className="flex items-center gap-4 mb-6 cyber-card rounded-xl p-4 border border-purple-900/20">
+            <motion.div variants={fadeUp} className="flex items-center gap-4 mb-6 cyber-card rounded-xl p-4 border border-purple-900/20">
               <div className={`w-12 h-12 rounded-lg border flex items-center justify-center ${
                 trend.type === "up" ? "bg-cyan-500/10 border-cyan-500/30" : trend.type === "down" ? "bg-pink-500/10 border-pink-500/30" : "bg-purple-500/10 border-purple-500/20"
               }`}>
@@ -277,10 +281,10 @@ export default function Progress() {
                   <span className="text-xs ml-1 text-purple-500/40">kg·rep</span>
                 </p>
               </div>
-            </div>
+            </motion.div>
           )}
 
-          <div className="cyber-card rounded-xl p-6 border border-purple-900/20 mb-4">
+          <motion.div variants={fadeUp} className="cyber-card rounded-xl p-6 border border-purple-900/20 mb-4">
             <p className="font-cyber text-xs tracking-[0.2em] text-purple-400/60 uppercase mb-4 flex items-center gap-2">
               <Zap className="w-3.5 h-3.5 text-purple-400" />
               Volume de Força (kg × reps) — {PERIOD_OPTIONS.find(p => p.value === period)?.label}
@@ -302,9 +306,9 @@ export default function Progress() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="cyber-card rounded-xl p-6 border border-purple-900/20 mb-6">
+          <motion.div variants={fadeUp} className="cyber-card rounded-xl p-6 border border-purple-900/20 mb-6">
             <p className="font-cyber text-xs tracking-[0.2em] text-purple-400/60 uppercase mb-4 flex items-center gap-2">
               <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
               Carga Máxima (kg) — {PERIOD_OPTIONS.find(p => p.value === period)?.label}
@@ -329,9 +333,9 @@ export default function Progress() {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="cyber-card rounded-xl p-6 border border-purple-900/20 mb-4">
+          <motion.div variants={fadeUp} className="cyber-card rounded-xl p-6 border border-purple-900/20 mb-4">
             <p className="font-cyber text-xs tracking-[0.2em] text-purple-400/60 uppercase mb-4 flex items-center gap-2">
               <Dumbbell className="w-3.5 h-3.5 text-pink-400" />
               Volume por Grupo Muscular
@@ -361,9 +365,9 @@ export default function Progress() {
                 );
               })}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="cyber-card rounded-xl p-6 border border-purple-900/20 mb-4">
+          <motion.div variants={fadeUp} className="cyber-card rounded-xl p-6 border border-purple-900/20 mb-4">
             <p className="font-cyber text-xs tracking-[0.2em] text-purple-400/60 uppercase mb-4 flex items-center gap-2">
               <Calendar className="w-3.5 h-3.5 text-purple-400" />
               Volume por Exercício
@@ -396,21 +400,21 @@ export default function Progress() {
                 );
               })}
             </div>
-          </div>
-        </>
+          </motion.div>
+        </motion.div>
       )}
 
       {selectedStudentId && filteredLogs.length === 0 && (
-        <div className="text-center py-16 text-purple-500/30">
+        <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/30">
           <p className="font-mono-cyber text-sm">// nenhum registro encontrado</p>
-        </div>
+        </motion.div>
       )}
 
       {!selectedStudentId && isAdmin && (
-        <div className="text-center py-16 text-purple-500/20">
+        <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/20">
           <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="font-mono-cyber text-sm">// selecione um aluno para ver a evolução</p>
-        </div>
+        </motion.div>
       )}
 
       {!selectedStudentId && !isAdmin && (
@@ -418,6 +422,6 @@ export default function Progress() {
           <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto" />
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

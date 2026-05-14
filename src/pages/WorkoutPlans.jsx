@@ -14,6 +14,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, UserCircle, AlertTriangle, Copy, EyeOff, Eye, Archive } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
+import { motion } from "framer-motion";
+
+const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 import ExerciseCard from "../components/workout/ExerciseCard";
 import ExerciseFormDialog from "../components/workout/ExerciseFormDialog";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
@@ -152,7 +156,7 @@ export default function WorkoutPlans() {
   const orphanPlans = filteredPlans.filter(p => !students.find(s => s.id === p.student_id));
 
   return (
-    <div>
+    <motion.div initial="hidden" animate="show" variants={stagger}>
       <PageHeader
         title="Treinos"
         accentColor="#ec4899"
@@ -164,7 +168,7 @@ export default function WorkoutPlans() {
         }
       />
 
-      <div className="mb-6">
+      <motion.div variants={fadeUp} className="mb-6">
         <Select value={filterStudent} onValueChange={setFilterStudent}>
           <SelectTrigger className="w-full sm:w-64 cyber-input">
             <SelectValue placeholder="Filtrar por aluno" />
@@ -176,9 +180,9 @@ export default function WorkoutPlans() {
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </motion.div>
 
-      <div className="space-y-4">
+      <motion.div variants={stagger} className="space-y-4">
         {plansByStudent.map(({ student, activePlans, archivedPlans }) => {
           const isOpen = expandedStudent === student.id || filterStudent === student.id;
           const totalPlans = activePlans.length + archivedPlans.length;
@@ -248,7 +252,7 @@ export default function WorkoutPlans() {
           );
 
           return (
-            <div key={student.id} className="cyber-card rounded-xl border border-purple-900/25 overflow-hidden">
+            <motion.div key={student.id} variants={fadeUp} className="cyber-card rounded-xl border border-purple-900/25 overflow-hidden">
               {/* Student Folder Header */}
               <button
                 className="w-full flex items-center justify-between px-5 py-4 hover:bg-purple-500/5 transition-all"
@@ -312,12 +316,12 @@ export default function WorkoutPlans() {
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
           );
         })}
 
         {orphanPlans.map((plan) => (
-          <div key={plan.id} className="cyber-card rounded-xl border border-purple-900/20 overflow-hidden hover:border-purple-500/25 transition-all">
+          <motion.div key={plan.id} variants={fadeUp} className="cyber-card rounded-xl border border-purple-900/20 overflow-hidden hover:border-purple-500/25 transition-all">
             <div className="p-5 flex items-center justify-between cursor-pointer" onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}>
               <div className="flex items-center gap-4">
                 <div className="w-2 h-10 rounded-full bg-gradient-to-b from-purple-500 to-cyan-500 opacity-60" />
@@ -339,15 +343,15 @@ export default function WorkoutPlans() {
                 {plan.exercises?.map((ex, idx) => <ExerciseCard key={idx} exercise={ex} index={idx} showActions={false} />)}
               </div>
             )}
-          </div>
+          </motion.div>
         ))}
 
         {filteredPlans.length === 0 && (
-          <div className="text-center py-16 text-purple-500/30">
+          <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/30">
             <p className="font-mono-cyber text-sm">// nenhum treino encontrado</p>
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
       {/* Plan Dialog */}
       <Dialog open={planDialogOpen} onOpenChange={closePlanDialog}>
@@ -480,6 +484,6 @@ export default function WorkoutPlans() {
         exercise={editingExerciseIndex !== null ? planForm.exercises[editingExerciseIndex] : null}
         exercisesList={exercises}
       />
-    </div>
+    </motion.div>
   );
 }

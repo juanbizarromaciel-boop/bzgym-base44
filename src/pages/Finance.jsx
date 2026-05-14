@@ -5,6 +5,10 @@ import {
   DollarSign, Plus, Pencil, Trash2, AlertTriangle,
   CheckCircle2, Clock, TrendingUp, Users, Filter
 } from "lucide-react";
+import { motion } from "framer-motion";
+
+const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import PaymentFormDialog from "../components/finance/PaymentFormDialog";
@@ -83,9 +87,9 @@ export default function Finance() {
   const formatDate = (d) => { try { return format(parseISO(d), 'dd/MM/yyyy', { locale: ptBR }); } catch { return d; } };
 
   return (
-    <div className="max-w-5xl space-y-6">
+    <motion.div className="max-w-5xl space-y-6" initial="hidden" animate="show" variants={stagger}>
       {/* Header */}
-      <div className="relative rounded-2xl p-6 overflow-hidden"
+      <motion.div variants={fadeUp} className="relative rounded-2xl p-6 overflow-hidden"
         style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(168,85,247,0.05))', border: '1px solid rgba(16,185,129,0.2)', boxShadow: '0 0 40px rgba(16,185,129,0.06)' }}>
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.5), transparent)' }} />
         <div className="flex items-center justify-between">
@@ -105,29 +109,32 @@ export default function Finance() {
             <Plus className="w-4 h-4" /> Novo Pagamento
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: "Total Recebido", value: formatMoney(totalPago), color: '#6ee7b7', border: 'rgba(16,185,129,0.25)', bg: 'rgba(16,185,129,0.07)', icon: TrendingUp },
           { label: "A Receber", value: formatMoney(totalPendente), color: '#fcd34d', border: 'rgba(245,158,11,0.25)', bg: 'rgba(245,158,11,0.07)', icon: Clock },
           { label: "Atrasados", value: atrasados.length, color: '#fca5a5', border: 'rgba(239,68,68,0.25)', bg: 'rgba(239,68,68,0.07)', icon: AlertTriangle },
           { label: "Alunos", value: [...new Set(filteredPayments.map(p => p.student_id))].length, color: '#c084fc', border: 'rgba(168,85,247,0.25)', bg: 'rgba(168,85,247,0.07)', icon: Users },
         ].map((s, i) => (
-          <div key={i} className="rounded-xl p-4 border" style={{ background: s.bg, borderColor: s.border }}>
+          <motion.div key={i} whileHover={{ scale: 1.04, y: -2 }} transition={{ duration: 0.16 }}
+            className="rounded-xl p-4 border relative overflow-hidden" style={{ background: s.bg, borderColor: s.border }}>
+            <div className="absolute top-0 left-0 right-0 h-px"
+              style={{ background: `linear-gradient(90deg, transparent, ${s.color}80, transparent)` }} />
             <div className="flex items-center justify-between mb-2">
               <p className="text-[10px] font-mono-cyber" style={{ color: s.color, opacity: 0.7, letterSpacing: '0.1em' }}>{s.label}</p>
               <s.icon className="w-3.5 h-3.5" style={{ color: s.color, opacity: 0.6 }} />
             </div>
             <p className="text-lg font-cyber" style={{ color: s.color }}>{s.value}</p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Alerta atrasados */}
       {atrasados.length > 0 && (
-        <div className="rounded-xl p-4 border flex items-start gap-3"
+        <motion.div variants={fadeUp} className="rounded-xl p-4 border flex items-start gap-3"
           style={{ background: 'rgba(239,68,68,0.06)', borderColor: 'rgba(239,68,68,0.25)' }}>
           <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
           <div>
@@ -138,11 +145,11 @@ export default function Finance() {
               {atrasados.map(p => getStudentName(p.student_id)).join(', ')}
             </p>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
+      <motion.div variants={fadeUp} className="flex flex-wrap gap-3 items-center">
         <div className="flex gap-1.5">
           {['todos', 'pago', 'pendente', 'atrasado'].map(s => (
             <button key={s} onClick={() => setFilterStatus(s)}
@@ -162,10 +169,10 @@ export default function Finance() {
           <option value="">Todos os alunos</option>
           {filteredStudents.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
-      </div>
+      </motion.div>
 
       {/* Table — desktop only */}
-      <div className="hidden sm:block rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(168,85,247,0.15)' }}>
+      <motion.div variants={fadeUp} className="hidden sm:block rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(168,85,247,0.15)' }}>
         <div className="grid grid-cols-12 px-4 py-2.5 text-[10px] font-mono-cyber uppercase tracking-widest"
           style={{ background: 'rgba(168,85,247,0.08)', borderBottom: '1px solid rgba(168,85,247,0.12)', color: 'rgba(192,132,252,0.5)' }}>
           <div className="col-span-3">Aluno</div>
@@ -245,10 +252,10 @@ export default function Finance() {
             );
           })
         )}
-      </div>
+      </motion.div>
 
       {/* Cards — mobile only */}
-      <div className="sm:hidden space-y-3">
+      <motion.div variants={stagger} className="sm:hidden space-y-3">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
@@ -264,7 +271,7 @@ export default function Finance() {
             const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pendente;
             const Icon = cfg.icon;
             return (
-              <div key={p.id} className="rounded-xl p-4 border space-y-3"
+              <motion.div key={p.id} variants={fadeUp} className="rounded-xl p-4 border space-y-3"
                 style={{ background: 'rgba(8,4,22,0.8)', borderColor: 'rgba(168,85,247,0.15)' }}>
                 {/* Top row: name + actions */}
                 <div className="flex items-start justify-between gap-2">
@@ -322,11 +329,11 @@ export default function Finance() {
                     )}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })
         )}
-      </div>
+      </motion.div>
 
       {markPaidPayment && (
         <MarkPaidDialog
@@ -349,6 +356,6 @@ export default function Finance() {
           onSaved={handleSaved}
         />
       )}
-    </div>
+    </motion.div>
   );
 }
