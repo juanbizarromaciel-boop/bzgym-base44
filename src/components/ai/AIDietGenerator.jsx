@@ -53,12 +53,62 @@ Retorne JSON com: dietName, goal, totalCalories, totalProtein, totalCarbs, total
     if (!selectedStudent) { toast.error("Selecione um aluno."); return; }
     setApplying(true);
     try {
-      const meals = (diet.meals || []).map(m => ({
-        name: m.name,
-        time: m.time || '',
-        calories: m.foods ? m.foods.reduce((s, f) => s + (parseFloat(f.calories) || 0), 0) : (m.totalCalories || 0),
-        foods: (m.foods || []).map(f => `${f.name}: ${f.quantity}${f.unit}`).join(', ')
-      }));
+      // Cadastra alimentos novos no banco e mapeia nome -> food_id
+      const foodMap = {};
+      foods.forEach(f => { foodMap[f.name.toLowerCase().trim()] = f; });
+
+      // Coleta todos os alimentos únicos de todas as refeições
+      const allFoodsInDiet = (diet.meals || []).flatMap(m => m.foods || []);
+      const uniqueFoodNames = [...new Set(allFoodsInDiet.map(f => f.name?.toLowerCase().trim()).filter(Boolean))];
+
+      for (const fname of uniqueFoodNames) {
+        if (!foodMap[fname]) {
+          // Alimento não existe — cadastrar usando dados da IA
+          const sample = allFoodsInDiet.find(f => f.name?.toLowerCase().trim() === fname);
+          const qty = parseFloat(sample?.quantity) || 100;
+          const factor = qty > 0 ? (100 / qty) : 1;
+          try {
+            const created = await base44.entities.Food.create({
+              name: sample.name,
+              category: 'outro',
+              calories_per_100g: Math.round((parseFloat(sample.calories) || 0) * factor),
+              protein_per_100g: parseFloat(((parseFloat(sample.protein) || 0) * factor).toFixed(1)),
+              carbs_per_100g: parseFloat(((parseFloat(sample.carbs) || 0) * factor).toFixed(1)),
+              fat_per_100g: parseFloat(((parseFloat(sample.fat) || 0) * factor).toFixed(1)),
+              serving_size_g: qty,
+            });
+            foodMap[fname] = created;
+          } catch (_) {
+            // ignora erro de cadastro individual, continua
+          }
+        }
+      }
+
+      // Monta as refeições com o array items completo
+      const meals = (diet.meals || []).map(m => {
+        const items = (m.foods || []).map(f => {
+          const key = f.name?.toLowerCase().trim();
+          const dbFood = foodMap[key];
+          const qty = parseFloat(f.quantity) || 100;
+          return {
+            food_id: dbFood?.id || '',
+            food_name: f.name,
+            quantity_g: qty,
+            calories: Math.round(parseFloat(f.calories) || 0),
+            protein_g: parseFloat((parseFloat(f.protein) || 0).toFixed(1)),
+            carbs_g: parseFloat((parseFloat(f.carbs) || 0).toFixed(1)),
+            fat_g: parseFloat((parseFloat(f.fat) || 0).toFixed(1)),
+          };
+        });
+        const mealCal = items.reduce((s, it) => s + (it.calories || 0), 0);
+        return {
+          name: m.name,
+          time: m.time || '',
+          calories: mealCal,
+          items,
+          foods: items.map(it => `${it.food_name}: ${it.quantity_g}g`).join(', '), // legado
+        };
+      });
 
       const goal = diet.goal?.toLowerCase().includes('bulking') ? 'bulking'
         : diet.goal?.toLowerCase().includes('cutting') || diet.goal?.toLowerCase().includes('perda') ? 'cutting'
@@ -74,7 +124,7 @@ Retorne JSON com: dietName, goal, totalCalories, totalProtein, totalCarbs, total
         fat_g: Math.round(grandTotals.fat),
         meals,
         active: true,
-        notes: `Gerado por BZ AI Coach. Objetivo: ${diet.goal || ''}. Editado e revisado antes do envio.`
+        notes: `Gerado por BZ AI Coach. Objetivo: ${diet.goal || ''}.`
       });
       toast.success("Dieta aplicada com sucesso! Acesse Dietas para visualizar.");
       setDiet(null);
