@@ -1,0 +1,103 @@
+{
+  "name": "DietLog",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string",
+      "description": "ID do aluno"
+    },
+    "plan_id": {
+      "type": "string",
+      "description": "ID do plano de dieta"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do registro"
+    },
+    "checked_items": {
+      "type": "object",
+      "description": "Mapa de chaves checadas { 'mi_ii': true }"
+    },
+    "substitutions": {
+      "type": "object",
+      "description": "Mapa de substitui\u00e7\u00f5es { 'mi_ii': { food_name, quantity_g, calories, protein_g, carbs_g, fat_g } }"
+    },
+    "total_calories_consumed": {
+      "type": "number"
+    },
+    "total_protein_consumed": {
+      "type": "number"
+    },
+    "total_carbs_consumed": {
+      "type": "number"
+    },
+    "total_fat_consumed": {
+      "type": "number"
+    },
+    "progress_percent": {
+      "type": "number",
+      "description": "% de alimentos consumidos"
+    }
+  },
+  "required": [
+    "student_id",
+    "plan_id",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    }
+  }
+}
