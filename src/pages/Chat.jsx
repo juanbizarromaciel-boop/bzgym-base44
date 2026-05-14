@@ -1,96 +1,86 @@
 import React, { useState, useEffect, useRef } from "react";
-import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Send, MessageCircle, User, Image, X, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { Send, MessageSquare, Image, X, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 
 export default function Chat() {
   const [user, setUser] = useState(null);
-  const [isTrainer, setIsTrainer] = useState(false);
-  const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [student, setStudent] = useState(null);
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [message, setMessage] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const qc = useQueryClient();
 
   useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
-      setIsTrainer(u.role === "admin" || u.role === "personal");
+      if (u.role !== "admin" && u.role !== "personal") {
+        base44.entities.Student.list().then(all => {
+          const found = all.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
+          setStudent(found || null);
+          if (found) setSelectedStudentId(found.id);
+        });
+      }
     }).catch(() => {});
   }, []);
+
+  const isTrainer = user?.role === "admin" || user?.role === "personal";
 
   const { data: students = [] } = useQuery({
     queryKey: ["students"],
     queryFn: () => base44.entities.Student.list(),
-    enabled: !!user
+    enabled: isTrainer,
   });
 
-  // Find my student record
-  const myStudent = !isTrainer && user
-    ? students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase())
-    : null;
+  const activeStudentId = isTrainer ? selectedStudentId : student?.id;
 
-  // For personal: only their students
-  const myStudents = isTrainer && user
-    ? students.filter(s => s.personal_id === user.email || user.role === "admin")
-    : [];
-
-  const activeStudentId = isTrainer ? selectedStudentId : myStudent?.id;
-
-  const { data: allMessages = [] } = useQuery({
-    queryKey: ["messages"],
-    queryFn: () => base44.entities.ChatMessage.list("-created_date", 500),
-    refetchInterval: 3000,
-    enabled: !!user
+  const { data: messages = [] } = useQuery({
+    queryKey: ["chat_messages", activeStudentId],
+    queryFn: () => base44.entities.ChatMessage.filter({ student_id: activeStudentId }, "created_date", 200),
+    enabled: !!activeStudentId,
+    refetchInterval: 5000,
   });
-
-  const sendMut = useMutation({
-    mutationFn: (data) => base44.entities.ChatMessage.create(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["messages"] });
-      setMessage("");
-      setImageFile(null);
-      setImagePreview(null);
-    }
-  });
-
-  const messages = allMessages
-    .filter(m => m.student_id === activeStudentId)
-    .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleImageSelect = (e) => {
+  const sendMut = useMutation({
+    mutationFn: (data) => base44.entities.ChatMessage.create(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["chat_messages", activeStudentId] });
+      setMessage("");
+      setImageFile(null);
+      setImagePreview(null);
+    },
+    onError: () => toast.error("Erro ao enviar mensagem"),
+  });
+
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setImageFile(file);
-    const reader = new FileReader();
-    reader.onload = (ev) => setImagePreview(ev.target.result);
-    reader.readAsDataURL(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const handleSend = async () => {
     if (!message.trim() && !imageFile) return;
-    if (!activeStudentId) { toast.error("Selecione um aluno"); return; }
+    if (!activeStudentId) return;
 
-    let image_url = null;
-
+    let imageUrl = null;
     if (imageFile) {
       setUploading(true);
       const res = await base44.integrations.Core.UploadFile({ file: imageFile });
-      image_url = res.file_url;
+      imageUrl = res.file_url;
       setUploading(false);
     }
 
@@ -98,215 +88,131 @@ export default function Chat() {
       student_id: activeStudentId,
       sender_email: user.email,
       sender_name: user.full_name || user.email,
-      message: message.trim() || "",
-      image_url,
+      message: message.trim(),
+      image_url: imageUrl || undefined,
       is_trainer: isTrainer,
-      read: false
     });
   };
 
-  const getUnread = (studentId) =>
-    allMessages.filter(m => m.student_id === studentId && !m.read && m.sender_email !== user?.email).length;
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  };
 
-  if (!user) return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
-
-  const displayStudents = isTrainer ? myStudents : [];
-
-  return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-      <PageHeader
-        title="Chat"
-        accentColor="#06b6d4"
-        subtitle={isTrainer ? "Converse com seus alunos" : "Fale com seu personal trainer"}
-      />
-
-      {isTrainer ? (
-        /* TRAINER: sidebar + chat */
-        <div className="flex gap-4" style={{ height: 'calc(100vh - 220px)', minHeight: 520 }}>
-          {/* Student list */}
-          <div className="w-56 flex-shrink-0 cyber-card rounded-xl border border-purple-900/20 overflow-y-auto">
-            <div className="p-3 border-b border-purple-900/20">
-              <p className="text-[9px] font-mono-cyber text-purple-500/40 tracking-widest uppercase">Alunos</p>
-            </div>
-            {displayStudents.length === 0 ? (
-              <p className="text-[10px] text-purple-500/30 font-mono-cyber p-4">// nenhum aluno</p>
-            ) : (
-              displayStudents.map(s => {
-                const unread = getUnread(s.id);
-                const active = selectedStudentId === s.id;
-                return (
-                  <button
-                    key={s.id}
-                    onClick={() => setSelectedStudentId(s.id)}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 text-left transition-all hover:bg-purple-500/10 ${
-                      active ? "bg-purple-500/15 border-l-2 border-purple-400" : "border-l-2 border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-7 h-7 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
-                        <User className="w-3.5 h-3.5 text-purple-400/60" />
-                      </div>
-                      <span className="text-xs text-white truncate">{s.name}</span>
-                    </div>
-                    {unread > 0 && (
-                      <span className="flex-shrink-0 w-4 h-4 rounded-full bg-pink-500 text-white text-[9px] flex items-center justify-center font-bold">
-                        {unread}
-                      </span>
-                    )}
-                  </button>
-                );
-              })
-            )}
-          </div>
-
-          {/* Chat panel */}
-          <div className="flex-1 min-w-0">
-            {selectedStudentId ? (
-              <ChatPanel
-                messages={messages}
-                user={user}
-                message={message}
-                setMessage={setMessage}
-                imagePreview={imagePreview}
-                setImagePreview={setImagePreview}
-                setImageFile={setImageFile}
-                fileInputRef={fileInputRef}
-                handleImageSelect={handleImageSelect}
-                handleSend={handleSend}
-                uploading={uploading}
-                sendPending={sendMut.isPending}
-                messagesEndRef={messagesEndRef}
-              />
-            ) : (
-              <div className="cyber-card rounded-2xl h-full border border-purple-900/20 flex items-center justify-center">
-                <div className="text-center">
-                  <MessageCircle className="w-12 h-12 mx-auto mb-3 text-purple-500/20" />
-                  <p className="font-mono-cyber text-sm text-purple-500/30">// selecione um aluno</p>
-                </div>
+  // Trainer: show student list if no student selected
+  if (isTrainer && !selectedStudentId) {
+    const activeStudents = students.filter(s => s.active !== false);
+    return (
+      <div className="space-y-5">
+        <PageHeader title="Chat" accentColor="#06b6d4" subtitle="Mensagens com alunos" />
+        <div className="space-y-2">
+          {activeStudents.length === 0 && (
+            <p className="text-purple-500/30 font-mono-cyber text-sm text-center py-16">// nenhum aluno ativo</p>
+          )}
+          {activeStudents.map(s => (
+            <button key={s.id} onClick={() => setSelectedStudentId(s.id)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-purple-900/20 bg-black/30 hover:border-purple-500/30 hover:bg-purple-500/5 transition-all text-left">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500/20 to-cyan-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-sm">{s.name?.substring(0, 2).toUpperCase()}</span>
               </div>
-            )}
-          </div>
+              <div>
+                <p className="text-white font-medium text-sm">{s.name}</p>
+                <p className="text-purple-500/40 text-xs font-mono-cyber">{s.email}</p>
+              </div>
+            </button>
+          ))}
         </div>
-      ) : (
-        /* STUDENT */
-        myStudent ? (
-          <ChatPanel
-            messages={messages}
-            user={user}
-            message={message}
-            setMessage={setMessage}
-            imagePreview={imagePreview}
-            setImagePreview={setImagePreview}
-            setImageFile={setImageFile}
-            fileInputRef={fileInputRef}
-            handleImageSelect={handleImageSelect}
-            handleSend={handleSend}
-            uploading={uploading}
-            sendPending={sendMut.isPending}
-            messagesEndRef={messagesEndRef}
-            style={{ height: 'calc(100vh - 280px)', minHeight: 500 }}
-          />
-        ) : (
-          <div className="cyber-card rounded-2xl p-16 border border-purple-900/20 text-center">
-            <MessageCircle className="w-16 h-16 mx-auto mb-4 text-purple-500/20" />
-            <p className="font-mono-cyber text-sm text-purple-500/30">// perfil não encontrado — fale com seu personal</p>
-          </div>
-        )
-      )}
+      </div>
+    );
+  }
 
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
-    </motion.div>
-  );
-}
+  const selectedStudentName = isTrainer
+    ? students.find(s => s.id === selectedStudentId)?.name
+    : student?.name;
 
-function ChatPanel({ messages, user, message, setMessage, imagePreview, setImagePreview, setImageFile,
-  fileInputRef, handleImageSelect, handleSend, uploading, sendPending, messagesEndRef, style }) {
   return (
-    <div className="cyber-card rounded-2xl border border-purple-900/20 overflow-hidden flex flex-col"
-      style={style || { height: 'calc(100vh - 220px)', minHeight: 520 }}>
+    <div className="flex flex-col h-[calc(100vh-120px)]">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-4">
+        {isTrainer && (
+          <button onClick={() => setSelectedStudentId(null)} className="text-purple-400 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        )}
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-cyan-500/20 border border-purple-500/30 flex items-center justify-center">
+          <MessageSquare className="w-4 h-4 text-cyan-400" />
+        </div>
+        <div>
+          <h2 className="font-cyber text-white tracking-wider text-base">
+            {isTrainer ? selectedStudentName : "Chat com Personal"}
+          </h2>
+          <p className="text-purple-500/40 text-[10px] font-mono-cyber">// conversa em tempo real</p>
+        </div>
+      </div>
+
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-3">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-purple-500/30">
-            <MessageCircle className="w-12 h-12 mb-3 opacity-20" />
+      <div className="flex-1 overflow-y-auto space-y-3 pr-1 mb-4">
+        {messages.length === 0 && (
+          <div className="text-center py-16 text-purple-500/20">
+            <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-30" />
             <p className="font-mono-cyber text-sm">// nenhuma mensagem ainda</p>
           </div>
-        ) : (
-          messages.map(msg => {
-            const isMine = msg.sender_email === user.email;
-            return (
-              <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                <div className="max-w-[75%] md:max-w-[60%]">
-                  <div className={`flex items-center gap-1.5 mb-1 px-1 ${isMine ? "justify-end" : ""}`}>
-                    <User className="w-3 h-3 text-purple-500/40" />
-                    <span className="text-[10px] text-purple-500/40 font-mono-cyber">{msg.sender_name || msg.sender_email}</span>
-                    <span className="text-[9px] text-purple-500/25 font-mono-cyber">
-                      {new Date(msg.created_date).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                  </div>
-                  <div className={`rounded-2xl px-4 py-3 ${
-                    isMine
-                      ? "bg-purple-500/15 border border-purple-500/25 text-white"
-                      : "bg-black/40 border border-purple-900/30 text-purple-100"
-                  }`}>
-                    {msg.image_url && (
-                      <img src={msg.image_url} alt="foto" className="rounded-xl max-w-full mb-2 max-h-60 object-cover cursor-pointer"
-                        onClick={() => window.open(msg.image_url, "_blank")} />
-                    )}
-                    {msg.message && <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.message}</p>}
-                  </div>
-                </div>
-              </div>
-            );
-          })
         )}
+        {messages.map((msg) => {
+          const isMine = msg.sender_email === user?.email;
+          return (
+            <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
+                isMine
+                  ? "bg-purple-500/20 border border-purple-500/30 text-white"
+                  : "bg-black/40 border border-purple-900/20 text-white"
+              }`}>
+                {!isMine && (
+                  <p className="text-[9px] font-mono-cyber text-cyan-400/60 mb-1">{msg.sender_name}</p>
+                )}
+                {msg.image_url && (
+                  <img src={msg.image_url} alt="imagem" className="rounded-lg mb-2 max-w-full max-h-48 object-contain" />
+                )}
+                {msg.message && <p className="text-sm leading-relaxed">{msg.message}</p>}
+                <p className={`text-[9px] font-mono-cyber mt-1 ${isMine ? "text-purple-400/40 text-right" : "text-purple-500/30"}`}>
+                  {new Date(msg.created_date).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                </p>
+              </div>
+            </div>
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Image preview */}
       {imagePreview && (
-        <div className="px-4 pb-2 flex items-center gap-2">
-          <div className="relative inline-block">
-            <img src={imagePreview} alt="preview" className="h-16 w-16 rounded-lg object-cover border border-purple-500/30" />
-            <button
-              onClick={() => { setImagePreview(null); setImageFile(null); }}
-              className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-pink-500 rounded-full flex items-center justify-center"
-            >
-              <X className="w-2.5 h-2.5 text-white" />
-            </button>
-          </div>
-          <span className="text-[10px] text-purple-500/40 font-mono-cyber">imagem selecionada</span>
+        <div className="relative w-20 h-20 mb-2">
+          <img src={imagePreview} className="w-full h-full object-cover rounded-lg border border-purple-500/30" />
+          <button onClick={() => { setImageFile(null); setImagePreview(null); }}
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+            <X className="w-3 h-3 text-white" />
+          </button>
         </div>
       )}
 
       {/* Input */}
-      <div className="border-t border-purple-900/30 p-3 bg-black/20">
-        <div className="flex gap-2">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex-shrink-0 p-2.5 rounded-lg border border-purple-900/30 text-purple-500/50 hover:text-purple-300 hover:bg-purple-500/10 transition-all"
-          >
-            <Image className="w-4 h-4" />
-          </button>
-          <Input
-            placeholder="Digite sua mensagem..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-            className="cyber-input flex-1"
-          />
-          <Button
-            onClick={handleSend}
-            disabled={(!message.trim() && !imagePreview) || sendPending || uploading}
-            className="btn-neon-purple px-4 flex-shrink-0"
-          >
-            {uploading || sendPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          </Button>
-        </div>
+      <div className="flex items-center gap-2">
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+        <button onClick={() => fileInputRef.current?.click()}
+          className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-lg border border-purple-900/30 text-purple-500/50 hover:text-purple-300 hover:border-purple-500/40 transition-all">
+          <Image className="w-4 h-4" />
+        </button>
+        <Input
+          value={message}
+          onChange={e => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Digite sua mensagem..."
+          className="cyber-input flex-1"
+          disabled={uploading || sendMut.isPending}
+        />
+        <Button onClick={handleSend} disabled={uploading || sendMut.isPending || (!message.trim() && !imageFile)}
+          className="btn-neon-cyan px-4 h-9 flex-shrink-0">
+          <Send className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );
