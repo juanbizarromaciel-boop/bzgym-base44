@@ -206,19 +206,25 @@ function AddFoodPanel({ onAdd, onClose }) {
 }
 
 export default function MealDetailModal({ open, onClose, meal, mealIndex, onSave, readOnly = false }) {
-  const [items, setItems] = useState(meal?.items || []);
+  const [items, setItems] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
   const [substituteTarget, setSubstituteTarget] = useState(null);
   const [dirty, setDirty] = useState(false);
 
-  const { data: foods = [] } = useQuery({ queryKey: ["foods"], queryFn: () => base44.entities.Food.list() });
+  const { data: foods = [] } = useQuery({
+    queryKey: ["foods"],
+    queryFn: () => base44.entities.Food.list(),
+    enabled: !readOnly,
+  });
 
-  // Reset when meal changes
+  // Reset when modal opens or meal changes (use open + mealIndex + name to avoid ref instability)
   React.useEffect(() => {
-    setItems(meal?.items || []);
-    setDirty(false);
-    setShowAdd(false);
-  }, [meal]);
+    if (open) {
+      setItems(meal?.items ? [...meal.items] : []);
+      setDirty(false);
+      setShowAdd(false);
+    }
+  }, [open, mealIndex, meal?.name]);
 
   const totals = items.reduce((acc, it) => ({
     cal: acc.cal + (it.calories || 0),
