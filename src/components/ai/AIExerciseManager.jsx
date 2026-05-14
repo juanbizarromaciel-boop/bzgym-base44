@@ -109,6 +109,7 @@ function BulkCommandPanel({ exercises, onRefresh }) {
   const parseManualLinks = () => {
     const lines = command.split("\n");
     const results = [];
+    const notFound = [];
     let current = null;
 
     for (const line of lines) {
@@ -123,25 +124,35 @@ function BulkCommandPanel({ exercises, onRefresh }) {
       } else if (videoMatch) {
         if (current) {
           const rawUrl = videoMatch[1].trim();
-          // Convert YouTube watch URLs to embed format
           current.video_url = getYouTubeEmbed(rawUrl) || rawUrl;
         }
       } else {
-        // New exercise name line — find matching exercise by name (fuzzy)
-        const nameClean = trimmed.toLowerCase();
-        const found = exercises.find(e =>
-          e.name?.toLowerCase().includes(nameClean) ||
-          nameClean.includes(e.name?.toLowerCase())
-        );
+        // New exercise name line — fuzzy match
+        const nameClean = trimmed.toLowerCase().trim();
+        const found = exercises.find(e => {
+          const eName = e.name?.toLowerCase() || "";
+          return eName === nameClean ||
+            eName.includes(nameClean) ||
+            nameClean.includes(eName) ||
+            // word-level overlap
+            nameClean.split(" ").filter(w => w.length > 3).some(w => eName.includes(w));
+        });
         if (found) {
-          current = { id: found.id, name: found.name, muscle_group: found.muscle_group, image_url: found.image_url || "", video_url: found.video_url || "" };
-          results.push(current);
+          // avoid duplicates
+          const existing = results.find(r => r.id === found.id);
+          if (existing) {
+            current = existing;
+          } else {
+            current = { id: found.id, name: found.name, muscle_group: found.muscle_group, image_url: found.image_url || "", video_url: found.video_url || "" };
+            results.push(current);
+          }
         } else {
+          notFound.push(trimmed);
           current = null;
         }
       }
     }
-    return results.filter(r => r.image_url || r.video_url);
+    return { results: results.filter(r => r.image_url || r.video_url), notFound };
   };
 
   const hasManualLinks = () => {
@@ -154,11 +165,17 @@ function BulkCommandPanel({ exercises, onRefresh }) {
     try {
       // If command contains manual "Foto: url / Vídeo: url" pattern, parse directly without AI
       if (scope === "ai_specified" && hasManualLinks()) {
-        const parsed = parseManualLinks();
-        if (parsed.length === 0) {
-          throw new Error("Nenhum exercício reconhecido. Verifique os nomes e o formato: NomeExercicio\\nFoto: url\\nVídeo: url");
+        const { results, notFound } = parseManualLinks();
+        if (results.length === 0) {
+          const hint = notFound.length > 0
+            ? `Nomes não encontrados: ${notFound.join(", ")}. Verifique a grafia exata.`
+            : "Nenhum exercício reconhecido. Verifique o formato: NomeExercicio\nFoto: url\nVídeo: url";
+          throw new Error(hint);
         }
-        setPreview(parsed);
+        if (notFound.length > 0) {
+          toast.warning(`${notFound.length} nome(s) não encontrado(s): ${notFound.slice(0, 3).join(", ")}${notFound.length > 3 ? "..." : ""}`);
+        }
+        setPreview(results);
         setLoading(false);
         return;
       }
@@ -271,7 +288,7 @@ function BulkCommandPanel({ exercises, onRefresh }) {
           onChange={e => setCommand(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={scope === "ai_specified"
-            ? "Formato para links manuais:\nLeg Press Unilateral\nFoto: https://link-da-foto.jpg\nVídeo: https://youtube.com/watch?v=...\n\nAgachamento Livre com Barra\nFoto: https://...\nVídeo: https://..."
+            ? "Para adicionar fotos/vídeos manualmente, use exatamente este formato:\n\nLeg Press\nFoto: https://link-da-foto.gif\nVídeo: https://youtube.com/watch?v=ABC123\n\nAgachamento Livre\nFoto: https://link-da-foto.jpg\n\nUse o nome EXATO do exercício (como está cadastrado no banco)."
             : "Ex: Gere descrições técnicas em português para todos os exercícios selecionados"}
           rows={5}
           className="w-full cyber-input rounded-xl p-3 text-sm resize-none"
