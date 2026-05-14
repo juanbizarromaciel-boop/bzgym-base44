@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Dumbbell, Sparkles, Search, Plus, Pencil, Trash2, Image,
-  FileText, Wand2, CheckCircle, X, Loader2, ChevronDown, ChevronUp, Video
+  FileText, CheckCircle, X, Loader2, ChevronDown, ChevronUp, Video
 } from "lucide-react";
 import { toast } from "sonner";
 import ExerciseMediaModal from "@/components/exercise/ExerciseMediaModal";
@@ -28,75 +28,13 @@ const MUSCLE_COLORS = {
 
 const MUSCLE_OPTIONS = Object.entries(MUSCLE_LABELS);
 
-// ── AI Chat Command Panel ────────────────────────────────────────────────────
-
-const SCOPE_OPTIONS = [
-  { key: "ai_specified", label: "Especificados na IA", icon: "✦" },
-  { key: "all", label: "Todos", icon: "◈" },
-  { key: "no_desc", label: "Sem descrição", icon: "∅" },
-  { key: "no_media", label: "Sem foto e vídeo", icon: "⊘" },
-  { key: "no_photo", label: "Só sem foto", icon: "⬚" },
-  { key: "no_video", label: "Só sem vídeo", icon: "▷" },
-];
-
-const EDIT_MODE_OPTIONS = [
-  { key: "all", label: "Tudo", icon: "◈" },
-  { key: "desc_only", label: "Só descrição", icon: "≡" },
-  { key: "photo_only", label: "Só foto", icon: "⬚" },
-  { key: "video_only", label: "Só vídeo", icon: "▷" },
-  { key: "media_only", label: "Foto + Vídeo", icon: "⊞" },
-];
-
-function ChipSelect({ options, value, onChange }) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {options.map(opt => (
-        <button key={opt.key} onClick={() => onChange(opt.key)}
-          className="px-2.5 py-1 rounded-lg text-[10px] font-mono-cyber transition-all"
-          style={value === opt.key
-            ? { background: 'rgba(168,85,247,0.22)', border: '1px solid rgba(168,85,247,0.55)', color: '#e9d5ff' }
-            : { background: 'rgba(168,85,247,0.04)', border: '1px solid rgba(168,85,247,0.15)', color: 'rgba(192,132,252,0.45)' }}>
-          <span className="mr-1 opacity-70">{opt.icon}</span>{opt.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
+// ── Bulk Media Panel (sem IA) ─────────────────────────────────────────────────
 function BulkCommandPanel({ exercises, onRefresh }) {
-  const [command, setCommand] = useState("");
+  const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
-  const [scope, setScope] = useState("ai_specified");
-  const [editMode, setEditMode] = useState("all");
+  const [notFound, setNotFound] = useState([]);
   const qc = useQueryClient();
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) runCommand();
-  };
-
-  // Filter exercises based on scope
-  const getScopedExercises = () => {
-    switch (scope) {
-      case "all": return exercises;
-      case "no_desc": return exercises.filter(e => !e.description);
-      case "no_media": return exercises.filter(e => !e.image_url && !e.video_url);
-      case "no_photo": return exercises.filter(e => !e.image_url);
-      case "no_video": return exercises.filter(e => !e.video_url);
-      default: return exercises; // ai_specified: send all, let AI decide from prompt
-    }
-  };
-
-  // Build prompt suffix based on editMode
-  const getEditModeInstruction = () => {
-    switch (editMode) {
-      case "desc_only": return "\n\nIMPORTANTE: Edite APENAS a descrição. Não altere image_url nem video_url.";
-      case "photo_only": return "\n\nIMPORTANTE: Edite APENAS o campo image_url. Não altere description nem video_url.";
-      case "video_only": return "\n\nIMPORTANTE: Edite APENAS o campo video_url. Não altere description nem image_url.";
-      case "media_only": return "\n\nIMPORTANTE: Edite APENAS image_url e video_url. Não altere a description.";
-      default: return "";
-    }
-  };
 
   const getYouTubeEmbed = (url) => {
     if (!url) return null;
@@ -105,141 +43,77 @@ function BulkCommandPanel({ exercises, onRefresh }) {
     return m ? `https://www.youtube.com/embed/${m[1]}` : null;
   };
 
-  // Parse manual "ExerciseName\nFoto: url\nVídeo: url" blocks from command text
-  const parseManualLinks = () => {
-    const lines = command.split("\n");
+  const parse = () => {
+    const lines = text.split("\n");
     const results = [];
-    const notFound = [];
+    const missed = [];
     let current = null;
 
     for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
+      const t = line.trim();
+      if (!t) continue;
 
-      const fotoMatch = trimmed.match(/^(?:foto|imagem|image|photo)\s*[:：]\s*(.+)$/i);
-      const videoMatch = trimmed.match(/^(?:v[íi]deo|video)\s*[:：]\s*(.+)$/i);
+      const fotoMatch = t.match(/^(?:foto|imagem|image|photo)\s*[:：]\s*(.+)$/i);
+      const videoMatch = t.match(/^(?:v[íi]deo|video)\s*[:：]\s*(.+)$/i);
 
       if (fotoMatch) {
         if (current) current.image_url = fotoMatch[1].trim();
       } else if (videoMatch) {
         if (current) {
-          const rawUrl = videoMatch[1].trim();
-          current.video_url = getYouTubeEmbed(rawUrl) || rawUrl;
+          const raw = videoMatch[1].trim();
+          current.video_url = getYouTubeEmbed(raw) || raw;
         }
       } else {
-        // New exercise name line — fuzzy match
-        const nameClean = trimmed.toLowerCase().trim();
+        // exercise name — find by exact or partial match
+        const nameClean = t.toLowerCase();
         const found = exercises.find(e => {
-          const eName = e.name?.toLowerCase() || "";
-          return eName === nameClean ||
-            eName.includes(nameClean) ||
-            nameClean.includes(eName) ||
-            // word-level overlap
-            nameClean.split(" ").filter(w => w.length > 3).some(w => eName.includes(w));
+          const en = e.name?.toLowerCase() || "";
+          return en === nameClean || en.includes(nameClean) || nameClean.includes(en);
         });
         if (found) {
-          // avoid duplicates
           const existing = results.find(r => r.id === found.id);
-          if (existing) {
-            current = existing;
-          } else {
-            current = { id: found.id, name: found.name, muscle_group: found.muscle_group, image_url: found.image_url || "", video_url: found.video_url || "" };
+          if (existing) { current = existing; }
+          else {
+            current = { id: found.id, name: found.name, image_url: "", video_url: "" };
             results.push(current);
           }
         } else {
-          notFound.push(trimmed);
+          missed.push(t);
           current = null;
         }
       }
     }
-    return { results: results.filter(r => r.image_url || r.video_url), notFound };
+    return { results: results.filter(r => r.image_url || r.video_url), missed };
   };
 
-  const hasManualLinks = () => {
-    return /^(?:foto|imagem|image|photo|v[íi]deo|video)\s*[:：]/im.test(command);
-  };
-
-  const runCommand = async () => {
-    if (!command.trim()) return;
-    setLoading(true);
-    try {
-      // If command contains manual "Foto: url / Vídeo: url" pattern, parse directly without AI
-      if (scope === "ai_specified" && hasManualLinks()) {
-        const { results, notFound } = parseManualLinks();
-        if (results.length === 0) {
-          const hint = notFound.length > 0
-            ? `Nomes não encontrados: ${notFound.join(", ")}. Verifique a grafia exata.`
-            : "Nenhum exercício reconhecido. Verifique o formato: NomeExercicio\nFoto: url\nVídeo: url";
-          throw new Error(hint);
-        }
-        if (notFound.length > 0) {
-          toast.warning(`${notFound.length} nome(s) não encontrado(s): ${notFound.slice(0, 3).join(", ")}${notFound.length > 3 ? "..." : ""}`);
-        }
-        setPreview(results);
-        setLoading(false);
-        return;
-      }
-
-      const scopedExercises = getScopedExercises();
-      const fullPrompt = command + getEditModeInstruction();
-
-      // For ai_specified, send exercise index so AI can match by name; for others send full list (capped at 80)
-      const exercisesToSend = scope === "ai_specified"
-        ? exercises.map(e => ({ id: e.id, name: e.name, muscle_group: e.muscle_group }))
-        : scopedExercises.slice(0, 80).map(e => ({
-            id: e.id,
-            name: e.name,
-            muscle_group: e.muscle_group,
-            description: e.description || "",
-            image_url: e.image_url || "",
-            video_url: e.video_url || ""
-          }));
-
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("TIMEOUT")), 120000)
-      );
-      const invokePromise = base44.functions.invoke("aiCoach", {
-        type: "exercise_bulk",
-        prompt: fullPrompt,
-        context: JSON.stringify(exercisesToSend)
-      });
-
-      const res = await Promise.race([invokePromise, timeoutPromise]);
-
-      const d = res.data?.data;
-      const result = d?.exercises || d?.response?.exercises || [];
-      if (result.length === 0) throw new Error("IA não retornou exercícios. Tente reformular o comando.");
-      setPreview(result);
-    } catch (e) {
-      if (e.message === "TIMEOUT") {
-        toast.error("Tempo limite excedido. Tente com menos exercícios ou um comando mais simples.");
-      } else {
-        toast.error("Erro: " + (e.response?.data?.error || e.message || "Falha na IA"));
-      }
+  const handlePreview = () => {
+    if (!text.trim()) return;
+    const { results, missed } = parse();
+    setNotFound(missed);
+    if (results.length === 0) {
+      toast.error(missed.length > 0
+        ? `Nenhum exercício encontrado. Nomes não reconhecidos: ${missed.join(", ")}`
+        : "Nenhum exercício com foto/vídeo encontrado. Verifique o formato.");
+      return;
     }
-    setLoading(false);
+    if (missed.length > 0) toast.warning(`Não encontrado(s): ${missed.join(", ")}`);
+    setPreview(results);
   };
 
-  const applyPreview = async () => {
+  const applyAll = async () => {
     if (!preview) return;
     setLoading(true);
     try {
       await Promise.all(preview.map(ex => {
         const upd = {};
-        if (editMode === "all" || editMode === "desc_only") {
-          if (ex.description !== undefined) upd.description = ex.description;
-        }
-        if (editMode === "all" || editMode === "photo_only" || editMode === "media_only") {
-          if (ex.image_url !== undefined) upd.image_url = ex.image_url;
-        }
-        if (editMode === "all" || editMode === "video_only" || editMode === "media_only") {
-          if (ex.video_url !== undefined) upd.video_url = ex.video_url;
-        }
+        if (ex.image_url) upd.image_url = ex.image_url;
+        if (ex.video_url) upd.video_url = ex.video_url;
         return base44.entities.Exercise.update(ex.id, upd);
       }));
       toast.success(`${preview.length} exercício(s) atualizado(s)!`);
       setPreview(null);
-      setCommand("");
+      setText("");
+      setNotFound([]);
       qc.invalidateQueries({ queryKey: ["exercises"] });
       onRefresh?.();
     } catch (e) {
@@ -248,89 +122,65 @@ function BulkCommandPanel({ exercises, onRefresh }) {
     setLoading(false);
   };
 
-  const scopedCount = scope === "ai_specified" ? null : getScopedExercises().length;
-
   return (
     <div className="cyber-card rounded-xl border border-purple-900/25 p-5 mb-6">
-      {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <div className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.3)' }}>
-          <Wand2 className="w-4 h-4 text-purple-400" />
+          <Image className="w-4 h-4 text-purple-400" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-white">Editar Exercícios com IA</p>
+          <p className="text-sm font-semibold text-white">Adicionar Fotos e Vídeos em Lote</p>
           <p className="text-[10px] font-mono-cyber text-purple-500/50">
-            Configure o escopo e o que editar, depois descreva o comando
+            Cole o nome do exercício, depois Foto: url e/ou Vídeo: url
           </p>
         </div>
       </div>
 
-      {/* Scope selector */}
-      <div className="mb-3">
-        <p className="text-[9px] font-mono-cyber text-purple-500/40 uppercase tracking-widest mb-2">
-          Exercícios alvo
-          {scopedCount !== null && <span className="ml-2 text-purple-400/60">· {scopedCount} selecionados</span>}
-        </p>
-        <ChipSelect options={SCOPE_OPTIONS} value={scope} onChange={setScope} />
+      {/* Format example */}
+      <div className="mb-3 p-3 rounded-lg text-[10px] font-mono-cyber leading-relaxed"
+        style={{ background: 'rgba(6,182,212,0.05)', border: '1px solid rgba(6,182,212,0.15)', color: 'rgba(103,232,249,0.6)' }}>
+        <span className="text-cyan-400/80 block mb-1">// Exemplo de formato:</span>
+        Agachamento Livre<br/>
+        Foto: https://site.com/agachamento.gif<br/>
+        Vídeo: https://youtube.com/watch?v=XXXXX<br/>
+        <br/>
+        Supino Reto<br/>
+        Foto: https://site.com/supino.gif
       </div>
 
-      {/* Edit mode selector */}
-      <div className="mb-4">
-        <p className="text-[9px] font-mono-cyber text-purple-500/40 uppercase tracking-widest mb-2">O que editar</p>
-        <ChipSelect options={EDIT_MODE_OPTIONS} value={editMode} onChange={setEditMode} />
-      </div>
+      <textarea
+        value={text}
+        onChange={e => setText(e.target.value)}
+        placeholder={"Nome do Exercício\nFoto: https://...\nVídeo: https://...\n\nOutro Exercício\nFoto: https://..."}
+        rows={7}
+        className="w-full rounded-xl p-3 text-sm resize-none mb-3"
+        style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.25)', color: '#e9d5ff' }}
+      />
 
-      {/* Textarea */}
-      <div className="relative mb-3">
-        <textarea
-          value={command}
-          onChange={e => setCommand(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={scope === "ai_specified"
-            ? "Para adicionar fotos/vídeos manualmente, use exatamente este formato:\n\nLeg Press\nFoto: https://link-da-foto.gif\nVídeo: https://youtube.com/watch?v=ABC123\n\nAgachamento Livre\nFoto: https://link-da-foto.jpg\n\nUse o nome EXATO do exercício (como está cadastrado no banco)."
-            : "Ex: Gere descrições técnicas em português para todos os exercícios selecionados"}
-          rows={5}
-          className="w-full cyber-input rounded-xl p-3 text-sm resize-none"
-          style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.25)', color: '#e9d5ff' }}
-        />
-        <span className="absolute bottom-2 right-3 text-[9px] font-mono-cyber text-purple-600/40">Ctrl+Enter para enviar</span>
-      </div>
-
-      {/* Execute */}
-      <button
-        onClick={runCommand}
-        disabled={loading || !command.trim()}
-        className="btn-neon-purple w-full py-3 rounded-xl text-sm font-medium tracking-wider flex items-center justify-center gap-2 disabled:opacity-40"
-      >
-        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-        {loading ? "PROCESSANDO..." : "ENVIAR PARA IA"}
-      </button>
-
-      {/* Preview */}
-      {preview && (
-        <div className="mt-4 border border-purple-500/20 rounded-xl overflow-hidden">
+      {!preview ? (
+        <button onClick={handlePreview} disabled={!text.trim()}
+          className="btn-neon-purple w-full py-3 rounded-xl text-sm font-medium tracking-wider flex items-center justify-center gap-2 disabled:opacity-40">
+          <CheckCircle className="w-4 h-4" /> VISUALIZAR ALTERAÇÕES
+        </button>
+      ) : (
+        <div className="border border-purple-500/20 rounded-xl overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-purple-900/20"
             style={{ background: 'rgba(168,85,247,0.06)' }}>
-            <p className="text-xs font-semibold text-purple-300">Prévia — {preview.length} exercício(s)</p>
-            <button onClick={() => setPreview(null)} className="text-purple-500/40 hover:text-white">
-              <X className="w-4 h-4" />
-            </button>
+            <p className="text-xs font-semibold text-purple-300">{preview.length} exercício(s) prontos para salvar</p>
+            <button onClick={() => setPreview(null)} className="text-purple-500/40 hover:text-white"><X className="w-4 h-4" /></button>
           </div>
-          <div className="max-h-72 overflow-y-auto divide-y divide-purple-900/10">
+          <div className="max-h-64 overflow-y-auto divide-y divide-purple-900/10">
             {preview.map(ex => (
               <div key={ex.id} className="px-4 py-3 space-y-1">
                 <p className="text-xs font-semibold text-white">{ex.name}</p>
-                {ex.description && (editMode === "all" || editMode === "desc_only") && (
-                  <p className="text-[11px] text-purple-300/60 leading-relaxed">{ex.description}</p>
-                )}
-                {ex.image_url && (editMode === "all" || editMode === "photo_only" || editMode === "media_only") && (
+                {ex.image_url && (
                   <div className="flex items-center gap-1.5">
                     <Image className="w-3 h-3 text-cyan-400 flex-shrink-0" />
                     <p className="text-[10px] text-cyan-400/70 font-mono-cyber truncate">{ex.image_url}</p>
                   </div>
                 )}
-                {ex.video_url && (editMode === "all" || editMode === "video_only" || editMode === "media_only") && (
+                {ex.video_url && (
                   <div className="flex items-center gap-1.5">
                     <Video className="w-3 h-3 text-pink-400 flex-shrink-0" />
                     <p className="text-[10px] text-pink-400/70 font-mono-cyber truncate">{ex.video_url}</p>
@@ -339,15 +189,20 @@ function BulkCommandPanel({ exercises, onRefresh }) {
               </div>
             ))}
           </div>
+          {notFound.length > 0 && (
+            <div className="px-4 py-2 border-t border-yellow-900/20 text-[10px] font-mono-cyber text-yellow-500/60">
+              ⚠ Não encontrados: {notFound.join(", ")}
+            </div>
+          )}
           <div className="flex gap-2 p-3 border-t border-purple-900/20">
             <button onClick={() => setPreview(null)}
-              className="flex-1 py-2 rounded-lg text-xs font-mono-cyber text-purple-500/50 border border-purple-900/20 hover:border-purple-500/20 transition-all">
+              className="flex-1 py-2 rounded-lg text-xs font-mono-cyber text-purple-500/50 border border-purple-900/20">
               CANCELAR
             </button>
-            <button onClick={applyPreview} disabled={loading}
+            <button onClick={applyAll} disabled={loading}
               className="flex-1 btn-neon-purple py-2 rounded-lg text-xs font-medium tracking-wider flex items-center justify-center gap-1.5">
               {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
-              APLICAR TUDO
+              SALVAR TUDO
             </button>
           </div>
         </div>
