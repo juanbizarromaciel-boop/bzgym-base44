@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { TrendingUp, TrendingDown, Minus, Zap, Dumbbell, Calendar } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Zap, Dumbbell, Calendar, BarChart2 } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
 import { motion } from "framer-motion";
+import ExerciseSeriesAnalysis from "../components/workout/ExerciseSeriesAnalysis";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -49,6 +50,7 @@ export default function Progress() {
   const [selectedExercise, setSelectedExercise] = useState("all");
   const [selectedMuscle, setSelectedMuscle] = useState("all");
   const [period, setPeriod] = useState("weekly");
+  const [activeTab, setActiveTab] = useState("evolucao"); // "evolucao" | "series"
   const { user: currentUser, isAdmin } = useCurrentUser();
   const userRole = currentUser?.role || null;
 
@@ -202,6 +204,23 @@ export default function Progress() {
     <motion.div initial="hidden" animate="show" variants={stagger}>
       <PageHeader title="Evolução" accentColor="#f59e0b" subtitle="Volume de treino · kg × reps" />
 
+      {/* Tabs */}
+      <motion.div variants={fadeUp} className="flex gap-1 p-1 rounded-xl border border-purple-900/20 bg-black/40 mb-6 w-fit">
+        {[
+          { id: "evolucao", label: "EVOLUÇÃO", icon: TrendingUp },
+          { id: "series", label: "ANÁLISE DE SÉRIES", icon: BarChart2 },
+        ].map(tab => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-mono-cyber tracking-wider transition-all ${
+              activeTab === tab.id ? "bg-purple-500/15 text-purple-300 border border-purple-500/25" : "text-purple-500/40 hover:text-purple-400"
+            }`}>
+            <tab.icon className="w-3.5 h-3.5" />
+            {tab.label}
+          </button>
+        ))}
+      </motion.div>
+
+      {/* Student selector — always visible */}
       <motion.div variants={fadeUp} className="flex flex-wrap gap-3 mb-6">
         {isAdmin && (
           <Select value={selectedStudentId} onValueChange={(v) => { setSelectedStudentId(v); setSelectedExercise("all"); setSelectedMuscle("all"); }}>
@@ -214,7 +233,7 @@ export default function Progress() {
           </Select>
         )}
 
-        {selectedStudentId && (
+        {selectedStudentId && activeTab === "evolucao" && (
           <>
             <Select value={selectedMuscle} onValueChange={(v) => { setSelectedMuscle(v); setSelectedExercise("all"); }}>
               <SelectTrigger className="w-full sm:w-48 cyber-input">
@@ -250,7 +269,14 @@ export default function Progress() {
         )}
       </motion.div>
 
-      {selectedStudentId && filteredLogs.length > 0 && (
+      {/* SERIES TAB */}
+      {activeTab === "series" && (
+        <motion.div variants={fadeUp}>
+          <ExerciseSeriesAnalysis studentId={selectedStudentId} allLogs={logs} />
+        </motion.div>
+      )}
+
+      {activeTab === "evolucao" && selectedStudentId && filteredLogs.length > 0 && (
         <motion.div variants={stagger}>
           {filteredLogs.length > 0 && (
             <motion.div variants={fadeUp} className="cyber-card rounded-xl p-5 border border-purple-900/20 mb-6">
@@ -404,20 +430,20 @@ export default function Progress() {
         </motion.div>
       )}
 
-      {selectedStudentId && filteredLogs.length === 0 && (
+      {activeTab === "evolucao" && selectedStudentId && filteredLogs.length === 0 && (
         <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/30">
           <p className="font-mono-cyber text-sm">// nenhum registro encontrado</p>
         </motion.div>
       )}
 
-      {!selectedStudentId && isAdmin && (
+      {activeTab === "evolucao" && !selectedStudentId && isAdmin && (
         <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/20">
           <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="font-mono-cyber text-sm">// selecione um aluno para ver a evolução</p>
         </motion.div>
       )}
 
-      {!selectedStudentId && !isAdmin && (
+      {activeTab === "evolucao" && !selectedStudentId && !isAdmin && (
         <div className="text-center py-16 text-purple-500/20">
           <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto" />
         </div>

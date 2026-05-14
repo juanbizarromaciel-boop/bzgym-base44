@@ -9,12 +9,13 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { CheckCircle, Dumbbell, PlayCircle, Trophy, X } from "lucide-react";
+import { CheckCircle, Dumbbell, PlayCircle, Trophy, TrendingDown, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 import RestTimer from "../components/workout/RestTimer";
 import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
+import { sortExercisesByProgression, getExerciseProgression } from "../utils/progressionSort";
 
 export default function StudentWorkout() {
   const [selectedStudentId, setSelectedStudentId] = useState("");
@@ -40,6 +41,11 @@ export default function StudentWorkout() {
   const myPlans = isAdmin ? allPlans : allPlans.filter(p => p.personal_id === currentUser?.email);
   const studentPlans = myPlans.filter((p) => p.student_id === selectedStudentId);
   const selectedPlan = myPlans.find((p) => p.id === selectedPlanId);
+
+  // Sort exercises by progression (worst first)
+  const sortedExercises = selectedPlan && selectedStudentId
+    ? sortExercisesByProgression(selectedPlan.exercises || [], allLogs, selectedStudentId)
+    : [];
 
   const logMut = useMutation({
     mutationFn: (data) => base44.entities.WorkoutLog.create(data),
@@ -175,9 +181,11 @@ export default function StudentWorkout() {
             </button>
           )}
 
-          {selectedPlan.exercises?.map((exercise, exerciseIdx) => {
+          {sortedExercises.map((exercise, displayIdx) => {
+            const exerciseIdx = exercise.originalIndex;
             const isCompleted = completedExercises.has(exerciseIdx);
             const sets = setsData[exerciseIdx] || initSets(exerciseIdx, exercise.sets);
+            const progression = getExerciseProgression(exercise.exercise_name, allLogs, selectedStudentId);
 
             return (
               <div
@@ -210,6 +218,13 @@ export default function StudentWorkout() {
                           </button>
                         )}
                       </div>
+                      {progression && (progression.type === "down" || progression.type === "same") && (
+                        <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono-cyber px-2 py-1 rounded-md w-fit"
+                          style={{ background: `${progression.color}12`, border: `1px solid ${progression.color}30`, color: progression.color }}>
+                          {progression.type === "down" ? <TrendingDown className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+                          {progression.label}
+                        </div>
+                      )}
                       <div className="flex flex-wrap gap-2 mt-1.5">
                         <LastWeightBadge
                           exerciseName={exercise.exercise_name}

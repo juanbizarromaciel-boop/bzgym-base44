@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag } from "lucide-react";
+import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag, TrendingDown, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
@@ -18,6 +18,7 @@ import MuscleMap from "../components/workout/MuscleMap";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
 import BlockedWorkoutBanner from "../components/finance/BlockedWorkoutBanner";
 import { usePaymentStatus } from "../hooks/usePaymentStatus";
+import { sortExercisesByProgression, getExerciseProgression } from "../utils/progressionSort";
 
 const DAY_MAP = { 0: "domingo", 1: "segunda", 2: "terca", 3: "quarta", 4: "quinta", 5: "sexta", 6: "sabado" };
 const DAY_LABELS = { segunda: "SEG", terca: "TER", quarta: "QUA", quinta: "QUI", sexta: "SEX", sabado: "SAB", domingo: "DOM" };
@@ -305,6 +306,7 @@ export default function MyWorkout() {
 
   // Workout execution
   const progress = selectedPlan.exercises?.length ? (completedExercises.size / selectedPlan.exercises.length) * 100 : 0;
+  const sortedExercises = student ? sortExercisesByProgression(selectedPlan.exercises || [], allLogs, student.id) : [];
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger}>
@@ -366,9 +368,11 @@ export default function MyWorkout() {
 
       {/* Exercises */}
       <motion.div variants={stagger} className="space-y-4">
-        {selectedPlan.exercises?.map((exercise, exerciseIdx) => {
+        {sortedExercises.map((exercise, displayIdx) => {
+          const exerciseIdx = exercise.originalIndex;
           const isCompleted = completedExercises.has(exerciseIdx);
           const sets = setsData[exerciseIdx] || initSets(exerciseIdx, exercise.sets);
+          const progression = student ? getExerciseProgression(exercise.exercise_name, allLogs, student.id) : null;
 
           return (
             <motion.div variants={fadeUp}
@@ -401,6 +405,13 @@ export default function MyWorkout() {
                         </button>
                       )}
                     </div>
+                    {progression && (progression.type === "down" || progression.type === "same") && (
+                      <div className="flex items-center gap-1.5 mt-1 mb-1 text-[10px] font-mono-cyber px-2 py-1 rounded-md w-fit"
+                        style={{ background: `${progression.color}12`, border: `1px solid ${progression.color}30`, color: progression.color }}>
+                        {progression.type === "down" ? <TrendingDown className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+                        {progression.label}
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-2 mt-1.5">
                       <LastWeightBadge
                         exerciseName={exercise.exercise_name}
