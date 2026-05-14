@@ -44,7 +44,22 @@ export default function ExerciseMediaDisplay({ exercise, maxHeight = 220, classN
   const imageUrl = exercise?.image_url;
   const fallbackUrl = MUSCLE_DEFAULTS[exercise?.muscle_group] || MUSCLE_DEFAULTS.outro;
 
-  // 1. YouTube embed (video_url is a youtube link)
+  // 1. GIF/Image takes priority if available
+  if (imageUrl && !imgFailed) {
+    return (
+      <div className={`rounded-xl overflow-hidden border border-purple-900/20 bg-black/30 ${className}`}>
+        <img
+          src={imageUrl}
+          alt={exercise?.name}
+          className="w-full object-contain"
+          style={{ maxHeight }}
+          onError={() => setImgFailed(true)}
+        />
+      </div>
+    );
+  }
+
+  // 2. YouTube embed (only if no image_url)
   const youtubeEmbed = getYouTubeEmbed(videoUrl);
   if (youtubeEmbed) {
     return (
@@ -56,7 +71,7 @@ export default function ExerciseMediaDisplay({ exercise, maxHeight = 220, classN
     );
   }
 
-  // 2. Direct video file (mp4/webm)
+  // 3. Direct video file (mp4/webm)
   if (isVideo(videoUrl)) {
     return (
       <div className={`rounded-xl overflow-hidden border border-purple-900/20 bg-black/30 ${className}`}>
@@ -65,9 +80,8 @@ export default function ExerciseMediaDisplay({ exercise, maxHeight = 220, classN
     );
   }
 
-  // 3. Image (image_url → video_url as legacy image → muscle default)
-  const primaryUrl = imageUrl || (videoUrl && !isYouTubeEmbed(videoUrl) && !isVideo(videoUrl) ? videoUrl : null);
-  const displayUrl = (!imgFailed && primaryUrl) ? primaryUrl : (!defaultFailed ? fallbackUrl : null);
+  // 4. Muscle default fallback
+  const displayUrl = !defaultFailed ? fallbackUrl : null;
 
   if (!displayUrl) {
     return (
@@ -86,10 +100,7 @@ export default function ExerciseMediaDisplay({ exercise, maxHeight = 220, classN
         alt={exercise?.name}
         className="w-full object-contain"
         style={{ maxHeight }}
-        onError={() => {
-          if (!imgFailed && primaryUrl) setImgFailed(true);
-          else setDefaultFailed(true);
-        }}
+        onError={() => setDefaultFailed(true)}
       />
     </div>
   );
