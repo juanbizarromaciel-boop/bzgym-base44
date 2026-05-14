@@ -514,7 +514,7 @@ export default function AIExerciseManager({ settings }) {
   const [search, setSearch] = useState("");
   const [filterMuscle, setFilterMuscle] = useState("all");
   const [showAdd, setShowAdd] = useState(false);
-  const [newForm, setNewForm] = useState({ name: "", muscle_group: "peito", description: "", video_url: "" });
+  const [newForm, setNewForm] = useState({ name: "", muscle_group: "peito", description: "", image_url: "", video_url: "" });
   const [addingNew, setAddingNew] = useState(false);
   const qc = useQueryClient();
 
@@ -525,7 +525,8 @@ export default function AIExerciseManager({ settings }) {
 
   const saveMut = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Exercise.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["exercises"] }); toast.success("Exercício atualizado!"); }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["exercises"] }); toast.success("Exercício atualizado!"); },
+    onError: (e) => toast.error("Erro ao salvar: " + (e?.message || "verifique sua conexão")),
   });
 
   const deleteMut = useMutation({
@@ -538,9 +539,10 @@ export default function AIExerciseManager({ settings }) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["exercises"] });
       toast.success("Exercício criado!");
-      setNewForm({ name: "", muscle_group: "peito", description: "", video_url: "" });
+      setNewForm({ name: "", muscle_group: "peito", description: "", image_url: "", video_url: "" });
       setShowAdd(false);
-    }
+    },
+    onError: (e) => toast.error("Erro ao criar: " + (e?.message || "verifique sua conexão")),
   });
 
   const filtered = exercises.filter(e => {
@@ -588,14 +590,22 @@ export default function AIExerciseManager({ settings }) {
             placeholder="Descrição (opcional)" rows={2}
             className="w-full cyber-input rounded-xl p-3 text-sm resize-none mb-3"
             style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.2)', color: '#e9d5ff' }} />
+          <Input value={newForm.image_url || ""} onChange={e => setNewForm(f => ({ ...f, image_url: e.target.value }))}
+            placeholder="URL de imagem/GIF (opcional)" className="cyber-input text-sm mb-2" />
           <Input value={newForm.video_url || ""} onChange={e => setNewForm(f => ({ ...f, video_url: e.target.value }))}
-            placeholder="URL de GIF/foto (opcional)" className="cyber-input text-sm mb-3" />
+            placeholder="URL de vídeo (opcional)" className="cyber-input text-sm mb-3" />
           <div className="flex gap-2">
             <button onClick={() => setShowAdd(false)}
               className="flex-1 py-2 rounded-lg text-xs font-mono-cyber text-purple-500/50 border border-purple-900/20">
               CANCELAR
             </button>
-            <button onClick={() => createMut.mutate(newForm)} disabled={!newForm.name || createMut.isPending}
+            <button onClick={() => {
+              const data = { name: newForm.name, muscle_group: newForm.muscle_group };
+              if (newForm.description) data.description = newForm.description;
+              if (newForm.image_url) data.image_url = newForm.image_url;
+              if (newForm.video_url) data.video_url = newForm.video_url;
+              createMut.mutate(data);
+            }} disabled={!newForm.name || createMut.isPending}
               className="flex-1 btn-neon-cyan py-2 rounded-xl text-xs font-medium tracking-wider flex items-center justify-center gap-1.5 disabled:opacity-40">
               {createMut.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
               CRIAR
