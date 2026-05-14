@@ -38,10 +38,10 @@ export default function MyWorkout() {
 
   const today = DAY_MAP[new Date().getDay()];
 
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
-  const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list() });
-  const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
-  const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
+  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list(), staleTime: 60000 });
+  const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list(), staleTime: 30000, placeholderData: (prev) => prev });
+  const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list(), staleTime: 60000, placeholderData: (prev) => prev });
+  const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list(), staleTime: 60000 });
 
   useEffect(() => {
     if (user && students.length > 0) {
@@ -66,28 +66,31 @@ export default function MyWorkout() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["logs"] }),
   });
 
-  const initSets = (exerciseIdx, numSets) => {
-    if (setsData[exerciseIdx]) return setsData[exerciseIdx];
+  // Use exercise_name as stable key to avoid data loss on re-renders/refetches
+  const getExKey = (exercise, idx) => exercise.exercise_name || `ex_${idx}`;
+
+  const initSets = (exKey, numSets) => {
+    if (setsData[exKey]) return setsData[exKey];
     return Array.from({ length: numSets || 3 }, (_, i) => ({ set_number: i + 1, reps_done: 0, load_kg: 0 }));
   };
 
-  const updateSet = (exerciseIdx, setIdx, field, value) => {
-    const current = setsData[exerciseIdx] || initSets(exerciseIdx, selectedPlan.exercises[exerciseIdx]?.sets || 3);
+  const updateSet = (exKey, setIdx, field, value, numSets) => {
+    const current = setsData[exKey] || initSets(exKey, numSets || 3);
     const updated = [...current];
     updated[setIdx] = { ...updated[setIdx], [field]: parseFloat(value) || 0 };
-    setSetsData({ ...setsData, [exerciseIdx]: updated });
+    setSetsData(prev => ({ ...prev, [exKey]: updated }));
   };
 
-  const applyWeightToAllSets = (exerciseIdx, kg) => {
-    const numSets = selectedPlan.exercises[exerciseIdx]?.sets || 3;
-    const current = setsData[exerciseIdx] || initSets(exerciseIdx, numSets);
+  const applyWeightToAllSets = (exKey, kg, numSets) => {
+    const current = setsData[exKey] || initSets(exKey, numSets || 3);
     const updated = current.map(s => ({ ...s, load_kg: kg }));
-    setSetsData({ ...setsData, [exerciseIdx]: updated });
+    setSetsData(prev => ({ ...prev, [exKey]: updated }));
   };
 
   const saveExerciseLog = (exerciseIdx) => {
     const exercise = selectedPlan.exercises[exerciseIdx];
-    const sets = setsData[exerciseIdx] || initSets(exerciseIdx, exercise.sets);
+    const exKey = getExKey(exercise, exerciseIdx);
+    const sets = setsData[exKey] || initSets(exKey, exercise.sets);
     const maxLoad = Math.max(...sets.map(s => s.load_kg), 0);
     logMut.mutate({
       student_id: student.id,
@@ -370,8 +373,9 @@ export default function MyWorkout() {
       <motion.div variants={stagger} className="space-y-4">
         {sortedExercises.map((exercise, displayIdx) => {
           const exerciseIdx = exercise.originalIndex;
+          const exKey = getExKey(exercise, exerciseIdx);
           const isCompleted = completedExercises.has(exerciseIdx);
-          const sets = setsData[exerciseIdx] || initSets(exerciseIdx, exercise.sets);
+          const sets = setsData[exKey] || initSets(exKey, exercise.sets);
           const progression = student ? getExerciseProgression(exercise.exercise_name, allLogs, student.id) : null;
 
           return (
@@ -416,7 +420,7 @@ export default function MyWorkout() {
                       <LastWeightBadge
                         exerciseName={exercise.exercise_name}
                         logs={student ? allLogs.filter(l => l.student_id === student.id) : []}
-                        onApply={(kg) => applyWeightToAllSets(exerciseIdx, kg)}
+                        onApply={(kg) => applyWeightToAllSets(exKey, kg, exercise.sets)}
                         disabled={isCompleted}
                       />
                       <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
@@ -458,24 +462,24 @@ export default function MyWorkout() {
                     </span>
                     <div className="col-span-5">
                       <Input
-                        type="number"
-                        inputMode="numeric"
-                        value={set.reps_done || ""}
-                        onChange={(e) => updateSet(exerciseIdx, setIdx, "reps_done", e.target.value)}
-                        placeholder={exercise.reps}
-                        className="cyber-input text-center"
-                        disabled={isCompleted}
+                       type="number"
+                       inputMode="numeric"
+                       value={set.reps_done || ""}
+                       onChange={(e) => updateSet(exKey, setIdx, "reps_done", e.target.value, exercise.sets)}
+                       placeholder={exercise.reps}
+                       className="cyber-input text-center"
+                       disabled={isCompleted}
                       />
-                    </div>
-                    <div className="col-span-5">
+                      </div>
+                      <div className="col-span-5">
                       <Input
-                        type="number"
-                        inputMode="decimal"
-                        value={set.load_kg || ""}
-                        onChange={(e) => updateSet(exerciseIdx, setIdx, "load_kg", e.target.value)}
-                        placeholder={exercise.load_kg?.toString() || "0"}
-                        className="cyber-input text-center"
-                        disabled={isCompleted}
+                       type="number"
+                       inputMode="decimal"
+                       value={set.load_kg || ""}
+                       onChange={(e) => updateSet(exKey, setIdx, "load_kg", e.target.value, exercise.sets)}
+                       placeholder={exercise.load_kg?.toString() || "0"}
+                       className="cyber-input text-center"
+                       disabled={isCompleted}
                       />
                     </div>
                   </div>

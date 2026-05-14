@@ -54,10 +54,10 @@ export default function Progress() {
   const { user: currentUser, isAdmin } = useCurrentUser();
   const userRole = currentUser?.role || null;
 
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
-  const { data: logs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list() });
-  const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
-  const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
+  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list(), staleTime: 60000 });
+  const { data: logs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list(), staleTime: 30000, placeholderData: (prev) => prev });
+  const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list(), staleTime: 60000, placeholderData: (prev) => prev });
+  const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list(), staleTime: 60000 });
 
   // isAdmin already comes from useCurrentUser
 

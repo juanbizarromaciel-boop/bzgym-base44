@@ -28,15 +28,15 @@ export default function StudentWorkout() {
   const qc = useQueryClient();
   const { user: currentUser } = useCurrentUser();
 
-  const { data: allStudents = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
-  const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
+  const { data: allStudents = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list(), staleTime: 60000 });
+  const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list(), staleTime: 60000 });
 
   const isAdmin = currentUser?.role === "admin";
   const students = isAdmin
     ? allStudents.filter(s => s.active !== false)
     : allStudents.filter(s => s.active !== false && s.personal_id === currentUser?.email);
-  const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
-  const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list() });
+  const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list(), staleTime: 60000 });
+  const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list(), staleTime: 30000 });
 
   const myPlans = isAdmin ? allPlans : allPlans.filter(p => p.personal_id === currentUser?.email);
   const studentPlans = myPlans.filter((p) => p.student_id === selectedStudentId);
@@ -52,28 +52,31 @@ export default function StudentWorkout() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["logs"] }),
   });
 
-  const initSets = (exerciseIdx, numSets) => {
-    if (setsData[exerciseIdx]) return setsData[exerciseIdx];
+  // Use exercise_name as stable key instead of index to avoid data loss on re-renders
+  const getExerciseKey = (exercise, idx) => exercise.exercise_name || `exercise_${idx}`;
+
+  const initSets = (exerciseKey, numSets) => {
+    if (setsData[exerciseKey]) return setsData[exerciseKey];
     return Array.from({ length: numSets }, (_, i) => ({ set_number: i + 1, reps_done: 0, load_kg: 0 }));
   };
 
-  const updateSet = (exerciseIdx, setIdx, field, value) => {
-    const current = initSets(exerciseIdx, selectedPlan.exercises[exerciseIdx]?.sets || 3);
+  const updateSet = (exerciseKey, setIdx, field, value, numSets) => {
+    const current = initSets(exerciseKey, numSets || 3);
     const updated = [...current];
     updated[setIdx] = { ...updated[setIdx], [field]: parseFloat(value) || 0 };
-    setSetsData({ ...setsData, [exerciseIdx]: updated });
+    setSetsData(prev => ({ ...prev, [exerciseKey]: updated }));
   };
 
-  const applyWeightToAllSets = (exerciseIdx, kg) => {
-    const numSets = selectedPlan.exercises[exerciseIdx]?.sets || 3;
-    const current = setsData[exerciseIdx] || initSets(exerciseIdx, numSets);
+  const applyWeightToAllSets = (exerciseKey, kg, numSets) => {
+    const current = setsData[exerciseKey] || initSets(exerciseKey, numSets || 3);
     const updated = current.map(s => ({ ...s, load_kg: kg }));
-    setSetsData({ ...setsData, [exerciseIdx]: updated });
+    setSetsData(prev => ({ ...prev, [exerciseKey]: updated }));
   };
 
   const saveExerciseLog = (exerciseIdx) => {
     const exercise = selectedPlan.exercises[exerciseIdx];
-    const sets = setsData[exerciseIdx] || initSets(exerciseIdx, exercise.sets);
+    const exerciseKey = getExerciseKey(exercise, exerciseIdx);
+    const sets = setsData[exerciseKey] || initSets(exerciseKey, exercise.sets);
     const maxLoad = Math.max(...sets.map((s) => s.load_kg), 0);
 
     logMut.mutate({
@@ -183,8 +186,9 @@ export default function StudentWorkout() {
 
           {sortedExercises.map((exercise, displayIdx) => {
             const exerciseIdx = exercise.originalIndex;
+            const exerciseKey = getExerciseKey(exercise, exerciseIdx);
             const isCompleted = completedExercises.has(exerciseIdx);
-            const sets = setsData[exerciseIdx] || initSets(exerciseIdx, exercise.sets);
+            const sets = setsData[exerciseKey] || initSets(exerciseKey, exercise.sets);
             const progression = getExerciseProgression(exercise.exercise_name, allLogs, selectedStudentId);
 
             return (
@@ -229,7 +233,7 @@ export default function StudentWorkout() {
                         <LastWeightBadge
                           exerciseName={exercise.exercise_name}
                           logs={allLogs.filter(l => l.student_id === selectedStudentId)}
-                          onApply={(kg) => applyWeightToAllSets(exerciseIdx, kg)}
+                          onApply={(kg) => applyWeightToAllSets(exerciseKey, kg, exercise.sets)}
                           disabled={isCompleted}
                         />
                         <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
@@ -270,7 +274,7 @@ export default function StudentWorkout() {
                         <Input
                           type="number"
                           value={set.reps_done || ""}
-                          onChange={(e) => updateSet(exerciseIdx, setIdx, "reps_done", e.target.value)}
+                          onChange={(e) => updateSet(exerciseKey, setIdx, "reps_done", e.target.value, exercise.sets)}
                           placeholder={exercise.reps}
                           className="cyber-input text-center"
                           disabled={isCompleted}
@@ -280,7 +284,7 @@ export default function StudentWorkout() {
                         <Input
                           type="number"
                           value={set.load_kg || ""}
-                          onChange={(e) => updateSet(exerciseIdx, setIdx, "load_kg", e.target.value)}
+                          onChange={(e) => updateSet(exerciseKey, setIdx, "load_kg", e.target.value, exercise.sets)}
                           placeholder={exercise.load_kg?.toString() || "0"}
                           className="cyber-input text-center"
                           disabled={isCompleted}
