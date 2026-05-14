@@ -202,9 +202,7 @@ export default function MyDiet() {
                     </div>
                   )}
 
-                  {plan.notes && (
-                    <p className="text-xs text-purple-400/30 font-mono-cyber px-2 italic">// {plan.notes}</p>
-                  )}
+
                 </motion.div>
               ))}
             </motion.div>
