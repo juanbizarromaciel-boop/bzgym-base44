@@ -42,14 +42,16 @@ function ExerciseCard({ exercise }) {
   const [mediaTab, setMediaTab] = useState("photo"); // "photo" | "video"
   const muscleColor = MUSCLE_COLORS[exercise.muscle_group] || "#6b7280";
 
-  const imageUrl = exercise.image_url || exercise.video_url; // retrocompat: fallback to video_url for old data
-  const videoUrl = exercise.video_url && !exercise.image_url ? null : exercise.video_url; // only show as video if image_url is separate
+  // image_url = GIF/foto. video_url = YouTube/MP4/WEBM somente se for vídeo real
+  const imageUrl = exercise.image_url;
+  const rawVideoUrl = exercise.video_url;
+  const isRealVideo = isYouTubeEmbed(rawVideoUrl) || isVideo(rawVideoUrl);
   const hasImage = !!imageUrl;
-  const hasVideo = !!exercise.video_url && (!!exercise.image_url || isYouTubeEmbed(exercise.video_url) || isVideo(exercise.video_url));
+  const hasVideo = !!rawVideoUrl && isRealVideo;
   const hasDesc = !!exercise.description;
 
-  // Thumbnail: prefer image_url, fallback to video_url (if image), fallback to muscle default
-  const thumbUrl = exercise.image_url || (exercise.video_url && !isYouTubeEmbed(exercise.video_url) && !isVideo(exercise.video_url) ? exercise.video_url : null) || MUSCLE_DEFAULTS[exercise.muscle_group];
+  // Thumbnail: prefer image_url (GIF), then muscle default
+  const thumbUrl = exercise.image_url || MUSCLE_DEFAULTS[exercise.muscle_group];
 
   return (
     <div
@@ -98,7 +100,7 @@ function ExerciseCard({ exercise }) {
             )}
             {hasImage && (
               <span className="text-[10px] text-cyan-400/40 font-mono-cyber flex items-center gap-1">
-                <Image className="w-2.5 h-2.5" /> foto
+                <Image className="w-2.5 h-2.5" /> gif
               </span>
             )}
             {hasVideo && (
@@ -141,11 +143,11 @@ function ExerciseCard({ exercise }) {
                 </div>
               )}
 
-              {/* Photo display */}
+              {/* Photo / GIF display */}
               {(mediaTab === "photo" || !hasVideo) && hasImage && (
                 <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${muscleColor}25`, background: 'rgba(0,0,0,0.4)' }}>
                   <img
-                    src={imageUrl}
+                    src={exercise.image_url}
                     alt={exercise.name}
                     className="w-full object-contain"
                     style={{ maxHeight: 300 }}
@@ -154,17 +156,27 @@ function ExerciseCard({ exercise }) {
                 </div>
               )}
 
+              {/* If no image, show muscle default */}
+              {(mediaTab === "photo" || !hasVideo) && !hasImage && (
+                <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${muscleColor}25`, background: 'rgba(0,0,0,0.4)' }}>
+                  <img
+                    src={MUSCLE_DEFAULTS[exercise.muscle_group] || MUSCLE_DEFAULTS.outro}
+                    alt={exercise.name}
+                    className="w-full object-contain"
+                    style={{ maxHeight: 300 }}
+                  />
+                </div>
+              )}
+
               {/* Video display */}
               {mediaTab === "video" && hasVideo && (
                 <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(6,182,212,0.25)', background: 'rgba(0,0,0,0.4)' }}>
-                  {isYouTubeEmbed(exercise.video_url) ? (
+                  {isYouTubeEmbed(rawVideoUrl) ? (
                     <div style={{ aspectRatio: '16/9' }}>
-                      <iframe src={exercise.video_url} className="w-full h-full" allowFullScreen title={exercise.name} />
+                      <iframe src={rawVideoUrl} className="w-full h-full" allowFullScreen title={exercise.name} />
                     </div>
-                  ) : isVideo(exercise.video_url) ? (
-                    <video src={exercise.video_url} controls className="w-full" style={{ maxHeight: 300 }} />
                   ) : (
-                    <img src={exercise.video_url} alt={exercise.name} className="w-full object-contain" style={{ maxHeight: 300 }} />
+                    <video src={rawVideoUrl} controls className="w-full" style={{ maxHeight: 300 }} />
                   )}
                 </div>
               )}
