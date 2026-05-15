@@ -89,13 +89,13 @@ export default function CH() {
   const { data: cycles = [] } = useQuery({
     queryKey: ["cycles"],
     queryFn: () => base44.entities.Cycle.list("-created_date", 100),
-    enabled: !!user && (user.role === "admin" || !!student)
+    enabled: !!user
   });
 
   const { data: substances = [] } = useQuery({
     queryKey: ["substances"],
     queryFn: () => base44.entities.CycleSubstance.list("-created_date", 200),
-    enabled: !!user && (user.role === "admin" || !!student)
+    enabled: !!user
   });
 
   const createCycleMut = useMutation({
@@ -162,8 +162,9 @@ export default function CH() {
 
   const filteredCycles = cycles.filter(c => {
     if (!c.active) return false;
-    if (user?.role === "admin") return true;
-    if (student) return c.student_id === student.id;
+    if (user?.role === "admin" || user?.role === "personal") return true;
+    if (user?.role === "user" && student) return c.student_id === student.id;
+    if (user?.role === "user" && !student) return true; // RLS já filtra pelo servidor
     return false;
   });
 
