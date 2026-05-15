@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Dumbbell, Sparkles, Search, Plus, Pencil, Trash2, Image,
-  FileText, CheckCircle, X, Loader2, ChevronDown, ChevronUp, Video
+  FileText, CheckCircle, X, Loader2, ChevronDown, ChevronUp, Video, Wand2
 } from "lucide-react";
 import { toast } from "sonner";
 import ExerciseMediaModal from "@/components/exercise/ExerciseMediaModal";
@@ -218,6 +218,25 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
   const [generatingDesc, setGeneratingDesc] = useState(false);
   const [mediaModal, setMediaModal] = useState(false);
   const [localExercise, setLocalExercise] = useState(exercise);
+  const [fetchingGif, setFetchingGif] = useState(false);
+
+  const handleFetchGif = async () => {
+    setFetchingGif(true);
+    try {
+      const res = await base44.functions.invoke("autoFetchExerciseGif", {
+        exercise_id: exercise.id,
+        exercise_name: exercise.name,
+      });
+      const url = res.data?.gif_url;
+      if (url) {
+        setLocalExercise(e => ({ ...e, image_url: url }));
+        toast.success("GIF encontrado e salvo!");
+      } else {
+        toast.warning("GIF não encontrado para este exercício");
+      }
+    } catch (e) { toast.error("Erro: " + e.message); }
+    setFetchingGif(false);
+  };
 
   const handleSave = async () => {
     await onSave(exercise.id, form);
@@ -360,11 +379,21 @@ function ExerciseRow({ exercise, onSave, onDelete }) {
                 <p className="text-xs text-purple-300/60 leading-relaxed border-l-2 border-purple-500/20 pl-3">{localExercise.description}</p>
               )}
               <ExerciseMediaDisplay exercise={localExercise} maxHeight={200} />
-              <button onClick={() => setMediaModal(true)}
-                className="w-full py-2 rounded-lg text-[10px] font-mono-cyber flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01]"
-                style={{ background: 'rgba(168,85,247,0.07)', border: '1px solid rgba(168,85,247,0.18)', color: 'rgba(192,132,252,0.6)' }}>
-                <Image className="w-3 h-3" /> Adicionar / trocar mídia
-              </button>
+              <div className="flex gap-2">
+                {!localExercise.image_url && (
+                  <button onClick={handleFetchGif} disabled={fetchingGif}
+                    className="flex-1 py-2 rounded-lg text-[10px] font-mono-cyber flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01] disabled:opacity-50"
+                    style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.3)', color: '#c084fc' }}>
+                    {fetchingGif ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
+                    BUSCAR GIF
+                  </button>
+                )}
+                <button onClick={() => setMediaModal(true)}
+                  className="flex-1 py-2 rounded-lg text-[10px] font-mono-cyber flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01]"
+                  style={{ background: 'rgba(168,85,247,0.07)', border: '1px solid rgba(168,85,247,0.18)', color: 'rgba(192,132,252,0.6)' }}>
+                  <Image className="w-3 h-3" /> Adicionar / trocar mídia
+                </button>
+              </div>
             </>
           )}
         </div>
@@ -387,7 +416,16 @@ export default function AIExerciseManager({ settings }) {
   const [showAdd, setShowAdd] = useState(false);
   const [newForm, setNewForm] = useState({ name: "", muscle_group: "peito", description: "", image_url: "", video_url: "" });
   const [addingNew, setAddingNew] = useState(false);
+  const [fetchingGifForNew, setFetchingGifForNew] = useState(false);
   const qc = useQueryClient();
+
+  const fetchGifForExercise = async (exerciseId, exerciseName) => {
+    const res = await base44.functions.invoke("autoFetchExerciseGif", {
+      exercise_id: exerciseId,
+      exercise_name: exerciseName,
+    });
+    return res.data;
+  };
 
   const { data: exercises = [], refetch } = useQuery({
     queryKey: ["exercises"],
@@ -461,8 +499,28 @@ export default function AIExerciseManager({ settings }) {
             placeholder="Descrição (opcional)" rows={2}
             className="w-full cyber-input rounded-xl p-3 text-sm resize-none mb-3"
             style={{ background: 'rgba(4,3,14,0.9)', border: '1px solid rgba(168,85,247,0.2)', color: '#e9d5ff' }} />
-          <Input value={newForm.image_url || ""} onChange={e => setNewForm(f => ({ ...f, image_url: e.target.value }))}
-            placeholder="URL de imagem/GIF (opcional)" className="cyber-input text-sm mb-2" />
+          <div className="flex gap-2 mb-2">
+            <Input value={newForm.image_url || ""} onChange={e => setNewForm(f => ({ ...f, image_url: e.target.value }))}
+              placeholder="URL de imagem/GIF (opcional)" className="cyber-input text-sm flex-1" />
+            <button
+              onClick={async () => {
+                if (!newForm.name) { toast.error("Digite o nome primeiro"); return; }
+                setFetchingGifForNew(true);
+                try {
+                  const res = await base44.functions.invoke("fetchExerciseGif", { exercise_name: newForm.name });
+                  const url = res.data?.gif_url;
+                  if (url) { setNewForm(f => ({ ...f, image_url: url })); toast.success("GIF encontrado!"); }
+                  else toast.warning("GIF não encontrado para este exercício");
+                } catch (e) { toast.error("Erro: " + e.message); }
+                setFetchingGifForNew(false);
+              }}
+              disabled={fetchingGifForNew || !newForm.name}
+              className="px-3 py-2 rounded-lg text-xs font-mono-cyber flex items-center gap-1.5 flex-shrink-0 disabled:opacity-40 transition-all"
+              style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.35)', color: '#c084fc' }}>
+              {fetchingGifForNew ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
+              BUSCAR GIF
+            </button>
+          </div>
           <Input value={newForm.video_url || ""} onChange={e => setNewForm(f => ({ ...f, video_url: e.target.value }))}
             placeholder="URL de vídeo (opcional)" className="cyber-input text-sm mb-3" />
           <div className="flex gap-2">
