@@ -216,7 +216,8 @@ export default function LearnExercises() {
 
   const { data: exercises = [], isLoading } = useQuery({
     queryKey: ["exercises"],
-    queryFn: () => base44.entities.Exercise.list()
+    queryFn: () => base44.entities.Exercise.list(),
+    staleTime: 0
   });
 
   const filtered = exercises.filter(e => {
