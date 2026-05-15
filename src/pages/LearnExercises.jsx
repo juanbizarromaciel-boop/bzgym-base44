@@ -121,67 +121,66 @@ function ExerciseCard({ exercise }) {
       {expanded && (
         <div className="px-4 pb-5 border-t border-purple-900/15 pt-4 space-y-4">
 
-          {/* Media tabs - only show if both exist */}
-          {(hasImage || hasVideo) && (
-            <>
-              {hasVideo && (
-                <div className="flex gap-2">
-                  <button onClick={() => setMediaTab("photo")}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber transition-all"
-                    style={mediaTab === "photo"
-                      ? { background: 'rgba(168,85,247,0.2)', border: '1px solid rgba(168,85,247,0.45)', color: '#e9d5ff' }
-                      : { background: 'rgba(168,85,247,0.04)', border: '1px solid rgba(168,85,247,0.12)', color: 'rgba(192,132,252,0.4)' }}>
-                    <Image className="w-3 h-3" /> Foto
-                  </button>
-                  <button onClick={() => setMediaTab("video")}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber transition-all"
-                    style={mediaTab === "video"
-                      ? { background: 'rgba(6,182,212,0.18)', border: '1px solid rgba(6,182,212,0.45)', color: '#67e8f9' }
-                      : { background: 'rgba(6,182,212,0.03)', border: '1px solid rgba(6,182,212,0.12)', color: 'rgba(103,232,249,0.4)' }}>
-                    <Film className="w-3 h-3" /> Vídeo
-                  </button>
-                </div>
-              )}
+          {/* Media section */}
+          <>
+            {/* Tabs — only when both image and video exist */}
+            {hasImage && hasVideo && (
+              <div className="flex gap-2">
+                <button onClick={() => setMediaTab("photo")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber transition-all"
+                  style={mediaTab === "photo"
+                    ? { background: 'rgba(168,85,247,0.2)', border: '1px solid rgba(168,85,247,0.45)', color: '#e9d5ff' }
+                    : { background: 'rgba(168,85,247,0.04)', border: '1px solid rgba(168,85,247,0.12)', color: 'rgba(192,132,252,0.4)' }}>
+                  <Image className="w-3 h-3" /> GIF
+                </button>
+                <button onClick={() => setMediaTab("video")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono-cyber transition-all"
+                  style={mediaTab === "video"
+                    ? { background: 'rgba(6,182,212,0.18)', border: '1px solid rgba(6,182,212,0.45)', color: '#67e8f9' }
+                    : { background: 'rgba(6,182,212,0.03)', border: '1px solid rgba(6,182,212,0.12)', color: 'rgba(103,232,249,0.4)' }}>
+                  <Film className="w-3 h-3" /> Vídeo
+                </button>
+              </div>
+            )}
 
-              {/* Photo / GIF display */}
-              {(mediaTab === "photo" || !hasVideo) && hasImage && (
-                <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${muscleColor}25`, background: 'rgba(0,0,0,0.4)' }}>
-                  <img
-                    src={exercise.image_url}
-                    alt={exercise.name}
-                    className="w-full object-contain"
-                    style={{ maxHeight: 300 }}
-                    onError={e => { e.target.style.display = 'none'; }}
-                  />
-                </div>
-              )}
+            {/* GIF / Image — always show unless user selected video tab */}
+            {hasImage && mediaTab !== "video" && (
+              <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${muscleColor}25`, background: 'rgba(0,0,0,0.4)' }}>
+                <img
+                  src={exercise.image_url}
+                  alt={exercise.name}
+                  className="w-full object-contain"
+                  style={{ maxHeight: 320 }}
+                  onError={e => { e.target.style.display = 'none'; }}
+                />
+              </div>
+            )}
 
-              {/* If no image, show muscle default */}
-              {(mediaTab === "photo" || !hasVideo) && !hasImage && (
-                <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${muscleColor}25`, background: 'rgba(0,0,0,0.4)' }}>
-                  <img
-                    src={MUSCLE_DEFAULTS[exercise.muscle_group] || MUSCLE_DEFAULTS.outro}
-                    alt={exercise.name}
-                    className="w-full object-contain"
-                    style={{ maxHeight: 300 }}
-                  />
-                </div>
-              )}
+            {/* Muscle default — if no image and no video selected */}
+            {!hasImage && !hasVideo && (
+              <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${muscleColor}25`, background: 'rgba(0,0,0,0.4)' }}>
+                <img
+                  src={MUSCLE_DEFAULTS[exercise.muscle_group] || MUSCLE_DEFAULTS.outro}
+                  alt={exercise.name}
+                  className="w-full object-contain"
+                  style={{ maxHeight: 320 }}
+                />
+              </div>
+            )}
 
-              {/* Video display */}
-              {mediaTab === "video" && hasVideo && (
-                <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(6,182,212,0.25)', background: 'rgba(0,0,0,0.4)' }}>
-                  {isYouTubeEmbed(rawVideoUrl) ? (
-                    <div style={{ aspectRatio: '16/9' }}>
-                      <iframe src={rawVideoUrl} className="w-full h-full" allowFullScreen title={exercise.name} />
-                    </div>
-                  ) : (
-                    <video src={rawVideoUrl} controls className="w-full" style={{ maxHeight: 300 }} />
-                  )}
-                </div>
-              )}
-            </>
-          )}
+            {/* Video — only when video tab selected or only video exists */}
+            {hasVideo && (mediaTab === "video" || !hasImage) && (
+              <div className="rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(6,182,212,0.25)', background: 'rgba(0,0,0,0.4)' }}>
+                {isYouTubeEmbed(rawVideoUrl) ? (
+                  <div style={{ aspectRatio: '16/9' }}>
+                    <iframe src={rawVideoUrl} className="w-full h-full" allowFullScreen title={exercise.name} />
+                  </div>
+                ) : (
+                  <video src={rawVideoUrl} controls className="w-full" style={{ maxHeight: 320 }} />
+                )}
+              </div>
+            )}
+          </>
 
           {/* Description */}
           {hasDesc ? (
