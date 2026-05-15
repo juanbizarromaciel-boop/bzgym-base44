@@ -32,6 +32,17 @@ function getYouTubeEmbed(url) {
   return m ? `https://www.youtube.com/embed/${m[1]}` : null;
 }
 
+// Converts Wikimedia Special:Redirect/file URLs to direct image URLs
+function fixWikimediaUrl(url) {
+  if (!url) return url;
+  // Convert Special:Redirect/file/Nome.gif → Special:FilePath/Nome.gif (serves image directly)
+  const match = url.match(/Special:Redirect\/file\/(.+)$/i);
+  if (match) {
+    return `https://commons.wikimedia.org/wiki/Special:FilePath/${match[1]}`;
+  }
+  return url;
+}
+
 /**
  * Renders exercise media: YouTube embed, MP4/WEBM video, image, or GIF.
  * Priority: video_url (if video/youtube) → image_url → video_url as image (legacy) → muscle default
@@ -41,7 +52,7 @@ export default function ExerciseMediaDisplay({ exercise, maxHeight = 220, classN
   const [defaultFailed, setDefaultFailed] = useState(false);
 
   const videoUrl = exercise?.video_url;
-  const imageUrl = exercise?.image_url;
+  const imageUrl = fixWikimediaUrl(exercise?.image_url);
   const fallbackUrl = MUSCLE_DEFAULTS[exercise?.muscle_group] || MUSCLE_DEFAULTS.outro;
 
   // 1. GIF/Image takes priority if available

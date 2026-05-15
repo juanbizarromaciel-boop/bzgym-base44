@@ -36,6 +36,12 @@ const MUSCLE_DEFAULTS = {
 
 function isYouTubeEmbed(url) { return url?.includes("youtube.com/embed/"); }
 function isVideo(url) { return url?.match(/\.(mp4|webm)(\?|$)/i); }
+function fixWikimediaUrl(url) {
+  if (!url) return url;
+  const match = url.match(/Special:Redirect\/file\/(.+)$/i);
+  if (match) return `https://commons.wikimedia.org/wiki/Special:FilePath/${match[1]}`;
+  return url;
+}
 
 function ExerciseCard({ exercise }) {
   const [expanded, setExpanded] = useState(false);
@@ -43,7 +49,7 @@ function ExerciseCard({ exercise }) {
   const muscleColor = MUSCLE_COLORS[exercise.muscle_group] || "#6b7280";
 
   // image_url = GIF/foto. video_url = YouTube/MP4/WEBM somente se for vídeo real
-  const imageUrl = exercise.image_url;
+  const imageUrl = fixWikimediaUrl(exercise.image_url);
   const rawVideoUrl = exercise.video_url;
   const isRealVideo = isYouTubeEmbed(rawVideoUrl) || isVideo(rawVideoUrl);
   const hasImage = !!imageUrl;
@@ -51,7 +57,7 @@ function ExerciseCard({ exercise }) {
   const hasDesc = !!exercise.description;
 
   // Thumbnail: prefer image_url (GIF), then muscle default
-  const thumbUrl = exercise.image_url || MUSCLE_DEFAULTS[exercise.muscle_group];
+  const thumbUrl = imageUrl || MUSCLE_DEFAULTS[exercise.muscle_group];
 
   return (
     <div
@@ -147,7 +153,7 @@ function ExerciseCard({ exercise }) {
             {hasImage && mediaTab !== "video" && (
               <div className="rounded-xl overflow-hidden border" style={{ borderColor: `${muscleColor}25`, background: 'rgba(0,0,0,0.4)' }}>
                 <img
-                  src={exercise.image_url}
+                  src={imageUrl}
                   alt={exercise.name}
                   className="w-full object-contain"
                   style={{ maxHeight: 320 }}
