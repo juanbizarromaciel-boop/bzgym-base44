@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Circle, RefreshCw, ChevronDown, ChevronUp, Flame, Clock, RotateCcw } from "lucide-react";
+import { CheckCircle2, Circle, RefreshCw, ChevronDown, ChevronUp, Flame, Clock, RotateCcw, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import FoodSubstituteModal from "./FoodSubstituteModal";
+import { toast } from "sonner";
 
 function getTodayKey() {
   return new Date().toISOString().split("T")[0];
@@ -13,20 +14,22 @@ export default function DietChecklist({ plan, student }) {
   const qc = useQueryClient();
   const today = getTodayKey();
   const saveTimer = useRef(null);
+  const pendingSave = useRef(null);
+  const isSaving = useRef(false);
 
-  // Local state for instant UI response
   const [checked, setChecked] = useState({});
   const [substitutions, setSubstitutions] = useState({});
   const [expandedMeals, setExpandedMeals] = useState({});
   const [substituteTarget, setSubstituteTarget] = useState(null);
   const [logId, setLogId] = useState(null);
+  const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | saved
 
   // Fetch today's log from DB
   const { data: logs = [], isLoading } = useQuery({
     queryKey: ["diet_logs", student?.id, plan.id, today],
     queryFn: () => base44.entities.DietLog.filter({ student_id: student.id, plan_id: plan.id, date: today }),
     enabled: !!student?.id,
-    staleTime: 30000,
+    staleTime: 0,
   });
 
   // Hydrate state from DB on first load
@@ -36,23 +39,103 @@ export default function DietChecklist({ plan, student }) {
       setLogId(log.id);
       setChecked(log.checked_items || {});
       setSubstitutions(log.substitutions || {});
+    } else {
+      // No log for today — reset (new day)
+      setLogId(null);
+      setChecked({});
+      setSubstitutions({});
     }
   }, [logs]);
 
-  const createMut = useMutation({
-    mutationFn: (data) => base44.entities.DietLog.create(data),
-    onSuccess: (newLog) => {
-      setLogId(newLog.id);
-      qc.invalidateQueries({ queryKey: ["diet_logs"] });
-    },
-  });
+  // Watch for day change (reinicia checklist ao virar o dia)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentDay = getTodayKey();
+      if (currentDay !== today) {
+        qc.invalidateQueries({ queryKey: ["diet_logs"] });
+        qc.invalidateQueries({ queryKey: ["diet_logs_history"] });
+      }
+    }, 60000); // check every minute
+    return () => clearInterval(interval);
+  }, [today, qc]);
 
-  const updateMut = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.DietLog.update(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["diet_logs"] }),
-  });
+  const buildPayload = useCallback((newChecked, newSubs) => {
+    const allI = (plan.meals || []).flatMap((m, mi) =>
+      (m.items || []).map((it, ii) => {
+        const k = `${mi}_${ii}`;
+        const item = newSubs[k] ? { ...newSubs[k] } : it;
+        return newChecked[k] ? item : null;
+      })
+    ).filter(Boolean);
 
-  // Build meals with substitutions
+    const totalCal = allI.reduce((s, it) => s + (it.calories || 0), 0);
+    const totalProt = allI.reduce((s, it) => s + (it.protein_g || 0), 0);
+    const totalCarb = allI.reduce((s, it) => s + (it.carbs_g || 0), 0);
+    const totalFat = allI.reduce((s, it) => s + (it.fat_g || 0), 0);
+    const allKeys = (plan.meals || []).flatMap((m, mi) => (m.items || []).map((_, ii) => `${mi}_${ii}`));
+    const checkedCount = allKeys.filter(k => newChecked[k]).length;
+    const prog = allKeys.length > 0 ? Math.round((checkedCount / allKeys.length) * 100) : 0;
+
+    return {
+      student_id: student.id,
+      plan_id: plan.id,
+      date: today,
+      checked_items: newChecked,
+      substitutions: newSubs,
+      total_calories_consumed: Math.round(totalCal),
+      total_protein_consumed: parseFloat(totalProt.toFixed(1)),
+      total_carbs_consumed: parseFloat(totalCarb.toFixed(1)),
+      total_fat_consumed: parseFloat(totalFat.toFixed(1)),
+      progress_percent: prog,
+    };
+  }, [plan, student, today]);
+
+  // Flush pending save immediately (used when we need current logId)
+  const flushSave = useCallback(async (payload, currentLogId) => {
+    if (isSaving.current) return;
+    isSaving.current = true;
+    setSaveStatus("saving");
+    try {
+      if (currentLogId) {
+        await base44.entities.DietLog.update(currentLogId, payload);
+      } else {
+        const newLog = await base44.entities.DietLog.create(payload);
+        setLogId(newLog.id);
+      }
+      setSaveStatus("saved");
+      qc.invalidateQueries({ queryKey: ["diet_logs_history"] });
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (e) {
+      setSaveStatus("idle");
+      toast.error("Erro ao salvar: " + e.message);
+    }
+    isSaving.current = false;
+
+    // If another save was queued while we were saving, flush it now
+    if (pendingSave.current) {
+      const { p, id } = pendingSave.current;
+      pendingSave.current = null;
+      flushSave(p, id || logId);
+    }
+  }, [qc, logId]);
+
+  // Debounced persist — queues payload and flushes after 600ms
+  const persistState = useCallback((newChecked, newSubs) => {
+    if (!student?.id) return;
+    const payload = buildPayload(newChecked, newSubs);
+
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      if (isSaving.current) {
+        // Queue for after current save finishes
+        pendingSave.current = { p: payload, id: logId };
+      } else {
+        flushSave(payload, logId);
+      }
+    }, 600);
+  }, [student, buildPayload, flushSave, logId]);
+
+  // Build meals with substitutions applied
   const meals = (plan.meals || []).map((meal, mi) => ({
     ...meal,
     items: (meal.items || []).map((item, ii) => {
@@ -71,46 +154,6 @@ export default function DietChecklist({ plan, student }) {
   const consumedProt = consumed.reduce((s, it) => s + (it.protein_g || 0), 0);
   const consumedCarb = consumed.reduce((s, it) => s + (it.carbs_g || 0), 0);
   const consumedFat = consumed.reduce((s, it) => s + (it.fat_g || 0), 0);
-
-  // Save to DB (debounced)
-  const persistState = (newChecked, newSubs) => {
-    if (!student?.id) return;
-    clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      const allI = (plan.meals || []).flatMap((m, mi) => (m.items || []).map((it, ii) => {
-        const k = `${mi}_${ii}`;
-        const item = newSubs[k] ? { ...newSubs[k] } : it;
-        return newChecked[k] ? item : null;
-      })).filter(Boolean);
-
-      const totalCal = allI.reduce((s, it) => s + (it.calories || 0), 0);
-      const totalProt = allI.reduce((s, it) => s + (it.protein_g || 0), 0);
-      const totalCarb = allI.reduce((s, it) => s + (it.carbs_g || 0), 0);
-      const totalFat = allI.reduce((s, it) => s + (it.fat_g || 0), 0);
-      const allKeys = (plan.meals || []).flatMap((m, mi) => (m.items || []).map((_, ii) => `${mi}_${ii}`));
-      const checkedCount2 = allKeys.filter(k => newChecked[k]).length;
-      const prog = allKeys.length > 0 ? Math.round((checkedCount2 / allKeys.length) * 100) : 0;
-
-      const payload = {
-        student_id: student.id,
-        plan_id: plan.id,
-        date: today,
-        checked_items: newChecked,
-        substitutions: newSubs,
-        total_calories_consumed: Math.round(totalCal),
-        total_protein_consumed: parseFloat(totalProt.toFixed(1)),
-        total_carbs_consumed: parseFloat(totalCarb.toFixed(1)),
-        total_fat_consumed: parseFloat(totalFat.toFixed(1)),
-        progress_percent: prog,
-      };
-
-      if (logId) {
-        updateMut.mutate({ id: logId, data: payload });
-      } else {
-        createMut.mutate(payload);
-      }
-    }, 800);
-  };
 
   const toggle = (key) => {
     const next = { ...checked, [key]: !checked[key] };
@@ -135,6 +178,7 @@ export default function DietChecklist({ plan, student }) {
   };
 
   const resetAll = () => {
+    if (!confirm("Resetar o checklist de hoje? Isso apaga o progresso atual.")) return;
     setChecked({});
     setSubstitutions({});
     persistState({}, {});
@@ -202,7 +246,21 @@ export default function DietChecklist({ plan, student }) {
           ))}
         </div>
 
-        <div className="flex justify-end mt-3">
+        <div className="flex items-center justify-between mt-3">
+          {/* Save status */}
+          <div className="flex items-center gap-1.5">
+            {saveStatus === "saving" && (
+              <span className="text-[9px] font-mono-cyber text-purple-400/50 flex items-center gap-1">
+                <div className="w-2 h-2 border border-purple-400/40 border-t-purple-400 rounded-full animate-spin" />
+                salvando...
+              </span>
+            )}
+            {saveStatus === "saved" && (
+              <span className="text-[9px] font-mono-cyber text-emerald-400/60 flex items-center gap-1">
+                <Save className="w-2.5 h-2.5" /> salvo
+              </span>
+            )}
+          </div>
           <button onClick={resetAll} className="text-[9px] font-mono-cyber text-purple-500/30 hover:text-purple-300 flex items-center gap-1.5 transition-colors">
             <RotateCcw className="w-3 h-3" /> RESETAR DIA
           </button>
@@ -263,7 +321,6 @@ export default function DietChecklist({ plan, student }) {
                       <Clock className="w-2.5 h-2.5" />{meal.time}
                     </span>
                   )}
-                  {/* Mini progress */}
                   <div className="w-12 h-1 bg-black/50 rounded-full overflow-hidden hidden sm:block">
                     <div className="h-full rounded-full transition-all"
                       style={{
@@ -290,7 +347,7 @@ export default function DietChecklist({ plan, student }) {
                     className="overflow-hidden"
                   >
                     <div className="border-t divide-y"
-                      style={{ borderColor: 'rgba(168,85,247,0.1)', '--tw-divide-opacity': '1' }}>
+                      style={{ borderColor: 'rgba(168,85,247,0.1)' }}>
                       {mealItems.map((item, ii) => {
                         const key = `${mi}_${ii}`;
                         const done = !!checked[key];

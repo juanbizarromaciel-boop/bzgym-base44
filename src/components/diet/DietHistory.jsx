@@ -29,11 +29,12 @@ export default function DietHistory({ student, plan }) {
     staleTime: 30000,
   });
 
-  // Sort by date desc, exclude today
+  // Sort by date desc — show all days including today
   const today = new Date().toISOString().split("T")[0];
   const history = [...logs]
     .sort((a, b) => b.date.localeCompare(a.date))
-    .filter(l => l.date <= today);
+    .filter(l => l.date <= today)
+    .filter(l => (l.progress_percent || 0) > 0 || Object.keys(l.checked_items || {}).length > 0);
 
   if (isLoading) return (
     <div className="flex items-center justify-center py-10">
