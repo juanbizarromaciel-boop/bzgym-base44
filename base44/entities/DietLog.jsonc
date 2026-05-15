@@ -54,7 +54,14 @@
           }
         },
         {
-          "data.student_id": "{{user.data.student_id}}"
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
         }
       ]
     },
@@ -80,6 +87,11 @@
         {
           "user_condition": {
             "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
           }
         },
         {
