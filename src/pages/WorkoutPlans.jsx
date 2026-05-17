@@ -171,9 +171,12 @@ export default function WorkoutPlans() {
                 TREINOS
               </h1>
             </div>
-            <p className="text-sm font-mono-cyber" style={{ color: 'rgba(236,72,153,0.7)', textShadow: '0 0 8px rgba(236,72,153,0.4)', paddingLeft: '14px' }}>
-              Monte treinos personalizados para seus alunos
-            </p>
+            <div className="flex items-center gap-2" style={{ paddingLeft: '14px' }}>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ec4899', boxShadow: '0 0 8px #ec4899, 0 0 16px rgba(236,72,153,0.6)' }} />
+              <p className="text-sm font-mono-cyber tracking-wide" style={{ color: 'rgba(236,72,153,0.8)', textShadow: '0 0 10px rgba(236,72,153,0.5)' }}>
+                Monte treinos personalizados para seus alunos
+              </p>
+            </div>
           </div>
 
           <button
