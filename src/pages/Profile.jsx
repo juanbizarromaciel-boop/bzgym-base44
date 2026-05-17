@@ -8,7 +8,8 @@ import PageHeader from "../components/shared/PageHeader";
 import ThemePresetCard from "@/components/themes/ThemePresetCard";
 import SavedThemeCard from "@/components/themes/SavedThemeCard";
 import ThemeEditor from "@/components/themes/ThemeEditor";
-import { PRESET_THEMES, applyThemeVars, resetToDefaultTheme } from "@/lib/themes";
+import { PRESET_THEMES } from "@/lib/themes";
+import { useTheme } from "@/lib/ThemeContext";
 
 const MAIN_TABS = ["Perfil", "Temas"];
 const THEME_TABS = ["Temas Prontos", "Meus Temas", "Criar Tema"];
@@ -21,12 +22,10 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({ phone: "", notes: "" });
 
-  // Tema
+  // Tema — usa contexto global
+  const { activeThemeId, savedThemes, applyTheme, restoreDefault, refreshSavedThemes } = useTheme();
   const [mainTab, setMainTab] = useState("Perfil");
   const [themeTab, setThemeTab] = useState("Temas Prontos");
-  const [activeThemeId, setActiveThemeId] = useState("default");
-  const [savedThemes, setSavedThemes] = useState([]);
-  const [loadingThemes, setLoadingThemes] = useState(false);
   const [editingTheme, setEditingTheme] = useState(null);
 
   useEffect(() => {
@@ -41,25 +40,6 @@ export default function Profile() {
       }
     });
   }, []);
-
-  useEffect(() => {
-    if (mainTab === "Temas" && user) {
-      loadSavedThemes(user);
-    }
-  }, [mainTab, user]);
-
-  const loadSavedThemes = async (u) => {
-    setLoadingThemes(true);
-    try {
-      const themes = await base44.entities.UserTheme.filter({ user_email: u.email });
-      setSavedThemes(themes);
-      const active = themes.find(t => t.is_active);
-      if (active) setActiveThemeId(active.id);
-      else setActiveThemeId("default");
-    } finally {
-      setLoadingThemes(false);
-    }
-  };
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -83,44 +63,20 @@ export default function Profile() {
     toast.success("Perfil atualizado!");
   };
 
-  // ── Tema handlers ────────────────────────────────
+  // ── Tema handlers — delegam ao ThemeContext ──────
   const applyPreset = async (theme) => {
-    applyThemeVars(theme.vars);
-    setActiveThemeId(theme.id);
+    await applyTheme(theme.id, theme.vars, theme.name);
     toast.success(`Tema "${theme.name}" aplicado!`);
-    if (!user) return;
-    for (const t of savedThemes.filter(t => t.is_active))
-      await base44.entities.UserTheme.update(t.id, { is_active: false });
-    const existing = savedThemes.find(t => t.theme_name === theme.name && t.is_system);
-    if (existing) {
-      await base44.entities.UserTheme.update(existing.id, { is_active: true, theme_data: theme.vars });
-    } else {
-      await base44.entities.UserTheme.create({
-        user_email: user.email, theme_name: theme.name, theme_data: theme.vars,
-        is_active: true, is_personal_default: false, is_system: true,
-      });
-    }
-    await loadSavedThemes(user);
-  };
-
-  const restoreDefault = async () => {
-    resetToDefaultTheme();
-    setActiveThemeId("default");
-    toast.success("Tema padrão restaurado!");
-    if (!user) return;
-    for (const t of savedThemes.filter(t => t.is_active))
-      await base44.entities.UserTheme.update(t.id, { is_active: false });
-    await loadSavedThemes(user);
   };
 
   const applySavedTheme = async (theme) => {
-    applyThemeVars(theme.theme_data);
-    setActiveThemeId(theme.id);
+    await applyTheme(theme.id, theme.theme_data, theme.theme_name);
     toast.success(`Tema "${theme.theme_name}" aplicado!`);
-    for (const t of savedThemes.filter(t => t.is_active))
-      await base44.entities.UserTheme.update(t.id, { is_active: false });
-    await base44.entities.UserTheme.update(theme.id, { is_active: true });
-    await loadSavedThemes(user);
+  };
+
+  const applyCustomTheme = async (themeVars, themeName) => {
+    await applyTheme("custom_preview", themeVars, themeName);
+    toast.success(`Prévia de "${themeName}" aplicada!`);
   };
 
   const saveCustomTheme = async (themeVars, themeName) => {
@@ -129,19 +85,9 @@ export default function Profile() {
       user_email: user.email, theme_name: themeName, theme_data: themeVars,
       is_active: false, is_personal_default: false, is_system: false,
     });
-    await loadSavedThemes(user);
+    await refreshSavedThemes();
     toast.success(`Tema "${themeName}" salvo!`);
     setThemeTab("Meus Temas");
-  };
-
-  const applyCustomTheme = async (themeVars, themeName) => {
-    applyThemeVars(themeVars);
-    setActiveThemeId("custom");
-    toast.success(`Tema "${themeName}" aplicado!`);
-    if (!user) return;
-    for (const t of savedThemes.filter(t => t.is_active))
-      await base44.entities.UserTheme.update(t.id, { is_active: false });
-    await loadSavedThemes(user);
   };
 
   const editSavedTheme = (theme) => {
@@ -154,14 +100,14 @@ export default function Profile() {
       user_email: user.email, theme_name: `${theme.theme_name} (Cópia)`,
       theme_data: theme.theme_data, is_active: false, is_personal_default: false, is_system: false,
     });
-    await loadSavedThemes(user);
+    await refreshSavedThemes();
     toast.success("Tema duplicado!");
   };
 
   const deleteSavedTheme = async (theme) => {
     if (theme.is_system) { toast.error("Temas do sistema não podem ser excluídos."); return; }
     await base44.entities.UserTheme.delete(theme.id);
-    await loadSavedThemes(user);
+    await refreshSavedThemes();
     toast.success("Tema excluído.");
   };
 
@@ -170,17 +116,22 @@ export default function Profile() {
       await base44.entities.UserTheme.update(t.id, { is_personal_default: false });
     const val = !theme.is_personal_default;
     await base44.entities.UserTheme.update(theme.id, { is_personal_default: val });
-    await loadSavedThemes(user);
+    await refreshSavedThemes();
     toast.success(val ? "Tema definido como padrão pessoal!" : "Padrão pessoal removido.");
   };
 
   const saveEditedTheme = async (themeVars, themeName) => {
     if (!editingTheme) return;
     await base44.entities.UserTheme.update(editingTheme.id, { theme_data: themeVars, theme_name: themeName });
-    await loadSavedThemes(user);
+    await refreshSavedThemes();
     toast.success("Tema atualizado!");
     setEditingTheme(null);
     setThemeTab("Meus Temas");
+  };
+
+  const handleRestoreDefault = async () => {
+    await restoreDefault();
+    toast.success("Tema padrão restaurado!");
   };
 
   const userSavedThemes = savedThemes.filter(t => !t.is_system);
@@ -288,7 +239,7 @@ export default function Profile() {
             {/* Header da seção */}
             <div className="flex items-center justify-between mb-5">
               <p className="text-[10px] font-mono-cyber text-purple-500/40 uppercase tracking-widest">// Personalize o visual do app</p>
-              <button onClick={restoreDefault}
+              <button onClick={handleRestoreDefault}
                 className="btn-neon-amber px-4 py-2 rounded-xl text-xs flex items-center gap-2">
                 <RotateCcw className="w-3.5 h-3.5" /> Restaurar Padrão
               </button>
@@ -310,12 +261,7 @@ export default function Profile() {
               ))}
             </div>
 
-            {loadingThemes ? (
-              <div className="flex items-center justify-center py-20">
-                <div className="w-6 h-6 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : (
-              <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait">
                 {/* Temas Prontos */}
                 {themeTab === "Temas Prontos" && (
                   <motion.div key="presets" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
@@ -389,7 +335,6 @@ export default function Profile() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            )}
           </motion.div>
         )}
       </AnimatePresence>
