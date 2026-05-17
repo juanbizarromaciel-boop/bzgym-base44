@@ -54,7 +54,6 @@ const adminNavGroups = [
   ]},
   { label: "Ferramentas", color: "#8b5cf6", items: [
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-    { name: "Temas do App", icon: Palette, page: "AppThemes" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
 ];
@@ -97,7 +96,6 @@ const personalNavGroups = [
   ]},
   { label: "Ferramentas", color: "#8b5cf6", items: [
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-    { name: "Temas do App", icon: Palette, page: "AppThemes" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
 ];
@@ -114,7 +112,6 @@ const subscriberNavGroups = [
     { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
   ]},
   { label: "Conta", color: "#8b5cf6", items: [
-    { name: "Temas do App", icon: Palette, page: "AppThemes" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
 ];
@@ -143,7 +140,6 @@ const studentNavGroups = [
   ]},
   { label: "Conta", color: "#8b5cf6", items: [
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-    { name: "Temas do App", icon: Palette, page: "AppThemes" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
 ];
