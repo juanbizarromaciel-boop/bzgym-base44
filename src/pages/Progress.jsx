@@ -205,16 +205,25 @@ export default function Progress() {
       <PageHeader title="Evolução" accentColor="#f59e0b" subtitle="Volume de treino · kg × reps" />
 
       {/* Tabs */}
-      <motion.div variants={fadeUp} className="flex gap-1 p-1 rounded-xl border border-purple-900/20 bg-black/40 mb-6 w-fit">
+      <motion.div variants={fadeUp} className="flex gap-1.5 mb-6 w-fit">
         {[
           { id: "evolucao", label: "EVOLUÇÃO", icon: TrendingUp },
           { id: "series", label: "ANÁLISE DE SÉRIES", icon: BarChart2 },
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-mono-cyber tracking-wider transition-all ${
-              activeTab === tab.id ? "bg-purple-500/15 text-purple-300 border border-purple-500/25" : "text-purple-500/40 hover:text-purple-400"
-            }`}>
-            <tab.icon className="w-3.5 h-3.5" />
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-mono-cyber tracking-wider transition-all"
+            style={activeTab === tab.id ? {
+              background: 'linear-gradient(135deg, rgba(245,158,11,0.20), rgba(168,85,247,0.10))',
+              border: '1px solid rgba(245,158,11,0.65)',
+              color: '#ffffff',
+              boxShadow: '0 0 18px rgba(245,158,11,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
+              textShadow: '0 0 8px rgba(245,158,11,0.8)',
+            } : {
+              background: 'rgba(168,85,247,0.05)',
+              border: '1px solid rgba(168,85,247,0.20)',
+              color: 'rgba(168,85,247,0.55)',
+            }}>
+            <tab.icon className="w-3.5 h-3.5" style={activeTab === tab.id ? { filter: 'drop-shadow(0 0 5px rgba(245,158,11,0.9))' } : {}} />
             {tab.label}
           </button>
         ))}

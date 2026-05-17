@@ -252,36 +252,51 @@ export default function WorkoutPlans() {
           );
 
           return (
-            <motion.div key={student.id} variants={fadeUp} className="cyber-card rounded-xl border overflow-hidden"
-              style={{ borderColor: 'rgba(168,85,247,0.30)' }}>
+            <motion.div key={student.id} variants={fadeUp} className="relative rounded-xl border overflow-hidden"
+              style={{
+                background: 'linear-gradient(145deg, rgba(168,85,247,0.07) 0%, rgba(2,2,10,0.98) 100%)',
+                borderColor: 'rgba(168,85,247,0.45)',
+                boxShadow: '0 0 20px rgba(168,85,247,0.12), 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(168,85,247,0.15)'
+              }}>
+              {/* Top neon line */}
+              <div className="absolute top-0 left-0 right-0 h-[1.5px] pointer-events-none"
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.9), rgba(6,182,212,0.5), transparent)', boxShadow: '0 0 8px rgba(168,85,247,0.6)' }} />
+              {/* TL corner */}
+              <div className="absolute top-0 left-0 w-4 h-4 pointer-events-none" style={{ borderTop: '2px solid #a855f7', borderLeft: '2px solid #a855f7', boxShadow: '-1px -1px 8px rgba(168,85,247,0.5)' }} />
+              {/* BR corner */}
+              <div className="absolute bottom-0 right-0 w-4 h-4 pointer-events-none" style={{ borderBottom: '1.5px solid rgba(6,182,212,0.6)', borderRight: '1.5px solid rgba(6,182,212,0.6)' }} />
+
               {/* Student Folder Header */}
               <button
-                className="w-full flex items-center justify-between px-5 py-4 hover:bg-purple-500/5 transition-all"
+                className="w-full flex items-center justify-between px-5 py-4 transition-all hover:bg-purple-500/5"
                 onClick={() => setExpandedStudent(isOpen ? null : student.id)}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-purple-500/15 border border-purple-500/25 flex items-center justify-center flex-shrink-0">
-                    <UserCircle className="w-4 h-4 text-purple-400" />
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(168,85,247,0.18)', border: '1px solid rgba(168,85,247,0.55)', boxShadow: '0 0 12px rgba(168,85,247,0.3)' }}>
+                    <UserCircle className="w-4.5 h-4.5" style={{ color: '#ffffff', filter: 'drop-shadow(0 0 5px rgba(168,85,247,0.9))' }} />
                   </div>
                   <div className="text-left">
                     <p className="font-semibold text-white text-sm">{student.name}</p>
-                    <p className="text-[10px] font-mono-cyber text-purple-500/40 mt-0.5">
+                    <p className="text-[10px] font-mono-cyber mt-0.5" style={{ color: 'rgba(168,85,247,0.6)', textShadow: '0 0 6px rgba(168,85,247,0.4)' }}>
                       {activePlans.length} ativo{activePlans.length !== 1 ? "s" : ""}
                       {archivedPlans.length > 0 && ` · ${archivedPlans.length} oculto${archivedPlans.length !== 1 ? "s" : ""}`}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-wrap">
                     {activePlans.slice(0, 4).map(p => (
-                      <span key={p.id} className="text-[9px] px-2 py-0.5 rounded font-mono-cyber"
-                        style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)', color: 'rgba(192,132,252,0.7)' }}>
+                      <span key={p.id} className="text-[9px] px-2 py-0.5 rounded-md font-mono-cyber"
+                        style={{ background: 'rgba(168,85,247,0.14)', border: '1px solid rgba(168,85,247,0.4)', color: '#c084fc', textShadow: '0 0 6px rgba(168,85,247,0.5)' }}>
                         {p.name.length > 10 ? p.name.slice(0, 10) + "…" : p.name}
                       </span>
                     ))}
-                    {activePlans.length > 4 && <span className="text-[9px] text-purple-500/40 font-mono-cyber self-center">+{activePlans.length - 4}</span>}
+                    {activePlans.length > 4 && <span className="text-[9px] font-mono-cyber self-center" style={{ color: 'rgba(168,85,247,0.5)' }}>+{activePlans.length - 4}</span>}
                   </div>
-                  {isOpen ? <ChevronUp className="w-4 h-4 text-purple-500/40" /> : <ChevronDown className="w-4 h-4 text-purple-500/40" />}
+                  {isOpen
+                    ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: '#a855f7', filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.7))' }} />
+                    : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(168,85,247,0.5)' }} />}
                 </div>
               </button>
 

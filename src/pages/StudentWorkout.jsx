@@ -122,28 +122,34 @@ export default function StudentWorkout() {
     <div>
       <PageHeader title="Treinar Aluno" subtitle="Selecione o aluno e registre o treino" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-        <Select value={selectedStudentId} onValueChange={(v) => { setSelectedStudentId(v); setSelectedPlanId(""); setSetsData({}); setCompletedExercises(new Set()); }}>
-          <SelectTrigger className="cyber-input">
-            <SelectValue placeholder="Selecione o aluno" />
-          </SelectTrigger>
-          <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
-            {students.map((s) => (
-              <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+        <div className="relative">
+          <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none z-10" style={{ borderTop: '2px solid #a855f7', borderLeft: '2px solid #a855f7', boxShadow: '-1px -1px 6px rgba(168,85,247,0.5)' }} />
+          <Select value={selectedStudentId} onValueChange={(v) => { setSelectedStudentId(v); setSelectedPlanId(""); setSetsData({}); setCompletedExercises(new Set()); }}>
+            <SelectTrigger className="cyber-input" style={{ borderColor: 'rgba(168,85,247,0.5)', boxShadow: '0 0 14px rgba(168,85,247,0.15)' }}>
+              <SelectValue placeholder="Selecione o aluno" />
+            </SelectTrigger>
+            <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
+              {students.map((s) => (
+                <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-        <Select value={selectedPlanId} onValueChange={(v) => { setSelectedPlanId(v); setSetsData({}); setCompletedExercises(new Set()); }}>
-          <SelectTrigger className="cyber-input">
-            <SelectValue placeholder="Selecione o treino" />
-          </SelectTrigger>
-          <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
-            {studentPlans.map((p) => (
-              <SelectItem key={p.id} value={p.id} className="text-white">{p.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="relative">
+          <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none z-10" style={{ borderTop: '2px solid #06b6d4', borderLeft: '2px solid #06b6d4', boxShadow: '-1px -1px 6px rgba(6,182,212,0.5)' }} />
+          <Select value={selectedPlanId} onValueChange={(v) => { setSelectedPlanId(v); setSetsData({}); setCompletedExercises(new Set()); }}>
+            <SelectTrigger className="cyber-input" style={{ borderColor: 'rgba(6,182,212,0.5)', boxShadow: '0 0 14px rgba(6,182,212,0.15)' }}>
+              <SelectValue placeholder="Selecione o treino" />
+            </SelectTrigger>
+            <SelectContent style={{background: '#04040e', borderColor: 'rgba(6,182,212,0.3)'}}>
+              {studentPlans.map((p) => (
+                <SelectItem key={p.id} value={p.id} className="text-white">{p.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {selectedPlan && (

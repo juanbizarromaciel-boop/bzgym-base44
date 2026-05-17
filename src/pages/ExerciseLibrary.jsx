@@ -124,19 +124,39 @@ export default function ExerciseLibrary() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-        {filtered.map((ex) => (
-          <div key={ex.id} className="cyber-card rounded-xl p-4 border border-purple-900/20 hover:border-purple-500/30 transition-all group">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center border border-purple-900/30 ${muscleColors[ex.muscle_group] || muscleColors.outro}`}>
-                  <Dumbbell className="w-4 h-4" />
+      <div className="space-y-2">
+        {filtered.map((ex) => {
+          const colorClass = muscleColors[ex.muscle_group] || muscleColors.outro;
+          // Extract the text color part from the class string for neon effects
+          const accentMap = {
+            peito: '#ef4444', costas: '#3b82f6', ombros: '#f97316', biceps: '#a855f7',
+            triceps: '#ec4899', pernas: '#eab308', gluteos: '#f43f5e', abdomen: '#06b6d4',
+            panturrilha: '#84cc16', antebraco: '#f59e0b', cardio: '#10b981', outro: '#6b7280',
+          };
+          const accent = accentMap[ex.muscle_group] || '#6b7280';
+          return (
+            <div key={ex.id} className="relative flex items-center justify-between px-4 py-3.5 rounded-xl border group transition-all"
+              style={{
+                background: 'linear-gradient(145deg, rgba(168,85,247,0.04) 0%, rgba(2,2,10,0.97) 100%)',
+                borderColor: 'rgba(168,85,247,0.25)',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.4)',
+              }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = `${accent}70`}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(168,85,247,0.25)'}
+            >
+              {/* Left accent bar */}
+              <div className="absolute left-0 top-3 bottom-3 w-0.5 rounded-full" style={{ background: accent, boxShadow: `0 0 8px ${accent}` }} />
+              <div className="flex items-center gap-3 pl-2">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${accent}18`, border: `1px solid ${accent}50`, boxShadow: `0 0 10px ${accent}30` }}>
+                  <Dumbbell className="w-4 h-4" style={{ color: accent, filter: `drop-shadow(0 0 5px ${accent})` }} />
                 </div>
                 <div>
                   <h3 className="font-medium text-white text-sm">{ex.name}</h3>
-                  <Badge className={`${muscleColors[ex.muscle_group] || muscleColors.outro} text-xs mt-1`}>
+                  <span className="text-[10px] font-mono-cyber mt-0.5 inline-block px-2 py-0.5 rounded"
+                    style={{ background: `${accent}18`, border: `1px solid ${accent}40`, color: accent, textShadow: `0 0 6px ${accent}80` }}>
                     {muscleGroups[ex.muscle_group] || ex.muscle_group}
-                  </Badge>
+                  </span>
                 </div>
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -148,9 +168,8 @@ export default function ExerciseLibrary() {
                 </Button>
               </div>
             </div>
-            {ex.description && <p className="text-xs text-purple-400/30 mt-2 line-clamp-2 font-mono-cyber">{ex.description}</p>}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={closeDialog}>
