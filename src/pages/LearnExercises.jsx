@@ -236,26 +236,33 @@ export default function LearnExercises() {
 
   return (
     <div>
-      {/* Hero Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-            style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.3)', boxShadow: '0 0 20px rgba(168,85,247,0.15)' }}>
-            <BookOpen className="w-6 h-6 text-purple-400" />
-          </div>
-          <div>
-            <h1 className="font-cyber text-2xl text-white tracking-widest"
-              style={{ textShadow: '0 0 20px rgba(168,85,247,0.5)' }}>
+      {/* Custom Cyber Header */}
+      <div className="mb-8 relative">
+        {/* Top decorative line */}
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.8), transparent)' }} />
+        
+        {/* Main header content */}
+        <div className="py-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-1 h-8" style={{ background: 'linear-gradient(to bottom, #a855f7, #06b6d4)', borderRadius: '2px', boxShadow: '0 0 12px rgba(168,85,247,0.6)' }} />
+            <h1 className="text-3xl font-black font-cyber tracking-wider" style={{ color: '#ffffff', textShadow: '0 0 20px rgba(168,85,247,0.5), 0 0 40px rgba(168,85,247,0.3)' }}>
               APRENDA OS EXERCÍCIOS
             </h1>
-            <p className="text-[11px] font-mono-cyber text-purple-500/50 mt-0.5">
+          </div>
+          <div className="flex items-center gap-2" style={{ paddingLeft: '14px' }}>
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#a855f7', boxShadow: '0 0 8px #a855f7, 0 0 16px rgba(168,85,247,0.6)' }} />
+            <p className="text-sm font-mono-cyber tracking-wide" style={{ color: 'rgba(168,85,247,0.8)', textShadow: '0 0 10px rgba(168,85,247,0.5)' }}>
               // {exercises.length} exercícios disponíveis · clique para ver detalhes e GIFs
             </p>
           </div>
         </div>
 
-        {/* Search */}
-        <div className="relative mb-4">
+        {/* Bottom decorative line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(6,182,212,0.8), rgba(168,85,247,0.6), transparent)' }} />
+      </div>
+
+      {/* Search */}
+      <div className="relative mb-4">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-500/40" />
           <Input
             value={search}
@@ -294,7 +301,6 @@ export default function LearnExercises() {
             );
           })}
         </div>
-      </div>
 
       {/* Loading */}
       {isLoading && (

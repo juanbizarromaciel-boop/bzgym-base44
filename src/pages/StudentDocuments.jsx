@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import PageHeader from "../components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -147,16 +146,39 @@ export default function StudentDocuments() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Documentos e Fotos"
-        subtitle="Gerenciar fotos de progresso, exames e bioimpedâncias"
-        action={
-          <Button onClick={handleOpenDialog} className="btn-neon-purple">
-            <Upload className="w-4 h-4 mr-2" />
-            Enviar Documento
+      {/* Custom Cyber Header */}
+      <div className="mb-8 relative">
+        {/* Top decorative line */}
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.8), transparent)' }} />
+        
+        {/* Main header content */}
+        <div className="flex items-center justify-between py-6">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-8" style={{ background: 'linear-gradient(to bottom, #a855f7, #06b6d4)', borderRadius: '2px', boxShadow: '0 0 12px rgba(168,85,247,0.6)' }} />
+              <h1 className="text-3xl font-black font-cyber tracking-wider" style={{ color: '#ffffff', textShadow: '0 0 20px rgba(168,85,247,0.5), 0 0 40px rgba(168,85,247,0.3)' }}>
+                DOCUMENTOS
+              </h1>
+            </div>
+            <div className="flex items-center gap-2" style={{ paddingLeft: '14px' }}>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#a855f7', boxShadow: '0 0 8px #a855f7, 0 0 16px rgba(168,85,247,0.6)' }} />
+              <p className="text-sm font-mono-cyber tracking-wide" style={{ color: 'rgba(168,85,247,0.8)', textShadow: '0 0 10px rgba(168,85,247,0.5)' }}>
+                Gerenciar fotos de progresso, exames e bioimpedâncias
+              </p>
+            </div>
+          </div>
+
+          <Button onClick={handleOpenDialog} className="btn-neon-purple relative px-5 py-3 rounded-xl font-medium tracking-wider flex items-center gap-2 overflow-hidden group">
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.3), rgba(168,85,247,0.25))' }} />
+            <Upload className="w-5 h-5 relative z-10" style={{ color: '#a855f7', filter: 'drop-shadow(0 0 6px rgba(168,85,247,0.8))' }} />
+            <span className="text-sm font-bold relative z-10" style={{ color: '#ffffff', textShadow: '0 0 8px rgba(168,85,247,0.5)' }}>ENVIAR DOCUMENTO</span>
           </Button>
-        }
-      />
+        </div>
+
+        {/* Bottom decorative line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(6,182,212,0.8), rgba(168,85,247,0.6), transparent)' }} />
+      </div>
 
       {user?.role === "admin" && (
         <div className="cyber-card p-4 rounded-xl">

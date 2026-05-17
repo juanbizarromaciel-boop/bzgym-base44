@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Pencil, Trash2, Dumbbell, Download } from "lucide-react";
-import PageHeader from "../components/shared/PageHeader";
 
 const muscleGroups = {
   peito: "Peito", costas: "Costas", ombros: "Ombros",
@@ -92,21 +91,66 @@ export default function ExerciseLibrary() {
 
   return (
     <div>
-      <PageHeader
-        title="Exercícios"
-        accentColor="#ec4899"
-        subtitle={`${exercises.length} exercícios cadastrados`}
-        action={
+      {/* Custom Cyber Header */}
+      <div className="mb-8 relative">
+        {/* Top decorative line */}
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(236,72,153,0.8), transparent)' }} />
+        
+        {/* Main header content */}
+        <div className="flex items-center justify-between py-6">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-8" style={{ background: 'linear-gradient(to bottom, #ec4899, #a855f7)', borderRadius: '2px', boxShadow: '0 0 12px rgba(236,72,153,0.6)' }} />
+              <h1 className="text-3xl font-black font-cyber tracking-wider" style={{ color: '#ffffff', textShadow: '0 0 20px rgba(236,72,153,0.5), 0 0 40px rgba(168,85,247,0.3)' }}>
+                EXERCÍCIOS
+              </h1>
+            </div>
+            <div className="flex items-center gap-2" style={{ paddingLeft: '14px' }}>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ec4899', boxShadow: '0 0 8px #ec4899, 0 0 16px rgba(236,72,153,0.6)' }} />
+              <p className="text-sm font-mono-cyber tracking-wide" style={{ color: 'rgba(236,72,153,0.8)', textShadow: '0 0 10px rgba(236,72,153,0.5)' }}>
+                {exercises.length} exercícios cadastrados
+              </p>
+            </div>
+          </div>
+
           <div className="flex gap-2">
-            <button onClick={exportNames} className="btn-neon-cyan px-4 py-2 rounded-lg text-sm font-medium tracking-wider flex items-center gap-2">
-              <Download className="w-4 h-4" /> EXPORTAR
+            <button
+              onClick={exportNames}
+              className="relative px-5 py-3 rounded-xl font-medium tracking-wider flex items-center gap-2 overflow-hidden group"
+              style={{
+                background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(6,182,212,0.15))',
+                border: '1px solid rgba(6,182,212,0.6)',
+                boxShadow: '0 0 20px rgba(6,182,212,0.25), inset 0 0 12px rgba(6,182,212,0.08)'
+              }}
+            >
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.3), rgba(6,182,212,0.25))' }} />
+              
+              <Download className="w-5 h-5 relative z-10" style={{ color: '#06b6d4', filter: 'drop-shadow(0 0 6px rgba(6,182,212,0.8))' }} />
+              <span className="text-sm font-bold relative z-10" style={{ color: '#ffffff', textShadow: '0 0 8px rgba(6,182,212,0.5)' }}>EXPORTAR</span>
             </button>
-            <button onClick={() => setDialogOpen(true)} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium tracking-wider flex items-center gap-2">
-              <Plus className="w-4 h-4" /> NOVO EXERCÍCIO
+
+            <button
+              onClick={() => setDialogOpen(true)}
+              className="relative px-5 py-3 rounded-xl font-medium tracking-wider flex items-center gap-2 overflow-hidden group"
+              style={{
+                background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(236,72,153,0.15))',
+                border: '1px solid rgba(168,85,247,0.6)',
+                boxShadow: '0 0 20px rgba(168,85,247,0.25), inset 0 0 12px rgba(168,85,247,0.08)'
+              }}
+            >
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.3), rgba(236,72,153,0.25))' }} />
+              
+              <Plus className="w-5 h-5 relative z-10" style={{ color: '#a855f7', filter: 'drop-shadow(0 0 6px rgba(168,85,247,0.8))' }} />
+              <span className="text-sm font-bold relative z-10" style={{ color: '#ffffff', textShadow: '0 0 8px rgba(168,85,247,0.5)' }}>NOVO EXERCÍCIO</span>
             </button>
           </div>
-        }
-      />
+        </div>
+
+        {/* Bottom decorative line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(236,72,153,0.6), rgba(168,85,247,0.8), rgba(236,72,153,0.6), transparent)' }} />
+      </div>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">

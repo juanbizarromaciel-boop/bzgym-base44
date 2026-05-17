@@ -10,7 +10,6 @@ import {
   BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { TrendingUp, TrendingDown, Minus, Zap, Dumbbell, Calendar, BarChart2 } from "lucide-react";
-import PageHeader from "../components/shared/PageHeader";
 import { motion } from "framer-motion";
 import ExerciseSeriesAnalysis from "../components/workout/ExerciseSeriesAnalysis";
 
@@ -202,7 +201,32 @@ export default function Progress() {
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger}>
-      <PageHeader title="Evolução" accentColor="#f59e0b" subtitle="Volume de treino · kg × reps" />
+      {/* Custom Cyber Header */}
+      <div className="mb-8 relative">
+        {/* Top decorative line */}
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(245,158,11,0.8), transparent)' }} />
+        
+        {/* Main header content */}
+        <div className="flex items-center justify-between py-6">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-8" style={{ background: 'linear-gradient(to bottom, #f59e0b, #a855f7)', borderRadius: '2px', boxShadow: '0 0 12px rgba(245,158,11,0.6)' }} />
+              <h1 className="text-3xl font-black font-cyber tracking-wider" style={{ color: '#ffffff', textShadow: '0 0 20px rgba(245,158,11,0.5), 0 0 40px rgba(168,85,247,0.3)' }}>
+                EVOLUÇÃO
+              </h1>
+            </div>
+            <div className="flex items-center gap-2" style={{ paddingLeft: '14px' }}>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#f59e0b', boxShadow: '0 0 8px #f59e0b, 0 0 16px rgba(245,158,11,0.6)' }} />
+              <p className="text-sm font-mono-cyber tracking-wide" style={{ color: 'rgba(245,158,11,0.8)', textShadow: '0 0 10px rgba(245,158,11,0.5)' }}>
+                Volume de treino · kg × reps
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom decorative line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(245,158,11,0.6), rgba(168,85,247,0.8), rgba(245,158,11,0.6), transparent)' }} />
+      </div>
 
       {/* Tabs */}
       <motion.div variants={fadeUp} className="flex gap-1.5 mb-6 w-fit">

@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Send, MessageSquare, Image, X, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import PageHeader from "../components/shared/PageHeader";
 
 export default function Chat() {
   const [user, setUser] = useState(null);
@@ -103,7 +102,30 @@ export default function Chat() {
     const activeStudents = students.filter(s => s.active !== false);
     return (
       <div className="space-y-5">
-        <PageHeader title="Chat" accentColor="#06b6d4" subtitle="Mensagens com alunos" />
+        {/* Custom Cyber Header */}
+        <div className="mb-6 relative">
+          {/* Top decorative line */}
+          <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.8), transparent)' }} />
+          
+          {/* Main header content */}
+          <div className="py-5">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-8" style={{ background: 'linear-gradient(to bottom, #06b6d4, #a855f7)', borderRadius: '2px', boxShadow: '0 0 12px rgba(6,182,212,0.6)' }} />
+              <h1 className="text-3xl font-black font-cyber tracking-wider" style={{ color: '#ffffff', textShadow: '0 0 20px rgba(6,182,212,0.5), 0 0 40px rgba(168,85,247,0.3)' }}>
+                CHAT
+              </h1>
+            </div>
+            <div className="flex items-center gap-2" style={{ paddingLeft: '14px' }}>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#06b6d4', boxShadow: '0 0 8px #06b6d4, 0 0 16px rgba(6,182,212,0.6)' }} />
+              <p className="text-sm font-mono-cyber tracking-wide" style={{ color: 'rgba(6,182,212,0.8)', textShadow: '0 0 10px rgba(6,182,212,0.5)' }}>
+                Mensagens com alunos
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom decorative line */}
+          <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.6), rgba(168,85,247,0.8), rgba(6,182,212,0.6), transparent)' }} />
+        </div>
         <div className="space-y-2">
           {activeStudents.length === 0 && (
             <p className="text-purple-500/30 font-mono-cyber text-sm text-center py-16">// nenhum aluno ativo</p>
