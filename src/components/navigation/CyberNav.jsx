@@ -268,12 +268,19 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
               style={{ borderBottom: '1px solid rgba(168,85,247,0.12)' }}
             >
               <div className="flex items-center gap-2">
-                <span className="font-cyber font-black text-2xl leading-none italic"
-                  style={{ color: '#fff', textShadow: '0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(168,85,247,0.8), 0 0 40px rgba(168,85,247,0.4)' }}>B</span>
-                <span className="font-cyber font-black text-2xl leading-none italic"
-                  style={{ color: '#e9d5ff', textShadow: '0 0 10px rgba(192,132,252,1), 0 0 22px rgba(192,132,252,0.8), 0 0 44px rgba(168,85,247,0.5)' }}>Z</span>
+                <div className="flex items-baseline gap-0.5 px-1.5 py-0.5 rounded-lg"
+                  style={{
+                    border: '1px solid rgba(168,85,247,0.45)',
+                    background: 'rgba(168,85,247,0.1)',
+                    boxShadow: '0 0 10px rgba(168,85,247,0.25)',
+                  }}>
+                  <span className="font-cyber font-black text-2xl leading-none italic"
+                    style={{ color: '#fff', textShadow: '0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(168,85,247,0.8)', WebkitTextStroke: '0.5px rgba(255,255,255,0.3)' }}>B</span>
+                  <span className="font-cyber font-black text-2xl leading-none italic"
+                    style={{ color: '#e9d5ff', textShadow: '0 0 10px rgba(192,132,252,1), 0 0 22px rgba(192,132,252,0.8)', WebkitTextStroke: '0.5px rgba(192,132,252,0.4)' }}>Z</span>
+                </div>
                 <motion.span
-                  className="text-[8px] font-mono-cyber tracking-[0.35em] uppercase ml-1"
+                  className="text-[8px] font-mono-cyber tracking-[0.35em] uppercase"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
@@ -353,10 +360,12 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
                     <div className="flex items-center gap-1.5 mb-2.5">
                       <div className="h-px flex-1"
                         style={{ background: `linear-gradient(90deg, ${group.color}60, transparent)` }} />
-                      <p className="text-[7px] font-bold tracking-[0.28em] uppercase font-mono-cyber whitespace-nowrap"
+                      <p className="text-[7px] font-bold tracking-[0.28em] uppercase font-mono-cyber whitespace-nowrap px-1.5 py-0.5 rounded"
                         style={{
                           color: group.color,
                           textShadow: `0 0 8px ${group.color}, 0 0 16px ${group.color}60`,
+                          border: `1px solid ${group.color}35`,
+                          background: `${group.color}10`,
                         }}>
                         {group.label}
                       </p>

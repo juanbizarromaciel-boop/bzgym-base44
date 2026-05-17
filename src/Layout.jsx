@@ -211,9 +211,14 @@ export default function Layout({ children, currentPageName }) {
       {/* Mobile Header — apenas no mobile, usando CyberNav */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 backdrop-blur-md px-4 py-3 flex items-center justify-between"
         style={{ background: 'color-mix(in srgb, var(--bg-void) 97%, transparent)', borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 20%, transparent)' }}>
-        <div className="flex items-baseline gap-0.5">
+        <div className="flex items-baseline gap-0.5 px-2 py-1 rounded-lg"
+          style={{
+            border: '1px solid color-mix(in srgb, var(--neon-purple) 45%, transparent)',
+            background: 'color-mix(in srgb, var(--neon-purple) 8%, transparent)',
+            boxShadow: '0 0 12px color-mix(in srgb, var(--neon-purple) 25%, transparent)',
+          }}>
           <span className="font-cyber font-black text-2xl leading-none select-none italic"
-            style={{ color: '#ffffff', textShadow: '0 0 8px var(--neon-purple)' }}>B</span>
+            style={{ color: '#ffffff', textShadow: '0 0 8px var(--neon-purple), 0 0 2px #fff' }}>B</span>
           <span className="font-cyber font-black text-2xl leading-none select-none italic"
             style={{ color: 'var(--neon-purple)', textShadow: '0 0 10px var(--neon-purple)' }}>Z</span>
         </div>
@@ -234,13 +239,18 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Logo */}
         <div className="px-5 py-4" style={{ borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 15%, transparent)' }}>
-          <div className="flex items-baseline gap-1">
+          <div className="flex items-baseline gap-1 px-2.5 py-1.5 rounded-xl"
+            style={{
+              border: '1px solid color-mix(in srgb, var(--neon-purple) 45%, transparent)',
+              background: 'color-mix(in srgb, var(--neon-purple) 8%, transparent)',
+              boxShadow: '0 0 16px color-mix(in srgb, var(--neon-purple) 25%, transparent)',
+            }}>
             <span className="font-cyber font-black text-3xl leading-none select-none italic"
-              style={{ color: '#ffffff', textShadow: '0 0 10px var(--neon-purple)' }}>B</span>
+              style={{ color: '#ffffff', textShadow: '0 0 10px var(--neon-purple), 0 0 2px #fff' }}>B</span>
             <span className="font-cyber font-black text-3xl leading-none select-none italic"
               style={{ color: 'var(--neon-purple)', textShadow: '0 0 12px var(--neon-purple)' }}>Z</span>
             <span className="ml-1.5 text-[9px] font-mono-cyber tracking-widest uppercase self-end pb-0.5"
-              style={{ color: 'color-mix(in srgb, var(--neon-purple) 25%, transparent)' }}>GYM</span>
+              style={{ color: 'color-mix(in srgb, var(--neon-purple) 55%, white)' }}>GYM</span>
           </div>
         </div>
 
