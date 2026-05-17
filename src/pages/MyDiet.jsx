@@ -3,8 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Utensils, Flame, Clock, Calculator, CheckSquare, History, ChevronRight } from "lucide-react";
+import { Utensils, Flame, Clock, Calculator, CheckSquare, History, ChevronRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import PageHeader from "../components/shared/PageHeader";
 import MacroDonutChart from "../components/diet/MacroDonutChart";
 import CalorieSimulator from "../components/diet/CalorieSimulator";
 import DietChecklist from "../components/diet/DietChecklist";
@@ -72,29 +73,54 @@ export default function MyDiet() {
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger}>
-      {/* Header */}
-      <motion.div variants={fadeUp} className="mb-6">
-        <p className="text-[10px] font-mono-cyber text-purple-500/30 tracking-[0.4em] mb-1">PLANO NUTRICIONAL</p>
-        <h1 className="font-cyber text-3xl text-white tracking-widest" style={{ textShadow: '0 0 20px rgba(168,85,247,0.4)' }}>
-          MINHA DIETA
-        </h1>
-      </motion.div>
+      {/* Page Header with cyberpunk style */}
+      <PageHeader
+        title="Minha Dieta"
+        subtitle="Plano Nutricional Personalizado"
+        accentColor="#10b981"
+      />
 
       {/* Tabs */}
-      <motion.div variants={fadeUp} className="flex gap-1 mb-6 p-1 rounded-xl border border-purple-900/20 bg-black/40 overflow-x-auto">
+      <motion.div variants={fadeUp} className="flex gap-2 mb-8 p-2 rounded-xl border relative overflow-x-auto"
+        style={{
+          borderColor: 'rgba(16,185,129,0.35)',
+          background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03))',
+          boxShadow: '0 0 30px rgba(16,185,129,0.1), inset 0 0 20px rgba(16,185,129,0.05)'
+        }}>
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.6), transparent)' }} />
         {TABS.map(tab => (
-          <button
+          <motion.button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium tracking-widest transition-all whitespace-nowrap flex-shrink-0 ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold tracking-widest transition-all whitespace-nowrap flex-shrink-0 relative overflow-hidden group ${
               activeTab === tab.id
-                ? "bg-purple-500/15 text-purple-300 border border-purple-500/25"
-                : "text-purple-500/40 hover:text-purple-300"
+                ? "text-white"
+                : "text-green-500/50 hover:text-green-300"
             }`}
-          >
-            <tab.icon className="w-3.5 h-3.5" />
-            {tab.label}
-          </button>
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            style={activeTab === tab.id ? {
+              background: 'linear-gradient(135deg, rgba(16,185,129,0.25), rgba(16,185,129,0.12))',
+              border: '1px solid rgba(16,185,129,0.45)',
+              boxShadow: '0 0 20px rgba(16,185,129,0.3), inset 0 0 12px rgba(16,185,129,0.15)',
+            } : {
+              border: '1px solid rgba(16,185,129,0.15)',
+              boxShadow: 'none'
+            }}>
+            {activeTab === tab.id && (
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: `radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.2), transparent 70%)` }} />
+            )}
+            <tab.icon className="w-4 h-4 relative z-10" style={{ filter: activeTab === tab.id ? 'drop-shadow(0 0 4px rgba(16,185,129,0.8))' : 'none' }} />
+            <span className="relative z-10">{tab.label}</span>
+            {activeTab === tab.id && (
+              <motion.div
+                className="absolute bottom-0 left-0 right-0 h-0.5"
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.8), transparent)', boxShadow: '0 0 8px rgba(16,185,129,0.8)' }}
+                layoutId="activeTab"
+              />
+            )}
+          </motion.button>
         ))}
       </motion.div>
 
@@ -111,21 +137,51 @@ export default function MyDiet() {
               {myPlans.map(plan => (
                 <motion.div key={plan.id} variants={fadeUp} className="space-y-3">
                   {/* Plan header */}
-                  <div className="cyber-card rounded-xl border border-purple-900/20 p-5"
-                    style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.05), transparent)' }}>
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h2 className="font-cyber text-lg text-white tracking-wider">{plan.name}</h2>
-                        {plan.goal && <Badge className={`mt-2 text-xs border ${GOAL_COLORS[plan.goal]}`}>{GOAL_LABELS[plan.goal]}</Badge>}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative rounded-2xl border overflow-hidden p-6"
+                    style={{
+                      borderColor: 'rgba(16,185,129,0.35)',
+                      background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.03))',
+                      boxShadow: '0 0 40px rgba(16,185,129,0.15), inset 0 0 25px rgba(16,185,129,0.08), inset 0 1px 0 rgba(16,185,129,0.2)'
+                    }}>
+                    <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.8), transparent)' }} />
+                    <div className="absolute top-3 left-3 w-2.5 h-2.5 border-t border-l rounded-tl opacity-75" style={{ borderColor: 'rgba(16,185,129,0.6)', boxShadow: '0 0 8px rgba(16,185,129,0.5)' }} />
+
+                    <div className="flex items-start justify-between gap-4 relative z-10">
+                      <div className="flex-1">
+                        <h2 className="font-cyber text-2xl font-black text-white tracking-wider mb-2">{plan.name}</h2>
+                        {plan.goal && (
+                          <Badge className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs border font-bold tracking-widest ${GOAL_COLORS[plan.goal]}`}
+                            style={{
+                              boxShadow: `0 0 15px ${plan.goal === 'cutting' ? 'rgba(236,72,153,0.3)' : plan.goal === 'bulking' ? 'rgba(6,182,212,0.3)' : 'rgba(168,85,247,0.3)'}`
+                            }}>
+                            <Sparkles className="w-3 h-3" />
+                            {GOAL_LABELS[plan.goal]}
+                          </Badge>
+                        )}
                       </div>
                       {plan.total_calories > 0 && (
-                        <div className="text-right flex-shrink-0">
-                          <p className="font-cyber text-2xl text-orange-400" style={{ textShadow: '0 0 10px rgba(251,146,60,0.5)' }}>{plan.total_calories}</p>
-                          <p className="text-[10px] font-mono-cyber text-orange-400/40 tracking-wider">KCAL/DIA</p>
-                        </div>
+                        <motion.div
+                          className="text-right flex-shrink-0 p-4 rounded-xl border"
+                          style={{
+                            borderColor: 'rgba(251,191,36,0.35)',
+                            background: 'linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.05))',
+                            boxShadow: '0 0 20px rgba(251,191,36,0.2), inset 0 0 12px rgba(251,191,36,0.1)'
+                          }}
+                          whileHover={{ scale: 1.05 }}>
+                          <p className="font-cyber text-3xl font-black" style={{
+                            color: '#fbbf24',
+                            textShadow: '0 0 15px rgba(251,191,36,0.8), 0 0 30px rgba(251,191,36,0.4)'
+                          }}>
+                            {plan.total_calories}
+                          </p>
+                          <p className="text-[9px] font-mono-cyber text-yellow-400/70 tracking-widest mt-1">KCAL/DIA</p>
+                        </motion.div>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Macro chart */}
                   {(plan.protein_g > 0 || plan.carbs_g > 0 || plan.fat_g > 0) && (
@@ -141,40 +197,74 @@ export default function MyDiet() {
                         const mealCarb = (meal.items || []).reduce((s, it) => s + (it.carbs_g || 0), 0).toFixed(1);
                         const mealFat = (meal.items || []).reduce((s, it) => s + (it.fat_g || 0), 0).toFixed(1);
                         return (
-                          <button
-                            key={i}
-                            onClick={() => setMealDetail({ plan, mealIndex: i })}
-                            className="w-full text-left rounded-2xl border p-4 hover:border-purple-500/30 transition-all group"
-                            style={{ background: 'rgba(7,5,22,0.96)', borderColor: 'rgba(168,85,247,0.15)' }}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
-                                  <span className="font-cyber text-xs text-purple-400">{i + 1}</span>
-                                </div>
-                                <div>
-                                  <p className="font-semibold text-white text-sm">{meal.name}</p>
-                                  <div className="flex items-center gap-2 mt-1 text-[9px] font-mono-cyber">
-                                    {meal.time && <span className="text-purple-400/40 flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />{meal.time}</span>}
-                                    <span className="text-purple-500/25">{(meal.items || []).length} alimentos</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="text-right">
-                                  <p className="text-sm font-cyber text-orange-400 flex items-center gap-1 justify-end">
-                                    <Flame className="w-3.5 h-3.5" />{mealCal} kcal
-                                  </p>
-                                  <p className="text-[9px] font-mono-cyber text-purple-500/30 mt-0.5 hidden sm:block">
-                                    P:{mealProt}g · C:{mealCarb}g · G:{mealFat}g
-                                  </p>
-                                </div>
-                                <ChevronRight className="w-5 h-5 text-purple-500/25 group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all" />
-                              </div>
-                            </div>
-                          </button>
-                        );
-                      })}
+                           <motion.button
+                             key={i}
+                             onClick={() => setMealDetail({ plan, mealIndex: i })}
+                             className="w-full text-left rounded-2xl border p-5 transition-all group relative overflow-hidden"
+                             whileHover={{ scale: 1.02, y: -2 }}
+                             whileTap={{ scale: 0.98 }}
+                             style={{
+                               background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.02))',
+                               borderColor: 'rgba(16,185,129,0.3)',
+                               boxShadow: '0 0 25px rgba(16,185,129,0.1), inset 0 0 15px rgba(16,185,129,0.05)'
+                             }}>
+                             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                               style={{ background: `radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.15), transparent 70%)` }} />
+                             <div className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity"
+                               style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.8), transparent)' }} />
+
+                             <div className="flex items-center justify-between gap-4 relative z-10">
+                               <div className="flex items-center gap-4 flex-1 min-w-0">
+                                 <motion.div
+                                   className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 font-cyber text-lg font-black border"
+                                   style={{
+                                     background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.1))',
+                                     borderColor: 'rgba(16,185,129,0.4)',
+                                     color: '#10b981',
+                                     boxShadow: '0 0 15px rgba(16,185,129,0.3), inset 0 0 8px rgba(16,185,129,0.2)',
+                                     textShadow: '0 0 8px rgba(16,185,129,0.8)'
+                                   }}
+                                   whileHover={{ scale: 1.15, rotate: 3 }}>
+                                   {i + 1}
+                                 </motion.div>
+                                 <div className="min-w-0 flex-1">
+                                   <p className="font-bold text-white text-sm truncate">{meal.name}</p>
+                                   <div className="flex items-center gap-2.5 mt-1.5 text-[9px] font-mono-cyber flex-wrap">
+                                     {meal.time && (
+                                       <span className="flex items-center gap-1 px-2 py-1 rounded-md" style={{ background: 'rgba(16,185,129,0.12)', color: 'rgba(16,185,129,0.8)' }}>
+                                         <Clock className="w-2.5 h-2.5" />
+                                         {meal.time}
+                                       </span>
+                                     )}
+                                     <span className="px-2 py-1 rounded-md" style={{ background: 'rgba(168,85,247,0.12)', color: 'rgba(168,85,247,0.7)' }}>
+                                       {(meal.items || []).length} alimentos
+                                     </span>
+                                   </div>
+                                 </div>
+                               </div>
+                               <div className="flex items-center gap-4 flex-shrink-0">
+                                 <div className="text-right">
+                                   <motion.p
+                                     className="text-sm font-cyber font-bold flex items-center gap-1.5 justify-end mb-1"
+                                     style={{
+                                       color: '#fbbf24',
+                                       textShadow: '0 0 10px rgba(251,191,36,0.6)'
+                                     }}
+                                     whileHover={{ scale: 1.1 }}>
+                                     <Flame className="w-4 h-4" style={{ filter: 'drop-shadow(0 0 4px rgba(251,191,36,0.8))' }} />
+                                     {mealCal} kcal
+                                   </motion.p>
+                                   <p className="text-[8px] font-mono-cyber text-green-400/60 hidden sm:block tracking-wider">
+                                     P: {mealProt}g · C: {mealCarb}g · G: {mealFat}g
+                                   </p>
+                                 </div>
+                                 <ChevronRight className="w-5 h-5 text-green-400/60 group-hover:text-green-400 group-hover:translate-x-1 transition-all relative z-10"
+                                   style={{ filter: 'drop-shadow(0 0 4px rgba(16,185,129,0.4))' }} />
+                               </div>
+                             </div>
+                           </motion.button>
+                         );
+                        })}
                     </div>
                   )}
 
