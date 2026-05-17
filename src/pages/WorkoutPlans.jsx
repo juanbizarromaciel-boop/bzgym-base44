@@ -168,18 +168,20 @@ export default function WorkoutPlans() {
         }
       />
 
-      <motion.div variants={fadeUp} className="mb-6">
+      <motion.div variants={fadeUp} className="mb-6 flex items-center gap-3">
+        <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(236,72,153,0.6), transparent)' }} />
         <Select value={filterStudent} onValueChange={setFilterStudent}>
-          <SelectTrigger className="w-full sm:w-64 cyber-input">
+          <SelectTrigger className="w-full sm:w-80 cyber-input" style={{ borderColor: 'rgba(236,72,153,0.5)', boxShadow: '0 0 16px rgba(236,72,153,0.15)' }}>
             <SelectValue placeholder="Filtrar por aluno" />
           </SelectTrigger>
-          <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
+          <SelectContent style={{background: '#04040e', borderColor: 'rgba(236,72,153,0.3)'}}>
             <SelectItem value="all" className="text-white">Todos os alunos</SelectItem>
             {students.map((s) => (
               <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
+        <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(236,72,153,0.6), transparent)' }} />
       </motion.div>
 
       <motion.div variants={stagger} className="space-y-4">
@@ -252,51 +254,53 @@ export default function WorkoutPlans() {
           );
 
           return (
-            <motion.div key={student.id} variants={fadeUp} className="relative rounded-xl border overflow-hidden"
-              style={{
-                background: 'linear-gradient(145deg, rgba(168,85,247,0.07) 0%, rgba(2,2,10,0.98) 100%)',
-                borderColor: 'rgba(168,85,247,0.45)',
-                boxShadow: '0 0 20px rgba(168,85,247,0.12), 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(168,85,247,0.15)'
-              }}>
-              {/* Top neon line */}
-              <div className="absolute top-0 left-0 right-0 h-[1.5px] pointer-events-none"
-                style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.9), rgba(6,182,212,0.5), transparent)', boxShadow: '0 0 8px rgba(168,85,247,0.6)' }} />
-              {/* TL corner */}
-              <div className="absolute top-0 left-0 w-4 h-4 pointer-events-none" style={{ borderTop: '2px solid #a855f7', borderLeft: '2px solid #a855f7', boxShadow: '-1px -1px 8px rgba(168,85,247,0.5)' }} />
-              {/* BR corner */}
-              <div className="absolute bottom-0 right-0 w-4 h-4 pointer-events-none" style={{ borderBottom: '1.5px solid rgba(6,182,212,0.6)', borderRight: '1.5px solid rgba(6,182,212,0.6)' }} />
+           <motion.div key={student.id} variants={fadeUp} className="relative rounded-2xl border overflow-hidden"
+             style={{
+               background: `linear-gradient(135deg, rgba(236,72,153,0.10) 0%, rgba(2,2,10,0.98) 45%, rgba(6,182,212,0.05) 100%)`,
+               borderColor: 'rgba(236,72,153,0.60)',
+               boxShadow: '0 0 30px rgba(236,72,153,0.18), 0 0 60px rgba(236,72,153,0.08), 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(236,72,153,0.40)'
+             }}>
+             {/* Top neon line — thick + glowing */}
+             <div className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none"
+               style={{ background: 'linear-gradient(90deg, transparent 0%, #ec4899 25%, #ec4899 50%, #06b6d4 75%, transparent 100%)', boxShadow: '0 0 12px rgba(236,72,153,0.9), 0 0 24px rgba(236,72,153,0.5)' }} />
+             {/* TL corner */}
+             <div className="absolute top-0 left-0 w-6 h-6 pointer-events-none" style={{ borderTop: '2px solid #ec4899', borderLeft: '2px solid #ec4899', boxShadow: '-2px -2px 10px rgba(236,72,153,0.7)' }} />
+             {/* TR corner */}
+             <div className="absolute top-0 right-0 w-6 h-6 pointer-events-none" style={{ borderTop: '2px solid #06b6d4', borderRight: '2px solid #06b6d4', boxShadow: '2px -2px 10px rgba(6,182,212,0.7)' }} />
+             {/* BR corner */}
+             <div className="absolute bottom-0 right-0 w-6 h-6 pointer-events-none" style={{ borderBottom: '2px solid rgba(6,182,212,0.6)', borderRight: '2px solid rgba(6,182,212,0.6)' }} />
 
               {/* Student Folder Header */}
               <button
-                className="w-full flex items-center justify-between px-5 py-4 transition-all hover:bg-purple-500/5"
+                className="w-full flex items-center justify-between px-6 py-4 transition-all hover:bg-pink-500/3"
                 onClick={() => setExpandedStudent(isOpen ? null : student.id)}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(168,85,247,0.18)', border: '1px solid rgba(168,85,247,0.55)', boxShadow: '0 0 12px rgba(168,85,247,0.3)' }}>
-                    <UserCircle className="w-4.5 h-4.5" style={{ color: '#ffffff', filter: 'drop-shadow(0 0 5px rgba(168,85,247,0.9))' }} />
+                <div className="flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.25), rgba(236,72,153,0.10))', border: '1px solid rgba(236,72,153,0.70)', boxShadow: '0 0 16px rgba(236,72,153,0.40), inset 0 0 8px rgba(236,72,153,0.15)' }}>
+                    <UserCircle className="w-5 h-5" style={{ color: '#ffffff', filter: 'drop-shadow(0 0 6px rgba(236,72,153,0.9)) drop-shadow(0 0 14px rgba(236,72,153,0.6))' }} />
                   </div>
                   <div className="text-left">
-                    <p className="font-semibold text-white text-sm">{student.name}</p>
-                    <p className="text-[10px] font-mono-cyber mt-0.5" style={{ color: 'rgba(168,85,247,0.6)', textShadow: '0 0 6px rgba(168,85,247,0.4)' }}>
+                    <p className="font-semibold text-white text-base">{student.name}</p>
+                    <p className="text-[11px] font-mono-cyber mt-1" style={{ color: 'rgba(236,72,153,0.65)', textShadow: '0 0 8px rgba(236,72,153,0.5)' }}>
                       {activePlans.length} ativo{activePlans.length !== 1 ? "s" : ""}
                       {archivedPlans.length > 0 && ` · ${archivedPlans.length} oculto${archivedPlans.length !== 1 ? "s" : ""}`}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex gap-1 flex-wrap">
-                    {activePlans.slice(0, 4).map(p => (
-                      <span key={p.id} className="text-[9px] px-2 py-0.5 rounded-md font-mono-cyber"
-                        style={{ background: 'rgba(168,85,247,0.14)', border: '1px solid rgba(168,85,247,0.4)', color: '#c084fc', textShadow: '0 0 6px rgba(168,85,247,0.5)' }}>
-                        {p.name.length > 10 ? p.name.slice(0, 10) + "…" : p.name}
+                  <div className="flex gap-1.5 flex-wrap">
+                    {activePlans.slice(0, 3).map(p => (
+                      <span key={p.id} className="text-[9px] px-2.5 py-1 rounded-lg font-mono-cyber tracking-wider"
+                        style={{ background: 'rgba(236,72,153,0.16)', border: '1px solid rgba(236,72,153,0.45)', color: '#ff8fd7', textShadow: '0 0 7px rgba(236,72,153,0.6)' }}>
+                        {p.name.length > 9 ? p.name.slice(0, 9) + "…" : p.name}
                       </span>
                     ))}
-                    {activePlans.length > 4 && <span className="text-[9px] font-mono-cyber self-center" style={{ color: 'rgba(168,85,247,0.5)' }}>+{activePlans.length - 4}</span>}
+                    {activePlans.length > 3 && <span className="text-[9px] font-mono-cyber self-center" style={{ color: 'rgba(236,72,153,0.6)', textShadow: '0 0 5px rgba(236,72,153,0.5)' }}>+{activePlans.length - 3}</span>}
                   </div>
                   {isOpen
-                    ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: '#a855f7', filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.7))' }} />
-                    : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(168,85,247,0.5)' }} />}
+                    ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: '#ec4899', filter: 'drop-shadow(0 0 5px rgba(236,72,153,0.9))' }} />
+                    : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(236,72,153,0.6)' }} />}
                 </div>
               </button>
 
