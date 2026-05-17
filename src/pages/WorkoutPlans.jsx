@@ -168,18 +168,20 @@ export default function WorkoutPlans() {
         }
       />
 
-      <motion.div variants={fadeUp} className="mb-6">
+      <motion.div variants={fadeUp} className="mb-6 flex items-center gap-3">
+        <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)' }} />
         <Select value={filterStudent} onValueChange={setFilterStudent}>
-          <SelectTrigger className="w-full sm:w-72 cyber-input">
+          <SelectTrigger className="w-full sm:w-80 cyber-input" style={{ borderColor: 'rgba(168,85,247,0.5)', boxShadow: '0 0 14px rgba(168,85,247,0.12)' }}>
             <SelectValue placeholder="Filtrar por aluno" />
           </SelectTrigger>
-          <SelectContent style={{background: '#04040e', borderColor: 'rgba(255,255,255,0.1)'}}>
+          <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
             <SelectItem value="all" className="text-white">Todos os alunos</SelectItem>
             {students.map((s) => (
               <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
+        <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)' }} />
       </motion.div>
 
       <motion.div variants={stagger} className="space-y-4">
@@ -252,43 +254,53 @@ export default function WorkoutPlans() {
           );
 
           return (
-           <motion.div key={student.id} variants={fadeUp} className="relative rounded-xl border overflow-hidden cyber-card">
+           <motion.div key={student.id} variants={fadeUp} className="relative rounded-2xl border overflow-hidden"
+             style={{
+               background: 'linear-gradient(145deg, rgba(168,85,247,0.08) 0%, rgba(2,2,10,0.98) 100%)',
+               borderColor: 'rgba(168,85,247,0.5)',
+               boxShadow: '0 0 24px rgba(168,85,247,0.15), 0 6px 28px rgba(0,0,0,0.5), inset 0 1px 0 rgba(168,85,247,0.2)'
+             }}>
+             {/* Top glow line */}
+             <div className="absolute top-0 left-0 right-0 h-[2px]"
+               style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.9), rgba(6,182,212,0.6), transparent)', boxShadow: '0 0 10px rgba(168,85,247,0.7)' }} />
+             {/* TL corner accent */}
+             <div className="absolute top-0 left-0 w-5 h-5" style={{ borderTop: '2px solid rgba(168,85,247,0.8)', borderLeft: '2px solid rgba(168,85,247,0.8)', boxShadow: '-1px -1px 8px rgba(168,85,247,0.6)' }} />
+             {/* TR corner accent */}
+             <div className="absolute top-0 right-0 w-5 h-5" style={{ borderTop: '2px solid rgba(6,182,212,0.7)', borderRight: '2px solid rgba(6,182,212,0.7)', boxShadow: '1px -1px 8px rgba(6,182,212,0.5)' }} />
+
              {/* Student Folder Header */}
              <button
-               className="w-full flex items-center justify-between px-5 py-4 transition-all hover:bg-white/5"
+               className="w-full flex items-center justify-between px-6 py-4 transition-all hover:bg-purple-500/5"
                onClick={() => setExpandedStudent(isOpen ? null : student.id)}
              >
-               <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                   <UserCircle className="w-5 h-5 text-white/70" />
+               <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                   style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(168,85,247,0.08))', border: '1px solid rgba(168,85,247,0.6)', boxShadow: '0 0 18px rgba(168,85,247,0.35), inset 0 0 10px rgba(168,85,247,0.12)' }}>
+                   <UserCircle className="w-6 h-6" style={{ color: '#ffffff', filter: 'drop-shadow(0 0 6px rgba(168,85,247,0.8))' }} />
                  </div>
                  <div className="text-left">
-                   <p className="font-semibold text-white text-sm">{student.name}</p>
-                   <p className="text-[10px] text-white/40 mt-0.5">
-                     {activePlans.length} treino{activePlans.length !== 1 ? "s" : ""}
+                   <p className="font-semibold text-white text-lg">{student.name}</p>
+                   <p className="text-[11px] font-mono-cyber mt-1" style={{ color: 'rgba(168,85,247,0.7)', textShadow: '0 0 8px rgba(168,85,247,0.5)' }}>
+                     {activePlans.length} ativo{activePlans.length !== 1 ? "s" : ""}
                      {archivedPlans.length > 0 && ` • ${archivedPlans.length} oculto${archivedPlans.length !== 1 ? "s" : ""}`}
                    </p>
                  </div>
                </div>
                <div className="flex items-center gap-2">
                  {activePlans.length > 0 && (
-                   <div className="flex -space-x-2">
+                   <div className="flex gap-1.5 flex-wrap">
                      {activePlans.slice(0, 3).map(p => (
-                       <div key={p.id} className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-bold"
-                         style={{ background: 'rgba(168,85,247,0.2)', border: '1px solid rgba(168,85,247,0.4)', color: 'rgba(168,85,247,0.8)' }}>
-                         {p.name.charAt(0).toUpperCase()}
-                       </div>
+                       <span key={p.id} className="text-[9px] px-2.5 py-1 rounded-md font-mono-cyber tracking-wider"
+                         style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.45)', color: '#c084fc', textShadow: '0 0 6px rgba(168,85,247,0.5)' }}>
+                         {p.name.length > 10 ? p.name.slice(0, 10) + "…" : p.name}
+                       </span>
                      ))}
-                     {activePlans.length > 3 && (
-                       <div className="w-6 h-6 rounded-full flex items-center justify-center text-[8px]"
-                         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.5)' }}>
-                         +{activePlans.length - 3}
-                       </div>
-                     )}
+                     {activePlans.length > 3 && <span className="text-[9px] font-mono-cyber self-center" style={{ color: 'rgba(168,85,247,0.6)', textShadow: '0 0 5px rgba(168,85,247,0.4)' }}>+{activePlans.length - 3}</span>}
                    </div>
                  )}
-                 {isOpen ? <ChevronUp className="w-4 h-4 text-white/30" /> : <ChevronDown className="w-4 h-4 text-white/30" />}
+                 {isOpen
+                   ? <ChevronUp className="w-4 h-4" style={{ color: 'rgba(168,85,247,0.8)', filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.7))' }} />
+                   : <ChevronDown className="w-4 h-4" style={{ color: 'rgba(168,85,247,0.5)' }} />}
                </div>
              </button>
 
