@@ -55,21 +55,21 @@ export default function Dashboard() {
   ].filter(Boolean);
 
   const stats = [
-    { label: "Alunos Ativos", value: activeStudents.length, icon: Users, accent: "#a855f7", glow: "rgba(168,85,247,0.35)" },
-    { label: "Planos de Treino", value: plans.length, icon: ClipboardList, accent: "#06b6d4", glow: "rgba(6,182,212,0.35)" },
-    { label: "Pendentes", value: pendingStudents.length, icon: UserPlus, accent: "#f59e0b", glow: "rgba(245,158,11,0.35)" },
-    { label: "Msgs não lidas", value: unreadMessages.length, icon: MessageSquare, accent: "#ec4899", glow: "rgba(236,72,153,0.35)" },
+    { label: "Alunos Ativos", value: activeStudents.length, icon: Users, accent: "var(--neon-purple)" },
+    { label: "Planos de Treino", value: plans.length, icon: ClipboardList, accent: "var(--neon-cyan)" },
+    { label: "Pendentes", value: pendingStudents.length, icon: UserPlus, accent: "var(--neon-amber)" },
+    { label: "Msgs não lidas", value: unreadMessages.length, icon: MessageSquare, accent: "var(--neon-pink)" },
   ];
 
   const quickActions = [
-    { label: "Alunos", icon: Users, path: "/Students", accent: "#a855f7", glow: "rgba(168,85,247,0.2)" },
-    { label: "Planos de Treino", icon: ClipboardList, path: "/WorkoutPlans", accent: "#06b6d4", glow: "rgba(6,182,212,0.2)" },
-    { label: "Dietas", icon: Utensils, path: "/Diet", accent: "#10b981", glow: "rgba(16,185,129,0.2)" },
-    { label: "Progresso", icon: TrendingUp, path: "/Progress", accent: "#f59e0b", glow: "rgba(245,158,11,0.2)" },
-    { label: "Chat", icon: MessageSquare, path: "/Chat", accent: "#ec4899", glow: "rgba(236,72,153,0.2)" },
-    { label: "Calendário", icon: CalendarDays, path: "/ClassCalendar", accent: "#06b6d4", glow: "rgba(6,182,212,0.2)" },
-    { label: "Financeiro", icon: DollarSign, path: "/Finance", accent: "#10b981", glow: "rgba(16,185,129,0.2)" },
-    { label: "BZ AI Coach", icon: Sparkles, path: "/AICoach", accent: "#a855f7", glow: "rgba(168,85,247,0.2)" },
+    { label: "Alunos", icon: Users, path: "/Students", accent: "var(--neon-purple)" },
+    { label: "Planos de Treino", icon: ClipboardList, path: "/WorkoutPlans", accent: "var(--neon-cyan)" },
+    { label: "Dietas", icon: Utensils, path: "/Diet", accent: "var(--neon-green)" },
+    { label: "Progresso", icon: TrendingUp, path: "/Progress", accent: "var(--neon-amber)" },
+    { label: "Chat", icon: MessageSquare, path: "/Chat", accent: "var(--neon-pink)" },
+    { label: "Calendário", icon: CalendarDays, path: "/ClassCalendar", accent: "var(--neon-cyan)" },
+    { label: "Financeiro", icon: DollarSign, path: "/Finance", accent: "var(--neon-green)" },
+    { label: "BZ AI Coach", icon: Sparkles, path: "/AICoach", accent: "var(--neon-purple)" },
   ];
 
   return (
@@ -78,23 +78,23 @@ export default function Dashboard() {
       {/* ═══ HERO HEADER ═══ */}
       <motion.div variants={fadeUp} className="relative rounded-2xl overflow-hidden p-6 md:p-8"
         style={{
-          background: 'linear-gradient(135deg, rgba(8,4,22,0.98) 0%, rgba(12,4,30,0.98) 50%, rgba(4,8,22,0.98) 100%)',
-          border: '1px solid rgba(168,85,247,0.2)',
-          boxShadow: '0 0 60px rgba(168,85,247,0.08), inset 0 1px 0 rgba(168,85,247,0.15)',
+          background: `linear-gradient(135deg, color-mix(in srgb, var(--bg-card) 98%, transparent) 0%, color-mix(in srgb, var(--bg-card2) 98%, transparent) 50%, color-mix(in srgb, var(--bg-void) 98%, transparent) 100%)`,
+          border: '1px solid color-mix(in srgb, var(--neon-purple) 20%, transparent)',
+          boxShadow: '0 0 60px color-mix(in srgb, var(--neon-purple) 8%, transparent), inset 0 1px 0 color-mix(in srgb, var(--neon-purple) 15%, transparent)',
         }}>
         {/* Background glow orbs */}
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
+          style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--neon-purple) 12%, transparent) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
         <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%)', transform: 'translate(-20%, 30%)' }} />
+          style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--neon-cyan) 8%, transparent) 0%, transparent 70%)', transform: 'translate(-20%, 30%)' }} />
         {/* Top neon line */}
         <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(168,85,247,0.8) 30%, rgba(6,182,212,0.6) 70%, transparent 100%)' }} />
+          style={{ background: 'linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--neon-purple) 80%, transparent) 30%, color-mix(in srgb, var(--neon-cyan) 60%, transparent) 70%, transparent 100%)' }} />
         {/* Corner accents */}
-        <div className="absolute top-3 left-3 w-4 h-4 border-t border-l border-purple-500/50 rounded-tl" />
-        <div className="absolute top-3 right-3 w-4 h-4 border-t border-r border-cyan-500/50 rounded-tr" />
-        <div className="absolute bottom-3 left-3 w-4 h-4 border-b border-l border-purple-500/30 rounded-bl" />
-        <div className="absolute bottom-3 right-3 w-4 h-4 border-b border-r border-cyan-500/30 rounded-br" />
+        <div className="absolute top-3 left-3 w-4 h-4 border-t border-l rounded-tl" style={{ borderColor: 'color-mix(in srgb, var(--neon-purple) 50%, transparent)' }} />
+        <div className="absolute top-3 right-3 w-4 h-4 border-t border-r rounded-tr" style={{ borderColor: 'color-mix(in srgb, var(--neon-cyan) 50%, transparent)' }} />
+        <div className="absolute bottom-3 left-3 w-4 h-4 border-b border-l rounded-bl" style={{ borderColor: 'color-mix(in srgb, var(--neon-purple) 30%, transparent)' }} />
+        <div className="absolute bottom-3 right-3 w-4 h-4 border-b border-r rounded-br" style={{ borderColor: 'color-mix(in srgb, var(--neon-cyan) 30%, transparent)' }} />
 
         <div className="relative flex items-start justify-between flex-wrap gap-4">
           <div>
@@ -113,13 +113,13 @@ export default function Dashboard() {
               {greeting},
             </h1>
             <h2 className="font-cyber text-3xl md:text-4xl font-black tracking-widest mt-1"
-              style={{ color: '#c084fc', textShadow: '0 0 30px rgba(192,132,252,0.7), 0 0 60px rgba(168,85,247,0.3)' }}>
+              style={{ color: 'var(--neon-purple)', textShadow: '0 0 30px color-mix(in srgb, var(--neon-purple) 70%, transparent), 0 0 60px color-mix(in srgb, var(--neon-purple) 30%, transparent)' }}>
               {userName.toUpperCase()}
             </h2>
             <div className="flex items-center gap-2 mt-3">
-              <Shield className="w-3.5 h-3.5" style={{ color: isPersonal ? '#06b6d4' : '#a855f7' }} />
+              <Shield className="w-3.5 h-3.5" style={{ color: 'var(--neon-cyan)' }} />
               <span className="text-xs font-mono-cyber tracking-widest uppercase"
-                style={{ color: isPersonal ? 'rgba(6,182,212,0.7)' : 'rgba(168,85,247,0.7)' }}>
+                style={{ color: 'color-mix(in srgb, var(--neon-cyan) 70%, transparent)' }}>
                 {isPersonal ? "personal trainer" : "administrador"}
               </span>
             </div>
@@ -201,7 +201,7 @@ export default function Dashboard() {
               {s.value}
             </p>
             <p className="text-[11px] mt-2 font-mono-cyber tracking-wider uppercase"
-              style={{ color: 'rgba(192,132,252,0.5)' }}>
+              style={{ color: 'color-mix(in srgb, var(--text-secondary) 50%, transparent)' }}>
               {s.label}
             </p>
           </motion.div>
@@ -211,10 +211,10 @@ export default function Dashboard() {
       {/* ═══ QUICK ACTIONS ═══ */}
       <motion.div variants={fadeUp}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, rgba(168,85,247,0.5), transparent)' }} />
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, color-mix(in srgb, var(--neon-purple) 50%, transparent), transparent)' }} />
           <p className="text-[10px] font-mono-cyber uppercase tracking-[0.35em]"
-            style={{ color: 'rgba(192,132,252,0.6)' }}>▸ acesso rápido</p>
-          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.3))' }} />
+            style={{ color: 'color-mix(in srgb, var(--neon-purple) 60%, transparent)' }}>▸ acesso rápido</p>
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-cyan) 30%, transparent))' }} />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {quickActions.map((a, i) => (
@@ -249,7 +249,7 @@ export default function Dashboard() {
                     }} />
                 </div>
                 <span className="relative text-xs font-semibold text-center leading-tight transition-colors duration-200 group-hover:text-white"
-                  style={{ color: 'rgba(224,210,255,0.65)' }}>
+                  style={{ color: 'color-mix(in srgb, var(--text-primary) 65%, transparent)' }}>
                   {a.label}
                 </span>
               </Link>
