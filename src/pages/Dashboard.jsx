@@ -62,14 +62,14 @@ export default function Dashboard() {
   ];
 
   const quickActions = [
-    { label: "Alunos", icon: Users, path: "/Students", accent: "var(--neon-purple)" },
-    { label: "Planos de Treino", icon: ClipboardList, path: "/WorkoutPlans", accent: "var(--neon-cyan)" },
-    { label: "Dietas", icon: Utensils, path: "/Diet", accent: "var(--neon-green)" },
-    { label: "Progresso", icon: TrendingUp, path: "/Progress", accent: "var(--neon-amber)" },
-    { label: "Chat", icon: MessageSquare, path: "/Chat", accent: "var(--neon-pink)" },
-    { label: "Calendário", icon: CalendarDays, path: "/ClassCalendar", accent: "var(--neon-cyan)" },
-    { label: "Financeiro", icon: DollarSign, path: "/Finance", accent: "var(--neon-green)" },
-    { label: "BZ AI Coach", icon: Sparkles, path: "/AICoach", accent: "var(--neon-purple)" },
+    { label: "Alunos", icon: Users, path: "/Students", accent: "#a855f7" },
+    { label: "Planos de Treino", icon: ClipboardList, path: "/WorkoutPlans", accent: "#06b6d4" },
+    { label: "Dietas", icon: Utensils, path: "/Diet", accent: "#ec4899" },
+    { label: "Progresso", icon: TrendingUp, path: "/Progress", accent: "#f59e0b" },
+    { label: "Chat", icon: MessageSquare, path: "/Chat", accent: "#06b6d4" },
+    { label: "Calendário", icon: CalendarDays, path: "/ClassCalendar", accent: "#a855f7" },
+    { label: "Financeiro", icon: DollarSign, path: "/Finance", accent: "#f59e0b" },
+    { label: "BZ AI Coach", icon: Sparkles, path: "/AICoach", accent: "#ec4899" },
   ];
 
   return (
@@ -228,44 +228,44 @@ export default function Dashboard() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {quickActions.map((a, i) => (
-            <motion.div key={i} whileHover={{ scale: 1.04, y: -3 }} transition={{ duration: 0.18 }}>
+            <motion.div key={i} whileHover={{ scale: 1.04, y: -4 }} transition={{ duration: 0.18 }}>
               <Link to={a.path}
                 className="relative flex flex-col items-center gap-3 p-5 rounded-xl border transition-all group overflow-hidden block"
                 style={{
-                  borderColor: `${a.accent}55`,
-                  background: `linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)`,
-                  boxShadow: `0 4px 24px rgba(0,0,0,0.5), 0 0 14px ${a.accent}0a, inset 0 1px 0 ${a.accent}20`,
+                  borderColor: `${a.accent}70`,
+                  background: `linear-gradient(145deg, color-mix(in srgb, ${a.accent} 8%, var(--bg-card)) 0%, var(--bg-void) 100%)`,
+                  boxShadow: `0 4px 28px rgba(0,0,0,0.55), 0 0 20px ${a.accent}20, inset 0 1px 0 ${a.accent}30`,
                 }}>
                 {/* Tech corner TL */}
-                <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none"
-                  style={{ borderTop: `1.5px solid ${a.accent}88`, borderLeft: `1.5px solid ${a.accent}88` }} />
+                <div className="absolute top-0 left-0 w-3.5 h-3.5 pointer-events-none"
+                  style={{ borderTop: `2px solid ${a.accent}`, borderLeft: `2px solid ${a.accent}`, borderTopLeftRadius: '2px', boxShadow: `-1px -1px 6px ${a.accent}60` }} />
                 {/* Tech corner BR */}
-                <div className="absolute bottom-0 right-0 w-3 h-3 pointer-events-none"
-                  style={{ borderBottom: `1.5px solid ${a.accent}44`, borderRight: `1.5px solid ${a.accent}44` }} />
-                {/* Hover glow */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
-                  style={{ background: `radial-gradient(ellipse at 50% 80%, ${a.accent}22, transparent 65%)` }} />
-                {/* Top line always + stronger on hover */}
-                <div className="absolute top-0 left-0 right-0 h-px transition-opacity duration-300"
-                  style={{ background: `linear-gradient(90deg, transparent, ${a.accent}70, transparent)` }} />
-                {/* Bottom line */}
-                <div className="absolute bottom-0 left-0 right-0 h-px"
-                  style={{ background: `linear-gradient(90deg, transparent, ${a.accent}35, transparent)` }} />
+                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 pointer-events-none"
+                  style={{ borderBottom: `1.5px solid ${a.accent}80`, borderRight: `1.5px solid ${a.accent}80` }} />
+                {/* Top scanline */}
+                <div className="absolute top-0 left-0 right-0 h-px"
+                  style={{ background: `linear-gradient(90deg, transparent, ${a.accent}, ${a.accent}aa, transparent)` }} />
+                {/* Ambient glow always on */}
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{ background: `radial-gradient(ellipse at 50% -10%, ${a.accent}18, transparent 60%)` }} />
+                {/* Hover glow boost */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none"
+                  style={{ background: `radial-gradient(ellipse at 50% 50%, ${a.accent}28, transparent 70%)` }} />
 
                 <div className="relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 group-hover:scale-110"
                   style={{
-                    background: `linear-gradient(135deg, ${a.accent}25, ${a.accent}10)`,
-                    border: `1px solid ${a.accent}55`,
-                    boxShadow: `0 0 14px ${a.accent}30, inset 0 0 8px ${a.accent}10`,
+                    background: `linear-gradient(135deg, ${a.accent}30, ${a.accent}12)`,
+                    border: `1px solid ${a.accent}80`,
+                    boxShadow: `0 0 18px ${a.accent}50, 0 0 36px ${a.accent}20, inset 0 0 10px ${a.accent}18`,
                   }}>
                   <a.icon className="w-5 h-5 transition-all duration-200"
                     style={{
-                      color: a.accent,
-                      filter: `drop-shadow(0 0 7px ${a.accent}) drop-shadow(0 0 14px ${a.accent}70)`,
+                      color: '#ffffff',
+                      filter: `drop-shadow(0 0 6px ${a.accent}) drop-shadow(0 0 14px ${a.accent}) drop-shadow(0 0 24px ${a.accent}80)`,
                     }} />
                 </div>
-                <span className="relative text-xs font-semibold text-center leading-tight transition-colors duration-200 group-hover:text-white font-mono-cyber tracking-wide"
-                  style={{ color: 'var(--text-primary)' }}>
+                <span className="relative text-xs font-semibold text-center leading-tight font-mono-cyber tracking-wide"
+                  style={{ color: '#ffffff', textShadow: `0 0 10px ${a.accent}aa` }}>
                   {a.label}
                 </span>
               </Link>
