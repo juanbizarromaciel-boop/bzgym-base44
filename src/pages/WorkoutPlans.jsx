@@ -252,7 +252,8 @@ export default function WorkoutPlans() {
           );
 
           return (
-            <motion.div key={student.id} variants={fadeUp} className="cyber-card rounded-xl border border-purple-900/25 overflow-hidden">
+            <motion.div key={student.id} variants={fadeUp} className="cyber-card rounded-xl border overflow-hidden"
+              style={{ borderColor: 'rgba(168,85,247,0.30)' }}>
               {/* Student Folder Header */}
               <button
                 className="w-full flex items-center justify-between px-5 py-4 hover:bg-purple-500/5 transition-all"

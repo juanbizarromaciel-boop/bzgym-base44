@@ -178,15 +178,21 @@ export default function Dashboard() {
             className="relative rounded-xl p-5 border overflow-hidden cursor-default"
             style={{
               background: `linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)`,
-              borderColor: `${s.accent}45`,
-              boxShadow: `0 4px 28px rgba(0,0,0,0.5), 0 0 20px ${s.accent}10, inset 0 1px 0 ${s.accent}15`,
+              borderColor: `${s.accent}50`,
+              boxShadow: `0 4px 28px rgba(0,0,0,0.5), 0 0 20px ${s.accent}12, inset 0 1px 0 ${s.accent}20`,
             }}>
             {/* Top glow line */}
             <div className="absolute top-0 left-0 right-0 h-px"
-              style={{ background: `linear-gradient(90deg, transparent, ${s.accent}, transparent)` }} />
+              style={{ background: `linear-gradient(90deg, transparent, ${s.accent}dd, transparent)` }} />
+            {/* Tech corner TL */}
+            <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none"
+              style={{ borderTop: `1.5px solid ${s.accent}cc`, borderLeft: `1.5px solid ${s.accent}cc` }} />
+            {/* Tech corner BR */}
+            <div className="absolute bottom-0 right-0 w-3 h-3 pointer-events-none"
+              style={{ borderBottom: `1.5px solid ${s.accent}55`, borderRight: `1.5px solid ${s.accent}55` }} />
             {/* Corner dot */}
             <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full"
-              style={{ background: s.accent, boxShadow: `0 0 8px ${s.accent}` }} />
+              style={{ background: s.accent, boxShadow: `0 0 8px ${s.accent}, 0 0 14px ${s.accent}88` }} />
             {/* BG icon watermark */}
             <s.icon className="absolute bottom-2 right-2 w-10 h-10 opacity-5" style={{ color: s.accent }} />
 
@@ -211,10 +217,14 @@ export default function Dashboard() {
       {/* ═══ QUICK ACTIONS ═══ */}
       <motion.div variants={fadeUp}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, color-mix(in srgb, var(--neon-purple) 50%, transparent), transparent)' }} />
-          <p className="text-[10px] font-mono-cyber uppercase tracking-[0.35em]"
-            style={{ color: 'color-mix(in srgb, var(--neon-purple) 90%, white)' }}>▸ acesso rápido</p>
-          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-cyan) 30%, transparent))' }} />
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, color-mix(in srgb, var(--neon-purple) 70%, transparent), transparent)' }} />
+          <div className="flex items-center gap-2 px-3 py-1 rounded"
+            style={{ border: '1px solid color-mix(in srgb, var(--neon-purple) 45%, transparent)', background: 'color-mix(in srgb, var(--neon-purple) 10%, transparent)', boxShadow: '0 0 12px color-mix(in srgb, var(--neon-purple) 25%, transparent)' }}>
+            <div className="w-1 h-1 rounded-full" style={{ background: 'var(--neon-purple)', boxShadow: '0 0 5px var(--neon-purple)' }} />
+            <p className="text-[10px] font-mono-cyber uppercase tracking-[0.35em]"
+              style={{ color: '#ffffff', textShadow: '0 0 8px var(--neon-purple)' }}>acesso rápido</p>
+          </div>
+          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-cyan) 50%, transparent))' }} />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {quickActions.map((a, i) => (
@@ -222,34 +232,40 @@ export default function Dashboard() {
               <Link to={a.path}
                 className="relative flex flex-col items-center gap-3 p-5 rounded-xl border transition-all group overflow-hidden block"
                 style={{
-                  borderColor: `${a.accent}40`,
+                  borderColor: `${a.accent}55`,
                   background: `linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)`,
-                  boxShadow: `0 4px 24px rgba(0,0,0,0.45), inset 0 1px 0 ${a.accent}12`,
+                  boxShadow: `0 4px 24px rgba(0,0,0,0.5), 0 0 14px ${a.accent}0a, inset 0 1px 0 ${a.accent}20`,
                 }}>
+                {/* Tech corner TL */}
+                <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none"
+                  style={{ borderTop: `1.5px solid ${a.accent}88`, borderLeft: `1.5px solid ${a.accent}88` }} />
+                {/* Tech corner BR */}
+                <div className="absolute bottom-0 right-0 w-3 h-3 pointer-events-none"
+                  style={{ borderBottom: `1.5px solid ${a.accent}44`, borderRight: `1.5px solid ${a.accent}44` }} />
                 {/* Hover glow */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
-                  style={{ background: `radial-gradient(ellipse at 50% 80%, ${a.accent}18, transparent 65%)` }} />
-                {/* Top line */}
-                <div className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: `linear-gradient(90deg, transparent, ${a.accent}90, transparent)` }} />
-                {/* Bottom line always visible */}
+                  style={{ background: `radial-gradient(ellipse at 50% 80%, ${a.accent}22, transparent 65%)` }} />
+                {/* Top line always + stronger on hover */}
+                <div className="absolute top-0 left-0 right-0 h-px transition-opacity duration-300"
+                  style={{ background: `linear-gradient(90deg, transparent, ${a.accent}70, transparent)` }} />
+                {/* Bottom line */}
                 <div className="absolute bottom-0 left-0 right-0 h-px"
-                  style={{ background: `linear-gradient(90deg, transparent, ${a.accent}30, transparent)` }} />
+                  style={{ background: `linear-gradient(90deg, transparent, ${a.accent}35, transparent)` }} />
 
                 <div className="relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 group-hover:scale-110"
                   style={{
-                    background: `linear-gradient(135deg, ${a.accent}20, ${a.accent}10)`,
-                    border: `1px solid ${a.accent}40`,
-                    boxShadow: `0 0 0 0 ${a.accent}40`,
+                    background: `linear-gradient(135deg, ${a.accent}25, ${a.accent}10)`,
+                    border: `1px solid ${a.accent}55`,
+                    boxShadow: `0 0 14px ${a.accent}30, inset 0 0 8px ${a.accent}10`,
                   }}>
                   <a.icon className="w-5 h-5 transition-all duration-200"
                     style={{
                       color: a.accent,
-                      filter: `drop-shadow(0 0 6px ${a.accent}) drop-shadow(0 0 12px ${a.accent}50)`,
+                      filter: `drop-shadow(0 0 7px ${a.accent}) drop-shadow(0 0 14px ${a.accent}70)`,
                     }} />
                 </div>
-                <span className="relative text-xs font-semibold text-center leading-tight transition-colors duration-200 group-hover:text-white"
-                  style={{ color: 'var(--text-primary)', textShadow: 'none' }}>
+                <span className="relative text-xs font-semibold text-center leading-tight transition-colors duration-200 group-hover:text-white font-mono-cyber tracking-wide"
+                  style={{ color: 'var(--text-primary)' }}>
                   {a.label}
                 </span>
               </Link>

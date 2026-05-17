@@ -138,17 +138,31 @@ export default function Students() {
       <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filtered.map((student) => (
           <motion.div key={student.id} variants={fadeUp} whileHover={{ scale: 1.02, y: -2 }} transition={{ duration: 0.18 }}
-            className="cyber-card rounded-xl p-5 border border-purple-900/20 hover:border-purple-500/40 transition-all group relative overflow-hidden"
-            style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}>
-            <div className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity"
-              style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.6), transparent)' }} />
+            className="relative rounded-xl p-5 border transition-all group overflow-hidden"
+            style={{
+              background: 'linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)',
+              borderColor: 'rgba(168,85,247,0.28)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.45), 0 0 16px rgba(168,85,247,0.06)',
+            }}>
+            {/* Top glow line */}
+            <div className="absolute top-0 left-0 right-0 h-px"
+              style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.7), rgba(6,182,212,0.3), transparent)' }} />
+            {/* Tech corners */}
+            <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none"
+              style={{ borderTop: '1.5px solid rgba(168,85,247,0.8)', borderLeft: '1.5px solid rgba(168,85,247,0.8)' }} />
+            <div className="absolute bottom-0 right-0 w-3 h-3 pointer-events-none"
+              style={{ borderBottom: '1.5px solid rgba(6,182,212,0.5)', borderRight: '1.5px solid rgba(6,182,212,0.5)' }} />
+            {/* Hover glow */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none"
+              style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(168,85,247,0.1), transparent 70%)' }} />
+
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full overflow-hidden bg-purple-500/10 border border-purple-500/20 flex items-center justify-center"
-                  style={{boxShadow: '0 0 10px rgba(168,85,247,0.15)'}}>
+                <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center"
+                  style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.35)', boxShadow: '0 0 12px rgba(168,85,247,0.2)' }}>
                   {student.photo_url
                     ? <img src={student.photo_url} alt={student.name} className="w-full h-full object-cover" />
-                    : <UserCircle className="w-6 h-6 text-purple-400" />
+                    : <UserCircle className="w-6 h-6" style={{ color: 'rgba(168,85,247,0.9)', filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.6))' }} />
                   }
                 </div>
                 <div>
@@ -167,7 +181,7 @@ export default function Students() {
                 </Button>
               </div>
             </div>
-            <div className="space-y-1.5 text-xs text-purple-400/40 font-mono-cyber">
+            <div className="space-y-1.5 text-xs font-mono-cyber" style={{ color: 'rgba(168,85,247,0.6)' }}>
               {student.email && <div className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" />{student.email}</div>}
               {student.phone && <div className="flex items-center gap-2"><Phone className="w-3.5 h-3.5" />{student.phone}</div>}
             </div>
