@@ -210,7 +210,7 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
             style={{
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              background: 'rgba(2,2,10,0.85)',
+              background: 'color-mix(in srgb, var(--bg-void) 92%, transparent)',
             }}
             onClick={onClose}
           />
@@ -225,7 +225,7 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
               style={{
                 position: 'absolute', top: '-15%', left: '-10%',
                 width: 400, height: 400, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, color-mix(in srgb, var(--neon-purple) 14%, transparent) 0%, transparent 70%)',
                 filter: 'blur(30px)',
               }}
             />
@@ -237,7 +237,7 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
               style={{
                 position: 'absolute', bottom: '-10%', right: '-8%',
                 width: 350, height: 350, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(6,182,212,0.09) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, color-mix(in srgb, var(--neon-cyan) 10%, transparent) 0%, transparent 70%)',
                 filter: 'blur(30px)',
               }}
             />
@@ -277,7 +277,7 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  style={{ color: 'rgba(168,85,247,0.4)' }}
+                  style={{ color: 'color-mix(in srgb, var(--neon-purple) 70%, transparent)' }}
                 >
                   NAVIGATOR
                 </motion.span>
@@ -287,7 +287,7 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.25 }}
-                    style={{ color: 'rgba(192,132,252,0.3)' }}
+                    style={{ color: 'color-mix(in srgb, var(--text-secondary) 70%, transparent)' }}
                   >
                     {userName}
                   </motion.span>
@@ -301,10 +301,10 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
                 transition={{ duration: 0.2 }}
                 className="w-9 h-9 rounded-full flex items-center justify-center"
                 style={{
-                  border: '1px solid rgba(168,85,247,0.35)',
-                  background: 'rgba(168,85,247,0.1)',
-                  color: '#c084fc',
-                  boxShadow: '0 0 12px rgba(168,85,247,0.2)',
+                  border: '1px solid color-mix(in srgb, var(--neon-purple) 40%, transparent)',
+                  background: 'color-mix(in srgb, var(--neon-purple) 12%, transparent)',
+                  color: 'var(--neon-purple)',
+                  boxShadow: '0 0 12px color-mix(in srgb, var(--neon-purple) 25%, transparent)',
                 }}
               >
                 <X style={{ width: 15, height: 15 }} />
@@ -319,7 +319,7 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
               transition={{ duration: 0.5, delay: 0.1 }}
               style={{
                 height: 1, flexShrink: 0,
-                background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.8), rgba(6,182,212,0.5), rgba(236,72,153,0.3), transparent)',
+                background: 'linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-purple) 80%, transparent), color-mix(in srgb, var(--neon-cyan) 50%, transparent), transparent)',
                 transformOrigin: 'left',
               }}
             />
@@ -340,9 +340,9 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
                     }}
                     className="rounded-2xl p-3 relative overflow-hidden"
                     style={{
-                      background: `linear-gradient(145deg, rgba(6,4,18,0.97) 0%, rgba(3,2,12,0.99) 100%)`,
-                      border: `1px solid ${group.color}1a`,
-                      boxShadow: `0 4px 20px rgba(0,0,0,0.4), 0 0 0 0.5px ${group.color}10, inset 0 1px 0 ${group.color}12`,
+                      background: `linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)`,
+                      border: `1px solid ${group.color}30`,
+                      boxShadow: `0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 ${group.color}18`,
                     }}
                   >
                     {/* Reflexo sutil no topo do card */}
@@ -394,14 +394,14 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
                                 }}>
                                 <item.icon style={{
                                   width: 10, height: 10,
-                                  color: isActive ? '#fff' : `${group.color}70`,
+                                  color: isActive ? '#fff' : `${group.color}bb`,
                                   filter: isActive ? `drop-shadow(0 0 4px #fff) drop-shadow(0 0 8px ${group.color})` : `drop-shadow(0 0 3px ${group.color}50)`,
                                 }} />
                               </div>
                               <span
                                 className="text-[11px] font-medium leading-tight flex-1"
                                 style={{
-                                  color: isActive ? '#ffffff' : 'rgba(210,180,240,0.72)',
+                                  color: isActive ? '#ffffff' : 'var(--text-primary)',
                                   textShadow: isActive ? `0 0 10px ${group.color}, 0 0 20px ${group.color}80` : 'none',
                                 }}
                               >
@@ -432,7 +432,7 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
               transition={{ duration: 0.5, delay: 0.15 }}
               style={{
                 height: 1, flexShrink: 0,
-                background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.5), rgba(168,85,247,0.8), rgba(236,72,153,0.4), transparent)',
+                background: 'linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-cyan) 50%, transparent), color-mix(in srgb, var(--neon-purple) 80%, transparent), transparent)',
                 transformOrigin: 'right',
               }}
             />
@@ -465,9 +465,9 @@ export default function CyberNav({ role, currentPageName, userName }) {
         whileTap={{ scale: 0.88 }}
         className="relative p-2 rounded-xl"
         style={{
-          background: open ? 'rgba(168,85,247,0.18)' : 'transparent',
-          border: open ? '1px solid rgba(168,85,247,0.5)' : '1px solid transparent',
-          boxShadow: open ? '0 0 18px rgba(168,85,247,0.45), inset 0 0 8px rgba(168,85,247,0.08)' : 'none',
+          background: open ? 'color-mix(in srgb, var(--neon-purple) 18%, transparent)' : 'transparent',
+          border: open ? '1px solid color-mix(in srgb, var(--neon-purple) 55%, transparent)' : '1px solid transparent',
+          boxShadow: open ? '0 0 18px color-mix(in srgb, var(--neon-purple) 45%, transparent)' : 'none',
           transition: 'all 0.2s ease',
         }}
       >
