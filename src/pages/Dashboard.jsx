@@ -55,10 +55,10 @@ export default function Dashboard() {
   ].filter(Boolean);
 
   const stats = [
-    { label: "Alunos Ativos", value: activeStudents.length, icon: Users, accent: "var(--neon-purple)" },
-    { label: "Planos de Treino", value: plans.length, icon: ClipboardList, accent: "var(--neon-cyan)" },
-    { label: "Pendentes", value: pendingStudents.length, icon: UserPlus, accent: "var(--neon-amber)" },
-    { label: "Msgs não lidas", value: unreadMessages.length, icon: MessageSquare, accent: "var(--neon-pink)" },
+    { label: "Alunos Ativos", value: activeStudents.length, icon: Users, accent: "#a855f7" },
+    { label: "Planos de Treino", value: plans.length, icon: ClipboardList, accent: "#06b6d4" },
+    { label: "Pendentes", value: pendingStudents.length, icon: UserPlus, accent: "#f59e0b" },
+    { label: "Msgs não lidas", value: unreadMessages.length, icon: MessageSquare, accent: "#ec4899" },
   ];
 
   const quickActions = [
@@ -78,62 +78,72 @@ export default function Dashboard() {
       {/* ═══ HERO HEADER ═══ */}
       <motion.div variants={fadeUp} className="relative rounded-2xl overflow-hidden p-6 md:p-8"
         style={{
-          background: `linear-gradient(135deg, color-mix(in srgb, var(--bg-card) 96%, transparent) 0%, color-mix(in srgb, var(--bg-card2) 95%, transparent) 50%, color-mix(in srgb, var(--bg-void) 98%, transparent) 100%)`,
-          border: '1px solid color-mix(in srgb, var(--neon-purple) 35%, transparent)',
-          boxShadow: '0 0 80px color-mix(in srgb, var(--neon-purple) 15%, transparent), 0 4px 40px rgba(0,0,0,0.5), inset 0 1px 0 color-mix(in srgb, var(--neon-purple) 25%, transparent)',
+          background: `linear-gradient(135deg, rgba(168,85,247,0.10) 0%, rgba(7,7,26,0.98) 45%, rgba(6,182,212,0.07) 100%)`,
+          border: '1px solid rgba(168,85,247,0.55)',
+          boxShadow: '0 0 60px rgba(168,85,247,0.22), 0 0 120px rgba(168,85,247,0.08), 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(168,85,247,0.35)',
         }}>
-        {/* Background glow orbs */}
-        <div className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--neon-purple) 12%, transparent) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
-        <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--neon-cyan) 8%, transparent) 0%, transparent 70%)', transform: 'translate(-20%, 30%)' }} />
-        {/* Top neon line */}
-        <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--neon-purple) 80%, transparent) 30%, color-mix(in srgb, var(--neon-cyan) 60%, transparent) 70%, transparent 100%)' }} />
-        {/* Corner accents */}
-        <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2" style={{ borderColor: 'color-mix(in srgb, var(--neon-purple) 75%, transparent)', borderRadius: '2px 0 0 0' }} />
-        <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2" style={{ borderColor: 'color-mix(in srgb, var(--neon-cyan) 75%, transparent)', borderRadius: '0 2px 0 0' }} />
-        <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2" style={{ borderColor: 'color-mix(in srgb, var(--neon-purple) 50%, transparent)', borderRadius: '0 0 0 2px' }} />
-        <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2" style={{ borderColor: 'color-mix(in srgb, var(--neon-cyan) 50%, transparent)', borderRadius: '0 0 2px 0' }} />
+        {/* Ambient orbs */}
+        <div className="absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 65%)', transform: 'translate(35%, -35%)' }} />
+        <div className="absolute bottom-0 left-0 w-56 h-56 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.14) 0%, transparent 65%)', transform: 'translate(-25%, 35%)' }} />
+        <div className="absolute top-1/2 left-1/2 w-40 h-40 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(236,72,153,0.06) 0%, transparent 70%)', transform: 'translate(-50%,-50%)' }} />
+
+        {/* Top neon line — thick + glowing */}
+        <div className="absolute top-0 left-0 right-0 h-[2px]"
+          style={{ background: 'linear-gradient(90deg, transparent 0%, #a855f7 25%, #ec4899 50%, #06b6d4 75%, transparent 100%)', boxShadow: '0 0 12px rgba(168,85,247,0.9), 0 0 24px rgba(168,85,247,0.5)' }} />
+        {/* Bottom faint line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px"
+          style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.5), rgba(168,85,247,0.4), transparent)' }} />
+
+        {/* Corner accents — bigger & brighter */}
+        <div className="absolute top-0 left-0 w-7 h-7" style={{ borderTop: '2px solid #a855f7', borderLeft: '2px solid #a855f7', borderRadius: '4px 0 0 0', boxShadow: '-2px -2px 10px rgba(168,85,247,0.7)' }} />
+        <div className="absolute top-0 right-0 w-7 h-7" style={{ borderTop: '2px solid #06b6d4', borderRight: '2px solid #06b6d4', borderRadius: '0 4px 0 0', boxShadow: '2px -2px 10px rgba(6,182,212,0.7)' }} />
+        <div className="absolute bottom-0 left-0 w-7 h-7" style={{ borderBottom: '2px solid rgba(168,85,247,0.6)', borderLeft: '2px solid rgba(168,85,247,0.6)', borderRadius: '0 0 0 4px' }} />
+        <div className="absolute bottom-0 right-0 w-7 h-7" style={{ borderBottom: '2px solid rgba(6,182,212,0.6)', borderRight: '2px solid rgba(6,182,212,0.6)', borderRadius: '0 0 4px 0' }} />
 
         <div className="relative flex items-start justify-between flex-wrap gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" style={{ boxShadow: '0 0 6px rgba(52,211,153,0.9)' }} />
-              <p className="text-[10px] font-mono-cyber tracking-[0.4em] uppercase" style={{ color: 'color-mix(in srgb, var(--neon-purple) 80%, white)' }}>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full" style={{ background: '#a855f7', boxShadow: '0 0 8px #a855f7, 0 0 16px rgba(168,85,247,0.6)' }} />
+              <p className="text-[10px] font-mono-cyber tracking-[0.4em] uppercase"
+                style={{ color: '#c084fc', textShadow: '0 0 10px rgba(168,85,247,0.8)' }}>
                 ◈ {todayDate}
               </p>
             </div>
             <h1 className="font-cyber text-4xl md:text-5xl font-black tracking-widest leading-none"
               style={{
-                background: 'linear-gradient(135deg, #ffffff 0%, var(--neon-purple) 60%, var(--neon-cyan) 100%)',
+                background: 'linear-gradient(135deg, #ffffff 0%, #c084fc 45%, #06b6d4 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 0 24px color-mix(in srgb, var(--neon-purple) 60%, transparent))',
+                filter: 'drop-shadow(0 0 30px rgba(168,85,247,0.8))',
               }}>
               {greeting},
             </h1>
             <h2 className="font-cyber text-3xl md:text-4xl font-black tracking-widest mt-1"
-              style={{ color: 'var(--neon-purple)', textShadow: '0 0 30px color-mix(in srgb, var(--neon-purple) 70%, transparent), 0 0 60px color-mix(in srgb, var(--neon-purple) 30%, transparent)' }}>
+              style={{ color: '#a855f7', textShadow: '0 0 20px #a855f7, 0 0 50px rgba(168,85,247,0.6), 0 0 80px rgba(168,85,247,0.3)' }}>
               {userName.toUpperCase()}
             </h2>
-            <div className="flex items-center gap-2 mt-3">
-              <Shield className="w-3.5 h-3.5" style={{ color: 'var(--neon-cyan)' }} />
+            <div className="flex items-center gap-2 mt-3 px-3 py-1.5 rounded-lg w-fit"
+              style={{ border: '1px solid rgba(6,182,212,0.45)', background: 'rgba(6,182,212,0.08)', boxShadow: '0 0 14px rgba(6,182,212,0.2)' }}>
+              <Shield className="w-3.5 h-3.5" style={{ color: '#06b6d4', filter: 'drop-shadow(0 0 5px rgba(6,182,212,0.9))' }} />
               <span className="text-xs font-mono-cyber tracking-widest uppercase"
-                style={{ color: 'color-mix(in srgb, var(--neon-cyan) 90%, white)' }}>
+                style={{ color: '#67e8f9', textShadow: '0 0 8px rgba(6,182,212,0.8)' }}>
                 {isPersonal ? "personal trainer" : "administrador"}
               </span>
             </div>
           </div>
           {alerts.length === 0 ? (
-            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-emerald-500/25 bg-emerald-500/8"
-              style={{ boxShadow: '0 0 20px rgba(52,211,153,0.08)' }}>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" style={{ filter: 'drop-shadow(0 0 5px rgba(52,211,153,0.8))' }} />
-              <span className="text-xs font-semibold font-mono-cyber tracking-wider" style={{ color: '#6ee7b7' }}>sistema ok</span>
+            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl"
+              style={{ border: '1px solid rgba(52,211,153,0.45)', background: 'rgba(52,211,153,0.08)', boxShadow: '0 0 16px rgba(52,211,153,0.2)' }}>
+              <CheckCircle2 className="w-4 h-4" style={{ color: '#34d399', filter: 'drop-shadow(0 0 6px rgba(52,211,153,1))' }} />
+              <span className="text-xs font-semibold font-mono-cyber tracking-wider" style={{ color: '#6ee7b7', textShadow: '0 0 8px rgba(52,211,153,0.7)' }}>sistema ok</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-orange-500/25 bg-orange-500/8 animate-pulse">
-              <Bell className="w-4 h-4 text-orange-400" />
-              <span className="text-xs font-semibold font-mono-cyber" style={{ color: '#fcd34d' }}>{alerts.length} alerta{alerts.length > 1 ? "s" : ""}</span>
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl animate-pulse"
+              style={{ border: '1px solid rgba(245,158,11,0.45)', background: 'rgba(245,158,11,0.08)', boxShadow: '0 0 16px rgba(245,158,11,0.2)' }}>
+              <Bell className="w-4 h-4" style={{ color: '#fbbf24', filter: 'drop-shadow(0 0 5px rgba(245,158,11,0.9))' }} />
+              <span className="text-xs font-semibold font-mono-cyber" style={{ color: '#fcd34d', textShadow: '0 0 8px rgba(245,158,11,0.8)' }}>{alerts.length} alerta{alerts.length > 1 ? "s" : ""}</span>
             </div>
           )}
         </div>
@@ -177,37 +187,37 @@ export default function Dashboard() {
             transition={{ duration: 0.18 }}
             className="relative rounded-xl p-5 border overflow-hidden cursor-default"
             style={{
-              background: `linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)`,
-              borderColor: `${s.accent}50`,
-              boxShadow: `0 4px 28px rgba(0,0,0,0.5), 0 0 20px ${s.accent}12, inset 0 1px 0 ${s.accent}20`,
+              background: `linear-gradient(145deg, rgba(${s.accent === '#a855f7' ? '168,85,247' : s.accent === '#06b6d4' ? '6,182,212' : s.accent === '#f59e0b' ? '245,158,11' : '236,72,153'},0.10) 0%, var(--bg-void) 100%)`,
+              borderColor: s.accent,
+              boxShadow: `0 0 24px ${s.accent}40, 0 0 48px ${s.accent}18, 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 ${s.accent}40`,
             }}>
-            {/* Top glow line */}
-            <div className="absolute top-0 left-0 right-0 h-px"
-              style={{ background: `linear-gradient(90deg, transparent, ${s.accent}dd, transparent)` }} />
+            {/* Top glow line — full neon */}
+            <div className="absolute top-0 left-0 right-0 h-[2px]"
+              style={{ background: `linear-gradient(90deg, transparent, ${s.accent}, transparent)`, boxShadow: `0 0 10px ${s.accent}, 0 0 20px ${s.accent}80` }} />
             {/* Tech corner TL */}
-            <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none"
-              style={{ borderTop: `1.5px solid ${s.accent}cc`, borderLeft: `1.5px solid ${s.accent}cc` }} />
+            <div className="absolute top-0 left-0 w-4 h-4 pointer-events-none"
+              style={{ borderTop: `2px solid ${s.accent}`, borderLeft: `2px solid ${s.accent}`, boxShadow: `-2px -2px 8px ${s.accent}60` }} />
             {/* Tech corner BR */}
-            <div className="absolute bottom-0 right-0 w-3 h-3 pointer-events-none"
-              style={{ borderBottom: `1.5px solid ${s.accent}55`, borderRight: `1.5px solid ${s.accent}55` }} />
-            {/* Corner dot */}
-            <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full"
-              style={{ background: s.accent, boxShadow: `0 0 8px ${s.accent}, 0 0 14px ${s.accent}88` }} />
+            <div className="absolute bottom-0 right-0 w-4 h-4 pointer-events-none"
+              style={{ borderBottom: `1.5px solid ${s.accent}80`, borderRight: `1.5px solid ${s.accent}80` }} />
+            {/* Corner pulse dot */}
+            <div className="absolute top-3 right-3 w-2 h-2 rounded-full neon-dot"
+              style={{ background: s.accent, boxShadow: `0 0 8px ${s.accent}, 0 0 18px ${s.accent}` }} />
             {/* BG icon watermark */}
-            <s.icon className="absolute bottom-2 right-2 w-10 h-10 opacity-5" style={{ color: s.accent }} />
+            <s.icon className="absolute bottom-1 right-1 w-14 h-14 opacity-[0.04]" style={{ color: s.accent }} />
 
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ background: `${s.accent}18`, border: `1px solid ${s.accent}35` }}>
-                <s.icon className="w-4 h-4" style={{ color: s.accent, filter: `drop-shadow(0 0 4px ${s.accent})` }} />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: `${s.accent}22`, border: `1px solid ${s.accent}70`, boxShadow: `0 0 14px ${s.accent}40, inset 0 0 8px ${s.accent}18` }}>
+                <s.icon className="w-4.5 h-4.5" style={{ color: '#ffffff', filter: `drop-shadow(0 0 6px ${s.accent}) drop-shadow(0 0 12px ${s.accent})` }} />
               </div>
             </div>
             <p className="font-cyber text-4xl font-black leading-none"
-              style={{ color: s.accent, textShadow: `0 0 24px ${s.accent}, 0 0 48px ${s.accent}50` }}>
+              style={{ color: '#ffffff', textShadow: `0 0 20px ${s.accent}, 0 0 50px ${s.accent}80, 0 0 80px ${s.accent}40` }}>
               {s.value}
             </p>
             <p className="text-[11px] mt-2 font-mono-cyber tracking-wider uppercase font-semibold"
-              style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
+              style={{ color: s.accent, textShadow: `0 0 8px ${s.accent}80`, opacity: 0.9 }}>
               {s.label}
             </p>
           </motion.div>
