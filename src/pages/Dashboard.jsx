@@ -100,15 +100,15 @@ export default function Dashboard() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" style={{ boxShadow: '0 0 6px rgba(52,211,153,0.9)' }} />
-              <p className="text-[10px] font-mono-cyber tracking-[0.4em] uppercase" style={{ color: 'rgba(192,132,252,0.6)' }}>
+              <p className="text-[10px] font-mono-cyber tracking-[0.4em] uppercase" style={{ color: 'color-mix(in srgb, var(--neon-purple) 80%, white)' }}>
                 ◈ {todayDate}
               </p>
             </div>
             <h1 className="font-cyber text-4xl md:text-5xl font-black tracking-widest leading-none"
               style={{
-                background: 'linear-gradient(135deg, #ffffff 0%, #e9d5ff 40%, #7dd3fc 100%)',
+                background: 'linear-gradient(135deg, #ffffff 0%, var(--neon-purple) 60%, var(--neon-cyan) 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 0 30px rgba(168,85,247,0.4))',
+                filter: 'drop-shadow(0 0 24px color-mix(in srgb, var(--neon-purple) 60%, transparent))',
               }}>
               {greeting},
             </h1>
@@ -119,7 +119,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-2 mt-3">
               <Shield className="w-3.5 h-3.5" style={{ color: 'var(--neon-cyan)' }} />
               <span className="text-xs font-mono-cyber tracking-widest uppercase"
-                style={{ color: 'color-mix(in srgb, var(--neon-cyan) 70%, transparent)' }}>
+                style={{ color: 'color-mix(in srgb, var(--neon-cyan) 90%, white)' }}>
                 {isPersonal ? "personal trainer" : "administrador"}
               </span>
             </div>
@@ -128,12 +128,12 @@ export default function Dashboard() {
             <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-emerald-500/25 bg-emerald-500/8"
               style={{ boxShadow: '0 0 20px rgba(52,211,153,0.08)' }}>
               <CheckCircle2 className="w-4 h-4 text-emerald-400" style={{ filter: 'drop-shadow(0 0 5px rgba(52,211,153,0.8))' }} />
-              <span className="text-xs text-emerald-300 font-mono-cyber tracking-wider">sistema ok</span>
+              <span className="text-xs font-semibold font-mono-cyber tracking-wider" style={{ color: '#6ee7b7' }}>sistema ok</span>
             </div>
           ) : (
             <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-orange-500/25 bg-orange-500/8 animate-pulse">
               <Bell className="w-4 h-4 text-orange-400" />
-              <span className="text-xs text-orange-300 font-mono-cyber">{alerts.length} alerta{alerts.length > 1 ? "s" : ""}</span>
+              <span className="text-xs font-semibold font-mono-cyber" style={{ color: '#fcd34d' }}>{alerts.length} alerta{alerts.length > 1 ? "s" : ""}</span>
             </div>
           )}
         </div>
@@ -159,7 +159,7 @@ export default function Dashboard() {
                   boxShadow: `0 0 8px ${alert.color === "yellow" ? "rgba(245,158,11,0.9)" : "rgba(6,182,212,0.9)"}`,
                 }} />
               <alert.icon className="w-4 h-4 flex-shrink-0" style={{ color: alert.color === "yellow" ? "#fbbf24" : "#22d3ee" }} />
-              <span className="text-sm flex-1 font-semibold" style={{ color: alert.color === "yellow" ? "#fde68a" : "#a5f3fc" }}>
+              <span className="text-sm flex-1 font-semibold" style={{ color: alert.color === "yellow" ? "#fcd34d" : "#67e8f9" }}>
                 {alert.text}
               </span>
               <ChevronRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all"
@@ -197,11 +197,11 @@ export default function Dashboard() {
               </div>
             </div>
             <p className="font-cyber text-4xl font-black leading-none"
-              style={{ color: s.accent, textShadow: `0 0 20px ${s.accent}70` }}>
+              style={{ color: s.accent, textShadow: `0 0 20px ${s.accent}` }}>
               {s.value}
             </p>
-            <p className="text-[11px] mt-2 font-mono-cyber tracking-wider uppercase"
-              style={{ color: 'color-mix(in srgb, var(--text-secondary) 50%, transparent)' }}>
+            <p className="text-[11px] mt-2 font-mono-cyber tracking-wider uppercase font-semibold"
+              style={{ color: 'var(--text-secondary)' }}>
               {s.label}
             </p>
           </motion.div>
@@ -213,7 +213,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-3 mb-4">
           <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, color-mix(in srgb, var(--neon-purple) 50%, transparent), transparent)' }} />
           <p className="text-[10px] font-mono-cyber uppercase tracking-[0.35em]"
-            style={{ color: 'color-mix(in srgb, var(--neon-purple) 60%, transparent)' }}>▸ acesso rápido</p>
+            style={{ color: 'color-mix(in srgb, var(--neon-purple) 90%, white)' }}>▸ acesso rápido</p>
           <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-cyan) 30%, transparent))' }} />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -249,7 +249,7 @@ export default function Dashboard() {
                     }} />
                 </div>
                 <span className="relative text-xs font-semibold text-center leading-tight transition-colors duration-200 group-hover:text-white"
-                  style={{ color: 'color-mix(in srgb, var(--text-primary) 65%, transparent)' }}>
+                  style={{ color: 'var(--text-primary)' }}>
                   {a.label}
                 </span>
               </Link>
