@@ -348,8 +348,8 @@ function NavOverlay({ open, onClose, navGroups, currentPageName, userName }) {
                     className="rounded-2xl p-3 relative overflow-hidden"
                     style={{
                       background: `linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)`,
-                      border: `1px solid ${group.color}30`,
-                      boxShadow: `0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 ${group.color}18`,
+                      border: `1px solid ${group.color}45`,
+                      boxShadow: `0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 ${group.color}25, 0 0 12px ${group.color}08`,
                     }}
                   >
                     {/* Reflexo sutil no topo do card */}

@@ -78,9 +78,9 @@ export default function Dashboard() {
       {/* ═══ HERO HEADER ═══ */}
       <motion.div variants={fadeUp} className="relative rounded-2xl overflow-hidden p-6 md:p-8"
         style={{
-          background: `linear-gradient(135deg, color-mix(in srgb, var(--bg-card) 98%, transparent) 0%, color-mix(in srgb, var(--bg-card2) 98%, transparent) 50%, color-mix(in srgb, var(--bg-void) 98%, transparent) 100%)`,
-          border: '1px solid color-mix(in srgb, var(--neon-purple) 20%, transparent)',
-          boxShadow: '0 0 60px color-mix(in srgb, var(--neon-purple) 8%, transparent), inset 0 1px 0 color-mix(in srgb, var(--neon-purple) 15%, transparent)',
+          background: `linear-gradient(135deg, color-mix(in srgb, var(--bg-card) 96%, transparent) 0%, color-mix(in srgb, var(--bg-card2) 95%, transparent) 50%, color-mix(in srgb, var(--bg-void) 98%, transparent) 100%)`,
+          border: '1px solid color-mix(in srgb, var(--neon-purple) 35%, transparent)',
+          boxShadow: '0 0 80px color-mix(in srgb, var(--neon-purple) 15%, transparent), 0 4px 40px rgba(0,0,0,0.5), inset 0 1px 0 color-mix(in srgb, var(--neon-purple) 25%, transparent)',
         }}>
         {/* Background glow orbs */}
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
@@ -91,10 +91,10 @@ export default function Dashboard() {
         <div className="absolute top-0 left-0 right-0 h-px"
           style={{ background: 'linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--neon-purple) 80%, transparent) 30%, color-mix(in srgb, var(--neon-cyan) 60%, transparent) 70%, transparent 100%)' }} />
         {/* Corner accents */}
-        <div className="absolute top-3 left-3 w-4 h-4 border-t border-l rounded-tl" style={{ borderColor: 'color-mix(in srgb, var(--neon-purple) 50%, transparent)' }} />
-        <div className="absolute top-3 right-3 w-4 h-4 border-t border-r rounded-tr" style={{ borderColor: 'color-mix(in srgb, var(--neon-cyan) 50%, transparent)' }} />
-        <div className="absolute bottom-3 left-3 w-4 h-4 border-b border-l rounded-bl" style={{ borderColor: 'color-mix(in srgb, var(--neon-purple) 30%, transparent)' }} />
-        <div className="absolute bottom-3 right-3 w-4 h-4 border-b border-r rounded-br" style={{ borderColor: 'color-mix(in srgb, var(--neon-cyan) 30%, transparent)' }} />
+        <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2" style={{ borderColor: 'color-mix(in srgb, var(--neon-purple) 75%, transparent)', borderRadius: '2px 0 0 0' }} />
+        <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2" style={{ borderColor: 'color-mix(in srgb, var(--neon-cyan) 75%, transparent)', borderRadius: '0 2px 0 0' }} />
+        <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2" style={{ borderColor: 'color-mix(in srgb, var(--neon-purple) 50%, transparent)', borderRadius: '0 0 0 2px' }} />
+        <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2" style={{ borderColor: 'color-mix(in srgb, var(--neon-cyan) 50%, transparent)', borderRadius: '0 0 2px 0' }} />
 
         <div className="relative flex items-start justify-between flex-wrap gap-4">
           <div>
@@ -177,9 +177,9 @@ export default function Dashboard() {
             transition={{ duration: 0.18 }}
             className="relative rounded-xl p-5 border overflow-hidden cursor-default"
             style={{
-              background: `linear-gradient(145deg, rgba(6,4,18,0.98), rgba(3,2,12,0.99))`,
-              borderColor: `${s.accent}30`,
-              boxShadow: `0 4px 24px rgba(0,0,0,0.4), 0 0 0 0 ${s.glow}`,
+              background: `linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)`,
+              borderColor: `${s.accent}45`,
+              boxShadow: `0 4px 28px rgba(0,0,0,0.5), 0 0 20px ${s.accent}10, inset 0 1px 0 ${s.accent}15`,
             }}>
             {/* Top glow line */}
             <div className="absolute top-0 left-0 right-0 h-px"
@@ -197,11 +197,11 @@ export default function Dashboard() {
               </div>
             </div>
             <p className="font-cyber text-4xl font-black leading-none"
-              style={{ color: s.accent, textShadow: `0 0 20px ${s.accent}` }}>
+              style={{ color: s.accent, textShadow: `0 0 24px ${s.accent}, 0 0 48px ${s.accent}50` }}>
               {s.value}
             </p>
             <p className="text-[11px] mt-2 font-mono-cyber tracking-wider uppercase font-semibold"
-              style={{ color: 'var(--text-secondary)' }}>
+              style={{ color: 'var(--text-primary)', opacity: 0.85 }}>
               {s.label}
             </p>
           </motion.div>
@@ -222,9 +222,9 @@ export default function Dashboard() {
               <Link to={a.path}
                 className="relative flex flex-col items-center gap-3 p-5 rounded-xl border transition-all group overflow-hidden block"
                 style={{
-                  borderColor: `${a.accent}25`,
-                  background: `linear-gradient(145deg, rgba(7,5,20,0.98), rgba(4,2,14,0.99))`,
-                  boxShadow: `0 4px 20px rgba(0,0,0,0.3)`,
+                  borderColor: `${a.accent}40`,
+                  background: `linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)`,
+                  boxShadow: `0 4px 24px rgba(0,0,0,0.45), inset 0 1px 0 ${a.accent}12`,
                 }}>
                 {/* Hover glow */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
@@ -249,7 +249,7 @@ export default function Dashboard() {
                     }} />
                 </div>
                 <span className="relative text-xs font-semibold text-center leading-tight transition-colors duration-200 group-hover:text-white"
-                  style={{ color: 'var(--text-primary)' }}>
+                  style={{ color: 'var(--text-primary)', textShadow: 'none' }}>
                   {a.label}
                 </span>
               </Link>
