@@ -7,7 +7,7 @@ import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer,
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
-  Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase
+  Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase, Palette
 } from "lucide-react";
 import NotificationBell from "./components/notifications/NotificationBell";
 import CyberNav from "./components/navigation/CyberNav";
@@ -54,6 +54,7 @@ const adminNavGroups = [
   ]},
   { label: "Ferramentas", color: "#8b5cf6", items: [
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+    { name: "Temas do App", icon: Palette, page: "AppThemes" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
 ];
@@ -96,6 +97,7 @@ const personalNavGroups = [
   ]},
   { label: "Ferramentas", color: "#8b5cf6", items: [
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+    { name: "Temas do App", icon: Palette, page: "AppThemes" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
 ];
@@ -112,6 +114,7 @@ const subscriberNavGroups = [
     { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
   ]},
   { label: "Conta", color: "#8b5cf6", items: [
+    { name: "Temas do App", icon: Palette, page: "AppThemes" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
 ];
@@ -140,6 +143,7 @@ const studentNavGroups = [
   ]},
   { label: "Conta", color: "#8b5cf6", items: [
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
+    { name: "Temas do App", icon: Palette, page: "AppThemes" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
 ];

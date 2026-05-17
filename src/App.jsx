@@ -28,6 +28,8 @@ import Profile from './pages/Profile.jsx';
 import StudentDocuments from './pages/StudentDocuments';
 import LearnExercises from './pages/LearnExercises';
 import { base44 } from '@/api/base44Client';
+import { ThemeProvider } from '@/lib/ThemeContext';
+import AppThemes from './pages/AppThemes';
 import { useState, useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -98,6 +100,7 @@ const AuthenticatedApp = () => {
       <Route path="/MyWorkout" element={<LayoutWrapper currentPageName="MyWorkout"><MyWorkout /></LayoutWrapper>} />
       <Route path="/ExerciseLibrary" element={<LayoutWrapper currentPageName="ExerciseLibrary"><ExerciseLibrary /></LayoutWrapper>} />
       <Route path="/MyDiet" element={<LayoutWrapper currentPageName="MyDiet"><MyDiet /></LayoutWrapper>} />
+      <Route path="/AppThemes" element={<LayoutWrapper currentPageName="AppThemes"><AppThemes /></LayoutWrapper>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>;
   }
@@ -116,6 +119,7 @@ const AuthenticatedApp = () => {
       return <Routes>
         <Route path="/Welcome" element={<Welcome />} />
         <Route path="/Chat" element={<LayoutWrapper currentPageName="Chat"><Chat /></LayoutWrapper>} />
+        <Route path="/AppThemes" element={<LayoutWrapper currentPageName="AppThemes"><AppThemes /></LayoutWrapper>} />
         <Route path="*" element={<Navigate to="/Welcome" replace />} />
       </Routes>;
     }
@@ -156,6 +160,7 @@ const AuthenticatedApp = () => {
       <Route path="/ClassCalendar" element={<LayoutWrapper currentPageName="ClassCalendar"><ClassCalendar /></LayoutWrapper>} />
       <Route path="/ConsultancyBilling" element={<LayoutWrapper currentPageName="ConsultancyBilling"><ConsultancyBilling /></LayoutWrapper>} />
       <Route path="/SubscriberDashboard" element={<LayoutWrapper currentPageName="SubscriberDashboard"><SubscriberDashboard /></LayoutWrapper>} />
+      <Route path="/AppThemes" element={<LayoutWrapper currentPageName="AppThemes"><AppThemes /></LayoutWrapper>} />
       <Route path="/AccessDenied" element={<AccessDenied />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
@@ -167,6 +172,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <ThemeProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <AuthenticatedApp />
@@ -174,6 +180,7 @@ function App() {
         <Toaster />
         <Sonner richColors position="top-right" />
       </QueryClientProvider>
+      </ThemeProvider>
     </AuthProvider>
   )
 }

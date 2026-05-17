@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Users, UserCircle, Search, Link2, Link2Off, UserCog, Shield, Loader2, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
+import { Users, UserCircle, Search, Link2, Link2Off, UserCog, Shield, Loader2, ChevronDown, ChevronUp, RefreshCw, Palette } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
+import AdminThemeManager from "@/components/themes/AdminThemeManager";
 import { toast } from "sonner";
 
 export default function PersonalManagement() {
@@ -281,6 +282,21 @@ export default function PersonalManagement() {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* ── Gerenciar Temas ──────────────────────────────────────── */}
+      <div className="mt-8">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(168,85,247,0.4), transparent)" }} />
+          <p className="text-[9px] uppercase tracking-[0.28em] font-bold font-mono-cyber whitespace-nowrap"
+            style={{ color: "#a855f7", textShadow: "0 0 6px #a855f7" }}>
+            Gerenciar Temas dos Usuários
+          </p>
+          <div className="h-px flex-1" style={{ background: "linear-gradient(270deg, rgba(168,85,247,0.4), transparent)" }} />
+        </div>
+        <div className="cyber-card rounded-xl border border-purple-900/20 p-5">
+          <AdminThemeManager />
         </div>
       </div>
 
