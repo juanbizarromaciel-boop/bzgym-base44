@@ -171,34 +171,36 @@ export default function Layout({ children, currentPageName }) {
           to={createPageUrl(item.page)}
           className="relative flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 mx-2"
           style={isActive ? {
-            background: `color-mix(in srgb, var(--neon-purple) 12%, transparent)`,
-            border: `1px solid color-mix(in srgb, var(--neon-purple) 35%, transparent)`,
-            boxShadow: `0 0 10px color-mix(in srgb, var(--neon-purple) 18%, transparent)`,
+            background: `color-mix(in srgb, var(--neon-purple) 18%, transparent)`,
+            border: `1px solid color-mix(in srgb, var(--neon-purple) 60%, transparent)`,
+            boxShadow: `0 0 18px color-mix(in srgb, var(--neon-purple) 35%, transparent), inset 0 0 10px color-mix(in srgb, var(--neon-purple) 10%, transparent)`,
           } : {
             border: '1px solid transparent',
           }}
         >
           {isActive && (
             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r-full"
-              style={{ background: 'var(--neon-purple)', boxShadow: `0 0 7px var(--neon-purple)` }} />
+              style={{ background: 'var(--neon-purple)', boxShadow: `0 0 10px var(--neon-purple), 0 0 20px color-mix(in srgb, var(--neon-purple) 50%, transparent)` }} />
           )}
           <item.icon
             className="w-3.5 h-3.5 flex-shrink-0"
             style={{
-              color: isActive ? '#fff' : 'color-mix(in srgb, var(--neon-purple) 80%, white)',
-              filter: isActive ? `drop-shadow(0 0 4px #fff) drop-shadow(0 0 7px var(--neon-purple))` : `drop-shadow(0 0 3px color-mix(in srgb, var(--neon-purple) 55%, transparent))`,
+              color: isActive ? '#fff' : 'color-mix(in srgb, var(--neon-purple) 85%, white)',
+              filter: isActive
+                ? `drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px var(--neon-purple)) drop-shadow(0 0 18px color-mix(in srgb, var(--neon-purple) 60%, transparent))`
+                : `drop-shadow(0 0 4px color-mix(in srgb, var(--neon-purple) 65%, transparent))`,
             }}
           />
           <span className="text-xs font-medium leading-tight"
             style={{
               color: isActive ? '#ffffff' : 'var(--text-primary)',
-              textShadow: isActive ? `0 0 8px var(--neon-purple), 0 0 18px color-mix(in srgb, var(--neon-purple) 88%, transparent)` : 'none',
+              textShadow: isActive ? `0 0 10px var(--neon-purple), 0 0 22px color-mix(in srgb, var(--neon-purple) 70%, transparent)` : 'none',
             }}>
             {item.name}
           </span>
           {isActive && (
             <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
-              style={{ background: 'var(--neon-purple)', boxShadow: `0 0 6px var(--neon-purple)` }} />
+              style={{ background: 'var(--neon-purple)', boxShadow: `0 0 8px var(--neon-purple), 0 0 16px color-mix(in srgb, var(--neon-purple) 50%, transparent)` }} />
           )}
         </Link>
       </motion.div>
@@ -208,23 +210,26 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-grid text-white" style={{ backgroundColor: 'var(--bg-void)', color: 'var(--text-primary)' }}>
 
-      {/* Mobile Header — apenas no mobile, usando CyberNav */}
+      {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 backdrop-blur-md px-4 py-3 flex items-center justify-between"
-        style={{ background: 'color-mix(in srgb, var(--bg-void) 97%, transparent)', borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 20%, transparent)' }}>
+        style={{
+          background: 'color-mix(in srgb, var(--bg-void) 95%, transparent)',
+          borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 40%, transparent)',
+          boxShadow: '0 2px 20px color-mix(in srgb, var(--neon-purple) 15%, transparent)'
+        }}>
         <div className="flex items-baseline gap-0.5 px-2 py-1 rounded-lg"
           style={{
-            border: '1px solid color-mix(in srgb, var(--neon-purple) 45%, transparent)',
-            background: 'color-mix(in srgb, var(--neon-purple) 8%, transparent)',
-            boxShadow: '0 0 12px color-mix(in srgb, var(--neon-purple) 25%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--neon-purple) 65%, transparent)',
+            background: 'color-mix(in srgb, var(--neon-purple) 12%, transparent)',
+            boxShadow: '0 0 20px color-mix(in srgb, var(--neon-purple) 40%, transparent), inset 0 0 8px color-mix(in srgb, var(--neon-purple) 10%, transparent)',
           }}>
           <span className="font-cyber font-black text-2xl leading-none select-none italic"
-            style={{ color: '#ffffff', textShadow: '0 0 8px var(--neon-purple), 0 0 2px #fff' }}>B</span>
+            style={{ color: '#ffffff', textShadow: '0 0 14px var(--neon-purple), 0 0 30px color-mix(in srgb, var(--neon-purple) 50%, transparent), 0 0 2px #fff' }}>B</span>
           <span className="font-cyber font-black text-2xl leading-none select-none italic"
-            style={{ color: 'var(--neon-purple)', textShadow: '0 0 10px var(--neon-purple)' }}>Z</span>
+            style={{ color: 'var(--neon-purple)', textShadow: '0 0 18px var(--neon-purple), 0 0 40px color-mix(in srgb, var(--neon-purple) 55%, transparent)' }}>Z</span>
         </div>
         <div className="flex items-center gap-2">
           <NotificationBell />
-          {/* ⚡ CyberNav — substitui o menu de 3 traços */}
           <CyberNav role={role} currentPageName={currentPageName} userName={userName} />
         </div>
       </div>
@@ -232,42 +237,46 @@ export default function Layout({ children, currentPageName }) {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex fixed top-0 left-0 h-full w-60 z-40 flex-col border-r"
         style={{
-          background: `linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 99%, transparent) 0%, color-mix(in srgb, var(--bg-void) 99%, transparent) 100%)`,
-          borderColor: 'color-mix(in srgb, var(--neon-purple) 28%, transparent)',
-          boxShadow: '4px 0 40px rgba(0,0,0,0.7), inset -1px 0 0 color-mix(in srgb, var(--neon-purple) 15%, transparent), 2px 0 20px color-mix(in srgb, var(--neon-purple) 5%, transparent)'
+          background: `linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 97%, transparent) 0%, color-mix(in srgb, var(--bg-void) 99%, transparent) 100%)`,
+          borderColor: 'color-mix(in srgb, var(--neon-purple) 55%, transparent)',
+          boxShadow: '4px 0 40px rgba(0,0,0,0.8), inset -1px 0 0 color-mix(in srgb, var(--neon-purple) 40%, transparent), 3px 0 30px color-mix(in srgb, var(--neon-purple) 18%, transparent), 0 0 60px color-mix(in srgb, var(--neon-purple) 8%, transparent)'
         }}>
 
         {/* Logo */}
-        <div className="px-5 py-4" style={{ borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 15%, transparent)' }}>
+        <div className="px-5 py-4" style={{ borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 35%, transparent)' }}>
           <div className="flex items-baseline gap-1 px-2.5 py-1.5 rounded-xl"
             style={{
-              border: '1px solid color-mix(in srgb, var(--neon-purple) 45%, transparent)',
-              background: 'color-mix(in srgb, var(--neon-purple) 8%, transparent)',
-              boxShadow: '0 0 16px color-mix(in srgb, var(--neon-purple) 25%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--neon-purple) 72%, transparent)',
+              background: 'color-mix(in srgb, var(--neon-purple) 15%, transparent)',
+              boxShadow: '0 0 28px color-mix(in srgb, var(--neon-purple) 55%, transparent), inset 0 0 14px color-mix(in srgb, var(--neon-purple) 12%, transparent)',
             }}>
             <span className="font-cyber font-black text-3xl leading-none select-none italic"
-              style={{ color: '#ffffff', textShadow: '0 0 10px var(--neon-purple), 0 0 2px #fff' }}>B</span>
+              style={{ color: '#ffffff', textShadow: '0 0 16px var(--neon-purple), 0 0 36px color-mix(in srgb, var(--neon-purple) 60%, transparent), 0 0 3px #fff' }}>B</span>
             <span className="font-cyber font-black text-3xl leading-none select-none italic"
-              style={{ color: 'var(--neon-purple)', textShadow: '0 0 12px var(--neon-purple)' }}>Z</span>
+              style={{ color: 'var(--neon-purple)', textShadow: '0 0 20px var(--neon-purple), 0 0 48px color-mix(in srgb, var(--neon-purple) 65%, transparent), 0 0 72px color-mix(in srgb, var(--neon-purple) 30%, transparent)' }}>Z</span>
             <span className="ml-1.5 text-[9px] font-mono-cyber tracking-widest uppercase self-end pb-0.5"
-              style={{ color: 'color-mix(in srgb, var(--neon-purple) 55%, white)' }}>GYM</span>
+              style={{ color: 'color-mix(in srgb, var(--neon-purple) 90%, white)', textShadow: '0 0 10px var(--neon-purple)' }}>GYM</span>
           </div>
         </div>
 
         {/* Role Badge */}
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 15%, transparent)' }}>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 30%, transparent)' }}>
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg border"
-            style={{ borderColor: 'color-mix(in srgb, var(--neon-purple) 35%, transparent)', background: 'color-mix(in srgb, var(--neon-purple) 12%, transparent)', boxShadow: '0 0 12px color-mix(in srgb, var(--neon-purple) 10%, transparent)' }}>
+            style={{
+              borderColor: 'color-mix(in srgb, var(--neon-purple) 55%, transparent)',
+              background: 'color-mix(in srgb, var(--neon-purple) 16%, transparent)',
+              boxShadow: '0 0 18px color-mix(in srgb, var(--neon-purple) 25%, transparent), inset 0 0 10px color-mix(in srgb, var(--neon-purple) 8%, transparent)'
+            }}>
             <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-              style={{ background: 'var(--neon-purple)', boxShadow: '0 0 6px var(--neon-purple)' }} />
+              style={{ background: 'var(--neon-purple)', boxShadow: '0 0 8px var(--neon-purple), 0 0 16px color-mix(in srgb, var(--neon-purple) 50%, transparent)' }} />
             <span className="text-[10px] font-medium tracking-widest uppercase"
-              style={{ color: 'color-mix(in srgb, var(--neon-purple) 90%, white)' }}>
+              style={{ color: '#ffffff', textShadow: '0 0 8px var(--neon-purple)' }}>
               {isAdmin ? "Administrador" : isPersonal ? "Personal Trainer" : isSubscriber ? "Assinante" : "Aluno"}
             </span>
           </div>
           {userName && (
             <p className="text-[10px] mt-2 px-1 truncate font-mono-cyber"
-              style={{ color: 'color-mix(in srgb, var(--text-primary) 55%, transparent)' }}>{userName}</p>
+              style={{ color: 'color-mix(in srgb, var(--neon-purple) 75%, white)' }}>{userName}</p>
           )}
         </div>
 
@@ -277,11 +286,11 @@ export default function Layout({ children, currentPageName }) {
             <div key={group.label} className="mb-3">
               <div className="flex items-center gap-1.5 px-5 mb-1.5">
                 <div className="h-px flex-1"
-                  style={{ background: `linear-gradient(90deg, color-mix(in srgb, var(--neon-purple) 55%, transparent), transparent)` }} />
+                  style={{ background: `linear-gradient(90deg, color-mix(in srgb, ${group.color} 70%, transparent), transparent)` }} />
                 <p className="text-[8px] uppercase tracking-[0.28em] font-bold font-mono-cyber whitespace-nowrap"
                   style={{
-                    color: 'var(--neon-purple)',
-                    textShadow: `0 0 6px var(--neon-purple), 0 0 14px color-mix(in srgb, var(--neon-purple) 55%, transparent)`,
+                    color: group.color,
+                    textShadow: `0 0 8px ${group.color}, 0 0 18px ${group.color}88`,
                   }}>
                   {group.label}
                 </p>
@@ -295,10 +304,10 @@ export default function Layout({ children, currentPageName }) {
           ))}
         </nav>
 
-        <div className="h-px mx-4" style={{ background: 'linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-purple) 30%, transparent), transparent)' }} />
+        <div className="h-px mx-4" style={{ background: 'linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-purple) 50%, transparent), transparent)' }} />
         <div className="p-3 flex items-center justify-center">
           <p className="text-[9px] font-mono-cyber tracking-widest"
-            style={{ color: 'color-mix(in srgb, var(--neon-purple) 45%, white)' }}>BZ · GYM SYSTEM</p>
+            style={{ color: 'color-mix(in srgb, var(--neon-purple) 70%, white)', textShadow: '0 0 8px var(--neon-purple)' }}>BZ · GYM SYSTEM</p>
         </div>
       </aside>
 
