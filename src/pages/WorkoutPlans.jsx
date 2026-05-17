@@ -157,16 +157,46 @@ export default function WorkoutPlans() {
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger}>
-      <PageHeader
-        title="Treinos"
-        accentColor="#ec4899"
-        subtitle="Monte treinos personalizados para seus alunos"
-        action={
-          <button onClick={() => setPlanDialogOpen(true)} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium tracking-wider flex items-center gap-2">
-            <Plus className="w-4 h-4" /> NOVO TREINO
+      {/* Custom Cyber Header */}
+      <div className="mb-8 relative">
+        {/* Top decorative line */}
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(236,72,153,0.8), transparent)' }} />
+        
+        {/* Main header content */}
+        <div className="flex items-center justify-between py-6">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-8" style={{ background: 'linear-gradient(to bottom, #ec4899, #a855f7)', borderRadius: '2px', boxShadow: '0 0 12px rgba(236,72,153,0.6)' }} />
+              <h1 className="text-3xl font-black font-cyber tracking-wider" style={{ color: '#ffffff', textShadow: '0 0 20px rgba(236,72,153,0.5), 0 0 40px rgba(168,85,247,0.3)' }}>
+                TREINOS
+              </h1>
+            </div>
+            <p className="text-sm font-mono-cyber" style={{ color: 'rgba(236,72,153,0.7)', textShadow: '0 0 8px rgba(236,72,153,0.4)', paddingLeft: '14px' }}>
+              Monte treinos personalizados para seus alunos
+            </p>
+          </div>
+
+          <button
+            onClick={() => setPlanDialogOpen(true)}
+            className="relative px-5 py-3 rounded-xl font-medium tracking-wider flex items-center gap-2 overflow-hidden group"
+            style={{
+              background: 'linear-gradient(135deg, rgba(236,72,153,0.2), rgba(168,85,247,0.15))',
+              border: '1px solid rgba(236,72,153,0.6)',
+              boxShadow: '0 0 20px rgba(236,72,153,0.25), inset 0 0 12px rgba(236,72,153,0.08)'
+            }}
+          >
+            {/* Hover glow effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.3), rgba(168,85,247,0.25))' }} />
+            
+            <Plus className="w-5 h-5 relative z-10" style={{ color: '#ec4899', filter: 'drop-shadow(0 0 6px rgba(236,72,153,0.8))' }} />
+            <span className="text-sm font-bold relative z-10" style={{ color: '#ffffff', textShadow: '0 0 8px rgba(236,72,153,0.5)' }}>NOVO TREINO</span>
           </button>
-        }
-      />
+        </div>
+
+        {/* Bottom decorative line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(236,72,153,0.8), rgba(168,85,247,0.6), transparent)' }} />
+      </div>
 
       <motion.div variants={fadeUp} className="mb-6 flex items-center gap-3">
         <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)' }} />
