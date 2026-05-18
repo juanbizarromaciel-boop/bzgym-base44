@@ -32,6 +32,7 @@ const adminNavGroups = [
   ]},
   { label: "Nutrição", color: "#10b981", items: [
     { name: "Dietas", icon: Utensils, page: "Diet" },
+    { name: "Histórico de Dietas", icon: ClipboardList, page: "DietLogs" },
     { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
   ]},
   { label: "Comunicação", color: "#06b6d4", items: [
@@ -78,6 +79,7 @@ const personalNavGroups = [
   ]},
   { label: "Nutrição", color: "#10b981", items: [
     { name: "Dietas", icon: Utensils, page: "Diet" },
+    { name: "Histórico de Dietas", icon: ClipboardList, page: "DietLogs" },
     { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
   ]},
   { label: "Comunicação", color: "#06b6d4", items: [
