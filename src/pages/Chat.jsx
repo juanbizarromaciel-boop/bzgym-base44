@@ -34,11 +34,14 @@ export default function Chat() {
 
   const isTrainer = user?.role === "admin" || user?.role === "personal";
 
-  const { data: students = [] } = useQuery({
+  const { data: allStudentsChat = [] } = useQuery({
     queryKey: ["students"],
     queryFn: () => base44.entities.Student.list(),
     enabled: isTrainer,
   });
+  const students = (user?.role === "personal")
+    ? allStudentsChat.filter(s => s.personal_id === user?.email)
+    : allStudentsChat;
 
   const activeStudentId = isTrainer ? selectedStudentId : student?.id;
 

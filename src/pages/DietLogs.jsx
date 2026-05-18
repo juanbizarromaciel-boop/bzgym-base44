@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,14 +21,25 @@ export default function DietLogs() {
   const [expandedStudent, setExpandedStudent] = useState(null); // studentId
   const [expandedPlan, setExpandedPlan] = useState(null); // planId
 
-  const { data: students = [] } = useQuery({
+  const [currentUser, setCurrentUser] = useState(null);
+  useEffect(() => { base44.auth.me().then(setCurrentUser).catch(() => {}); }, []);
+
+  const { data: allStudentsDL = [] } = useQuery({
     queryKey: ["students"],
     queryFn: () => base44.entities.Student.list(),
   });
-  const { data: plans = [] } = useQuery({
+  const { data: allPlansDL = [] } = useQuery({
     queryKey: ["diet_plans"],
     queryFn: () => base44.entities.DietPlan.list(),
   });
+
+  // Personal só vê seus próprios alunos e dietas
+  const students = (currentUser?.role === "personal")
+    ? allStudentsDL.filter(s => s.personal_id === currentUser.email)
+    : allStudentsDL;
+  const plans = (currentUser?.role === "personal")
+    ? allPlansDL.filter(p => p.personal_id === currentUser.email)
+    : allPlansDL;
 
   // Group plans by student
   const plansByStudent = {};

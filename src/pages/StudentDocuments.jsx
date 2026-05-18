@@ -30,20 +30,23 @@ export default function StudentDocuments() {
   useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
-      if (u.role !== "admin") {
-        base44.entities.Student.list().then(students => {
-          const found = students.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
+      if (u.role !== "admin" && u.role !== "personal") {
+        base44.entities.Student.list().then(ss => {
+          const found = ss.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
           setStudent(found);
         });
       }
     });
   }, []);
 
-  const { data: students = [] } = useQuery({
+  const { data: allStudentsDocs = [] } = useQuery({
     queryKey: ["students"],
     queryFn: () => base44.entities.Student.list(),
-    enabled: user?.role === "admin"
+    enabled: user?.role === "admin" || user?.role === "personal"
   });
+  const students = user?.role === "personal"
+    ? allStudentsDocs.filter(s => s.personal_id === user?.email)
+    : allStudentsDocs;
 
   const { data: documents = [] } = useQuery({
     queryKey: ["documents", selectedStudent || student?.id],
@@ -91,7 +94,7 @@ export default function StudentDocuments() {
   };
 
   const handleSubmit = async () => {
-    const studentId = user?.role === "admin" ? selectedStudent : student?.id;
+    const studentId = (user?.role === "admin" || user?.role === "personal") ? selectedStudent : student?.id;
     if (!studentId) {
       toast.error("Selecione um aluno");
       return;
@@ -135,7 +138,7 @@ export default function StudentDocuments() {
   };
 
   const filteredDocuments = documents.filter(d => {
-    if (user?.role === "admin") {
+    if (user?.role === "admin" || user?.role === "personal") {
       return selectedStudent ? d.student_id === selectedStudent : true;
     } else {
       return d.student_id === student?.id;
@@ -180,7 +183,7 @@ export default function StudentDocuments() {
         <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(6,182,212,0.8), rgba(168,85,247,0.6), transparent)' }} />
       </div>
 
-      {user?.role === "admin" && (
+      {(user?.role === "admin" || user?.role === "personal") && (
         <div className="cyber-card p-4 rounded-xl">
           <Label className="text-purple-300 text-xs mb-2 block">Selecionar Aluno</Label>
           <Select value={selectedStudent} onValueChange={setSelectedStudent}>

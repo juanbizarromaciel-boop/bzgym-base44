@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
@@ -43,8 +43,19 @@ export default function Diet() {
   const [mealDetail, setMealDetail] = useState(null); // { plan, mealIndex }
   const qc = useQueryClient();
 
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
-  const { data: plans = [] } = useQuery({ queryKey: ["diet_plans"], queryFn: () => base44.entities.DietPlan.list() });
+  const [currentUser, setCurrentUser] = useState(null);
+  useEffect(() => { base44.auth.me().then(setCurrentUser).catch(() => {}); }, []);
+
+  const { data: allStudentsDiet = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
+  const { data: allPlansDiet = [] } = useQuery({ queryKey: ["diet_plans"], queryFn: () => base44.entities.DietPlan.list() });
+
+  // Personal só vê seus próprios alunos e dietas
+  const students = (currentUser?.role === "personal")
+    ? allStudentsDiet.filter(s => s.personal_id === currentUser.email)
+    : allStudentsDiet;
+  const plans = (currentUser?.role === "personal")
+    ? allPlansDiet.filter(p => p.personal_id === currentUser.email)
+    : allPlansDiet;
 
   const createMut = useMutation({ mutationFn: (d) => base44.entities.DietPlan.create(d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["diet_plans"] }); closeDialog(); toast.success("Dieta criada!"); } });
   const updateMut = useMutation({ mutationFn: ({ id, d }) => base44.entities.DietPlan.update(id, d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["diet_plans"] }); closeDialog(); toast.success("Dieta atualizada!"); } });

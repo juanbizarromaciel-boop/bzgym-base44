@@ -19,10 +19,18 @@ export default function Dashboard() {
   const role = user?.role || null;
   const userName = user?.full_name?.split(" ")[0] || "";
 
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
+  const { data: allStudents = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: plans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list() });
   const { data: messages = [] } = useQuery({ queryKey: ["messages"], queryFn: () => base44.entities.ChatMessage.list() });
-  const { data: pendingStudents = [] } = useQuery({ queryKey: ["pending"], queryFn: () => base44.entities.Student.filter({ active: false }) });
+  const { data: allPendingStudents = [] } = useQuery({ queryKey: ["pending"], queryFn: () => base44.entities.Student.filter({ active: false }) });
+
+  // Personal só vê seus próprios alunos
+  const students = (role === "personal" && user?.email)
+    ? allStudents.filter(s => s.personal_id === user.email)
+    : allStudents;
+  const pendingStudents = (role === "personal" && user?.email)
+    ? allPendingStudents.filter(s => s.personal_id === user.email)
+    : allPendingStudents;
 
   if (userLoading) {
     return (

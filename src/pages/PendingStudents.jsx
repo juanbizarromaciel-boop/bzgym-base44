@@ -15,7 +15,7 @@ export default function PendingStudents() {
     base44.auth.me().then(setCurrentUser).catch(() => {});
   }, []);
 
-  const { data: students = [] } = useQuery({
+  const { data: allStudentsPending = [] } = useQuery({
     queryKey: ["students"],
     queryFn: () => base44.entities.Student.list()
   });
@@ -28,8 +28,13 @@ export default function PendingStudents() {
     }
   });
 
-  const pendingStudents = students.filter(s => s.active === false);
-  const activeStudents = students.filter(s => s.active === true);
+  // Personal só vê seus próprios alunos; admins veem tudo
+  const myStudents = (currentUser?.role === "personal")
+    ? allStudentsPending.filter(s => s.personal_id === currentUser.email || !s.personal_id)
+    : allStudentsPending;
+
+  const pendingStudents = myStudents.filter(s => s.active === false);
+  const activeStudents = myStudents.filter(s => s.active === true);
 
   const [syncing, setSyncing] = useState(false);
   const handleSyncStudentIds = async () => {

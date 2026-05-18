@@ -53,20 +53,22 @@ export default function Progress() {
   const { user: currentUser, isAdmin } = useCurrentUser();
   const userRole = currentUser?.role || null;
 
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list(), staleTime: 60000 });
+  const { data: allStudents = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list(), staleTime: 60000 });
+  const isPersonal = currentUser?.role === "personal";
+  const students = isPersonal ? allStudents.filter(s => s.personal_id === currentUser?.email) : allStudents;
   const { data: logs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list(), staleTime: 30000, placeholderData: (prev) => prev });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list(), staleTime: 60000, placeholderData: (prev) => prev });
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list(), staleTime: 60000 });
 
   // isAdmin already comes from useCurrentUser
 
-  // For students: auto-select their own student record
+  // For regular students: auto-select their own student record
   useEffect(() => {
-    if (!isAdmin && currentUser && students.length > 0) {
+    if (!isAdmin && !isPersonal && currentUser && students.length > 0) {
       const found = students.find(s => s.email?.toLowerCase() === currentUser.email?.toLowerCase());
       if (found) setSelectedStudentId(found.id);
     }
-  }, [isAdmin, currentUser, students]);
+  }, [isAdmin, isPersonal, currentUser, students]);
 
   const studentLogs = useMemo(() => {
     return logs.filter((l) => l.student_id === selectedStudentId).sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -255,7 +257,7 @@ export default function Progress() {
 
       {/* Student selector — always visible */}
       <motion.div variants={fadeUp} className="flex flex-wrap gap-3 mb-6">
-        {isAdmin && (
+        {(isAdmin || isPersonal) && (
           <Select value={selectedStudentId} onValueChange={(v) => { setSelectedStudentId(v); setSelectedExercise("all"); setSelectedMuscle("all"); }}>
             <SelectTrigger className="w-full sm:w-56 cyber-input">
               <SelectValue placeholder="Selecione o aluno" />
@@ -469,14 +471,14 @@ export default function Progress() {
         </motion.div>
       )}
 
-      {activeTab === "evolucao" && !selectedStudentId && isAdmin && (
+      {activeTab === "evolucao" && !selectedStudentId && (isAdmin || isPersonal) && (
         <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/20">
           <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="font-mono-cyber text-sm">// selecione um aluno para ver a evolução</p>
         </motion.div>
       )}
 
-      {activeTab === "evolucao" && !selectedStudentId && !isAdmin && (
+      {activeTab === "evolucao" && !selectedStudentId && !isAdmin && !isPersonal && (
         <div className="text-center py-16 text-purple-500/20">
           <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto" />
         </div>
