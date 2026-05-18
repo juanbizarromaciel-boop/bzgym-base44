@@ -30,7 +30,7 @@ export default function PendingStudents() {
 
   // Personal só vê seus próprios alunos; admins veem tudo
   const myStudents = (currentUser?.role === "personal")
-    ? allStudentsPending.filter(s => s.personal_id === currentUser.email || !s.personal_id)
+    ? allStudentsPending.filter(s => s.personal_id === currentUser.email)
     : allStudentsPending;
 
   const pendingStudents = myStudents.filter(s => s.active === false);

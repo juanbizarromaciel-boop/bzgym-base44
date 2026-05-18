@@ -1,29 +1,19 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 
-let cachedUser = null;
-let pendingPromise = null;
-
 /**
- * Hook compartilhado para obter o usuário atual.
- * Usa cache em memória para evitar múltiplas chamadas auth.me() por página.
+ * Hook para obter o usuário atual.
+ * Sempre busca do servidor para garantir dados frescos.
  */
 export function useCurrentUser() {
-  const [user, setUser] = useState(cachedUser);
-  const [loading, setLoading] = useState(!cachedUser);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (cachedUser) {
-      setUser(cachedUser);
-      setLoading(false);
-      return;
-    }
-    if (!pendingPromise) {
-      pendingPromise = base44.auth.me().catch(() => null);
-    }
-    pendingPromise.then((u) => {
-      cachedUser = u;
+    base44.auth.me().then((u) => {
       setUser(u);
+      setLoading(false);
+    }).catch(() => {
       setLoading(false);
     });
   }, []);

@@ -105,6 +105,10 @@ export default function Students() {
       finalForm = { ...finalForm, photo_url: file_url };
       setPhotoUploading(false);
     }
+    // Garantir que personal_id é salvo ao criar aluno como personal
+    if (!editingStudent && currentUser?.role === "personal") {
+      finalForm = { ...finalForm, personal_id: currentUser.email };
+    }
     if (editingStudent) {
       updateMut.mutate({ id: editingStudent.id, data: finalForm });
     } else {
