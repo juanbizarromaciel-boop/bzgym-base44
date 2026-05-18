@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag, TrendingDown, AlertTriangle } from "lucide-react";
+import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag, TrendingDown, AlertTriangle, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
@@ -13,6 +13,7 @@ const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 import { toast } from "sonner";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ExerciseTimers from "../components/workout/ExerciseTimers";
+import UncheckExerciseDialog from "../components/workout/UncheckExerciseDialog";
 import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
@@ -34,6 +35,7 @@ export default function MyWorkout() {
   const [workoutDone, setWorkoutDone] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [uncheckDialog, setUncheckDialog] = useState(null); // { exerciseIdx, exerciseName }
   const qc = useQueryClient();
 
   const today = DAY_MAP[new Date().getDay()];
@@ -105,6 +107,20 @@ export default function MyWorkout() {
     const newCompleted = new Set([...completedExercises, exerciseIdx]);
     setCompletedExercises(newCompleted);
     toast.success(`${exercise.exercise_name} concluído!`);
+  };
+
+  const handleUncheckRequest = (exerciseIdx, exerciseName) => {
+    setUncheckDialog({ exerciseIdx, exerciseName });
+  };
+
+  const confirmUncheck = () => {
+    if (uncheckDialog) {
+      const newCompleted = new Set(completedExercises);
+      newCompleted.delete(uncheckDialog.exerciseIdx);
+      setCompletedExercises(newCompleted);
+      toast.info(`${uncheckDialog.exerciseName} desmarcado.`);
+      setUncheckDialog(null);
+    }
   };
 
   const finishWorkout = () => {
@@ -496,14 +512,28 @@ export default function MyWorkout() {
                   CONCLUIR
                 </button>
               ) : (
-                <div className="mt-3 text-center py-2 border border-cyan-500/20 rounded-lg bg-cyan-500/5">
-                  <span className="text-xs font-mono-cyber text-cyan-400 tracking-wider">✓ CONCLUÍDO</span>
-                </div>
+                <button
+                  onClick={() => handleUncheckRequest(exerciseIdx, exercise.exercise_name)}
+                  className="mt-3 w-full py-2.5 rounded-lg flex items-center justify-center gap-2 group transition-all"
+                  style={{ border: '1px solid rgba(6,182,212,0.35)', background: 'rgba(6,182,212,0.06)', boxShadow: '0 0 10px rgba(6,182,212,0.1)' }}>
+                  <CheckCircle className="w-4 h-4 group-hover:hidden" style={{ color: '#06b6d4', filter: 'drop-shadow(0 0 5px rgba(6,182,212,0.8))' }} />
+                  <RotateCcw className="w-4 h-4 hidden group-hover:block" style={{ color: '#fbbf24' }} />
+                  <span className="text-xs font-mono-cyber tracking-wider group-hover:hidden" style={{ color: '#06b6d4' }}>✓ CONCLUÍDO</span>
+                  <span className="text-xs font-mono-cyber tracking-wider hidden group-hover:block" style={{ color: '#fbbf24' }}>DESMARCAR</span>
+                </button>
               )}
             </motion.div>
           );
         })}
       </motion.div>
+
+      {/* Uncheck Confirmation Dialog */}
+      <UncheckExerciseDialog
+        open={!!uncheckDialog}
+        exerciseName={uncheckDialog?.exerciseName}
+        onConfirm={confirmUncheck}
+        onCancel={() => setUncheckDialog(null)}
+      />
 
       {/* Video Dialog */}
       <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>

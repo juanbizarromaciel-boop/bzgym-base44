@@ -9,12 +9,13 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { CheckCircle, Dumbbell, PlayCircle, Trophy, TrendingDown, AlertTriangle } from "lucide-react";
+import { CheckCircle, Dumbbell, PlayCircle, Trophy, TrendingDown, AlertTriangle, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 import RestTimer from "../components/workout/RestTimer";
 import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
+import UncheckExerciseDialog from "../components/workout/UncheckExerciseDialog";
 import { sortExercisesByProgression, getExerciseProgression } from "../utils/progressionSort";
 
 export default function StudentWorkout() {
@@ -25,6 +26,7 @@ export default function StudentWorkout() {
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [workoutFinished, setWorkoutFinished] = useState(false);
+  const [uncheckDialog, setUncheckDialog] = useState(null); // { exerciseIdx, exerciseName }
   const qc = useQueryClient();
   const { user: currentUser } = useCurrentUser();
 
@@ -107,6 +109,20 @@ export default function StudentWorkout() {
     setCompletedExercises(new Set());
     setSelectedPlanId("");
     setSelectedStudentId("");
+  };
+
+  const handleUncheckRequest = (exerciseIdx, exerciseName) => {
+    setUncheckDialog({ exerciseIdx, exerciseName });
+  };
+
+  const confirmUncheck = () => {
+    if (uncheckDialog) {
+      const newCompleted = new Set(completedExercises);
+      newCompleted.delete(uncheckDialog.exerciseIdx);
+      setCompletedExercises(newCompleted);
+      toast.info(`${uncheckDialog.exerciseName} desmarcado.`);
+      setUncheckDialog(null);
+    }
   };
 
   const getExerciseVideo = (exerciseId) => {
@@ -344,10 +360,15 @@ export default function StudentWorkout() {
                 )}
 
                 {isCompleted && (
-                  <div className="mt-4 text-center py-2 rounded-lg"
+                  <button
+                    onClick={() => handleUncheckRequest(exerciseIdx, exercise.exercise_name)}
+                    className="mt-4 w-full py-2.5 rounded-lg flex items-center justify-center gap-2 group transition-all"
                     style={{ border: '1px solid rgba(6,182,212,0.35)', background: 'rgba(6,182,212,0.06)', boxShadow: '0 0 12px rgba(6,182,212,0.12)' }}>
-                    <span className="text-xs font-mono-cyber tracking-wider" style={{ color: '#06b6d4', textShadow: '0 0 8px rgba(6,182,212,0.8)' }}>✓ CONCLUÍDO</span>
-                  </div>
+                    <CheckCircle className="w-4 h-4 group-hover:hidden" style={{ color: '#06b6d4', filter: 'drop-shadow(0 0 5px rgba(6,182,212,0.8))' }} />
+                    <RotateCcw className="w-4 h-4 hidden group-hover:block" style={{ color: '#fbbf24' }} />
+                    <span className="text-xs font-mono-cyber tracking-wider group-hover:hidden" style={{ color: '#06b6d4', textShadow: '0 0 8px rgba(6,182,212,0.8)' }}>✓ CONCLUÍDO</span>
+                    <span className="text-xs font-mono-cyber tracking-wider hidden group-hover:block" style={{ color: '#fbbf24' }}>DESMARCAR</span>
+                  </button>
                 )}
               </div>
             );
@@ -442,6 +463,14 @@ export default function StudentWorkout() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Uncheck Confirmation Dialog */}
+      <UncheckExerciseDialog
+        open={!!uncheckDialog}
+        exerciseName={uncheckDialog?.exerciseName}
+        onConfirm={confirmUncheck}
+        onCancel={() => setUncheckDialog(null)}
+      />
     </div>
   );
 }
