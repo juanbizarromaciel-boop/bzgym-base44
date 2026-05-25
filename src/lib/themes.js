@@ -3,40 +3,40 @@
 // Alterar essas vars propaga para TODOS os componentes automaticamente.
 
 export const DEFAULT_THEME_VARS = {
-  // Fundos
-  "--bg-void": "#02020a",
-  "--bg-dark": "#05050d",
-  "--bg-card": "#07071a",
-  "--bg-card2": "#0a0a1e",
-  // Cores neon principais
-  "--neon-purple": "#a855f7",
-  "--neon-cyan": "#06b6d4",
-  "--neon-pink": "#ec4899",
-  "--neon-amber": "#f59e0b",
-  "--neon-green": "#10b981",
-  // Texto
-  "--text-primary": "#f0e6ff",
-  "--text-secondary": "#c4b5e0",
-  "--text-muted": "#8b7aaa",
+  // Fundos — ligeiramente mais claros para reduzir o "buraco negro"
+  "--bg-void": "#0d0d1a",
+  "--bg-dark": "#111122",
+  "--bg-card": "#13132a",
+  "--bg-card2": "#161630",
+  // Cores neon — mais suaves e refinadas
+  "--neon-purple": "#9333ea",
+  "--neon-cyan": "#0891b2",
+  "--neon-pink": "#db2777",
+  "--neon-amber": "#d97706",
+  "--neon-green": "#059669",
+  // Texto — levemente mais quente e legível
+  "--text-primary": "#e8deff",
+  "--text-secondary": "#b8a8d4",
+  "--text-muted": "#7a6a9a",
   // Border
-  "--border-glow": "rgba(168, 85, 247, 0.3)",
+  "--border-glow": "rgba(147, 51, 234, 0.2)",
   // Tailwind HSL (CSS vars usados pelo shadcn/tailwind)
-  "--background": "270 80% 2%",
-  "--foreground": "270 30% 95%",
-  "--card": "270 70% 5%",
-  "--card-foreground": "270 30% 95%",
-  "--primary": "270 70% 60%",
+  "--background": "240 30% 8%",
+  "--foreground": "270 25% 92%",
+  "--card": "240 28% 12%",
+  "--card-foreground": "270 25% 92%",
+  "--primary": "270 60% 55%",
   "--primary-foreground": "0 0% 98%",
-  "--secondary": "270 30% 12%",
-  "--secondary-foreground": "270 30% 90%",
-  "--muted": "270 20% 10%",
-  "--muted-foreground": "270 15% 55%",
-  "--accent": "270 50% 15%",
-  "--accent-foreground": "270 30% 90%",
-  "--border": "270 30% 15%",
-  "--input": "270 40% 8%",
-  "--ring": "270 70% 60%",
-  "--destructive": "0 85% 60%",
+  "--secondary": "240 20% 16%",
+  "--secondary-foreground": "270 20% 85%",
+  "--muted": "240 15% 14%",
+  "--muted-foreground": "260 12% 52%",
+  "--accent": "260 30% 18%",
+  "--accent-foreground": "270 20% 85%",
+  "--border": "250 22% 18%",
+  "--input": "240 25% 11%",
+  "--ring": "270 60% 55%",
+  "--destructive": "0 72% 55%",
   "--destructive-foreground": "0 0% 98%",
 };
 
@@ -44,10 +44,10 @@ export const PRESET_THEMES = [
   {
     id: "default",
     name: "Tema Padrão",
-    description: "Visual original do app — cyberpunk roxo",
+    description: "Cyberpunk suave — roxo com neons refinados",
     emoji: "⚡",
     locked: true,
-    preview: ["#02020a", "#a855f7", "#06b6d4", "#ec4899"],
+    preview: ["#0d0d1a", "#9333ea", "#0891b2", "#db2777"],
     vars: { ...DEFAULT_THEME_VARS },
   },
   {

@@ -17,6 +17,26 @@
   --font-cyber: 'Orbitron', sans-serif;
   --font-mono: 'Share Tech Mono', monospace;
   --font-body: 'Inter', sans-serif;
+
+  /* Tailwind / shadcn tokens sincronizados */
+  --background: 240 30% 8%;
+  --foreground: 270 25% 92%;
+  --card: 240 28% 12%;
+  --card-foreground: 270 25% 92%;
+  --primary: 270 60% 55%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 20% 16%;
+  --secondary-foreground: 270 20% 85%;
+  --muted: 240 15% 14%;
+  --muted-foreground: 260 12% 52%;
+  --accent: 260 30% 18%;
+  --accent-foreground: 270 20% 85%;
+  --border: 250 22% 18%;
+  --input: 240 25% 11%;
+  --ring: 270 60% 55%;
+  --destructive: 0 72% 55%;
+  --destructive-foreground: 0 0% 98%;
+  --radius: 0.5rem;
 }
 
 * { box-sizing: border-box; }
@@ -109,12 +129,12 @@ body::before {
 
 /* ─── NEON BORDERS ─── */
 .neon-border-purple {
-  border-color: color-mix(in srgb, var(--neon-purple) 70%, transparent) !important;
-  box-shadow: 0 0 14px color-mix(in srgb, var(--neon-purple) 40%, transparent), inset 0 0 10px color-mix(in srgb, var(--neon-purple) 7%, transparent);
+  border-color: color-mix(in srgb, var(--neon-purple) 50%, transparent) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--neon-purple) 25%, transparent), inset 0 0 8px color-mix(in srgb, var(--neon-purple) 5%, transparent);
 }
 .neon-border-cyan {
-  border-color: color-mix(in srgb, var(--neon-cyan) 70%, transparent) !important;
-  box-shadow: 0 0 14px color-mix(in srgb, var(--neon-cyan) 40%, transparent), inset 0 0 10px color-mix(in srgb, var(--neon-cyan) 7%, transparent);
+  border-color: color-mix(in srgb, var(--neon-cyan) 50%, transparent) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--neon-cyan) 25%, transparent), inset 0 0 8px color-mix(in srgb, var(--neon-cyan) 5%, transparent);
 }
 
 /* ─── CYBER GRID BACKGROUND ─── */
@@ -164,14 +184,14 @@ body::before {
 }
 
 /* Accent variants */
-.cyber-card-cyan  { border-color: color-mix(in srgb, var(--neon-cyan) 14%, transparent); }
-.cyber-card-cyan::before  { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-cyan) 45%, transparent), transparent); }
-.cyber-card-pink  { border-color: color-mix(in srgb, var(--neon-pink) 14%, transparent); }
-.cyber-card-pink::before  { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-pink) 45%, transparent), transparent); }
-.cyber-card-amber { border-color: color-mix(in srgb, var(--neon-amber) 14%, transparent); }
-.cyber-card-amber::before { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-amber) 40%, transparent), transparent); }
-.cyber-card-green { border-color: color-mix(in srgb, var(--neon-green) 14%, transparent); }
-.cyber-card-green::before { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-green) 40%, transparent), transparent); }
+.cyber-card-cyan  { border-color: color-mix(in srgb, var(--neon-cyan) 18%, transparent); }
+.cyber-card-cyan::after  { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-cyan) 30%, transparent), transparent); }
+.cyber-card-pink  { border-color: color-mix(in srgb, var(--neon-pink) 18%, transparent); }
+.cyber-card-pink::after  { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-pink) 30%, transparent), transparent); }
+.cyber-card-amber { border-color: color-mix(in srgb, var(--neon-amber) 18%, transparent); }
+.cyber-card-amber::after { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-amber) 28%, transparent), transparent); }
+.cyber-card-green { border-color: color-mix(in srgb, var(--neon-green) 18%, transparent); }
+.cyber-card-green::after { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-green) 28%, transparent), transparent); }
 
 /* ─── CYBER INPUT ─── */
 .cyber-input {
