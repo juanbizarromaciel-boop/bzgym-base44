@@ -40,7 +40,10 @@ export default function StudentWorkout() {
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list(), staleTime: 60000 });
   const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list(), staleTime: 30000 });
 
-  const myPlans = isAdmin ? allPlans : allPlans.filter(p => p.personal_id === currentUser?.email);
+  const myStudentIds = new Set(students.map(s => s.id));
+  const myPlans = isAdmin
+    ? allPlans
+    : allPlans.filter(p => p.personal_id === currentUser?.email || myStudentIds.has(p.student_id));
   const studentPlans = myPlans.filter((p) => p.student_id === selectedStudentId);
   const selectedPlan = myPlans.find((p) => p.id === selectedPlanId);
 

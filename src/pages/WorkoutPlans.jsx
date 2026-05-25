@@ -48,7 +48,10 @@ export default function WorkoutPlans() {
   const isPersonal = currentUser?.role === "personal";
   const isAdmin = currentUser?.role === "admin";
   const students = isAdmin ? allStudents : allStudents.filter(s => s.personal_id === currentUser?.email);
-  const plans = isAdmin ? allPlans : allPlans.filter(p => p.personal_id === currentUser?.email);
+  const myStudentIds = new Set(students.map(s => s.id));
+  const plans = isAdmin
+    ? allPlans
+    : allPlans.filter(p => p.personal_id === currentUser?.email || myStudentIds.has(p.student_id));
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
 
   const createMut = useMutation({
