@@ -1,0 +1,126 @@
+{
+  "name": "ComunidadePost",
+  "type": "object",
+  "properties": {
+    "autor_id": {
+      "type": "string",
+      "description": "Email do autor"
+    },
+    "autor_nome": {
+      "type": "string",
+      "description": "Nome do autor"
+    },
+    "personal_id": {
+      "type": "string",
+      "description": "Personal trainer vinculado ao autor"
+    },
+    "tipo_post": {
+      "type": "string",
+      "enum": [
+        "progresso",
+        "pr",
+        "dica",
+        "duvida",
+        "motivacao"
+      ],
+      "default": "motivacao"
+    },
+    "texto": {
+      "type": "string",
+      "description": "Conte\u00fado do post"
+    },
+    "imagem_url": {
+      "type": "string",
+      "description": "Imagem do post"
+    },
+    "curtidas": {
+      "type": "number",
+      "default": 0
+    },
+    "curtido_por": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Lista de emails que curtiram"
+    },
+    "visibilidade": {
+      "type": "string",
+      "enum": [
+        "publico",
+        "alunos",
+        "privado"
+      ],
+      "default": "alunos"
+    }
+  },
+  "required": [
+    "autor_id",
+    "tipo_post",
+    "texto"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.autor_id": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.autor_id": "{{user.email}}"
+        }
+      ]
+    }
+  }
+}

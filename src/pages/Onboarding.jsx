@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Target, Zap, TrendingUp, Heart, Dumbbell, CheckCircle2 } from "lucide-react";
+import { Target, Zap, TrendingUp, Heart, Dumbbell, CheckCircle2, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 const GOALS = [
@@ -23,6 +23,8 @@ export default function Onboarding() {
   const [notes, setNotes] = useState("");
   const [phone, setPhone] = useState("");
   const [inviteCode, setInviteCode] = useState("");
+  const [trainingLevel, setTrainingLevel] = useState("");
+  const [restrictions, setRestrictions] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
@@ -80,11 +82,13 @@ export default function Onboarding() {
         }
       }
 
+      const notesValue = [notes.trim(), restrictions.trim() ? `Restrições: ${restrictions.trim()}` : ""].filter(Boolean).join(" | ");
+
       if (student) {
         await base44.entities.Student.update(student.id, {
           goal: goalValue,
           phone: phone.trim(),
-          notes: notes.trim() || student.notes,
+          notes: notesValue || student.notes,
           ...(personalId ? { personal_id: personalId } : {}),
         });
       } else {
@@ -93,7 +97,7 @@ export default function Onboarding() {
           email: user.email,
           phone: phone.trim(),
           goal: goalValue,
-          notes: notes.trim(),
+          notes: notesValue,
           active: false,
           ...(personalId ? { personal_id: personalId } : {}),
         });
@@ -225,6 +229,49 @@ export default function Onboarding() {
               style={{ background: '#1a1030', border: '1px solid rgba(168,85,247,0.4)', color: '#ffffff', caretColor: '#c084fc' }}
             />
           </div>
+        </div>
+
+        {/* Training Level */}
+        <div className="cyber-card rounded-2xl p-6 md:p-8 border border-purple-900/30 mb-6">
+          <label className="text-xs text-purple-400/50 font-mono-cyber tracking-wider uppercase mb-3 block">
+            Nível de treino
+          </label>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { id: "iniciante", label: "Iniciante", desc: "Menos de 1 ano" },
+              { id: "intermediario", label: "Intermediário", desc: "1-3 anos" },
+              { id: "avancado", label: "Avançado", desc: "3+ anos" },
+            ].map(lvl => (
+              <button key={lvl.id} onClick={() => setTrainingLevel(lvl.id)}
+                className="p-3 rounded-xl border text-center transition-all"
+                style={trainingLevel === lvl.id ? {
+                  background: 'rgba(168,85,247,0.15)', borderColor: 'rgba(168,85,247,0.5)',
+                  boxShadow: '0 0 15px rgba(168,85,247,0.2)'
+                } : { background: '#1a1030', borderColor: 'rgba(168,85,247,0.2)' }}>
+                <p className={`text-sm font-semibold ${trainingLevel === lvl.id ? 'text-white' : 'text-white/50'}`}>{lvl.label}</p>
+                <p className="text-[9px] font-mono-cyber text-purple-500/40 mt-0.5">{lvl.desc}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Restrictions */}
+        <div className="cyber-card rounded-2xl p-6 md:p-8 border border-purple-900/30 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Shield className="w-4 h-4 text-amber-400" />
+            <label className="text-xs text-amber-400/70 font-mono-cyber tracking-wider uppercase">
+              Lesões ou restrições (opcional)
+            </label>
+          </div>
+          <textarea
+            placeholder="Ex: Tendinite no ombro direito, joelho operado, sem restrições..."
+            value={restrictions}
+            onChange={(e) => setRestrictions(e.target.value)}
+            rows={2}
+            className="w-full rounded-lg px-4 py-3 text-sm outline-none resize-none"
+            style={{ background: '#1a1030', border: '1px solid rgba(245,158,11,0.3)', color: '#ffffff', caretColor: '#fbbf24' }}
+          />
+          <p className="text-[9px] text-amber-500/30 font-mono-cyber mt-2">// informe lesões para que seu personal possa adaptar os treinos</p>
         </div>
 
         {/* Phone - Required */}

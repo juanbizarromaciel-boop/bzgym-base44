@@ -34,6 +34,8 @@ import AppThemes from './pages/AppThemes';
 import FocusRoutine from './pages/FocusRoutine';
 import CheckInPage from './pages/CheckInPage';
 import PersonalDashboard from './pages/PersonalDashboard';
+import Comunidade from './pages/Comunidade';
+import CalendarioHormonalAdmin from './pages/CalendarioHormonalAdmin';
 import { useState, useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -169,6 +171,8 @@ const AuthenticatedApp = () => {
       <Route path="/FocusRoutine" element={<LayoutWrapper currentPageName="FocusRoutine"><FocusRoutine /></LayoutWrapper>} />
       <Route path="/CheckIn" element={<LayoutWrapper currentPageName="CheckIn"><CheckInPage /></LayoutWrapper>} />
       <Route path="/PersonalDashboard" element={<LayoutWrapper currentPageName="PersonalDashboard"><PersonalDashboard /></LayoutWrapper>} />
+      <Route path="/Comunidade" element={<LayoutWrapper currentPageName="Comunidade"><Comunidade /></LayoutWrapper>} />
+      <Route path="/CalendarioHormonalAdmin" element={<LayoutWrapper currentPageName="CalendarioHormonalAdmin"><CalendarioHormonalAdmin /></LayoutWrapper>} />
       <Route path="/AccessDenied" element={<AccessDenied />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

@@ -7,7 +7,8 @@ import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer,
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
-  Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase, Palette, Brain
+  Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase, Palette, Brain,
+  Users2, Lock
 } from "lucide-react";
 import NotificationBell from "./components/notifications/NotificationBell";
 import CyberNav from "./components/navigation/CyberNav";
@@ -54,10 +55,16 @@ const adminNavGroups = [
     { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
     { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
   ]},
+  { label: "Comunidade", color: "#ec4899", items: [
+    { name: "Comunidade", icon: Users2, page: "Comunidade" },
+  ]},
   { label: "Ferramentas", color: "#8b5cf6", items: [
     { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
+  ]},
+  { label: "Restrito", color: "#84cc16", items: [
+    { name: "Calendário Hormonal", icon: Lock, page: "CalendarioHormonalAdmin" },
   ]},
 ];
 
@@ -97,6 +104,9 @@ const personalNavGroups = [
     { name: "Financeiro", icon: DollarSign, page: "Finance" },
     { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
     { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
+  ]},
+  { label: "Comunidade", color: "#ec4899", items: [
+    { name: "Comunidade", icon: Users2, page: "Comunidade" },
   ]},
   { label: "Ferramentas", color: "#8b5cf6", items: [
     { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
