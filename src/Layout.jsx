@@ -7,8 +7,8 @@ import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer,
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
-  Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase, Palette, Brain,
-  Users2, Lock
+  Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase, Brain,
+  Users2, Lock, Bell
 } from "lucide-react";
 import NotificationBell from "./components/notifications/NotificationBell";
 import CyberNav from "./components/navigation/CyberNav";
@@ -16,8 +16,9 @@ import BottomNav from "./components/navigation/BottomNav";
 
 const adminNavGroups = [
   { label: "Visão Geral", color: "#a855f7", items: [
-    { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+    { name: "Dashboard Admin", icon: LayoutDashboard, page: "AdminDashboard" },
     { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
+    { name: "Notificações", icon: Bell, page: "Notificacoes" },
   ]},
   { label: "Alunos", color: "#06b6d4", items: [
     { name: "Alunos", icon: Users, page: "Students" },

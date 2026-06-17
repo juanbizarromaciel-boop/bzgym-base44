@@ -1,0 +1,99 @@
+{
+  "name": "Notificacao",
+  "type": "object",
+  "properties": {
+    "usuario_id": {
+      "type": "string",
+      "description": "Email do usu\u00e1rio destinat\u00e1rio"
+    },
+    "titulo": {
+      "type": "string"
+    },
+    "mensagem": {
+      "type": "string"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "treino_novo",
+        "dieta_atualizada",
+        "checkin_pendente",
+        "mensagem",
+        "pagamento",
+        "tarefa",
+        "pr",
+        "meta",
+        "sistema"
+      ],
+      "default": "sistema"
+    },
+    "lida": {
+      "type": "boolean",
+      "default": false
+    },
+    "link_destino": {
+      "type": "string",
+      "description": "Rota para navegar ao clicar"
+    },
+    "icone": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "usuario_id",
+    "titulo",
+    "tipo"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.usuario_id": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.usuario_id": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.usuario_id": "{{user.email}}"
+        }
+      ]
+    }
+  }
+}

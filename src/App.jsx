@@ -38,6 +38,8 @@ import Comunidade from './pages/Comunidade';
 import CalendarioHormonalAdmin from './pages/CalendarioHormonalAdmin';
 import CalendarioGeral from './pages/CalendarioGeral';
 import Relatorios from './pages/Relatorios';
+import AdminDashboard from './pages/AdminDashboard';
+import Notificacoes from './pages/Notificacoes';
 import { useState, useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -177,6 +179,8 @@ const AuthenticatedApp = () => {
       <Route path="/CalendarioHormonalAdmin" element={<LayoutWrapper currentPageName="CalendarioHormonalAdmin"><CalendarioHormonalAdmin /></LayoutWrapper>} />
       <Route path="/CalendarioGeral" element={<LayoutWrapper currentPageName="CalendarioGeral"><CalendarioGeral /></LayoutWrapper>} />
       <Route path="/Relatorios" element={<LayoutWrapper currentPageName="Relatorios"><Relatorios /></LayoutWrapper>} />
+      <Route path="/AdminDashboard" element={<LayoutWrapper currentPageName="AdminDashboard"><AdminDashboard /></LayoutWrapper>} />
+      <Route path="/Notificacoes" element={<LayoutWrapper currentPageName="Notificacoes"><Notificacoes /></LayoutWrapper>} />
       <Route path="/AccessDenied" element={<AccessDenied />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
