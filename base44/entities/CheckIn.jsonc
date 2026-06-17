@@ -1,0 +1,137 @@
+{
+  "name": "CheckIn",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string",
+      "description": "ID do aluno"
+    },
+    "personal_id": {
+      "type": "string",
+      "description": "Email do personal"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do check-in"
+    },
+    "weight_kg": {
+      "type": "number",
+      "description": "Peso em kg"
+    },
+    "sleep_score": {
+      "type": "number",
+      "description": "Qualidade do sono (1-5)"
+    },
+    "energy_score": {
+      "type": "number",
+      "description": "N\u00edvel de energia (1-5)"
+    },
+    "hunger_score": {
+      "type": "number",
+      "description": "N\u00edvel de fome (1-5)"
+    },
+    "mood_score": {
+      "type": "number",
+      "description": "Humor (1-5)"
+    },
+    "workout_adherence": {
+      "type": "number",
+      "description": "Ades\u00e3o ao treino (1-5)"
+    },
+    "diet_adherence": {
+      "type": "number",
+      "description": "Ades\u00e3o \u00e0 dieta (1-5)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es do aluno"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "enviado",
+        "revisado"
+      ],
+      "default": "enviado"
+    }
+  },
+  "required": [
+    "student_id",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    }
+  }
+}

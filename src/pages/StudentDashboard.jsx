@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Dumbbell, TrendingUp, Target, MessageSquare,
   ChevronRight, CheckCircle2, Clock, Utensils,
-  BookOpen, Trophy, Activity, Zap, Flame, Star, Apple
+  BookOpen, Trophy, Activity, Zap, Flame, Star, Apple, ClipboardCheck
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -33,6 +33,7 @@ export default function StudentDashboard() {
   const { data: workoutPlans = [] } = useQuery({ queryKey: ["workoutPlans"], queryFn: () => base44.entities.WorkoutPlan.list() });
   const { data: messages = [] } = useQuery({ queryKey: ["messages"], queryFn: () => base44.entities.ChatMessage.list() });
   const { data: dietPlans = [] } = useQuery({ queryKey: ["dietPlans"], queryFn: () => base44.entities.DietPlan.list() });
+  const { data: checkIns = [] } = useQuery({ queryKey: ["checkIns"], queryFn: () => base44.entities.CheckIn.list() });
 
   useEffect(() => {
     if (user && students.length > 0) {
@@ -72,7 +73,9 @@ export default function StudentDashboard() {
   const lastLog = sortedLogs[0];
   const daysSince = lastLog?.date ? Math.floor((new Date() - new Date(lastLog.date)) / 86400000) : null;
 
+  const todayStr = new Date().toISOString().split("T")[0];
   const myDietPlan = dietPlans.find(d => d.student_id === student?.id && d.active !== false);
+  const todayCheckIn = checkIns.find(c => c.student_id === student?.id && c.date === todayStr);
   const todayCalories = myDietPlan?.total_calories || null;
   const todayMeals = myDietPlan?.meals?.length || 0;
 
@@ -336,6 +339,58 @@ export default function StudentDashboard() {
               }}>
               <Apple className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981', filter: 'drop-shadow(0 0 4px #10b981)' }} />
               <span>VER</span>
+            </Link>
+          )}
+        </div>
+      </motion.div>
+
+      {/* ═══ CHECK-IN CARD ═══ */}
+      <motion.div variants={fadeUp}
+        className="relative rounded-2xl overflow-hidden border"
+        style={{
+          background: todayCheckIn ? 'linear-gradient(135deg, rgba(4,12,20,0.99) 0%, rgba(4,16,24,0.99) 100%)' : 'rgba(4,4,12,0.9)',
+          borderColor: todayCheckIn ? 'rgba(6,182,212,0.35)' : 'rgba(255,255,255,0.08)',
+          boxShadow: todayCheckIn ? '0 0 40px rgba(6,182,212,0.10)' : 'none',
+        }}>
+        {todayCheckIn && (
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.8), rgba(168,85,247,0.4), transparent)' }} />
+        )}
+        <div className="p-5 flex items-center justify-between gap-4 relative">
+          <div className="flex items-center gap-4">
+            <div className="relative w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                background: todayCheckIn ? 'linear-gradient(135deg, rgba(6,182,212,0.20), rgba(6,182,212,0.08))' : 'rgba(255,255,255,0.03)',
+                border: todayCheckIn ? '1px solid rgba(6,182,212,0.40)' : '1px solid rgba(255,255,255,0.08)',
+                boxShadow: todayCheckIn ? '0 0 20px rgba(6,182,212,0.20)' : 'none',
+              }}>
+              <ClipboardCheck className="w-8 h-8" style={{ color: todayCheckIn ? '#06b6d4' : '#ffffff15', filter: todayCheckIn ? 'drop-shadow(0 0 6px #06b6d4)' : 'none' }} />
+            </div>
+            <div>
+              <p className="text-[9px] font-mono-cyber uppercase tracking-[0.35em] mb-1.5" style={{ color: 'rgba(6,182,212,0.65)', textShadow: '0 0 8px rgba(6,182,212,0.5)' }}>
+                // check-in de hoje
+              </p>
+              <p className="text-base font-bold leading-tight" style={{ color: todayCheckIn ? '#ffffff' : 'rgba(255,255,255,0.3)' }}>
+                {todayCheckIn ? "Check-in enviado ✓" : "Check-in pendente"}
+              </p>
+              <p className="text-xs mt-1.5 font-mono-cyber" style={{ color: 'rgba(6,182,212,0.55)' }}>
+                {todayCheckIn
+                  ? `Humor: ${todayCheckIn.mood_score}/5 · Energia: ${todayCheckIn.energy_score}/5`
+                  : "// registre peso, humor e adesão hoje"}
+              </p>
+            </div>
+          </div>
+          {!todayCheckIn && (
+            <Link to="/Progress"
+              className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm tracking-wider transition-all hover:scale-105"
+              style={{
+                background: 'linear-gradient(135deg, rgba(6,182,212,0.18), rgba(6,182,212,0.10))',
+                border: '1px solid rgba(6,182,212,0.40)',
+                color: '#ffffff',
+                boxShadow: '0 0 16px rgba(6,182,212,0.15)',
+              }}>
+              <ClipboardCheck className="w-4 h-4 flex-shrink-0" style={{ color: '#06b6d4' }} />
+              <span>FAZER</span>
             </Link>
           )}
         </div>

@@ -7,7 +7,7 @@ import {
   Dumbbell, Users, ClipboardList, BarChart3, Timer,
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
-  Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase, Palette
+  Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase, Palette, Brain
 } from "lucide-react";
 import NotificationBell from "./components/notifications/NotificationBell";
 import CyberNav from "./components/navigation/CyberNav";
@@ -55,6 +55,7 @@ const adminNavGroups = [
     { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
   ]},
   { label: "Ferramentas", color: "#8b5cf6", items: [
+    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
@@ -98,6 +99,7 @@ const personalNavGroups = [
     { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
   ]},
   { label: "Ferramentas", color: "#8b5cf6", items: [
+    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
@@ -115,6 +117,7 @@ const subscriberNavGroups = [
     { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
   ]},
   { label: "Conta", color: "#8b5cf6", items: [
+    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
 ];
@@ -142,6 +145,7 @@ const studentNavGroups = [
     { name: "Saúde e Exames", icon: Activity, page: "CH" },
   ]},
   { label: "Conta", color: "#8b5cf6", items: [
+    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},

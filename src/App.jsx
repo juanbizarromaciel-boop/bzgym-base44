@@ -31,6 +31,7 @@ import LearnExercises from './pages/LearnExercises';
 import { base44 } from '@/api/base44Client';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import AppThemes from './pages/AppThemes';
+import FocusRoutine from './pages/FocusRoutine';
 import { useState, useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -163,6 +164,7 @@ const AuthenticatedApp = () => {
       <Route path="/SubscriberDashboard" element={<LayoutWrapper currentPageName="SubscriberDashboard"><SubscriberDashboard /></LayoutWrapper>} />
       <Route path="/AppThemes" element={<LayoutWrapper currentPageName="AppThemes"><AppThemes /></LayoutWrapper>} />
       <Route path="/DietLogs" element={<LayoutWrapper currentPageName="DietLogs"><DietLogs /></LayoutWrapper>} />
+      <Route path="/FocusRoutine" element={<LayoutWrapper currentPageName="FocusRoutine"><FocusRoutine /></LayoutWrapper>} />
       <Route path="/AccessDenied" element={<AccessDenied />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

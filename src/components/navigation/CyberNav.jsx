@@ -8,7 +8,7 @@ import {
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
   Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase,
-  Zap, X
+  Zap, X, Brain
 } from "lucide-react";
 
 // ─── Nav data ────────────────────────────────────────────────────────────────
@@ -124,6 +124,7 @@ const studentNavGroups = [
     { name: "Saúde e Exames", icon: Activity, page: "CH" },
   ]},
   { label: "Conta", color: "#8b5cf6", items: [
+    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
