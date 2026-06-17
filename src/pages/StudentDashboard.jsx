@@ -381,7 +381,7 @@ export default function StudentDashboard() {
             </div>
           </div>
           {!todayCheckIn && (
-            <Link to="/Progress"
+            <Link to="/CheckIn"
               className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm tracking-wider transition-all hover:scale-105"
               style={{
                 background: 'linear-gradient(135deg, rgba(6,182,212,0.18), rgba(6,182,212,0.10))',

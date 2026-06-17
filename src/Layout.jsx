@@ -125,6 +125,7 @@ const subscriberNavGroups = [
 const studentNavGroups = [
   { label: "Hoje", color: "#a855f7", items: [
     { name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" },
+    { name: "Check-in Diário", icon: ClipboardList, page: "CheckIn" },
   ]},
   { label: "Treino", color: "#ec4899", items: [
     { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },

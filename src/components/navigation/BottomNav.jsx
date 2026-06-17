@@ -2,12 +2,13 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  LayoutDashboard, Dumbbell, Utensils, TrendingUp, MoreHorizontal
+  LayoutDashboard, Dumbbell, Utensils, TrendingUp, MoreHorizontal, ClipboardCheck
 } from "lucide-react";
 
 const studentTabs = [
   { label: "Início", icon: LayoutDashboard, path: "/StudentDashboard" },
   { label: "Treino", icon: Dumbbell, path: "/MyWorkout" },
+  { label: "Check-in", icon: ClipboardCheck, path: "/CheckIn" },
   { label: "Dieta", icon: Utensils, path: "/MyDiet" },
   { label: "Progresso", icon: TrendingUp, path: "/Progress" },
 ];
@@ -23,6 +24,8 @@ export default function BottomNav({ role, onMoreClick }) {
   const location = useLocation();
 
   const tabs = role === "assinante" ? subscriberTabs : studentTabs;
+  // Students have 5 tabs (no "Mais" button); subscribers have 4 tabs + "Mais"
+  const showMore = role === "assinante";
 
   return (
     <nav
@@ -95,23 +98,19 @@ export default function BottomNav({ role, onMoreClick }) {
           );
         })}
 
-        {/* More button */}
-        <button
-          onClick={onMoreClick}
-          className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all"
-          style={{ border: "1px solid transparent" }}
-        >
-          <MoreHorizontal
-            className="w-5 h-5"
-            style={{ color: "rgba(168,85,247,0.45)" }}
-          />
-          <span
-            className="text-[9px] font-mono-cyber tracking-wider leading-none"
-            style={{ color: "rgba(168,85,247,0.35)" }}
+        {/* More button — only for subscribers */}
+        {showMore && (
+          <button
+            onClick={onMoreClick}
+            className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all"
+            style={{ border: "1px solid transparent" }}
           >
-            Mais
-          </span>
-        </button>
+            <MoreHorizontal className="w-5 h-5" style={{ color: "rgba(168,85,247,0.45)" }} />
+            <span className="text-[9px] font-mono-cyber tracking-wider leading-none" style={{ color: "rgba(168,85,247,0.35)" }}>
+              Mais
+            </span>
+          </button>
+        )}
       </div>
     </nav>
   );

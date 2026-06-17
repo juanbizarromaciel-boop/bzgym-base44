@@ -32,6 +32,8 @@ import { base44 } from '@/api/base44Client';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import AppThemes from './pages/AppThemes';
 import FocusRoutine from './pages/FocusRoutine';
+import CheckInPage from './pages/CheckInPage';
+import PersonalDashboard from './pages/PersonalDashboard';
 import { useState, useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -165,6 +167,8 @@ const AuthenticatedApp = () => {
       <Route path="/AppThemes" element={<LayoutWrapper currentPageName="AppThemes"><AppThemes /></LayoutWrapper>} />
       <Route path="/DietLogs" element={<LayoutWrapper currentPageName="DietLogs"><DietLogs /></LayoutWrapper>} />
       <Route path="/FocusRoutine" element={<LayoutWrapper currentPageName="FocusRoutine"><FocusRoutine /></LayoutWrapper>} />
+      <Route path="/CheckIn" element={<LayoutWrapper currentPageName="CheckIn"><CheckInPage /></LayoutWrapper>} />
+      <Route path="/PersonalDashboard" element={<LayoutWrapper currentPageName="PersonalDashboard"><PersonalDashboard /></LayoutWrapper>} />
       <Route path="/AccessDenied" element={<AccessDenied />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
