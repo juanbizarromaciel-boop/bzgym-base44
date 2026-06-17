@@ -8,14 +8,14 @@ import {
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
   Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase,
-  Zap, X, Brain
+  Zap, X, Brain, Users2, Lock
 } from "lucide-react";
 
 // ─── Nav data ────────────────────────────────────────────────────────────────
 
 const adminNavGroups = [
   { label: "Visão Geral", color: "#a855f7", items: [
-    { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+    { name: "Dashboard Admin", icon: LayoutDashboard, page: "AdminDashboard" },
     { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
   ]},
   { label: "Alunos", color: "#06b6d4", items: [
@@ -29,6 +29,7 @@ const adminNavGroups = [
   ]},
   { label: "Evolução", color: "#f59e0b", items: [
     { name: "Progresso", icon: BarChart3, page: "Progress" },
+    { name: "Relatórios", icon: BarChart3, page: "Relatorios" },
     { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
   ]},
   { label: "Nutrição", color: "#10b981", items: [
@@ -37,31 +38,37 @@ const adminNavGroups = [
   ]},
   { label: "Comunicação", color: "#06b6d4", items: [
     { name: "Chat", icon: MessageSquare, page: "Chat" },
+    { name: "Comunidade", icon: Users2, page: "Comunidade" },
   ]},
   { label: "Saúde", color: "#84cc16", items: [
     { name: "Saúde e Exames", icon: Activity, page: "CH" },
   ]},
-  { label: "Inteligência Artificial", color: "#a855f7", items: [
+  { label: "IA", color: "#a855f7", items: [
     { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
     { name: "Config. IA", icon: Settings, page: "AISettings" },
   ]},
   { label: "Administração", color: "#f97316", items: [
     { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
   ]},
-  { label: "Financeiro", color: "#10b981", items: [
+  { label: "Agenda & Financeiro", color: "#10b981", items: [
+    { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
     { name: "Financeiro", icon: DollarSign, page: "Finance" },
-    { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
-    { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
+    { name: "Cal. de Aulas", icon: CalendarDays, page: "ClassCalendar" },
+    { name: "Cobrança", icon: Briefcase, page: "ConsultancyBilling" },
   ]},
   { label: "Ferramentas", color: "#8b5cf6", items: [
+    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
+  ]},
+  { label: "Restrito", color: "#84cc16", items: [
+    { name: "Cal. Hormonal", icon: Lock, page: "CalendarioHormonalAdmin" },
   ]},
 ];
 
 const personalNavGroups = [
   { label: "Visão Geral", color: "#a855f7", items: [
-    { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+    { name: "Dashboard", icon: LayoutDashboard, page: "PersonalDashboard" },
     { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
   ]},
   { label: "Meus Alunos", color: "#06b6d4", items: [
@@ -75,6 +82,7 @@ const personalNavGroups = [
   ]},
   { label: "Evolução", color: "#f59e0b", items: [
     { name: "Progresso", icon: BarChart3, page: "Progress" },
+    { name: "Relatórios", icon: BarChart3, page: "Relatorios" },
     { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
   ]},
   { label: "Nutrição", color: "#10b981", items: [
@@ -83,19 +91,22 @@ const personalNavGroups = [
   ]},
   { label: "Comunicação", color: "#06b6d4", items: [
     { name: "Chat", icon: MessageSquare, page: "Chat" },
+    { name: "Comunidade", icon: Users2, page: "Comunidade" },
   ]},
   { label: "Saúde", color: "#84cc16", items: [
     { name: "Saúde e Exames", icon: Activity, page: "CH" },
   ]},
-  { label: "Inteligência Artificial", color: "#a855f7", items: [
+  { label: "IA", color: "#a855f7", items: [
     { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
   ]},
-  { label: "Financeiro", color: "#10b981", items: [
+  { label: "Agenda & Financeiro", color: "#10b981", items: [
+    { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
     { name: "Financeiro", icon: DollarSign, page: "Finance" },
-    { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
-    { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
+    { name: "Cal. de Aulas", icon: CalendarDays, page: "ClassCalendar" },
+    { name: "Cobrança", icon: Briefcase, page: "ConsultancyBilling" },
   ]},
   { label: "Ferramentas", color: "#8b5cf6", items: [
+    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
     { name: "Cronômetro", icon: Timer, page: "TimerPage" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
@@ -104,6 +115,7 @@ const personalNavGroups = [
 const studentNavGroups = [
   { label: "Hoje", color: "#a855f7", items: [
     { name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" },
+    { name: "Check-in Diário", icon: ClipboardList, page: "CheckIn" },
   ]},
   { label: "Treino", color: "#ec4899", items: [
     { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
@@ -119,6 +131,10 @@ const studentNavGroups = [
   ]},
   { label: "Comunicação", color: "#06b6d4", items: [
     { name: "Chat", icon: MessageSquare, page: "Chat" },
+    { name: "Comunidade", icon: Users2, page: "Comunidade" },
+  ]},
+  { label: "Agenda", color: "#a855f7", items: [
+    { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
   ]},
   { label: "Saúde", color: "#84cc16", items: [
     { name: "Saúde e Exames", icon: Activity, page: "CH" },
@@ -142,6 +158,7 @@ const subscriberNavGroups = [
     { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
   ]},
   { label: "Conta", color: "#8b5cf6", items: [
+    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
 ];
