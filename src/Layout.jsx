@@ -30,6 +30,7 @@ const adminNavGroups = [
   ]},
   { label: "Evolução", color: "#f59e0b", items: [
     { name: "Progresso", icon: BarChart3, page: "Progress" },
+    { name: "Relatórios", icon: BarChart3, page: "Relatorios" },
     { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
   ]},
   { label: "Nutrição", color: "#10b981", items: [
@@ -50,10 +51,11 @@ const adminNavGroups = [
   { label: "Administração", color: "#f97316", items: [
     { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
   ]},
-  { label: "Financeiro", color: "#10b981", items: [
+  { label: "Agenda & Financeiro", color: "#10b981", items: [
+    { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
     { name: "Financeiro", icon: DollarSign, page: "Finance" },
-    { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
-    { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
+    { name: "Cal. de Aulas", icon: CalendarDays, page: "ClassCalendar" },
+    { name: "Cobrança", icon: Briefcase, page: "ConsultancyBilling" },
   ]},
   { label: "Comunidade", color: "#ec4899", items: [
     { name: "Comunidade", icon: Users2, page: "Comunidade" },
@@ -84,6 +86,7 @@ const personalNavGroups = [
   ]},
   { label: "Evolução", color: "#f59e0b", items: [
     { name: "Progresso", icon: BarChart3, page: "Progress" },
+    { name: "Relatórios", icon: BarChart3, page: "Relatorios" },
     { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
   ]},
   { label: "Nutrição", color: "#10b981", items: [
@@ -100,10 +103,11 @@ const personalNavGroups = [
   { label: "Inteligência Artificial", color: "#a855f7", items: [
     { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
   ]},
-  { label: "Financeiro", color: "#10b981", items: [
+  { label: "Agenda & Financeiro", color: "#10b981", items: [
+    { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
     { name: "Financeiro", icon: DollarSign, page: "Finance" },
-    { name: "Calendário de Aulas", icon: CalendarDays, page: "ClassCalendar" },
-    { name: "Cobrança Consultoria", icon: Briefcase, page: "ConsultancyBilling" },
+    { name: "Cal. de Aulas", icon: CalendarDays, page: "ClassCalendar" },
+    { name: "Cobrança", icon: Briefcase, page: "ConsultancyBilling" },
   ]},
   { label: "Comunidade", color: "#ec4899", items: [
     { name: "Comunidade", icon: Users2, page: "Comunidade" },
@@ -151,6 +155,10 @@ const studentNavGroups = [
   ]},
   { label: "Comunicação", color: "#06b6d4", items: [
     { name: "Chat", icon: MessageSquare, page: "Chat" },
+    { name: "Comunidade", icon: Users2, page: "Comunidade" },
+  ]},
+  { label: "Agenda", color: "#a855f7", items: [
+    { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
   ]},
   { label: "Saúde", color: "#84cc16", items: [
     { name: "Saúde e Exames", icon: Activity, page: "CH" },

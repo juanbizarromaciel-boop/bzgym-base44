@@ -1,0 +1,143 @@
+{
+  "name": "CalendarioEvento",
+  "type": "object",
+  "properties": {
+    "usuario_id": {
+      "type": "string",
+      "description": "Email do usu\u00e1rio dono do evento"
+    },
+    "student_id": {
+      "type": "string",
+      "description": "ID do aluno (se vinculado)"
+    },
+    "personal_id": {
+      "type": "string",
+      "description": "Email do personal (se vinculado)"
+    },
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do evento"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "treino",
+        "dieta",
+        "checkin",
+        "avaliacao",
+        "tarefa",
+        "lembrete",
+        "pagamento",
+        "consulta",
+        "outro"
+      ],
+      "default": "tarefa"
+    },
+    "data": {
+      "type": "string",
+      "format": "date"
+    },
+    "horario": {
+      "type": "string",
+      "description": "HH:MM"
+    },
+    "recorrencia": {
+      "type": "string",
+      "enum": [
+        "nenhuma",
+        "diaria",
+        "semanal",
+        "mensal"
+      ],
+      "default": "nenhuma"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "concluido",
+        "cancelado"
+      ],
+      "default": "pendente"
+    },
+    "cor": {
+      "type": "string",
+      "description": "Cor hex para display"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "titulo",
+    "data",
+    "tipo"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.usuario_id": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.usuario_id": "{{user.email}}"
+        }
+      ]
+    }
+  }
+}
