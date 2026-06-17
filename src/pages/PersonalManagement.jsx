@@ -151,6 +151,7 @@ export default function PersonalManagement() {
                   <SelectContent style={{ background: '#04040e', borderColor: 'rgba(168,85,247,0.3)' }}>
                     <SelectItem value="admin" className="text-purple-300 text-xs">Admin</SelectItem>
                     <SelectItem value="personal" className="text-cyan-300 text-xs">Personal</SelectItem>
+                    <SelectItem value="assinante" className="text-emerald-300 text-xs">Assinante</SelectItem>
                     <SelectItem value="user" className="text-white text-xs">Aluno</SelectItem>
                   </SelectContent>
                 </Select>
