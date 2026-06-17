@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Dumbbell, TrendingUp, Target, MessageSquare,
   ChevronRight, CheckCircle2, Clock, Utensils,
-  BookOpen, Trophy, Activity, Zap, Flame, Star
+  BookOpen, Trophy, Activity, Zap, Flame, Star, Apple
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -32,6 +32,7 @@ export default function StudentDashboard() {
   const { data: workoutLogs = [] } = useQuery({ queryKey: ["workoutLogs"], queryFn: () => base44.entities.WorkoutLog.list() });
   const { data: workoutPlans = [] } = useQuery({ queryKey: ["workoutPlans"], queryFn: () => base44.entities.WorkoutPlan.list() });
   const { data: messages = [] } = useQuery({ queryKey: ["messages"], queryFn: () => base44.entities.ChatMessage.list() });
+  const { data: dietPlans = [] } = useQuery({ queryKey: ["dietPlans"], queryFn: () => base44.entities.DietPlan.list() });
 
   useEffect(() => {
     if (user && students.length > 0) {
@@ -70,6 +71,10 @@ export default function StudentDashboard() {
   const sortedLogs = [...myLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
   const lastLog = sortedLogs[0];
   const daysSince = lastLog?.date ? Math.floor((new Date() - new Date(lastLog.date)) / 86400000) : null;
+
+  const myDietPlan = dietPlans.find(d => d.student_id === student?.id && d.active !== false);
+  const todayCalories = myDietPlan?.total_calories || null;
+  const todayMeals = myDietPlan?.meals?.length || 0;
 
   const todayDate = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
   const hour = new Date().getHours();
@@ -272,6 +277,66 @@ export default function StudentDashboard() {
               <CheckCircle2 className="w-5 h-5 text-emerald-400 relative z-10" style={{ filter: 'drop-shadow(0 0 6px rgba(52,211,153,1)) drop-shadow(0 0 12px rgba(52,211,153,0.6))' }} />
               <span className="text-xs text-emerald-300 font-mono-cyber tracking-wider relative z-10">Concluído</span>
             </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* ═══ DIET CARD ═══ */}
+      <motion.div variants={fadeUp}
+        className="relative rounded-2xl overflow-hidden border"
+        style={{
+          background: myDietPlan
+            ? 'linear-gradient(135deg, rgba(4,16,10,0.99) 0%, rgba(4,22,12,0.99) 100%)'
+            : 'rgba(4,4,12,0.9)',
+          borderColor: myDietPlan ? 'rgba(16,185,129,0.35)' : 'rgba(255,255,255,0.08)',
+          boxShadow: myDietPlan ? '0 0 40px rgba(16,185,129,0.10), inset 0 0 20px rgba(16,185,129,0.05)' : 'none',
+        }}>
+        {myDietPlan && (
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.8), rgba(6,182,212,0.4), transparent)', boxShadow: '0 0 10px rgba(16,185,129,0.5)' }} />
+        )}
+        {myDietPlan && (
+          <>
+            <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 rounded-tl pointer-events-none" style={{ borderColor: '#10b981', boxShadow: '0 0 6px #10b981' }} />
+            <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 rounded-br pointer-events-none" style={{ borderColor: 'rgba(6,182,212,0.6)', boxShadow: '0 0 6px rgba(6,182,212,0.5)' }} />
+          </>
+        )}
+        <div className="p-5 flex items-center justify-between gap-4 relative">
+          <div className="flex items-center gap-4">
+            <div className="relative w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                background: myDietPlan ? 'linear-gradient(135deg, rgba(16,185,129,0.20), rgba(16,185,129,0.08))' : 'rgba(255,255,255,0.03)',
+                border: myDietPlan ? '1px solid rgba(16,185,129,0.40)' : '1px solid rgba(255,255,255,0.08)',
+                boxShadow: myDietPlan ? '0 0 20px rgba(16,185,129,0.20), inset 0 0 10px rgba(16,185,129,0.08)' : 'none',
+              }}>
+              <Apple className="w-8 h-8" style={{ color: myDietPlan ? '#10b981' : '#ffffff15', filter: myDietPlan ? 'drop-shadow(0 0 6px #10b981) drop-shadow(0 0 12px rgba(16,185,129,0.5))' : 'none' }} />
+            </div>
+            <div>
+              <p className="text-[9px] font-mono-cyber uppercase tracking-[0.35em] mb-1.5" style={{ color: 'rgba(16,185,129,0.65)', textShadow: '0 0 8px rgba(16,185,129,0.5)' }}>
+                // dieta de hoje
+              </p>
+              <p className="text-base font-bold leading-tight" style={{ color: myDietPlan ? '#ffffff' : 'rgba(255,255,255,0.3)' }}>
+                {myDietPlan ? myDietPlan.name : "Sem plano alimentar"}
+              </p>
+              <p className="text-xs mt-1.5 font-mono-cyber" style={{ color: 'rgba(16,185,129,0.65)' }}>
+                {myDietPlan
+                  ? `${todayMeals} refeição${todayMeals !== 1 ? "ões" : ""}${todayCalories ? ` · ${todayCalories} kcal` : ""}`
+                  : "// fale com seu personal sobre dieta"}
+              </p>
+            </div>
+          </div>
+          {myDietPlan && (
+            <Link to="/MyDiet"
+              className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm tracking-wider transition-all hover:scale-105 relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(16,185,129,0.22), rgba(16,185,129,0.12))',
+                border: '1px solid rgba(16,185,129,0.45)',
+                color: '#ffffff',
+                boxShadow: '0 0 20px rgba(16,185,129,0.20), inset 0 0 12px rgba(16,185,129,0.10)',
+              }}>
+              <Apple className="w-4 h-4 flex-shrink-0" style={{ color: '#10b981', filter: 'drop-shadow(0 0 4px #10b981)' }} />
+              <span>VER</span>
+            </Link>
           )}
         </div>
       </motion.div>

@@ -97,9 +97,6 @@
           }
         },
         {
-          "data.personal_id": "{{user.email}}"
-        },
-        {
           "data.email": "{{user.email}}"
         }
       ]

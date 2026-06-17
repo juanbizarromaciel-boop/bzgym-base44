@@ -1,0 +1,99 @@
+{
+  "name": "HormonalCycle",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string",
+      "description": "ID do aluno"
+    },
+    "substance": {
+      "type": "string",
+      "description": "Nome da subst\u00e2ncia"
+    },
+    "dosage_mg_per_week": {
+      "type": "number",
+      "description": "Dosagem total em mg por semana"
+    },
+    "dosage_mg_per_application": {
+      "type": "number",
+      "description": "Dosagem em mg por aplica\u00e7\u00e3o"
+    },
+    "application_frequency": {
+      "type": "string",
+      "enum": [
+        "1x_semana",
+        "2x_semana",
+        "3x_semana",
+        "dia_sim_dia_nao",
+        "diario"
+      ],
+      "description": "Frequ\u00eancia de aplica\u00e7\u00e3o"
+    },
+    "cycle_start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de in\u00edcio do ciclo"
+    },
+    "cycle_duration_weeks": {
+      "type": "number",
+      "description": "Dura\u00e7\u00e3o do ciclo em semanas"
+    },
+    "application_site": {
+      "type": "string",
+      "description": "Local de aplica\u00e7\u00e3o (ex: gl\u00fateo, deltoide)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es adicionais"
+    }
+  },
+  "required": [
+    "student_id",
+    "substance",
+    "dosage_mg_per_week",
+    "dosage_mg_per_application"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

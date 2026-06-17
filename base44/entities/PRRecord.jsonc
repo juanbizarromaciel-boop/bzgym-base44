@@ -1,0 +1,112 @@
+{
+  "name": "PRRecord",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string",
+      "description": "ID do aluno"
+    },
+    "exercise_id": {
+      "type": "string",
+      "description": "ID do exerc\u00edcio"
+    },
+    "exercise_name": {
+      "type": "string",
+      "description": "Nome do exerc\u00edcio"
+    },
+    "modality": {
+      "type": "string",
+      "enum": [
+        "1rm",
+        "3rm",
+        "6rm"
+      ],
+      "description": "Modalidade do PR: 1 rep, 3 reps ou 6 reps"
+    },
+    "load_kg": {
+      "type": "number",
+      "description": "Carga em kg"
+    },
+    "media_url": {
+      "type": "string",
+      "description": "URL da foto ou v\u00eddeo do PR"
+    },
+    "media_type": {
+      "type": "string",
+      "enum": [
+        "photo",
+        "video"
+      ],
+      "description": "Tipo de m\u00eddia"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do PR"
+    }
+  },
+  "required": [
+    "student_id",
+    "exercise_name",
+    "modality",
+    "load_kg",
+    "media_url",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    }
+  }
+}

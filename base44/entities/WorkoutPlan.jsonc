@@ -110,7 +110,9 @@
           }
         },
         {
-          "data.personal_id": "{{user.email}}"
+          "user_condition": {
+            "role": "personal"
+          }
         },
         {
           "user_condition": {
@@ -118,9 +120,7 @@
           }
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
+          "data.personal_id": "{{user.email}}"
         }
       ]
     },
@@ -132,7 +132,9 @@
           }
         },
         {
-          "data.personal_id": "{{user.email}}"
+          "user_condition": {
+            "role": "personal"
+          }
         }
       ]
     },
@@ -144,7 +146,9 @@
           }
         },
         {
-          "data.personal_id": "{{user.email}}"
+          "user_condition": {
+            "role": "personal"
+          }
         }
       ]
     }

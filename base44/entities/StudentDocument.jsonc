@@ -1,0 +1,96 @@
+{
+  "name": "StudentDocument",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string",
+      "description": "ID do aluno"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "foto_perfil",
+        "foto_progresso",
+        "exame_sangue",
+        "bioimpedancia",
+        "raio_x",
+        "ressonancia",
+        "atestado_medico",
+        "outro"
+      ],
+      "description": "Tipo do documento"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL do arquivo"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo ou descri\u00e7\u00e3o do documento"
+    },
+    "document_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do documento/exame"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es sobre o documento"
+    }
+  },
+  "required": [
+    "student_id",
+    "document_type",
+    "file_url"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        }
+      ]
+    }
+  }
+}

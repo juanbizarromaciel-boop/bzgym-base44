@@ -1,0 +1,90 @@
+{
+  "name": "Food",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nome do alimento"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "proteina",
+        "carboidrato",
+        "gordura",
+        "fruta",
+        "vegetal",
+        "laticinios",
+        "leguminosa",
+        "oleaginosa",
+        "bebida",
+        "outro"
+      ],
+      "description": "Categoria do alimento"
+    },
+    "calories_per_100g": {
+      "type": "number"
+    },
+    "protein_per_100g": {
+      "type": "number"
+    },
+    "carbs_per_100g": {
+      "type": "number"
+    },
+    "fat_per_100g": {
+      "type": "number"
+    },
+    "fiber_per_100g": {
+      "type": "number"
+    },
+    "serving_size_g": {
+      "type": "number",
+      "description": "Por\u00e7\u00e3o padr\u00e3o em gramas"
+    }
+  },
+  "required": [
+    "name",
+    "category"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "created_by": "{{user.email}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

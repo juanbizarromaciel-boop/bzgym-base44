@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import NotificationBell from "./components/notifications/NotificationBell";
 import CyberNav from "./components/navigation/CyberNav";
+import BottomNav from "./components/navigation/BottomNav";
 
 const adminNavGroups = [
   { label: "Visão Geral", color: "#a855f7", items: [
@@ -313,8 +314,17 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </aside>
 
+      {/* Bottom Nav — only for alunos/assinantes on mobile */}
+      {(role === "user" || role === "assinante") && (
+        <BottomNav role={role} onMoreClick={() => {
+          // Open the CyberNav overlay — dispatch a synthetic click on the CyberNav button
+          const btn = document.querySelector('[data-cybernav-trigger]');
+          if (btn) btn.click();
+        }} />
+      )}
+
       {/* Main Content */}
-      <main className="lg:ml-60 pt-16 lg:pt-0 min-h-screen">
+      <main className={`lg:ml-60 pt-16 lg:pt-0 min-h-screen ${(role === "user" || role === "assinante") ? "pb-24 lg:pb-0" : ""}`}>
         <div className="hidden lg:block fixed top-5 right-6 z-30">
           <NotificationBell />
         </div>

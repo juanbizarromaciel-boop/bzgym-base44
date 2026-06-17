@@ -470,6 +470,7 @@ export default function CyberNav({ role, currentPageName, userName }) {
     <>
       <motion.button
         onClick={() => setOpen((v) => !v)}
+        data-cybernav-trigger
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.88 }}
         className="relative p-2 rounded-xl"
