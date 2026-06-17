@@ -1,0 +1,124 @@
+{
+  "name": "InviteCode",
+  "type": "object",
+  "properties": {
+    "personal_id": {
+      "type": "string",
+      "description": "Email do personal que gerou o c\u00f3digo"
+    },
+    "personal_name": {
+      "type": "string",
+      "description": "Nome do personal"
+    },
+    "code": {
+      "type": "string",
+      "description": "C\u00f3digo \u00fanico de convite"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "usado",
+        "expirado"
+      ],
+      "default": "ativo"
+    },
+    "used_by_email": {
+      "type": "string",
+      "description": "Email de quem usou o c\u00f3digo"
+    },
+    "used_at": {
+      "type": "string",
+      "description": "Data/hora que foi usado"
+    },
+    "expires_at": {
+      "type": "string",
+      "description": "Data de expira\u00e7\u00e3o"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "personal_id",
+    "code"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "recente"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "recente"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    }
+  }
+}

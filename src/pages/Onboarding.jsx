@@ -22,9 +22,17 @@ export default function Onboarding() {
   const [customGoal, setCustomGoal] = useState("");
   const [notes, setNotes] = useState("");
   const [phone, setPhone] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
+
+  // Read invite code from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("invite");
+    if (code) setInviteCode(code.toUpperCase());
+  }, []);
 
   useEffect(() => {
     base44.auth.me().then(u => {
@@ -32,12 +40,8 @@ export default function Onboarding() {
       base44.entities.Student.list().then(students => {
         const found = students.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
         if (found && found.goal) {
-          // Redirect already registered students
-          if (found.active) {
-            navigate("/StudentDashboard");
-          } else {
-            navigate("/Welcome");
-          }
+          if (found.active) { navigate("/StudentDashboard"); }
+          else { navigate("/Welcome"); }
         } else {
           setStudent(found);
         }
@@ -59,12 +63,29 @@ export default function Onboarding() {
     setLoading(true);
     try {
       const goalValue = customGoal.trim() || selectedGoal;
-      
+
+      // Check invite code and find personal
+      let personalId = "";
+      if (inviteCode.trim()) {
+        const allCodes = await base44.entities.InviteCode.list();
+        const found = allCodes.find(c => c.code === inviteCode.trim().toUpperCase() && c.status === "ativo");
+        if (found) {
+          personalId = found.personal_id;
+          // Mark code as used
+          await base44.entities.InviteCode.update(found.id, {
+            status: "usado",
+            used_by_email: user.email,
+            used_at: new Date().toISOString(),
+          });
+        }
+      }
+
       if (student) {
         await base44.entities.Student.update(student.id, {
           goal: goalValue,
           phone: phone.trim(),
-          notes: notes.trim() || student.notes
+          notes: notes.trim() || student.notes,
+          ...(personalId ? { personal_id: personalId } : {}),
         });
       } else {
         await base44.entities.Student.create({
@@ -73,7 +94,8 @@ export default function Onboarding() {
           phone: phone.trim(),
           goal: goalValue,
           notes: notes.trim(),
-          active: false
+          active: false,
+          ...(personalId ? { personal_id: personalId } : {}),
         });
       }
 
@@ -221,6 +243,23 @@ export default function Onboarding() {
           />
           <p className="text-[10px] text-purple-500/30 font-mono-cyber mt-2">
             // seu personal trainer entrará em contato
+          </p>
+        </div>
+
+        {/* Invite code */}
+        <div className="cyber-card rounded-2xl p-6 md:p-8 border border-purple-900/30 mb-6">
+          <label className="text-xs text-purple-400/50 font-mono-cyber tracking-wider uppercase mb-3 block">
+            Código de convite (opcional)
+          </label>
+          <input
+            placeholder="Ex: AB3XK7PQ"
+            value={inviteCode}
+            onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+            className="w-full rounded-lg px-4 py-3 text-sm outline-none font-cyber tracking-[0.3em]"
+            style={{ background: '#1a1030', border: '1px solid rgba(6,182,212,0.35)', color: '#22d3ee', caretColor: '#06b6d4' }}
+          />
+          <p className="text-[10px] text-cyan-500/40 font-mono-cyber mt-2">
+            // se o seu personal enviou um código, insira aqui para ser vinculado automaticamente
           </p>
         </div>
 

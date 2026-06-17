@@ -13,7 +13,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, UserCircle, Phone, Mail, Target, Pencil, Trash2, Camera } from "lucide-react";
+import { Plus, Search, UserCircle, Phone, Mail, Target, Pencil, Trash2, Camera, Link2 } from "lucide-react";
+import InviteCodePanel from "../components/students/InviteCodePanel";
 import { motion } from "framer-motion";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
@@ -42,6 +43,7 @@ export default function Students() {
   const [editingStudent, setEditingStudent] = useState(null);
   const [form, setForm] = useState(emptyStudent);
   const [search, setSearch] = useState("");
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [photoUploading, setPhotoUploading] = useState(false);
@@ -144,6 +146,15 @@ export default function Students() {
             </div>
           </div>
 
+          <div className="flex gap-2">
+          {(currentUser?.role === "personal" || currentUser?.role === "admin") && (
+            <button onClick={() => setInviteOpen(true)}
+              className="relative px-4 py-3 rounded-xl font-medium tracking-wider flex items-center gap-2 overflow-hidden group"
+              style={{ background: 'rgba(6,182,212,0.12)', border: '1px solid rgba(6,182,212,0.50)', boxShadow: '0 0 16px rgba(6,182,212,0.15)' }}>
+              <Link2 className="w-4 h-4 relative z-10" style={{ color: '#06b6d4' }} />
+              <span className="text-sm font-bold relative z-10" style={{ color: '#22d3ee' }}>CONVITE</span>
+            </button>
+          )}
           <button
             onClick={() => setDialogOpen(true)}
             className="relative px-5 py-3 rounded-xl font-medium tracking-wider flex items-center gap-2 overflow-hidden group"
@@ -159,6 +170,7 @@ export default function Students() {
             <Plus className="w-5 h-5 relative z-10" style={{ color: '#a855f7', filter: 'drop-shadow(0 0 6px rgba(168,85,247,0.8))' }} />
             <span className="text-sm font-bold relative z-10" style={{ color: '#ffffff', textShadow: '0 0 8px rgba(168,85,247,0.5)' }}>NOVO ALUNO</span>
           </button>
+          </div>
         </div>
 
         {/* Bottom decorative line */}
@@ -223,6 +235,8 @@ export default function Students() {
           </motion.div>
         ))}
       </motion.div>
+
+      <InviteCodePanel open={inviteOpen} onClose={() => setInviteOpen(false)} />
 
       <Dialog open={dialogOpen} onOpenChange={closeDialog}>
         <DialogContent className="border border-purple-900/40 text-white max-w-md" style={{background: '#04040e'}}>

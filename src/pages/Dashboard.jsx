@@ -50,6 +50,11 @@ export default function Dashboard() {
     return null;
   }
 
+  if (role === "personal") {
+    navigate("/PersonalDashboard", { replace: true });
+    return null;
+  }
+
   const isPersonal = role === "personal";
   const activeStudents = students.filter(s => s.active !== false);
   const unreadMessages = messages.filter(m => !m.is_trainer && !m.read);

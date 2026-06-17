@@ -1,0 +1,139 @@
+{
+  "name": "MedidasCorporais",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string",
+      "description": "ID do aluno"
+    },
+    "personal_id": {
+      "type": "string",
+      "description": "Email do personal"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data da avalia\u00e7\u00e3o"
+    },
+    "waist_cm": {
+      "type": "number",
+      "description": "Cintura em cm"
+    },
+    "abdomen_cm": {
+      "type": "number",
+      "description": "Abd\u00f4men em cm"
+    },
+    "hip_cm": {
+      "type": "number",
+      "description": "Quadril em cm"
+    },
+    "chest_cm": {
+      "type": "number",
+      "description": "Peito em cm"
+    },
+    "right_arm_cm": {
+      "type": "number",
+      "description": "Bra\u00e7o direito em cm"
+    },
+    "left_arm_cm": {
+      "type": "number",
+      "description": "Bra\u00e7o esquerdo em cm"
+    },
+    "right_thigh_cm": {
+      "type": "number",
+      "description": "Coxa direita em cm"
+    },
+    "left_thigh_cm": {
+      "type": "number",
+      "description": "Coxa esquerda em cm"
+    },
+    "right_calf_cm": {
+      "type": "number",
+      "description": "Panturrilha direita em cm"
+    },
+    "left_calf_cm": {
+      "type": "number",
+      "description": "Panturrilha esquerda em cm"
+    },
+    "neck_cm": {
+      "type": "number",
+      "description": "Pesco\u00e7o em cm"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es"
+    }
+  },
+  "required": [
+    "student_id",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    }
+  }
+}

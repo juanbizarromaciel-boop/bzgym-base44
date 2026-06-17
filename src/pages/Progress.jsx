@@ -12,6 +12,8 @@ import {
 import { TrendingUp, TrendingDown, Minus, Zap, Dumbbell, Calendar, BarChart2 } from "lucide-react";
 import { motion } from "framer-motion";
 import ExerciseSeriesAnalysis from "../components/workout/ExerciseSeriesAnalysis";
+import CheckInHistory from "../components/progress/CheckInHistory";
+import BioimpedanciaPanel from "../components/progress/BioimpedanciaPanel";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -49,7 +51,7 @@ export default function Progress() {
   const [selectedExercise, setSelectedExercise] = useState("all");
   const [selectedMuscle, setSelectedMuscle] = useState("all");
   const [period, setPeriod] = useState("weekly");
-  const [activeTab, setActiveTab] = useState("evolucao"); // "evolucao" | "series"
+  const [activeTab, setActiveTab] = useState("evolucao"); // "evolucao" | "series" | "checkins" | "bio"
   const { user: currentUser, isAdmin } = useCurrentUser();
   const userRole = currentUser?.role || null;
 
@@ -231,10 +233,12 @@ export default function Progress() {
       </div>
 
       {/* Tabs */}
-      <motion.div variants={fadeUp} className="flex gap-1.5 mb-6 w-fit">
+      <motion.div variants={fadeUp} className="flex gap-1.5 mb-6 flex-wrap">
         {[
           { id: "evolucao", label: "EVOLUÇÃO", icon: TrendingUp },
-          { id: "series", label: "ANÁLISE DE SÉRIES", icon: BarChart2 },
+          { id: "series", label: "SÉRIES", icon: BarChart2 },
+          { id: "checkins", label: "CHECK-INS", icon: Calendar },
+          { id: "bio", label: "BIOIMPEDÂNCIA", icon: Zap },
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-mono-cyber tracking-wider transition-all"
@@ -308,6 +312,32 @@ export default function Progress() {
       {activeTab === "series" && (
         <motion.div variants={fadeUp}>
           <ExerciseSeriesAnalysis studentId={selectedStudentId} allLogs={logs} />
+        </motion.div>
+      )}
+
+      {/* CHECK-INS TAB */}
+      {activeTab === "checkins" && selectedStudentId && (
+        <motion.div variants={fadeUp}>
+          <CheckInHistory studentId={selectedStudentId} />
+        </motion.div>
+      )}
+      {activeTab === "checkins" && !selectedStudentId && (isAdmin || isPersonal) && (
+        <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/20">
+          <Calendar className="w-12 h-12 mx-auto mb-4 opacity-30" />
+          <p className="font-mono-cyber text-sm">// selecione um aluno para ver os check-ins</p>
+        </motion.div>
+      )}
+
+      {/* BIO TAB */}
+      {activeTab === "bio" && selectedStudentId && (
+        <motion.div variants={fadeUp}>
+          <BioimpedanciaPanel studentId={selectedStudentId} />
+        </motion.div>
+      )}
+      {activeTab === "bio" && !selectedStudentId && (isAdmin || isPersonal) && (
+        <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/20">
+          <Zap className="w-12 h-12 mx-auto mb-4 opacity-30" />
+          <p className="font-mono-cyber text-sm">// selecione um aluno para ver a bioimpedância</p>
         </motion.div>
       )}
 
