@@ -9,11 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import {
   BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { TrendingUp, TrendingDown, Minus, Zap, Dumbbell, Calendar, BarChart2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Zap, Dumbbell, Calendar, BarChart2, Ruler, Camera } from "lucide-react";
 import { motion } from "framer-motion";
 import ExerciseSeriesAnalysis from "../components/workout/ExerciseSeriesAnalysis";
 import CheckInHistory from "../components/progress/CheckInHistory";
 import BioimpedanciaPanel from "../components/progress/BioimpedanciaPanel";
+import MedidasCorporaisPanel from "../components/progress/MedidasCorporaisPanel";
+import FotosProgressoPanel from "../components/progress/FotosProgressoPanel";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -51,7 +53,7 @@ export default function Progress() {
   const [selectedExercise, setSelectedExercise] = useState("all");
   const [selectedMuscle, setSelectedMuscle] = useState("all");
   const [period, setPeriod] = useState("weekly");
-  const [activeTab, setActiveTab] = useState("evolucao"); // "evolucao" | "series" | "checkins" | "bio"
+  const [activeTab, setActiveTab] = useState("evolucao"); // "evolucao" | "series" | "checkins" | "bio" | "medidas" | "fotos"
   const { user: currentUser, isAdmin } = useCurrentUser();
   const userRole = currentUser?.role || null;
 
@@ -239,6 +241,8 @@ export default function Progress() {
           { id: "series", label: "SÉRIES", icon: BarChart2 },
           { id: "checkins", label: "CHECK-INS", icon: Calendar },
           { id: "bio", label: "BIOIMPEDÂNCIA", icon: Zap },
+          { id: "medidas", label: "MEDIDAS", icon: Ruler },
+          { id: "fotos", label: "FOTOS", icon: Camera },
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-mono-cyber tracking-wider transition-all"
@@ -338,6 +342,32 @@ export default function Progress() {
         <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/20">
           <Zap className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="font-mono-cyber text-sm">// selecione um aluno para ver a bioimpedância</p>
+        </motion.div>
+      )}
+
+      {/* MEDIDAS TAB */}
+      {activeTab === "medidas" && selectedStudentId && (
+        <motion.div variants={fadeUp}>
+          <MedidasCorporaisPanel studentId={selectedStudentId} />
+        </motion.div>
+      )}
+      {activeTab === "medidas" && !selectedStudentId && (isAdmin || isPersonal) && (
+        <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/20">
+          <Ruler className="w-12 h-12 mx-auto mb-4 opacity-30" />
+          <p className="font-mono-cyber text-sm">// selecione um aluno para ver as medidas</p>
+        </motion.div>
+      )}
+
+      {/* FOTOS TAB */}
+      {activeTab === "fotos" && selectedStudentId && (
+        <motion.div variants={fadeUp}>
+          <FotosProgressoPanel studentId={selectedStudentId} />
+        </motion.div>
+      )}
+      {activeTab === "fotos" && !selectedStudentId && (isAdmin || isPersonal) && (
+        <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/20">
+          <Camera className="w-12 h-12 mx-auto mb-4 opacity-30" />
+          <p className="font-mono-cyber text-sm">// selecione um aluno para ver as fotos</p>
         </motion.div>
       )}
 

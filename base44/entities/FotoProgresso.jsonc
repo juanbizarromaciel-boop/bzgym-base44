@@ -1,0 +1,122 @@
+{
+  "name": "FotoProgresso",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string",
+      "description": "ID do aluno"
+    },
+    "personal_id": {
+      "type": "string",
+      "description": "Email do personal"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data das fotos"
+    },
+    "frente_url": {
+      "type": "string",
+      "description": "URL da foto de frente"
+    },
+    "lado_url": {
+      "type": "string",
+      "description": "URL da foto de lado"
+    },
+    "costas_url": {
+      "type": "string",
+      "description": "URL da foto de costas"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "privado",
+        "personal",
+        "publico"
+      ],
+      "default": "personal",
+      "description": "Quem pode ver as fotos"
+    }
+  },
+  "required": [
+    "student_id",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    }
+  }
+}
