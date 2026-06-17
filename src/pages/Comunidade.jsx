@@ -10,6 +10,8 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import SportsNewsFeed from "@/components/news/SportsNewsFeed";
+import SportsNewsHighlights from "@/components/news/SportsNewsHighlights";
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
@@ -107,6 +109,7 @@ function PostCard({ post, currentUserEmail, onLike, onDelete, isAdmin }) {
 
 export default function Comunidade() {
   const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState("comunidade");
   const [filter, setFilter] = useState("todos");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ tipo_post: "motivacao", texto: "", imagem_url: "", visibilidade: "alunos" });
@@ -114,6 +117,12 @@ export default function Comunidade() {
   const qc = useQueryClient();
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
+
+  useEffect(() => {
+    const openNews = () => setActiveTab("noticias");
+    window.addEventListener("openSportsNewsTab", openNews);
+    return () => window.removeEventListener("openSportsNewsTab", openNews);
+  }, []);
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["comunidadePosts"],
@@ -170,7 +179,7 @@ export default function Comunidade() {
   const isAdmin = user?.role === "admin";
 
   return (
-    <motion.div initial="hidden" animate="show" variants={stagger} className="max-w-2xl mx-auto space-y-6">
+    <motion.div initial="hidden" animate="show" variants={stagger} className={`${activeTab === "noticias" ? "max-w-5xl" : "max-w-2xl"} mx-auto space-y-6`}>
 
       {/* Header */}
       <motion.div variants={fadeUp} className="relative">
@@ -193,42 +202,56 @@ export default function Comunidade() {
         <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(236,72,153,0.5), rgba(168,85,247,0.6), transparent)' }} />
       </motion.div>
 
-      {/* Filters */}
-      <motion.div variants={fadeUp} className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-        {FILTER_OPTIONS.map(f => (
-          <button key={f.value} onClick={() => setFilter(f.value)}
-            className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-mono-cyber tracking-wider transition-all"
-            style={filter === f.value ? {
-              background: 'rgba(236,72,153,0.20)', border: '1px solid rgba(236,72,153,0.55)',
-              color: '#f9a8d4', boxShadow: '0 0 12px rgba(236,72,153,0.20)',
-            } : {
-              background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.15)', color: 'rgba(168,85,247,0.45)',
-            }}>
-            {f.label}
-          </button>
-        ))}
+      {/* Tabs */}
+      <motion.div variants={fadeUp} className="grid grid-cols-2 gap-2 rounded-2xl border p-1" style={{ borderColor: "rgba(168,85,247,0.25)", background: "rgba(4,4,14,0.70)" }}>
+        <button onClick={() => setActiveTab("comunidade")} className="py-3 rounded-xl text-xs font-mono-cyber uppercase tracking-wider transition-all" style={activeTab === "comunidade" ? { background: "rgba(236,72,153,0.16)", color: "#f9a8d4", border: "1px solid rgba(236,72,153,0.38)" } : { color: "rgba(255,255,255,0.38)", border: "1px solid transparent" }}>Feed da Comunidade</button>
+        <button onClick={() => setActiveTab("noticias")} className="py-3 rounded-xl text-xs font-mono-cyber uppercase tracking-wider transition-all" style={activeTab === "noticias" ? { background: "rgba(6,182,212,0.16)", color: "#67e8f9", border: "1px solid rgba(6,182,212,0.38)" } : { color: "rgba(255,255,255,0.38)", border: "1px solid transparent" }}>Notícias do Esporte</button>
       </motion.div>
 
-      {/* Posts */}
-      {isLoading ? (
-        <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-2 border-pink-500/30 border-t-pink-500 rounded-full animate-spin" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <motion.div variants={fadeUp} className="text-center py-20 rounded-2xl border border-purple-900/20">
-          <MessageCircle className="w-12 h-12 mx-auto mb-4 text-purple-500/20" />
-          <p className="font-mono-cyber text-sm text-purple-500/30">// nenhum post ainda</p>
-          <button onClick={() => setDialogOpen(true)} className="mt-5 btn-neon-pink px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 mx-auto">
-            <Plus className="w-4 h-4" /> Seja o primeiro a postar
-          </button>
-        </motion.div>
+      {activeTab === "noticias" ? (
+        <SportsNewsFeed />
       ) : (
-        <AnimatePresence>
-          {filtered.map(post => (
-            <PostCard key={post.id} post={post} currentUserEmail={user?.email} isAdmin={isAdmin}
-              onLike={handleLike} onDelete={(id) => deleteMut.mutate(id)} />
-          ))}
-        </AnimatePresence>
+        <>
+          <SportsNewsHighlights />
+
+          {/* Filters */}
+          <motion.div variants={fadeUp} className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+            {FILTER_OPTIONS.map(f => (
+              <button key={f.value} onClick={() => setFilter(f.value)}
+                className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-mono-cyber tracking-wider transition-all"
+                style={filter === f.value ? {
+                  background: 'rgba(236,72,153,0.20)', border: '1px solid rgba(236,72,153,0.55)',
+                  color: '#f9a8d4', boxShadow: '0 0 12px rgba(236,72,153,0.20)',
+                } : {
+                  background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.15)', color: 'rgba(168,85,247,0.45)',
+                }}>
+                {f.label}
+              </button>
+            ))}
+          </motion.div>
+
+          {/* Posts */}
+          {isLoading ? (
+            <div className="flex justify-center py-16">
+              <div className="w-8 h-8 border-2 border-pink-500/30 border-t-pink-500 rounded-full animate-spin" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <motion.div variants={fadeUp} className="text-center py-20 rounded-2xl border border-purple-900/20">
+              <MessageCircle className="w-12 h-12 mx-auto mb-4 text-purple-500/20" />
+              <p className="font-mono-cyber text-sm text-purple-500/30">// nenhum post ainda</p>
+              <button onClick={() => setDialogOpen(true)} className="mt-5 btn-neon-pink px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 mx-auto">
+                <Plus className="w-4 h-4" /> Seja o primeiro a postar
+              </button>
+            </motion.div>
+          ) : (
+            <AnimatePresence>
+              {filtered.map(post => (
+                <PostCard key={post.id} post={post} currentUserEmail={user?.email} isAdmin={isAdmin}
+                  onLike={handleLike} onDelete={(id) => deleteMut.mutate(id)} />
+              ))}
+            </AnimatePresence>
+          )}
+        </>
       )}
 
       {/* New post dialog */}

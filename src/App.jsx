@@ -40,6 +40,8 @@ import CalendarioGeral from './pages/CalendarioGeral';
 import Relatorios from './pages/Relatorios';
 import AdminDashboard from './pages/AdminDashboard';
 import Notificacoes from './pages/Notificacoes';
+import NewsManagement from './pages/NewsManagement';
+import SportsNewsDetail from './pages/SportsNewsDetail';
 import { useState, useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -110,6 +112,8 @@ const AuthenticatedApp = () => {
       <Route path="/MyWorkout" element={<LayoutWrapper currentPageName="MyWorkout"><MyWorkout /></LayoutWrapper>} />
       <Route path="/ExerciseLibrary" element={<LayoutWrapper currentPageName="ExerciseLibrary"><ExerciseLibrary /></LayoutWrapper>} />
       <Route path="/MyDiet" element={<LayoutWrapper currentPageName="MyDiet"><MyDiet /></LayoutWrapper>} />
+      <Route path="/Comunidade" element={<LayoutWrapper currentPageName="Comunidade"><Comunidade /></LayoutWrapper>} />
+      <Route path="/SportsNewsDetail" element={<LayoutWrapper currentPageName="SportsNewsDetail"><SportsNewsDetail /></LayoutWrapper>} />
       <Route path="/FocusRoutine" element={<LayoutWrapper currentPageName="FocusRoutine"><FocusRoutine /></LayoutWrapper>} />
       <Route path="/Profile" element={<LayoutWrapper currentPageName="Profile"><Profile /></LayoutWrapper>} />
       <Route path="/AppThemes" element={<LayoutWrapper currentPageName="AppThemes"><AppThemes /></LayoutWrapper>} />
@@ -183,6 +187,8 @@ const AuthenticatedApp = () => {
       <Route path="/Relatorios" element={<LayoutWrapper currentPageName="Relatorios"><Relatorios /></LayoutWrapper>} />
       <Route path="/AdminDashboard" element={<LayoutWrapper currentPageName="AdminDashboard"><AdminDashboard /></LayoutWrapper>} />
       <Route path="/Notificacoes" element={<LayoutWrapper currentPageName="Notificacoes"><Notificacoes /></LayoutWrapper>} />
+      <Route path="/NewsManagement" element={<LayoutWrapper currentPageName="NewsManagement"><NewsManagement /></LayoutWrapper>} />
+      <Route path="/SportsNewsDetail" element={<LayoutWrapper currentPageName="SportsNewsDetail"><SportsNewsDetail /></LayoutWrapper>} />
       <Route path="/AccessDenied" element={<AccessDenied />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

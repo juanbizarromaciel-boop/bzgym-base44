@@ -1,0 +1,86 @@
+{
+  "name": "NewsSource",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nome da fonte"
+    },
+    "url": {
+      "type": "string",
+      "description": "URL da API ou RSS"
+    },
+    "default_category": {
+      "type": "string",
+      "enum": [
+        "musculacao",
+        "fitness",
+        "futebol",
+        "lutas",
+        "corrida",
+        "fisiculturismo",
+        "nutricao_esportiva",
+        "saude_performance",
+        "eventos_esportivos"
+      ],
+      "default": "fitness"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "update_frequency_minutes": {
+      "type": "number",
+      "default": 360
+    },
+    "preferred_language": {
+      "type": "string",
+      "default": "pt-BR"
+    },
+    "country_region": {
+      "type": "string",
+      "default": "BR"
+    },
+    "last_update_at": {
+      "type": "string"
+    },
+    "last_update_status": {
+      "type": "string",
+      "enum": [
+        "nunca_atualizado",
+        "sucesso",
+        "erro"
+      ],
+      "default": "nunca_atualizado"
+    },
+    "last_update_message": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "url"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

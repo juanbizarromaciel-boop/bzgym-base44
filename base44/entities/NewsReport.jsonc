@@ -1,0 +1,67 @@
+{
+  "name": "NewsReport",
+  "type": "object",
+  "properties": {
+    "news_id": {
+      "type": "string"
+    },
+    "comment_id": {
+      "type": "string"
+    },
+    "reported_by": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "revisado",
+        "descartado"
+      ],
+      "default": "pendente"
+    }
+  },
+  "required": [
+    "reported_by",
+    "reason"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.reported_by": "{{user.email}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.reported_by": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

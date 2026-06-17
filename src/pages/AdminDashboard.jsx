@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import {
   Users, UserCog, Dumbbell, Utensils, ClipboardCheck, MessageSquare,
   DollarSign, Activity, AlertTriangle, CheckCircle2, Shield, BarChart3,
-  FileImage, Sparkles, ChevronRight, Bell, TrendingUp, Lock
+  FileImage, Sparkles, ChevronRight, Bell, TrendingUp, Lock, Newspaper
 } from "lucide-react";
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
@@ -46,6 +46,7 @@ export default function AdminDashboard() {
   const { data: checkIns = [] } = useQuery({ queryKey: ["checkIns"], queryFn: () => base44.entities.CheckIn.list() });
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
   const { data: hormonalEvents = [] } = useQuery({ queryKey: ["calendarioHormonal"], queryFn: () => base44.entities.CalendarioHormonal.list("-created_date", 100) });
+  const { data: sportsNews = [] } = useQuery({ queryKey: ["adminSportsNewsStats"], queryFn: () => base44.entities.SportsNews.list("-created_date", 100) });
 
   const activeStudents = students.filter(s => s.active !== false);
   const pendingStudents = students.filter(s => s.active === false);
@@ -82,6 +83,7 @@ export default function AdminDashboard() {
     { label: "Pag. Pendentes", value: pendingPayments.length, icon: DollarSign, color: "#f97316", link: "/Finance" },
     { label: "Exercícios", value: exercises.length, icon: Activity, color: "#8b5cf6", link: "/ExerciseLibrary" },
     { label: "Cal. Hormonal", value: activeHormonal.length, icon: Lock, color: "#84cc16", link: "/CalendarioHormonalAdmin" },
+    { label: "Notícias", value: sportsNews.length, icon: Newspaper, color: "#06b6d4", link: "/NewsManagement" },
     { label: "Relatórios IA", value: dietPlans.length + workoutPlans.length, icon: Sparkles, color: "#ec4899", link: "/Relatorios" },
     { label: "Evolução", value: checkIns.length, icon: TrendingUp, color: "#f59e0b", link: "/Progress" },
   ];
@@ -100,6 +102,7 @@ export default function AdminDashboard() {
     { label: "Progresso", icon: BarChart3, path: "/Progress", color: "#f59e0b" },
     { label: "Financeiro", icon: DollarSign, path: "/Finance", color: "#f97316" },
     { label: "Relatórios", icon: BarChart3, path: "/Relatorios", color: "#06b6d4" },
+    { label: "Notícias", icon: Newspaper, path: "/NewsManagement", color: "#06b6d4" },
     { label: "Cal. Hormonal", icon: Lock, path: "/CalendarioHormonalAdmin", color: "#84cc16" },
     { label: "Chat", icon: MessageSquare, path: "/Chat", color: "#ec4899" },
     { label: "Exercícios", icon: Activity, path: "/ExerciseLibrary", color: "#8b5cf6" },

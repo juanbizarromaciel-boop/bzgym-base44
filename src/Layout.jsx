@@ -8,7 +8,7 @@ import {
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
   Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase, Brain,
-  Users2, Lock, Bell
+  Users2, Lock, Bell, Newspaper
 } from "lucide-react";
 import NotificationBell from "./components/notifications/NotificationBell";
 import CyberNav from "./components/navigation/CyberNav";
@@ -51,6 +51,7 @@ const adminNavGroups = [
   ]},
   { label: "Administração", color: "#f97316", items: [
     { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
+    { name: "Gestão de Notícias", icon: Newspaper, page: "NewsManagement" },
   ]},
   { label: "Agenda & Financeiro", color: "#10b981", items: [
     { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
@@ -130,6 +131,9 @@ const subscriberNavGroups = [
   ]},
   { label: "Nutrição", color: "#10b981", items: [
     { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
+  ]},
+  { label: "Comunidade", color: "#ec4899", items: [
+    { name: "Comunidade", icon: Users2, page: "Comunidade" },
   ]},
   { label: "Conta", color: "#8b5cf6", items: [
     { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },

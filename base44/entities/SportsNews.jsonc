@@ -1,0 +1,131 @@
+{
+  "name": "SportsNews",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo da not\u00edcia"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Resumo curto"
+    },
+    "content": {
+      "type": "string",
+      "description": "Conte\u00fado/resumo expandido da not\u00edcia"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Imagem da not\u00edcia"
+    },
+    "source_name": {
+      "type": "string",
+      "description": "Nome da fonte original"
+    },
+    "source_url": {
+      "type": "string",
+      "description": "URL da fonte/API/RSS"
+    },
+    "original_url": {
+      "type": "string",
+      "description": "Link da mat\u00e9ria original"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "musculacao",
+        "fitness",
+        "futebol",
+        "lutas",
+        "corrida",
+        "fisiculturismo",
+        "nutricao_esportiva",
+        "saude_performance",
+        "eventos_esportivos"
+      ],
+      "default": "fitness"
+    },
+    "published_at": {
+      "type": "string",
+      "description": "Data de publica\u00e7\u00e3o original"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "inativo",
+        "rascunho"
+      ],
+      "default": "ativo"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "language": {
+      "type": "string",
+      "default": "pt-BR"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "import_hash": {
+      "type": "string",
+      "description": "Chave para evitar duplicidade"
+    },
+    "last_imported_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "summary",
+    "source_name",
+    "original_url",
+    "category"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
