@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Brain, CheckCircle2, Download, FileText, Loader2, MessageCircle, Save, Sparkles, X } from "lucide-react";
+import { Brain, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import jsPDF from "jspdf";
+import EvolutionAnalysisDashboard from "./EvolutionAnalysisDashboard";
+import { buildPlainTextReport, buildWhatsAppReport, exportReportPdf, normalizeEvolutionReport, openPrintableReport } from "./evolutionReportUtils";
 
 const dayLabels = { segunda: "Segunda", terca: "Terça", quarta: "Quarta", quinta: "Quinta", sexta: "Sexta", sabado: "Sábado", domingo: "Domingo" };
 const steps = ["Escopo", "Treinos", "Análise", "Preferências", "Geração", "Comparação", "Relatório"];
@@ -117,90 +118,6 @@ function normalizeExercise(item, oldPlan, analysis, idx) {
   };
 }
 
-function reportText(student, currentUser, mode, selectedPlans, generatedPlans, analyses, requestText, generatedMeta) {
-  const allAnalysis = analyses.flatMap(a => a.exerciseAnalysis.map(e => ({ ...e, treino: a.plan.name, dia: dayLabels[a.plan.day_of_week] || a.plan.day_of_week })));
-  const allGenerated = generatedPlans.flatMap(g => g.exercises.map(e => ({ ...e, treino: g.name, dia: dayLabels[g.day_of_week] || g.day_of_week })));
-  const kept = allGenerated.filter(e => e.acao === "manter");
-  const changed = allGenerated.filter(e => e.acao === "substituir");
-  const added = allGenerated.filter(e => e.acao === "adicionar");
-  const removed = allGenerated.filter(e => e.acao === "remover");
-  return [
-    "RELATÓRIO DE EVOLUÇÃO DE TREINO",
-    "Gerado com IA + Revisão Profissional",
-    `Aluno: ${student?.name || "—"}`,
-    `Objetivo: ${student?.goal || "—"}`,
-    `Personal: ${currentUser?.full_name || currentUser?.email || "—"}`,
-    `Modo: ${mode === "plano_completo" ? "Plano completo" : "Treino específico"}`,
-    `Período analisado: histórico registrado até ${new Date().toLocaleDateString("pt-BR")}`,
-    `Treinos analisados: ${selectedPlans.map(p => p.name).join(", ")}`,
-    "",
-    "RESUMO EXECUTIVO",
-    generatedMeta?.resumoExecutivo || "A IA analisou histórico de execução, progressão e adesão para sugerir uma nova versão conservadora e editável.",
-    "",
-    mode === "plano_completo" ? "ANÁLISE GERAL DO PLANO COMPLETO" : "ANÁLISE DO TREINO",
-    `Treinos antigos: ${selectedPlans.length} | Treinos novos: ${generatedPlans.length}`,
-    `Exercícios antigos: ${selectedPlans.reduce((a, p) => a + (p.exercises?.length || 0), 0)} | Exercícios novos: ${generatedPlans.reduce((a, p) => a + (p.exercises?.length || 0), 0)}`,
-    `Mantidos: ${kept.length} | Substituídos: ${changed.length} | Adicionados: ${added.length} | Removidos: ${removed.length}`,
-    "",
-    "ANÁLISE DE PROGRESSÃO POR EXERCÍCIO",
-    ...allAnalysis.map(a => `- ${a.treino} / ${a.dia} / ${a.nome}: ${a.execucoes} execuções, última ${a.ultimaCarga || "—"}kg, melhor ${a.melhorCarga || "—"}kg, média ${a.cargaMedia || "—"}kg, status ${a.statusProgressao}, recomendação ${a.recomendacao}. ${a.justificativa}`),
-    "",
-    "EXERCÍCIOS MANTIDOS",
-    ...(kept.length ? kept.map(e => `- ${e.treino}: ${e.exercise_name} | carga recomendada ${e.cargaSugerida || "—"}kg | ${e.baseEstimativaCarga}`) : ["- Nenhum."]),
-    "",
-    "EXERCÍCIOS SUBSTITUÍDOS",
-    ...(changed.length ? changed.map(e => `- ${e.treino}: ${e.exercicioAntigoRelacionado || "—"} → ${e.exercise_name} | ${e.motivo} | carga ${e.cargaSugerida || "—"}kg | confiança ${e.confiancaCarga}`) : ["- Nenhum."]),
-    "",
-    "EXERCÍCIOS ADICIONADOS",
-    ...(added.length ? added.map(e => `- ${e.treino}: ${e.exercise_name} | ${e.motivo}`) : ["- Nenhum."]),
-    "",
-    "EXERCÍCIOS REMOVIDOS",
-    ...(removed.length ? removed.map(e => `- ${e.treino}: ${e.exercicioAntigoRelacionado || e.exercise_name} | ${e.motivo}`) : ["- Nenhum."]),
-    "",
-    "CARGAS SUGERIDAS",
-    ...allGenerated.map(e => `- ${e.treino} / ${e.exercise_name}: anterior ${e.cargaAnterior || "—"}kg | sugerida ${e.cargaSugerida || "—"}kg | faixa ${e.faixaCargaMin || "—"}-${e.faixaCargaMax || "—"}kg | confiança ${e.confiancaCarga}. ${e.baseEstimativaCarga}`),
-    "",
-    "ESTRATÉGIA DO NOVO CICLO",
-    generatedMeta?.estrategiaNovoCiclo || generatedMeta?.estrategiaNovoTreino || "Monitorar execução, técnica, carga e RIR real nas primeiras sessões.",
-    "",
-    "ALERTAS",
-    "- A IA gera sugestões. Revise antes de aplicar.",
-    "- Cargas são estimativas baseadas no histórico registrado do próprio aluno.",
-    "- Se não houver histórico suficiente, a carga foi sugerida de forma conservadora.",
-    "- O treino antigo será preservado no histórico.",
-    mode === "plano_completo" ? "- No modo plano completo, os treinos selecionados serão atualizados como novo ciclo." : "",
-    "",
-    "PRÓXIMOS PASSOS",
-    "- Acompanhar primeiras sessões.",
-    "- Ajustar carga conforme RIR real.",
-    "- Revisar após 3 a 6 semanas.",
-    "- Registrar execução para melhorar futuras recomendações.",
-    "",
-    "PEDIDO ESPECÍFICO PARA A IA",
-    requestText || "—",
-    "",
-    "Relatório gerado pelo BZ Gym System com base nos registros do aluno e revisão profissional."
-  ].filter(Boolean).join("\n");
-}
-
-function whatsappText(student, mode, selectedPlans, generatedPlans) {
-  const changed = generatedPlans.flatMap(g => g.exercises.filter(e => e.acao !== "manter").map(e => `• ${g.name}: ${e.exercicioAntigoRelacionado || "novo"} → ${e.exercise_name}`));
-  const kept = generatedPlans.flatMap(g => g.exercises.filter(e => e.acao === "manter").map(e => `• ${g.name}: ${e.exercise_name} (${e.cargaSugerida || "—"}kg)`));
-  return [
-    `🏋️ Evolução de treino — ${student?.name || "Aluno"}`,
-    mode === "plano_completo" ? `Ciclo atualizado: ${selectedPlans.length} treinos → ${generatedPlans.length} novas versões` : `Treino atualizado: ${selectedPlans[0]?.name} → ${generatedPlans[0]?.name}`,
-    "",
-    "Principais mudanças:",
-    ...(changed.length ? changed.slice(0, 12) : ["• Sem substituições principais"]),
-    "",
-    "Exercícios mantidos/cargas:",
-    ...(kept.length ? kept.slice(0, 12) : ["• Revisar no app"]),
-    "",
-    "Próximos passos: executar com técnica, ajustar cargas pelo RIR real e revisar em 3–6 semanas.",
-    "Cargas estimadas devem ser confirmadas na prática."
-  ].join("\n");
-}
-
 export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPlan, initialMode = "treino_especifico", student, allPlans = [], currentUser, onApplied }) {
   const [step, setStep] = useState(0);
   const [mode, setMode] = useState(initialMode);
@@ -226,9 +143,13 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
   const selectedPlans = useMemo(() => activePlans.filter(p => selectedPlanIds.includes(p.id)), [activePlans, selectedPlanIds]);
   const studentLogs = logs.filter(l => l.student_id === student?.id);
   const studentPrs = prs.filter(p => p.student_id === student?.id);
+  const totalExercises = activePlans.reduce((a, p) => a + (p.exercises?.length || 0), 0);
+  const lastExecution = studentLogs.map(l => l.date).sort().pop();
+  const adherence = checkins.filter(c => c.student_id === student?.id).length ? Math.round(checkins.filter(c => c.student_id === student?.id).reduce((a, c) => a + Number(c.workout_adherence || 0), 0) / checkins.filter(c => c.student_id === student?.id).length * 20) : Math.min(100, studentLogs.length * 5);
   const analyses = useMemo(() => analyzePlans(selectedPlans, studentLogs, studentPrs), [selectedPlans, studentLogs, studentPrs]);
-  const fullReport = useMemo(() => reportText(student, currentUser, mode, selectedPlans, generatedPlans, analyses, requestText, generatedMeta), [student, currentUser, mode, selectedPlans, generatedPlans, analyses, requestText, generatedMeta]);
-  const whatsReport = useMemo(() => whatsappText(student, mode, selectedPlans, generatedPlans), [student, mode, selectedPlans, generatedPlans]);
+  const normalizedReport = useMemo(() => normalizeEvolutionReport({ student, currentUser, mode, selectedPlans, generatedPlans, analyses, generatedMeta, requestText, adherence, prs: studentPrs }), [student, currentUser, mode, selectedPlans, generatedPlans, analyses, generatedMeta, requestText, adherence, studentPrs]);
+  const fullReport = useMemo(() => buildPlainTextReport(normalizedReport), [normalizedReport]);
+  const whatsReport = useMemo(() => buildWhatsAppReport(normalizedReport), [normalizedReport]);
 
   useEffect(() => {
     if (!open) return;
@@ -238,15 +159,11 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
     setError("");
     setGeneratedMeta(null);
     setGeneratedPlans([]);
-    setActiveTab("geral");
+    setActiveTab("visao");
     setRequestText("");
     setSelected({ manter: [], trocar: [], ajustar: [], restricoes: [] });
     setSelectedPlanIds(nextMode === "plano_completo" ? activePlans.map(p => p.id) : [initialPlan?.id].filter(Boolean));
   }, [open, initialMode, initialPlan?.id, activePlans.length]);
-
-  const totalExercises = activePlans.reduce((a, p) => a + (p.exercises?.length || 0), 0);
-  const lastExecution = studentLogs.map(l => l.date).sort().pop();
-  const adherence = checkins.filter(c => c.student_id === student?.id).length ? Math.round(checkins.filter(c => c.student_id === student?.id).reduce((a, c) => a + Number(c.workout_adherence || 0), 0) / checkins.filter(c => c.student_id === student?.id).length * 20) : Math.min(100, studentLogs.length * 5);
 
   const toggleOption = (group, item) => setSelected(prev => ({ ...prev, [group]: prev[group].includes(item) ? prev[group].filter(i => i !== item) : [...prev[group], item] }));
   const togglePlan = id => setSelectedPlanIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -296,6 +213,7 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
       });
       setGeneratedMeta(out);
       setGeneratedPlans(normalized);
+      setActiveTab("visao");
       setStep(5);
     } catch (err) {
       setError("Não foi possível gerar agora. Revise os dados e tente novamente.");
@@ -367,34 +285,60 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
     }
     const allGeneratedExercises = generatedPlans.flatMap(p => p.exercises.map(e => ({ ...e, treino: p.name })));
     const report = await base44.entities.RelatorioEvolucaoTreino.create({
-      alunoId: student.id, personalId: currentUser.email, modoRelatorio: mode, treinoAntigoId: selectedPlanIds[0] || "", treinoNovoId: newIds[0] || "", treinosAntigosIds: selectedPlanIds, treinosNovosIds: newIds, historicoEvolucaoTreinoId: history.id,
+      alunoId: student.id, personalId: currentUser.email, modoRelatorio: mode, treinoAntigoId: selectedPlanIds[0] || "", treinoNovoId: newIds[0] || "", treinosAntigosIds: selectedPlanIds, treinosNovosIds: newIds, cicloAnteriorId: selectedPlans[0]?.cicloId || "", cicloNovoId: cycle?.id || "", historicoEvolucaoTreinoId: history.id,
       titulo: mode === "plano_completo" ? `Relatório Master · ${student.name}` : `Relatório de Evolução · ${student.name}`,
-      periodoAnalisado: "histórico registrado", resumoExecutivo: generatedMeta?.resumoExecutivo || "", analisePlanoCompleto: { modo: mode, treinos: selectedPlans.length, novosTreinos: newIds.length }, analisePorExercicio: analyses.flatMap(a => a.exerciseAnalysis), analisePorGrupoMuscular: [], comparativoAntigoNovo: generatedPlans, cargasSugeridas: allGeneratedExercises, exerciciosMantidos: allGeneratedExercises.filter(e => e.acao === "manter"), exerciciosSubstituidos: allGeneratedExercises.filter(e => e.acao === "substituir"), exerciciosAdicionados: allGeneratedExercises.filter(e => e.acao === "adicionar"), exerciciosRemovidos: allGeneratedExercises.filter(e => e.acao === "remover"), estrategiaNovoCiclo: generatedMeta?.estrategiaNovoCiclo || "", alertas: generatedMeta?.alertas || [], conclusao: "Aplicado após revisão profissional.", layoutTemplate: "premium_bz_dark", textoWhatsapp: whatsReport, statusExportacao: "concluido", dataExportacao: new Date().toISOString(), geradoPorIA: true, revisadoPorPersonal: true, visivelParaAluno: false,
+      periodoAnalisado: normalizedReport.periodoAnalisado,
+      resumoExecutivo: normalizedReport.resumoExecutivo,
+      metricasResumoJson: normalizedReport.metricasResumo,
+      analisePlanoCompleto: { modo: mode, cicloAnterior: normalizedReport.cicloAnterior, cicloNovo: normalizedReport.cicloNovo, treinos: selectedPlans.length, novosTreinos: newIds.length },
+      analisePorTreinoJson: normalizedReport.analisePorTreino,
+      analisePorExercicio: analyses.flatMap(a => a.exerciseAnalysis),
+      analisePorGrupoMuscular: normalizedReport.analisePorGrupoMuscular,
+      comparativoAntigoNovo: normalizedReport.comparativoAntigoNovo,
+      cargasSugeridas: normalizedReport.cargas,
+      exerciciosMantidos: allGeneratedExercises.filter(e => e.acao === "manter"),
+      exerciciosSubstituidos: allGeneratedExercises.filter(e => e.acao === "substituir"),
+      exerciciosAdicionados: allGeneratedExercises.filter(e => e.acao === "adicionar"),
+      exerciciosRemovidos: allGeneratedExercises.filter(e => e.acao === "remover"),
+      estrategiaNovoCiclo: normalizedReport.estrategiaNovoCiclo,
+      alertas: normalizedReport.alertas,
+      conclusao: normalizedReport.conclusao,
+      layoutTemplate: "premium_bz_report_v2",
+      graficosJson: normalizedReport.graficos,
+      tabelasJson: { comparativo: normalizedReport.comparativoAntigoNovo, cargas: normalizedReport.cargas },
+      temaPdf: "claro",
+      textoWhatsapp: whatsReport,
+      statusExportacao: "concluido",
+      dataCriacao: new Date().toISOString(),
+      dataExportacao: new Date().toISOString(),
+      geradoPorIA: true,
+      revisadoPorPersonal: true,
+      visivelParaAluno: false,
     });
     await Promise.all([
-      base44.entities.SecoesRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, titulo: "Capa", tipoSecao: "capa", conteudoHtml: `<h1>Relatório de Evolução de Treino</h1><p>${student.name}</p>`, dadosJson: {}, ordem: 1, visivelNoPdf: true }),
-      base44.entities.SecoesRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, titulo: "Resumo Executivo", tipoSecao: "resumo", conteudoHtml: generatedMeta?.resumoExecutivo || "", dadosJson: {}, ordem: 2, visivelNoPdf: true }),
-      base44.entities.GraficosRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, tipoGrafico: "status_exercicios", titulo: "Status dos exercícios", descricao: "Resumo dos status de progressão", dadosJson: { analyses }, ordem: 1 }),
+      base44.entities.SecoesRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, titulo: "Capa", tipoSecao: "capa", conteudoHtml: `<h1>Relatório de Evolução de Treino</h1><p>${student.name}</p>`, dadosJson: normalizedReport, ordem: 1, visivelNoPdf: true }),
+      base44.entities.SecoesRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, titulo: "Resumo Executivo", tipoSecao: "resumo", conteudoHtml: normalizedReport.resumoExecutivo, dadosJson: normalizedReport.metricasResumo, ordem: 2, visivelNoPdf: true }),
+      base44.entities.SecoesRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, titulo: "Comparativo", tipoSecao: "comparativo", conteudoHtml: "Comparativo antigo vs novo", dadosJson: { rows: normalizedReport.comparativoAntigoNovo }, ordem: 3, visivelNoPdf: true }),
+      base44.entities.GraficosRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, tipoGrafico: "adesao", titulo: "Adesão ao treino", descricao: "Treinos previstos vs concluídos", dadosJson: normalizedReport.graficos.adesaoTreino, ordem: 1 }),
+      base44.entities.GraficosRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, tipoGrafico: "status_exercicios", titulo: "Status dos exercícios", descricao: "Evoluiu, manteve, regrediu e sem dados", dadosJson: normalizedReport.graficos.statusExercicios, ordem: 2 }),
+      base44.entities.GraficosRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, tipoGrafico: "volume_grupo", titulo: "Volume por grupo muscular", descricao: "Volume anterior vs novo", dadosJson: normalizedReport.graficos.volumeGrupoMuscular, ordem: 3 }),
+      base44.entities.GraficosRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, tipoGrafico: "comparativo_volume", titulo: "Alterações de exercícios", descricao: "Mantidos, substituídos, adicionados e removidos", dadosJson: normalizedReport.graficos.alteracoesExercicios, ordem: 4 }),
+      base44.entities.GraficosRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, tipoGrafico: "progressao_carga", titulo: "Cargas", descricao: "Cargas mantidas, estimadas e sem dados", dadosJson: normalizedReport.graficos.cargas, ordem: 5 }),
+      base44.entities.GraficosRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, tipoGrafico: "prs", titulo: "PRs no período", descricao: "PRs disponíveis no período analisado", dadosJson: normalizedReport.graficos.prsPeriodo, ordem: 6 }),
     ]);
     if (student.email) await base44.entities.Notificacao.create({ usuario_id: student.email, titulo: mode === "plano_completo" ? "Plano completo atualizado" : "Treino atualizado", mensagem: mode === "plano_completo" ? "Seu plano de treino completo foi atualizado pelo seu personal." : "Seu treino foi atualizado pelo seu personal.", tipo: "treino_novo", lida: false, link_destino: "/MyWorkout", icone: "Dumbbell" });
     setSaving(false); onApplied?.(); toast.success(mode === "plano_completo" ? "Plano completo aplicado como novo ciclo." : "Novo treino aplicado com segurança.");
   };
 
-  const exportPremiumPdf = () => {
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    const addTitle = (title, y = 20) => { doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(168, 85, 247); doc.text(title, 15, y); doc.setTextColor(30, 30, 30); doc.setFont("helvetica", "normal"); doc.setFontSize(10); return y + 10; };
-    doc.setFillColor(4, 4, 14); doc.rect(0, 0, 210, 297, "F"); doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(34); doc.text("BZ", 15, 32); doc.setFontSize(18); doc.text("Relatório de Evolução de Treino", 15, 52); doc.setFontSize(12); doc.text(student?.name || "Aluno", 15, 65); doc.setTextColor(168, 85, 247); doc.text("Gerado com IA + Revisão Profissional", 15, 78); doc.setTextColor(255, 255, 255); doc.setFontSize(9); doc.text(`Data: ${new Date().toLocaleDateString("pt-BR")}`, 15, 92); doc.text(`Modo: ${mode === "plano_completo" ? "Plano completo" : "Treino específico"}`, 15, 98);
-    doc.addPage(); let y = addTitle("Resumo Executivo"); doc.text(doc.splitTextToSize(generatedMeta?.resumoExecutivo || "Análise gerada com IA e revisão profissional.", 180), 15, y);
-    doc.addPage(); y = addTitle("Indicadores Gerais"); doc.text(doc.splitTextToSize(`Adesão: ${adherence || 0}%\nTreinos analisados: ${selectedPlans.length}\nExercícios antigos: ${selectedPlans.reduce((a,p)=>a+(p.exercises?.length||0),0)}\nExercícios novos: ${generatedPlans.reduce((a,p)=>a+(p.exercises?.length||0),0)}\nDados insuficientes para gráficos avançados quando não houver registros suficientes.`, 180), 15, y);
-    doc.addPage(); y = addTitle(mode === "plano_completo" ? "Análise do Plano Completo" : "Análise do Treino"); doc.text(doc.splitTextToSize(fullReport, 180), 15, y);
-    doc.save(`relatorio_premium_evolucao_${student?.name || "aluno"}.pdf`);
-    toast.success("PDF Premium exportado.");
+  const exportPremiumPdf = (theme = "claro") => {
+    exportReportPdf(normalizedReport, theme);
+    toast.success(theme === "escuro" ? "PDF escuro premium exportado." : "PDF claro premium exportado.");
   };
 
   const exportWhatsApp = () => { navigator.clipboard.writeText(whatsReport); toast.success("Resumo WhatsApp copiado."); };
-  const exportHtml = () => {
-    const html = `<html><head><title>Relatório BZ</title><style>body{font-family:Arial;background:#04040e;color:#eee;padding:32px;white-space:pre-wrap}h1{color:#a855f7}</style></head><body><h1>Relatório de Evolução de Treino</h1>${fullReport}</body></html>`;
-    const win = window.open("", "_blank"); win.document.write(html); win.document.close();
+  const exportHtml = (theme = "claro") => {
+    openPrintableReport(normalizedReport, theme);
+    toast.success("Prévia HTML imprimível aberta.");
   };
 
   return (
@@ -415,9 +359,45 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
 
           {step === 4 && <div className="text-center py-14">{loading ? <><Loader2 className="w-10 h-10 mx-auto animate-spin text-cyan-300" /><p className="mt-4 text-cyan-200">{mode === "plano_completo" ? "Gerando novo ciclo completo..." : "Gerando nova versão do treino..."}</p></> : error ? <p className="text-pink-300">{error}</p> : null}</div>}
 
-          {step === 5 && <div className="space-y-4"><div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-sm text-amber-100">A IA gera sugestões. Revise antes de aplicar. Cargas são estimativas baseadas apenas no histórico deste aluno.</div><div className="flex gap-2 overflow-x-auto pb-1"><button onClick={() => setActiveTab("geral")} className={`px-3 py-2 rounded-lg text-xs border ${activeTab === "geral" ? "border-cyan-400/50 bg-cyan-400/10" : "border-purple-900/30"}`}>Geral</button>{generatedPlans.map((p, i) => <button key={i} onClick={() => setActiveTab(String(i))} className={`px-3 py-2 rounded-lg text-xs border whitespace-nowrap ${activeTab === String(i) ? "border-cyan-400/50 bg-cyan-400/10" : "border-purple-900/30"}`}>{p.name}</button>)}<button onClick={() => setActiveTab("cargas")} className={`px-3 py-2 rounded-lg text-xs border ${activeTab === "cargas" ? "border-cyan-400/50 bg-cyan-400/10" : "border-purple-900/30"}`}>Cargas</button></div>{activeTab === "geral" && <div className="grid md:grid-cols-4 gap-3">{[["Treinos antigos", selectedPlans.length], ["Treinos novos", generatedPlans.length], ["Exercícios antigos", selectedPlans.reduce((a,p)=>a+(p.exercises?.length||0),0)], ["Exercícios novos", generatedPlans.reduce((a,p)=>a+(p.exercises?.length||0),0)]].map(([k,v]) => <div key={k} className="rounded-xl border border-purple-900/20 bg-black/20 p-4"><p className="text-xs text-purple-400/50">{k}</p><b className="text-xl">{v}</b></div>)}</div>}{generatedPlans.map((gp, planIdx) => activeTab === String(planIdx) && <div key={planIdx} className="space-y-3"><div className="grid md:grid-cols-2 gap-2"><Input value={gp.name} onChange={e => updateGeneratedPlan(planIdx, "name", e.target.value)} className="cyber-input" /><Input value={gp.day_of_week} onChange={e => updateGeneratedPlan(planIdx, "day_of_week", e.target.value)} className="cyber-input" /></div><div className="grid lg:grid-cols-2 gap-4"><div><h4 className="font-cyber text-sm text-purple-200 mb-2">TREINO ANTIGO</h4>{(selectedPlans.find(p => p.id === gp.basePlanId)?.exercises || []).map((ex, idx) => <div key={idx} className="rounded-xl border border-purple-900/25 bg-black/20 p-3 mb-2"><b>{ex.exercise_name}</b><p className="text-xs text-purple-300/60">{ex.sets} séries · {ex.reps} reps · {ex.rest_seconds || 60}s</p></div>)}</div><div><div className="flex justify-between mb-2"><h4 className="font-cyber text-sm text-cyan-200">TREINO NOVO</h4><Button size="sm" variant="outline" onClick={() => addGeneratedExercise(planIdx)}>Adicionar</Button></div>{gp.exercises.map((ex, exIdx) => <div key={exIdx} className="rounded-xl border border-cyan-900/30 bg-cyan-500/5 p-3 mb-2 space-y-2"><div className="flex gap-2"><Input value={ex.exercise_name} onChange={e => updateGeneratedExercise(planIdx, exIdx, "exercise_name", e.target.value)} className="cyber-input" /><Button variant="ghost" size="icon" onClick={() => removeGeneratedExercise(planIdx, exIdx)}><X className="w-4 h-4" /></Button></div><div className="grid grid-cols-3 gap-2"><Input value={ex.sets} onChange={e => updateGeneratedExercise(planIdx, exIdx, "sets", e.target.value)} className="cyber-input" /><Input value={ex.reps} onChange={e => updateGeneratedExercise(planIdx, exIdx, "reps", e.target.value)} className="cyber-input" /><Input value={ex.rest_seconds} onChange={e => updateGeneratedExercise(planIdx, exIdx, "rest_seconds", e.target.value)} className="cyber-input" /></div><div className="grid grid-cols-3 gap-2"><Input value={ex.cargaSugerida} onChange={e => updateGeneratedExercise(planIdx, exIdx, "cargaSugerida", e.target.value)} className="cyber-input" /><Input value={ex.rir} onChange={e => updateGeneratedExercise(planIdx, exIdx, "rir", e.target.value)} className="cyber-input" /><Input value={ex.cadencia} onChange={e => updateGeneratedExercise(planIdx, exIdx, "cadencia", e.target.value)} className="cyber-input" /></div><Textarea value={ex.notes} onChange={e => updateGeneratedExercise(planIdx, exIdx, "notes", e.target.value)} className="cyber-input" /><div className="flex flex-wrap gap-2"><Badge>{ex.acao}</Badge><Badge className="bg-amber-500/10 text-amber-200 border border-amber-500/20">Confiança {ex.confiancaCarga}</Badge><Badge className="bg-cyan-500/10 text-cyan-200 border border-cyan-500/20">{ex.faixaCargaMin}–{ex.faixaCargaMax} kg</Badge></div></div>)}</div></div></div>)}{activeTab === "cargas" && <div className="space-y-2">{generatedPlans.flatMap(p => p.exercises.map(e => ({...e, treino:p.name}))).map((e, i) => <div key={i} className="rounded-xl border border-purple-900/25 bg-black/20 p-3"><b>{e.treino} · {e.exercise_name}</b><p className="text-xs text-purple-300/60">Última {e.cargaAnterior || "—"}kg · sugerida {e.cargaSugerida || "—"}kg · faixa {e.faixaCargaMin}-{e.faixaCargaMax}kg · confiança {e.confiancaCarga}</p><p className="text-xs text-purple-300/40">{e.baseEstimativaCarga}</p></div>)}</div>}<div className="grid sm:grid-cols-4 gap-2"><Button onClick={saveDraft} disabled={saving} variant="outline"><Save className="w-4 h-4 mr-2" />Rascunho</Button><Button onClick={() => setStep(6)} className="btn-neon-cyan"><FileText className="w-4 h-4 mr-2" />Relatório</Button><Button onClick={applyEvolution} disabled={saving} className="btn-neon-purple"><CheckCircle2 className="w-4 h-4 mr-2" />{mode === "plano_completo" ? "Aplicar plano completo" : "Aplicar novo treino"}</Button><Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button></div></div>}
+          {step === 5 && <EvolutionAnalysisDashboard
+            report={normalizedReport}
+            generatedPlans={generatedPlans}
+            selectedPlans={selectedPlans}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            updateGeneratedPlan={updateGeneratedPlan}
+            updateGeneratedExercise={updateGeneratedExercise}
+            removeGeneratedExercise={removeGeneratedExercise}
+            addGeneratedExercise={addGeneratedExercise}
+            onSaveDraft={saveDraft}
+            onPreview={() => setActiveTab("relatorio")}
+            onApply={applyEvolution}
+            onExportPdf={exportPremiumPdf}
+            onExportHtml={() => exportHtml("claro")}
+            onExportWhatsApp={exportWhatsApp}
+            saving={saving}
+            onCancel={() => onOpenChange(false)}
+          />}
 
-          {step === 6 && <div className="space-y-4"><pre className="whitespace-pre-wrap rounded-xl border border-purple-900/25 bg-black/30 p-4 text-sm text-purple-100 max-h-[55vh] overflow-auto">{fullReport}</pre><div className="grid sm:grid-cols-5 gap-2"><Button onClick={exportPremiumPdf} className="btn-neon-purple"><Download className="w-4 h-4 mr-2" />PDF Premium</Button><Button onClick={exportWhatsApp} variant="outline"><MessageCircle className="w-4 h-4 mr-2" />WhatsApp</Button><Button onClick={exportHtml} variant="outline">HTML/imprimir</Button><Button onClick={() => setStep(5)} variant="outline">Editar</Button><Button onClick={applyEvolution} disabled={saving} className="btn-neon-cyan">Aplicar</Button></div></div>}
+          {step === 6 && <EvolutionAnalysisDashboard
+            report={normalizedReport}
+            generatedPlans={generatedPlans}
+            selectedPlans={selectedPlans}
+            activeTab="relatorio"
+            setActiveTab={setActiveTab}
+            updateGeneratedPlan={updateGeneratedPlan}
+            updateGeneratedExercise={updateGeneratedExercise}
+            removeGeneratedExercise={removeGeneratedExercise}
+            addGeneratedExercise={addGeneratedExercise}
+            onSaveDraft={saveDraft}
+            onPreview={() => setActiveTab("relatorio")}
+            onApply={applyEvolution}
+            onExportPdf={exportPremiumPdf}
+            onExportHtml={() => exportHtml("claro")}
+            onExportWhatsApp={exportWhatsApp}
+            saving={saving}
+            onCancel={() => onOpenChange(false)}
+          />}
         </div>}
       </DialogContent>
     </Dialog>

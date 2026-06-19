@@ -34,6 +34,12 @@
         "type": "string"
       }
     },
+    "cicloAnteriorId": {
+      "type": "string"
+    },
+    "cicloNovoId": {
+      "type": "string"
+    },
     "historicoEvolucaoTreinoId": {
       "type": "string"
     },
@@ -46,8 +52,17 @@
     "resumoExecutivo": {
       "type": "string"
     },
+    "metricasResumoJson": {
+      "type": "object"
+    },
     "analisePlanoCompleto": {
       "type": "object"
+    },
+    "analisePorTreinoJson": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
     },
     "analisePorExercicio": {
       "type": "array",
@@ -121,6 +136,14 @@
     "tabelasJson": {
       "type": "object"
     },
+    "temaPdf": {
+      "type": "string",
+      "enum": [
+        "claro",
+        "escuro"
+      ],
+      "default": "claro"
+    },
     "pdfUrl": {
       "type": "string"
     },
@@ -140,6 +163,13 @@
       ],
       "default": "pendente"
     },
+    "visivelParaAluno": {
+      "type": "boolean",
+      "default": false
+    },
+    "dataCriacao": {
+      "type": "string"
+    },
     "dataExportacao": {
       "type": "string"
     },
@@ -148,10 +178,6 @@
       "default": true
     },
     "revisadoPorPersonal": {
-      "type": "boolean",
-      "default": false
-    },
-    "visivelParaAluno": {
       "type": "boolean",
       "default": false
     }
