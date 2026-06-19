@@ -1,5 +1,5 @@
 {
-  "name": "SugestaoNovoTreinoIA",
+  "name": "CiclosTreino",
   "type": "object",
   "properties": {
     "alunoId": {
@@ -8,13 +8,7 @@
     "personalId": {
       "type": "string"
     },
-    "treinoBaseId": {
-      "type": "string"
-    },
-    "evolucaoCompletaId": {
-      "type": "string"
-    },
-    "nomeSugestao": {
+    "nomeCiclo": {
       "type": "string"
     },
     "objetivo": {
@@ -23,34 +17,37 @@
     "divisao": {
       "type": "string"
     },
-    "pedidoIA": {
+    "dataInicio": {
       "type": "string"
     },
-    "configuracoesSelecionadas": {
-      "type": "object"
+    "dataFim": {
+      "type": "string"
     },
     "status": {
       "type": "string",
       "enum": [
-        "gerado",
-        "em_revisao",
-        "aprovado",
-        "aplicado",
-        "descartado"
+        "atual",
+        "arquivado",
+        "rascunho",
+        "substituido"
       ],
-      "default": "gerado"
+      "default": "rascunho"
     },
-    "dataCriacao": {
+    "cicloAnteriorId": {
       "type": "string"
     },
-    "criadoPor": {
+    "criadoPorIA": {
+      "type": "boolean",
+      "default": false
+    },
+    "observacoes": {
       "type": "string"
     }
   },
   "required": [
     "alunoId",
     "personalId",
-    "nomeSugestao"
+    "nomeCiclo"
   ],
   "rls": {
     "create": {

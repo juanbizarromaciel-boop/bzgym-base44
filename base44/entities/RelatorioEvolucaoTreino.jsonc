@@ -1,0 +1,213 @@
+{
+  "name": "RelatorioEvolucaoTreino",
+  "type": "object",
+  "properties": {
+    "alunoId": {
+      "type": "string"
+    },
+    "personalId": {
+      "type": "string"
+    },
+    "modoRelatorio": {
+      "type": "string",
+      "enum": [
+        "treino_especifico",
+        "plano_completo"
+      ],
+      "default": "treino_especifico"
+    },
+    "treinoAntigoId": {
+      "type": "string"
+    },
+    "treinoNovoId": {
+      "type": "string"
+    },
+    "treinosAntigosIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "treinosNovosIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "historicoEvolucaoTreinoId": {
+      "type": "string"
+    },
+    "titulo": {
+      "type": "string"
+    },
+    "periodoAnalisado": {
+      "type": "string"
+    },
+    "resumoExecutivo": {
+      "type": "string"
+    },
+    "analisePlanoCompleto": {
+      "type": "object"
+    },
+    "analisePorExercicio": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "analisePorGrupoMuscular": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "comparativoAntigoNovo": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "cargasSugeridas": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "exerciciosMantidos": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "exerciciosSubstituidos": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "exerciciosAdicionados": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "exerciciosRemovidos": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "estrategiaNovoCiclo": {
+      "type": "string"
+    },
+    "alertas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "conclusao": {
+      "type": "string"
+    },
+    "layoutTemplate": {
+      "type": "string"
+    },
+    "capaImagemUrl": {
+      "type": "string"
+    },
+    "graficosJson": {
+      "type": "object"
+    },
+    "tabelasJson": {
+      "type": "object"
+    },
+    "pdfUrl": {
+      "type": "string"
+    },
+    "htmlUrl": {
+      "type": "string"
+    },
+    "textoWhatsapp": {
+      "type": "string"
+    },
+    "statusExportacao": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "gerando",
+        "concluido",
+        "erro"
+      ],
+      "default": "pendente"
+    },
+    "dataExportacao": {
+      "type": "string"
+    },
+    "geradoPorIA": {
+      "type": "boolean",
+      "default": true
+    },
+    "revisadoPorPersonal": {
+      "type": "boolean",
+      "default": false
+    },
+    "visivelParaAluno": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "alunoId",
+    "personalId",
+    "modoRelatorio",
+    "titulo"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.visivelParaAluno": true
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

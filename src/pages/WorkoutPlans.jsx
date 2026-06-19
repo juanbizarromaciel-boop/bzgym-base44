@@ -18,7 +18,7 @@ import { motion } from "framer-motion";
 import ExerciseCard from "../components/workout/ExerciseCard";
 import ExerciseFormDialog from "../components/workout/ExerciseFormDialog";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
-import AiWorkoutSwapDialog from "../components/workout/AiWorkoutSwapDialog";
+import AiWorkoutEvolutionDialog from "../components/workout/AiWorkoutEvolutionDialog";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -39,7 +39,7 @@ export default function WorkoutPlans() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [duplicatePlan, setDuplicatePlan] = useState(null);
   const [dupeStudentId, setDupeStudentId] = useState("");
-  const [aiSwapPlan, setAiSwapPlan] = useState(null);
+  const [aiEvolution, setAiEvolution] = useState(null);
   const { user: currentUser } = useCurrentUser();
   const qc = useQueryClient();
 
@@ -272,7 +272,7 @@ export default function WorkoutPlans() {
                   <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center h-7 w-7">
                     <WorkoutPdfExport studentId={plan.student_id} studentName={getStudentName(plan.student_id)} planId={plan.id} compact={true} />
                   </div>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-cyan-300" title="Trocar com IA" onClick={(e) => { e.stopPropagation(); setAiSwapPlan(plan); }}>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-cyan-300" title="Evoluir este Treino com IA" onClick={(e) => { e.stopPropagation(); setAiEvolution({ plan, student, mode: "treino_especifico" }); }}>
                     <Sparkles className="w-3 h-3" />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-purple-300" onClick={(e) => { e.stopPropagation(); openEditPlan(plan); }}>
@@ -287,10 +287,10 @@ export default function WorkoutPlans() {
               {expandedPlan === plan.id && (
                 <div className="pl-12 pr-5 pb-4 space-y-2 border-t border-purple-900/10 pt-3">
                   <button
-                    onClick={(e) => { e.stopPropagation(); setAiSwapPlan(plan); }}
+                    onClick={(e) => { e.stopPropagation(); setAiEvolution({ plan, student, mode: "treino_especifico" }); }}
                     className="w-full mb-3 btn-neon-cyan px-4 py-2 rounded-lg text-xs font-bold tracking-widest flex items-center justify-center gap-2"
                   >
-                    <Sparkles className="w-4 h-4" /> TROCAR TREINO COM IA
+                    <Sparkles className="w-4 h-4" /> EVOLUIR ESTE TREINO COM IA
                   </button>
                   {plan.exercises?.map((ex, idx) => (
                     <ExerciseCard key={idx} exercise={ex} index={idx} showActions={false} />
@@ -358,6 +358,19 @@ export default function WorkoutPlans() {
               {isOpen && (
                 <div className="border-t border-purple-900/20 divide-y divide-purple-900/10">
                   {/* Active plans */}
+                  {activePlans.length > 0 && (
+                    <div className="px-5 py-4 bg-cyan-500/5 border-b border-cyan-900/20">
+                      <button
+                        onClick={() => setAiEvolution({ plan: activePlans[0], student, mode: "plano_completo" })}
+                        className="w-full btn-neon-purple px-4 py-3 rounded-xl text-xs font-bold tracking-widest flex items-center justify-center gap-2"
+                      >
+                        <Sparkles className="w-4 h-4" /> EVOLUIR PLANO COMPLETO COM IA
+                      </button>
+                      <p className="text-[10px] text-purple-400/50 text-center mt-2 font-mono-cyber">
+                        // cria um novo ciclo com os treinos selecionados sem apagar o histórico
+                      </p>
+                    </div>
+                  )}
                   {activePlans.map((plan) => <PlanRow key={plan.id} plan={plan} isArchived={false} />)}
 
                   {activePlans.length === 0 && archivedPlans.length === 0 && (
@@ -555,17 +568,18 @@ export default function WorkoutPlans() {
         exercisesList={exercises}
       />
 
-      <AiWorkoutSwapDialog
-        open={!!aiSwapPlan}
-        onOpenChange={(v) => !v && setAiSwapPlan(null)}
-        plan={aiSwapPlan}
-        student={students.find(s => s.id === aiSwapPlan?.student_id)}
+      <AiWorkoutEvolutionDialog
+        open={!!aiEvolution}
+        onOpenChange={(v) => !v && setAiEvolution(null)}
+        initialPlan={aiEvolution?.plan}
+        initialMode={aiEvolution?.mode || "treino_especifico"}
+        student={aiEvolution?.student || students.find(s => s.id === aiEvolution?.plan?.student_id)}
         allPlans={plans}
         currentUser={currentUser}
         onApplied={() => {
           qc.invalidateQueries({ queryKey: ["plans"] });
-          qc.invalidateQueries({ queryKey: ["all-students"] });
-          setAiSwapPlan(null);
+          qc.invalidateQueries({ queryKey: ["students"] });
+          setAiEvolution(null);
         }}
       />
     </motion.div>

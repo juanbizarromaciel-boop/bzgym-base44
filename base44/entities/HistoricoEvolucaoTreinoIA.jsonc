@@ -1,5 +1,5 @@
 {
-  "name": "SugestaoNovoTreinoIA",
+  "name": "HistoricoEvolucaoTreinoIA",
   "type": "object",
   "properties": {
     "alunoId": {
@@ -8,49 +8,65 @@
     "personalId": {
       "type": "string"
     },
-    "treinoBaseId": {
+    "modoEvolucao": {
+      "type": "string",
+      "enum": [
+        "treino_especifico",
+        "plano_completo"
+      ],
+      "default": "treino_especifico"
+    },
+    "treinosAntigosIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "treinosNovosIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dataEvolucao": {
       "type": "string"
     },
-    "evolucaoCompletaId": {
-      "type": "string"
-    },
-    "nomeSugestao": {
-      "type": "string"
-    },
-    "objetivo": {
-      "type": "string"
-    },
-    "divisao": {
+    "motivoEvolucao": {
       "type": "string"
     },
     "pedidoIA": {
       "type": "string"
     },
-    "configuracoesSelecionadas": {
-      "type": "object"
+    "resumoAnalise": {
+      "type": "string"
     },
     "status": {
       "type": "string",
       "enum": [
-        "gerado",
-        "em_revisao",
-        "aprovado",
+        "rascunho",
         "aplicado",
-        "descartado"
+        "cancelado"
       ],
-      "default": "gerado"
-    },
-    "dataCriacao": {
-      "type": "string"
+      "default": "rascunho"
     },
     "criadoPor": {
+      "type": "string"
+    },
+    "aprovadoPor": {
+      "type": "string"
+    },
+    "relatorioUrl": {
+      "type": "string"
+    },
+    "relatorioTexto": {
       "type": "string"
     }
   },
   "required": [
     "alunoId",
     "personalId",
-    "nomeSugestao"
+    "modoEvolucao",
+    "dataEvolucao"
   ],
   "rls": {
     "create": {

@@ -1,56 +1,44 @@
 {
-  "name": "SugestaoNovoTreinoIA",
+  "name": "SecoesRelatorioTreino",
   "type": "object",
   "properties": {
-    "alunoId": {
+    "relatorioEvolucaoTreinoId": {
       "type": "string"
     },
-    "personalId": {
+    "titulo": {
       "type": "string"
     },
-    "treinoBaseId": {
-      "type": "string"
-    },
-    "evolucaoCompletaId": {
-      "type": "string"
-    },
-    "nomeSugestao": {
-      "type": "string"
-    },
-    "objetivo": {
-      "type": "string"
-    },
-    "divisao": {
-      "type": "string"
-    },
-    "pedidoIA": {
-      "type": "string"
-    },
-    "configuracoesSelecionadas": {
-      "type": "object"
-    },
-    "status": {
+    "tipoSecao": {
       "type": "string",
       "enum": [
-        "gerado",
-        "em_revisao",
-        "aprovado",
-        "aplicado",
-        "descartado"
-      ],
-      "default": "gerado"
+        "capa",
+        "resumo",
+        "grafico",
+        "tabela",
+        "analise",
+        "comparativo",
+        "alerta",
+        "conclusao"
+      ]
     },
-    "dataCriacao": {
+    "conteudoHtml": {
       "type": "string"
     },
-    "criadoPor": {
-      "type": "string"
+    "dadosJson": {
+      "type": "object"
+    },
+    "ordem": {
+      "type": "number"
+    },
+    "visivelNoPdf": {
+      "type": "boolean",
+      "default": true
     }
   },
   "required": [
-    "alunoId",
-    "personalId",
-    "nomeSugestao"
+    "relatorioEvolucaoTreinoId",
+    "titulo",
+    "tipoSecao"
   ],
   "rls": {
     "create": {
@@ -75,7 +63,9 @@
           }
         },
         {
-          "data.personalId": "{{user.email}}"
+          "user_condition": {
+            "role": "personal"
+          }
         }
       ]
     },
@@ -87,7 +77,9 @@
           }
         },
         {
-          "data.personalId": "{{user.email}}"
+          "user_condition": {
+            "role": "personal"
+          }
         }
       ]
     },
