@@ -81,6 +81,33 @@
     "active": {
       "type": "boolean",
       "default": true
+    },
+    "versao": {
+      "type": "number",
+      "default": 1,
+      "description": "Vers\u00e3o do treino"
+    },
+    "treinoAnteriorId": {
+      "type": "string",
+      "description": "ID do treino anterior usado como base"
+    },
+    "statusVersao": {
+      "type": "string",
+      "enum": [
+        "atual",
+        "arquivado",
+        "substituido",
+        "rascunho"
+      ],
+      "default": "atual"
+    },
+    "dataAplicacao": {
+      "type": "string",
+      "description": "Data em que a vers\u00e3o foi aplicada"
+    },
+    "motivoAtualizacao": {
+      "type": "string",
+      "description": "Motivo da atualiza\u00e7\u00e3o do treino"
     }
   },
   "required": [

@@ -1,0 +1,98 @@
+{
+  "name": "SugestaoNovoTreinoIA",
+  "type": "object",
+  "properties": {
+    "alunoId": {
+      "type": "string"
+    },
+    "personalId": {
+      "type": "string"
+    },
+    "treinoBaseId": {
+      "type": "string"
+    },
+    "nomeSugestao": {
+      "type": "string"
+    },
+    "objetivo": {
+      "type": "string"
+    },
+    "divisao": {
+      "type": "string"
+    },
+    "pedidoIA": {
+      "type": "string"
+    },
+    "configuracoesSelecionadas": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "gerado",
+        "em_revisao",
+        "aprovado",
+        "aplicado",
+        "descartado"
+      ],
+      "default": "gerado"
+    },
+    "dataCriacao": {
+      "type": "string"
+    },
+    "criadoPor": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "alunoId",
+    "personalId",
+    "treinoBaseId",
+    "nomeSugestao"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

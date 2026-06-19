@@ -1,0 +1,102 @@
+{
+  "name": "HistoricoTrocaTreino",
+  "type": "object",
+  "properties": {
+    "alunoId": {
+      "type": "string"
+    },
+    "personalId": {
+      "type": "string"
+    },
+    "treinoAntigoId": {
+      "type": "string"
+    },
+    "treinoNovoId": {
+      "type": "string"
+    },
+    "dataTroca": {
+      "type": "string"
+    },
+    "motivoTroca": {
+      "type": "string"
+    },
+    "pedidoIA": {
+      "type": "string"
+    },
+    "resumoAnalise": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "rascunho",
+        "aplicado",
+        "cancelado"
+      ],
+      "default": "rascunho"
+    },
+    "criadoPor": {
+      "type": "string"
+    },
+    "aprovadoPor": {
+      "type": "string"
+    },
+    "relatorioUrl": {
+      "type": "string"
+    },
+    "relatorioTexto": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "alunoId",
+    "personalId",
+    "treinoAntigoId",
+    "dataTroca"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -7,9 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag, TrendingDown, AlertTriangle, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 import { toast } from "sonner";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ExerciseTimers from "../components/workout/ExerciseTimers";
@@ -20,6 +17,9 @@ import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
 import BlockedWorkoutBanner from "../components/finance/BlockedWorkoutBanner";
 import { usePaymentStatus } from "../hooks/usePaymentStatus";
 import { sortExercisesByProgression, getExerciseProgression } from "../utils/progressionSort";
+
+const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 
 const DAY_MAP = { 0: "domingo", 1: "segunda", 2: "terca", 3: "quarta", 4: "quinta", 5: "sexta", 6: "sabado" };
 const DAY_LABELS = { segunda: "SEG", terca: "TER", quarta: "QUA", quinta: "QUI", sexta: "SEX", sabado: "SAB", domingo: "DOM" };

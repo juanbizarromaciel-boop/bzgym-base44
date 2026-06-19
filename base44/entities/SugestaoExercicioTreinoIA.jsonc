@@ -1,0 +1,133 @@
+{
+  "name": "SugestaoExercicioTreinoIA",
+  "type": "object",
+  "properties": {
+    "sugestaoNovoTreinoId": {
+      "type": "string"
+    },
+    "diaTreino": {
+      "type": "string"
+    },
+    "ordem": {
+      "type": "number"
+    },
+    "exercicioAntigoId": {
+      "type": "string"
+    },
+    "exercicioNovoId": {
+      "type": "string"
+    },
+    "acao": {
+      "type": "string",
+      "enum": [
+        "manter",
+        "substituir",
+        "adicionar",
+        "remover"
+      ],
+      "default": "manter"
+    },
+    "motivo": {
+      "type": "string"
+    },
+    "series": {
+      "type": "number"
+    },
+    "repeticoes": {
+      "type": "string"
+    },
+    "descanso": {
+      "type": "number"
+    },
+    "rir": {
+      "type": "string"
+    },
+    "cadencia": {
+      "type": "string"
+    },
+    "tecnicaAvancada": {
+      "type": "string"
+    },
+    "cargaAnterior": {
+      "type": "number"
+    },
+    "cargaSugerida": {
+      "type": "number"
+    },
+    "faixaCargaMin": {
+      "type": "number"
+    },
+    "faixaCargaMax": {
+      "type": "number"
+    },
+    "confiancaCarga": {
+      "type": "string",
+      "enum": [
+        "alta",
+        "media",
+        "baixa"
+      ],
+      "default": "baixa"
+    },
+    "baseEstimativaCarga": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "sugestaoNovoTreinoId",
+    "diaTreino",
+    "ordem"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

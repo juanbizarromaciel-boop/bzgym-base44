@@ -1,0 +1,129 @@
+{
+  "name": "RelatorioTrocaTreino",
+  "type": "object",
+  "properties": {
+    "alunoId": {
+      "type": "string"
+    },
+    "personalId": {
+      "type": "string"
+    },
+    "treinoAntigoId": {
+      "type": "string"
+    },
+    "treinoNovoId": {
+      "type": "string"
+    },
+    "historicoTrocaTreinoId": {
+      "type": "string"
+    },
+    "titulo": {
+      "type": "string"
+    },
+    "periodoAnalisado": {
+      "type": "string"
+    },
+    "resumoExecutivo": {
+      "type": "string"
+    },
+    "analisePorExercicio": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "analisePorGrupoMuscular": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "exerciciosMantidos": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "exerciciosSubstituidos": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "estrategiaNovoTreino": {
+      "type": "string"
+    },
+    "alertas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "proximosPassos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "textoCompleto": {
+      "type": "string"
+    },
+    "arquivoUrl": {
+      "type": "string"
+    },
+    "dataCriacao": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "alunoId",
+    "personalId",
+    "treinoAntigoId",
+    "titulo"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

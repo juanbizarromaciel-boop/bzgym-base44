@@ -1,0 +1,121 @@
+{
+  "name": "AnaliseProgressaoTreino",
+  "type": "object",
+  "properties": {
+    "alunoId": {
+      "type": "string"
+    },
+    "personalId": {
+      "type": "string"
+    },
+    "treinoId": {
+      "type": "string"
+    },
+    "exercicioId": {
+      "type": "string"
+    },
+    "periodoInicio": {
+      "type": "string"
+    },
+    "periodoFim": {
+      "type": "string"
+    },
+    "execucoes": {
+      "type": "number"
+    },
+    "ultimaCarga": {
+      "type": "number"
+    },
+    "melhorCarga": {
+      "type": "number"
+    },
+    "cargaMedia": {
+      "type": "number"
+    },
+    "ultimasRepeticoes": {
+      "type": "number"
+    },
+    "melhorRepeticao": {
+      "type": "number"
+    },
+    "rirMedio": {
+      "type": "number"
+    },
+    "statusProgressao": {
+      "type": "string",
+      "enum": [
+        "evoluiu",
+        "manteve",
+        "regrediu",
+        "sem_dados"
+      ],
+      "default": "sem_dados"
+    },
+    "adesao": {
+      "type": "number"
+    },
+    "recomendacao": {
+      "type": "string",
+      "enum": [
+        "manter",
+        "trocar",
+        "ajustar",
+        "observar"
+      ],
+      "default": "observar"
+    },
+    "justificativa": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "alunoId",
+    "personalId",
+    "treinoId"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

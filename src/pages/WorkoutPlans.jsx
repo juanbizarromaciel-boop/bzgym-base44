@@ -12,15 +12,16 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, UserCircle, AlertTriangle, Copy, EyeOff, Eye, Archive } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, UserCircle, AlertTriangle, Copy, EyeOff, Eye, Archive, Sparkles } from "lucide-react";
 import PageHeader from "../components/shared/PageHeader";
 import { motion } from "framer-motion";
-
-const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 import ExerciseCard from "../components/workout/ExerciseCard";
 import ExerciseFormDialog from "../components/workout/ExerciseFormDialog";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
+import AiWorkoutSwapDialog from "../components/workout/AiWorkoutSwapDialog";
+
+const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 
 const days = {
   segunda: "Segunda", terca: "Terça", quarta: "Quarta",
@@ -38,6 +39,7 @@ export default function WorkoutPlans() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [duplicatePlan, setDuplicatePlan] = useState(null);
   const [dupeStudentId, setDupeStudentId] = useState("");
+  const [aiSwapPlan, setAiSwapPlan] = useState(null);
   const { user: currentUser } = useCurrentUser();
   const qc = useQueryClient();
 
@@ -249,6 +251,9 @@ export default function WorkoutPlans() {
                       <Badge className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px]">
                         {plan.exercises?.length || 0} exerc.
                       </Badge>
+                      <Badge className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px]">
+                        v{plan.versao || 1} · {plan.statusVersao || (isArchived ? "arquivado" : "atual")}
+                      </Badge>
                       {isArchived && (
                         <Badge className="bg-gray-500/10 border border-gray-500/20 text-gray-400 text-[10px]">oculto</Badge>
                       )}
@@ -267,6 +272,9 @@ export default function WorkoutPlans() {
                   <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center h-7 w-7">
                     <WorkoutPdfExport studentId={plan.student_id} studentName={getStudentName(plan.student_id)} planId={plan.id} compact={true} />
                   </div>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-cyan-300" title="Trocar com IA" onClick={(e) => { e.stopPropagation(); setAiSwapPlan(plan); }}>
+                    <Sparkles className="w-3 h-3" />
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-7 w-7 text-purple-400/40 hover:text-purple-300" onClick={(e) => { e.stopPropagation(); openEditPlan(plan); }}>
                     <Pencil className="w-3 h-3" />
                   </Button>
@@ -278,6 +286,12 @@ export default function WorkoutPlans() {
               </div>
               {expandedPlan === plan.id && (
                 <div className="pl-12 pr-5 pb-4 space-y-2 border-t border-purple-900/10 pt-3">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setAiSwapPlan(plan); }}
+                    className="w-full mb-3 btn-neon-cyan px-4 py-2 rounded-lg text-xs font-bold tracking-widest flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" /> TROCAR TREINO COM IA
+                  </button>
                   {plan.exercises?.map((ex, idx) => (
                     <ExerciseCard key={idx} exercise={ex} index={idx} showActions={false} />
                   ))}
@@ -539,6 +553,20 @@ export default function WorkoutPlans() {
         onSave={addOrUpdateExercise}
         exercise={editingExerciseIndex !== null ? planForm.exercises[editingExerciseIndex] : null}
         exercisesList={exercises}
+      />
+
+      <AiWorkoutSwapDialog
+        open={!!aiSwapPlan}
+        onOpenChange={(v) => !v && setAiSwapPlan(null)}
+        plan={aiSwapPlan}
+        student={students.find(s => s.id === aiSwapPlan?.student_id)}
+        allPlans={plans}
+        currentUser={currentUser}
+        onApplied={() => {
+          qc.invalidateQueries({ queryKey: ["plans"] });
+          qc.invalidateQueries({ queryKey: ["all-students"] });
+          setAiSwapPlan(null);
+        }}
       />
     </motion.div>
   );
