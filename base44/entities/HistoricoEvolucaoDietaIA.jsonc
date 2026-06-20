@@ -1,0 +1,134 @@
+{
+  "name": "HistoricoEvolucaoDietaIA",
+  "type": "object",
+  "properties": {
+    "alunoId": {
+      "type": "string"
+    },
+    "assinanteId": {
+      "type": "string"
+    },
+    "usuarioId": {
+      "type": "string"
+    },
+    "personalId": {
+      "type": "string"
+    },
+    "dietaAntigaId": {
+      "type": "string"
+    },
+    "dietaNovaId": {
+      "type": "string"
+    },
+    "modoEvolucao": {
+      "type": "string",
+      "enum": [
+        "dieta_completa",
+        "refeicao_especifica",
+        "troca_alimentos",
+        "ajuste_macros",
+        "melhorar_adesao"
+      ],
+      "default": "dieta_completa"
+    },
+    "dataEvolucao": {
+      "type": "string"
+    },
+    "motivoEvolucao": {
+      "type": "string"
+    },
+    "pedidoIA": {
+      "type": "string"
+    },
+    "resumoAnalise": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "rascunho",
+        "aplicado",
+        "cancelado"
+      ],
+      "default": "rascunho"
+    },
+    "criadoPor": {
+      "type": "string"
+    },
+    "aprovadoPor": {
+      "type": "string"
+    },
+    "relatorioUrl": {
+      "type": "string"
+    },
+    "relatorioTexto": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "dataEvolucao",
+    "modoEvolucao"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

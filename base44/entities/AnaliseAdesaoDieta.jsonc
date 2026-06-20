@@ -1,0 +1,133 @@
+{
+  "name": "AnaliseAdesaoDieta",
+  "type": "object",
+  "properties": {
+    "alunoId": {
+      "type": "string"
+    },
+    "assinanteId": {
+      "type": "string"
+    },
+    "usuarioId": {
+      "type": "string"
+    },
+    "personalId": {
+      "type": "string"
+    },
+    "planoDietaId": {
+      "type": "string"
+    },
+    "periodoInicio": {
+      "type": "string"
+    },
+    "periodoFim": {
+      "type": "string"
+    },
+    "refeicaoId": {
+      "type": "string"
+    },
+    "alimentoId": {
+      "type": "string"
+    },
+    "vezesPlanejado": {
+      "type": "number"
+    },
+    "vezesConcluido": {
+      "type": "number"
+    },
+    "percentualAdesao": {
+      "type": "number"
+    },
+    "statusAdesao": {
+      "type": "string",
+      "enum": [
+        "alta",
+        "media",
+        "baixa",
+        "sem_dados"
+      ],
+      "default": "sem_dados"
+    },
+    "observacoesUsuario": {
+      "type": "string"
+    },
+    "recomendacao": {
+      "type": "string",
+      "enum": [
+        "manter",
+        "trocar",
+        "ajustar",
+        "observar"
+      ],
+      "default": "observar"
+    },
+    "justificativa": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "planoDietaId"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

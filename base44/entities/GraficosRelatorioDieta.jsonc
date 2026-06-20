@@ -1,0 +1,104 @@
+{
+  "name": "GraficosRelatorioDieta",
+  "type": "object",
+  "properties": {
+    "relatorioEvolucaoDietaId": {
+      "type": "string"
+    },
+    "tipoGrafico": {
+      "type": "string",
+      "enum": [
+        "adesao_refeicoes",
+        "macros",
+        "calorias",
+        "alimentos_status",
+        "refeicoes_status",
+        "progresso_corporal"
+      ]
+    },
+    "titulo": {
+      "type": "string"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "dadosJson": {
+      "type": "object"
+    },
+    "imagemGraficoUrl": {
+      "type": "string"
+    },
+    "ordem": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "relatorioEvolucaoDietaId",
+    "tipoGrafico",
+    "titulo"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

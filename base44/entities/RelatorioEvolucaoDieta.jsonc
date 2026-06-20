@@ -1,0 +1,228 @@
+{
+  "name": "RelatorioEvolucaoDieta",
+  "type": "object",
+  "properties": {
+    "alunoId": {
+      "type": "string"
+    },
+    "assinanteId": {
+      "type": "string"
+    },
+    "usuarioId": {
+      "type": "string"
+    },
+    "personalId": {
+      "type": "string"
+    },
+    "dietaAntigaId": {
+      "type": "string"
+    },
+    "dietaNovaId": {
+      "type": "string"
+    },
+    "historicoEvolucaoDietaId": {
+      "type": "string"
+    },
+    "titulo": {
+      "type": "string"
+    },
+    "periodoAnalisado": {
+      "type": "string"
+    },
+    "resumoExecutivo": {
+      "type": "string"
+    },
+    "metricasResumoJson": {
+      "type": "object"
+    },
+    "analiseAdesao": {
+      "type": "object"
+    },
+    "analisePorRefeicao": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "analisePorAlimento": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "comparativoAntigoNovo": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "macrosAntigos": {
+      "type": "object"
+    },
+    "macrosNovos": {
+      "type": "object"
+    },
+    "alimentosMantidos": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "alimentosSubstituidos": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "alimentosAdicionados": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "alimentosRemovidos": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "estrategiaNovaDieta": {
+      "type": "string"
+    },
+    "alertas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "conclusao": {
+      "type": "string"
+    },
+    "proximosPassos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "graficosJson": {
+      "type": "object"
+    },
+    "tabelasJson": {
+      "type": "object"
+    },
+    "temaPdf": {
+      "type": "string",
+      "enum": [
+        "claro",
+        "escuro"
+      ],
+      "default": "claro"
+    },
+    "pdfUrl": {
+      "type": "string"
+    },
+    "htmlUrl": {
+      "type": "string"
+    },
+    "textoWhatsapp": {
+      "type": "string"
+    },
+    "statusExportacao": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "gerando",
+        "concluido",
+        "erro"
+      ],
+      "default": "pendente"
+    },
+    "visivelParaAluno": {
+      "type": "boolean",
+      "default": false
+    },
+    "dataCriacao": {
+      "type": "string"
+    },
+    "dataExportacao": {
+      "type": "string"
+    },
+    "geradoPorIA": {
+      "type": "boolean",
+      "default": true
+    },
+    "revisadoPorPersonal": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "titulo",
+    "periodoAnalisado"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        },
+        {
+          "data.visivelParaAluno": true
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

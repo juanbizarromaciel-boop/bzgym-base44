@@ -1,0 +1,107 @@
+{
+  "name": "SecoesRelatorioDieta",
+  "type": "object",
+  "properties": {
+    "relatorioEvolucaoDietaId": {
+      "type": "string"
+    },
+    "titulo": {
+      "type": "string"
+    },
+    "tipoSecao": {
+      "type": "string",
+      "enum": [
+        "capa",
+        "resumo",
+        "grafico",
+        "tabela",
+        "analise",
+        "comparativo",
+        "alerta",
+        "conclusao"
+      ]
+    },
+    "conteudoHtml": {
+      "type": "string"
+    },
+    "dadosJson": {
+      "type": "object"
+    },
+    "ordem": {
+      "type": "number"
+    },
+    "visivelNoPdf": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "relatorioEvolucaoDietaId",
+    "titulo",
+    "tipoSecao"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

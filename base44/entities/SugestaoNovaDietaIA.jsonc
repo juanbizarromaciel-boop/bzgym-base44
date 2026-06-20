@@ -1,0 +1,128 @@
+{
+  "name": "SugestaoNovaDietaIA",
+  "type": "object",
+  "properties": {
+    "alunoId": {
+      "type": "string"
+    },
+    "assinanteId": {
+      "type": "string"
+    },
+    "usuarioId": {
+      "type": "string"
+    },
+    "personalId": {
+      "type": "string"
+    },
+    "dietaBaseId": {
+      "type": "string"
+    },
+    "nomeSugestao": {
+      "type": "string"
+    },
+    "objetivo": {
+      "type": "string"
+    },
+    "caloriasAlvo": {
+      "type": "number"
+    },
+    "proteinaAlvo": {
+      "type": "number"
+    },
+    "carboAlvo": {
+      "type": "number"
+    },
+    "gorduraAlvo": {
+      "type": "number"
+    },
+    "pedidoIA": {
+      "type": "string"
+    },
+    "configuracoesSelecionadas": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "gerado",
+        "em_revisao",
+        "aprovado",
+        "aplicado",
+        "descartado"
+      ],
+      "default": "gerado"
+    },
+    "dataCriacao": {
+      "type": "string"
+    },
+    "criadoPor": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "dietaBaseId",
+    "nomeSugestao"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

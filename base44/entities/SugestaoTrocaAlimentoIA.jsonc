@@ -1,0 +1,163 @@
+{
+  "name": "SugestaoTrocaAlimentoIA",
+  "type": "object",
+  "properties": {
+    "sugestaoNovaDietaId": {
+      "type": "string"
+    },
+    "refeicaoAntigaId": {
+      "type": "string"
+    },
+    "refeicaoNovaId": {
+      "type": "string"
+    },
+    "alimentoAntigoId": {
+      "type": "string"
+    },
+    "alimentoNovoId": {
+      "type": "string"
+    },
+    "acao": {
+      "type": "string",
+      "enum": [
+        "manter",
+        "substituir",
+        "adicionar",
+        "remover",
+        "ajustar_quantidade"
+      ],
+      "default": "manter"
+    },
+    "motivo": {
+      "type": "string"
+    },
+    "quantidadeAntiga": {
+      "type": "number"
+    },
+    "quantidadeNova": {
+      "type": "number"
+    },
+    "unidade": {
+      "type": "string"
+    },
+    "caloriasAntigas": {
+      "type": "number"
+    },
+    "caloriasNovas": {
+      "type": "number"
+    },
+    "proteinaAntiga": {
+      "type": "number"
+    },
+    "proteinaNova": {
+      "type": "number"
+    },
+    "carboAntigo": {
+      "type": "number"
+    },
+    "carboNovo": {
+      "type": "number"
+    },
+    "gorduraAntiga": {
+      "type": "number"
+    },
+    "gorduraNova": {
+      "type": "number"
+    },
+    "diferencaCalorias": {
+      "type": "number"
+    },
+    "diferencaProteina": {
+      "type": "number"
+    },
+    "diferencaCarbo": {
+      "type": "number"
+    },
+    "diferencaGordura": {
+      "type": "number"
+    },
+    "confiancaEquivalencia": {
+      "type": "string",
+      "enum": [
+        "alta",
+        "media",
+        "baixa"
+      ],
+      "default": "baixa"
+    },
+    "baseEquivalencia": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "sugestaoNovaDietaId",
+    "acao"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
