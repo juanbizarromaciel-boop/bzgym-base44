@@ -50,22 +50,26 @@ export default function WorkoutPlans() {
   const isPersonal = currentUser?.role === "personal";
   const isAdmin = currentUser?.role === "admin";
   const isSubscriber = currentUser?.role === "assinante";
+  const isSelfManagedWorkout = currentUser?.role === "assinante" || currentUser?.role === "user";
   const subscriberStudent = currentUser ? {
     id: currentUser.email,
     name: currentUser.full_name || "Meu perfil",
     email: currentUser.email,
     goal: currentUser.goal || "hipertrofia",
   } : null;
+  const linkedStudent = allStudents.find(s => s.email?.toLowerCase() === currentUser?.email?.toLowerCase());
+  const ownStudent = linkedStudent || subscriberStudent;
   const students = isAdmin
     ? allStudents
-    : isSubscriber
-      ? [subscriberStudent].filter(Boolean)
+    : isSelfManagedWorkout
+      ? [ownStudent].filter(Boolean)
       : allStudents.filter(s => s.personal_id === currentUser?.email);
   const myStudentIds = new Set(students.map(s => s.id));
+  const ownIds = [currentUser?.email, linkedStudent?.id].filter(Boolean);
   const plans = isAdmin
     ? allPlans
-    : isSubscriber
-      ? allPlans.filter(p => p.assinanteId === currentUser?.email || p.usuarioId === currentUser?.email || p.student_id === currentUser?.email)
+    : isSelfManagedWorkout
+      ? allPlans.filter(p => p.assinanteId === currentUser?.email || p.usuarioId === currentUser?.email || ownIds.includes(p.student_id))
       : allPlans.filter(p => p.personal_id === currentUser?.email || myStudentIds.has(p.student_id));
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list() });
 
@@ -119,8 +123,8 @@ export default function WorkoutPlans() {
 
   const handleSavePlan = () => {
     if (!planForm.name || !planForm.student_id) return;
-    const dataToSave = isSubscriber
-      ? { ...planForm, student_id: currentUser.email, usuarioId: currentUser.email, assinanteId: currentUser.email, tipoDono: "assinante", personal_id: currentUser.email }
+    const dataToSave = isSelfManagedWorkout
+      ? { ...planForm, student_id: planForm.student_id || ownStudent?.id || currentUser.email, usuarioId: currentUser.email, assinanteId: currentUser.email, tipoDono: "assinante", personal_id: currentUser.email }
       : (isPersonal || isAdmin)
         ? { ...planForm, personal_id: currentUser.email }
         : planForm;
@@ -188,13 +192,13 @@ export default function WorkoutPlans() {
             <div className="flex items-center gap-3 mb-2">
               <div className="w-1 h-8" style={{ background: 'linear-gradient(to bottom, #ec4899, #a855f7)', borderRadius: '2px', boxShadow: '0 0 12px rgba(236,72,153,0.6)' }} />
               <h1 className="text-3xl font-black font-cyber tracking-wider" style={{ color: '#ffffff', textShadow: '0 0 20px rgba(236,72,153,0.5), 0 0 40px rgba(168,85,247,0.3)' }}>
-                {isSubscriber ? "MEUS TREINOS" : "TREINOS"}
+                {isSelfManagedWorkout ? "MEUS TREINOS" : "TREINOS"}
               </h1>
             </div>
             <div className="flex items-center gap-2" style={{ paddingLeft: '14px' }}>
               <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ec4899', boxShadow: '0 0 8px #ec4899, 0 0 16px rgba(236,72,153,0.6)' }} />
               <p className="text-sm font-mono-cyber tracking-wide" style={{ color: 'rgba(236,72,153,0.8)', textShadow: '0 0 10px rgba(236,72,153,0.5)' }}>
-                {isSubscriber ? "Crie, edite e evolua seus próprios treinos" : "Monte treinos personalizados para seus alunos"}
+                {isSelfManagedWorkout ? "Crie, edite e evolua seus próprios treinos" : "Monte treinos personalizados para seus alunos"}
               </p>
             </div>
           </div>

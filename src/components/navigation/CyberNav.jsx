@@ -122,6 +122,8 @@ const studentNavGroups = [
   ]},
   { label: "Treino", color: "#ec4899", items: [
     { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+    { name: "Criar/Editar Treinos", icon: ClipboardList, page: "WorkoutPlans" },
+    { name: "Analisar Treino IA", icon: Sparkles, page: "WorkoutPlans" },
     { name: "Aprender Exercícios", icon: BookOpen, page: "LearnExercises" },
     { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
   ]},

@@ -139,7 +139,7 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
   const { data: bios = [] } = useQuery({ queryKey: ["evolution-bio"], queryFn: () => base44.entities.Bioimpedancia.list(), enabled: open });
   const { data: fotos = [] } = useQuery({ queryKey: ["evolution-fotos"], queryFn: () => base44.entities.FotoProgresso.list(), enabled: open });
 
-  const canUse = currentUser?.role === "admin" || currentUser?.role === "personal" || currentUser?.role === "assinante";
+  const canUse = currentUser?.role === "admin" || currentUser?.role === "personal" || currentUser?.role === "assinante" || currentUser?.role === "user";
   const activePlans = useMemo(() => allPlans.filter(p => p.student_id === student?.id && p.active !== false && p.statusVersao !== "substituido"), [allPlans, student?.id]);
   const selectedPlans = useMemo(() => activePlans.filter(p => selectedPlanIds.includes(p.id)), [activePlans, selectedPlanIds]);
   const studentLogs = logs.filter(l => l.student_id === student?.id);
@@ -233,13 +233,13 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
     const suggestions = [];
     for (const gp of generatedPlans) {
       const suggestion = await base44.entities.SugestaoNovoTreinoIA.create({
-        alunoId: student.id, personalId: currentUser.email, treinoBaseId: gp.basePlanId, evolucaoCompletaId: historicoId,
+        alunoId: student.id, personalId: currentUser.email, usuarioId: currentUser.email, assinanteId: currentUser.email, treinoBaseId: gp.basePlanId, evolucaoCompletaId: historicoId,
         nomeSugestao: gp.name, objetivo: generatedMeta?.objetivo || student?.goal || "", divisao: generatedMeta?.divisao || gp.day_of_week || "",
         pedidoIA: requestText, configuracoesSelecionadas: { ...selected, modo: mode, treinosSelecionados: selectedPlanIds }, status, dataCriacao: new Date().toISOString(), criadoPor: currentUser.email,
       });
       suggestions.push(suggestion);
       await Promise.all(gp.exercises.map((ex, idx) => base44.entities.SugestaoExercicioTreinoIA.create({
-        sugestaoNovoTreinoId: suggestion.id, diaTreino: gp.day_of_week, ordem: idx, exercicioAntigoId: ex.exercicioAntigoId, exercicioNovoId: ex.exercise_id, acao: ex.acao,
+        sugestaoNovoTreinoId: suggestion.id, usuarioId: currentUser.email, assinanteId: currentUser.email, diaTreino: gp.day_of_week, ordem: idx, exercicioAntigoId: ex.exercicioAntigoId, exercicioNovoId: ex.exercise_id, acao: ex.acao,
         motivo: ex.motivo, series: Number(ex.sets || 0), repeticoes: ex.reps, descanso: Number(ex.rest_seconds || 0), rir: ex.rir, cadencia: ex.cadencia,
         tecnicaAvancada: ex.technique, cargaAnterior: Number(ex.cargaAnterior || 0), cargaSugerida: Number(ex.cargaSugerida || 0), faixaCargaMin: Number(ex.faixaCargaMin || 0), faixaCargaMax: Number(ex.faixaCargaMax || 0), confiancaCarga: ex.confiancaCarga, baseEstimativaCarga: ex.baseEstimativaCarga, observacoes: ex.notes,
       })));
@@ -249,7 +249,7 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
 
   const saveDraft = async () => {
     setSaving(true);
-    const history = await base44.entities.HistoricoEvolucaoTreinoIA.create({ alunoId: student.id, personalId: currentUser.email, modoEvolucao: mode, treinosAntigosIds: selectedPlanIds, treinosNovosIds: [], dataEvolucao: new Date().toISOString(), motivoEvolucao: "Rascunho de evolução com IA", pedidoIA: requestText, resumoAnalise: generatedMeta?.resumoExecutivo || "", status: "rascunho", criadoPor: currentUser.email, relatorioTexto: fullReport });
+    const history = await base44.entities.HistoricoEvolucaoTreinoIA.create({ alunoId: student.id, personalId: currentUser.email, usuarioId: currentUser.email, assinanteId: currentUser.email, modoEvolucao: mode, treinosAntigosIds: selectedPlanIds, treinosNovosIds: [], dataEvolucao: new Date().toISOString(), motivoEvolucao: "Rascunho de evolução com IA", pedidoIA: requestText, resumoAnalise: generatedMeta?.resumoExecutivo || "", status: "rascunho", criadoPor: currentUser.email, relatorioTexto: fullReport });
     await saveSuggestion("em_revisao", history.id);
     setSaving(false);
     toast.success("Rascunho da evolução salvo.");
@@ -258,7 +258,7 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
   const applyEvolution = async () => {
     if (!window.confirm(mode === "plano_completo" ? "Confirmar aplicação do novo ciclo completo? Os treinos antigos serão preservados e arquivados." : "Confirmar aplicação do novo treino? O treino antigo será preservado e arquivado.")) return;
     setSaving(true);
-    const cycle = mode === "plano_completo" ? await base44.entities.CiclosTreino.create({ alunoId: student.id, personalId: currentUser.email, nomeCiclo: generatedMeta?.nomeNovoCiclo || `Novo ciclo IA · ${student.name}`, objetivo: generatedMeta?.objetivo || student?.goal || "", divisao: generatedMeta?.divisao || `${generatedPlans.length} treinos`, dataInicio: new Date().toISOString().split("T")[0], status: "atual", criadoPorIA: true, observacoes: requestText || "Ciclo evoluído com IA" }) : null;
+    const cycle = mode === "plano_completo" ? await base44.entities.CiclosTreino.create({ alunoId: student.id, personalId: currentUser.email, usuarioId: currentUser.email, assinanteId: currentUser.email, nomeCiclo: generatedMeta?.nomeNovoCiclo || `Novo ciclo IA · ${student.name}`, objetivo: generatedMeta?.objetivo || student?.goal || "", divisao: generatedMeta?.divisao || `${generatedPlans.length} treinos`, dataInicio: new Date().toISOString().split("T")[0], status: "atual", criadoPorIA: true, observacoes: requestText || "Ciclo evoluído com IA" }) : null;
     const newIds = [];
     for (const gp of generatedPlans) {
       const oldPlan = selectedPlans.find(p => p.id === gp.basePlanId);
@@ -280,10 +280,10 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
       newIds.push(newPlan.id);
       if (oldPlan) await base44.entities.WorkoutPlan.update(oldPlan.id, { ...oldPlan, active: false, statusVersao: "substituido", motivoAtualizacao: "Substituído por evolução com IA" });
     }
-    const history = await base44.entities.HistoricoEvolucaoTreinoIA.create({ alunoId: student.id, personalId: currentUser.email, modoEvolucao: mode, treinosAntigosIds: selectedPlanIds, treinosNovosIds: newIds, dataEvolucao: new Date().toISOString(), motivoEvolucao: generatedMeta?.resumoExecutivo || "Evolução gerada com IA", pedidoIA: requestText, resumoAnalise: generatedMeta?.resumoExecutivo || "", status: "aplicado", criadoPor: currentUser.email, aprovadoPor: currentUser.email, relatorioTexto: fullReport });
+    const history = await base44.entities.HistoricoEvolucaoTreinoIA.create({ alunoId: student.id, personalId: currentUser.email, usuarioId: currentUser.email, assinanteId: currentUser.email, modoEvolucao: mode, treinosAntigosIds: selectedPlanIds, treinosNovosIds: newIds, dataEvolucao: new Date().toISOString(), motivoEvolucao: generatedMeta?.resumoExecutivo || "Evolução gerada com IA", pedidoIA: requestText, resumoAnalise: generatedMeta?.resumoExecutivo || "", status: "aplicado", criadoPor: currentUser.email, aprovadoPor: currentUser.email, relatorioTexto: fullReport });
     await saveSuggestion("aplicado", history.id);
     for (const a of analyses.flatMap(x => x.exerciseAnalysis.map(e => ({ ...e, treinoId: x.plan.id })))) {
-      await base44.entities.AnaliseProgressaoTreino.create({ alunoId: student.id, personalId: currentUser.email, treinoId: a.treinoId, exercicioId: a.exercicioId, periodoInicio: "histórico", periodoFim: new Date().toISOString(), execucoes: a.execucoes, ultimaCarga: a.ultimaCarga, melhorCarga: a.melhorCarga, cargaMedia: a.cargaMedia, ultimasRepeticoes: a.ultimasRepeticoes, melhorRepeticao: a.melhorRepeticao, rirMedio: a.rirMedio, statusProgressao: a.statusProgressao, adesao: a.adesao, recomendacao: a.recomendacao, justificativa: a.justificativa });
+      await base44.entities.AnaliseProgressaoTreino.create({ alunoId: student.id, personalId: currentUser.email, usuarioId: currentUser.email, assinanteId: currentUser.email, treinoId: a.treinoId, exercicioId: a.exercicioId, periodoInicio: "histórico", periodoFim: new Date().toISOString(), execucoes: a.execucoes, ultimaCarga: a.ultimaCarga, melhorCarga: a.melhorCarga, cargaMedia: a.cargaMedia, ultimasRepeticoes: a.ultimasRepeticoes, melhorRepeticao: a.melhorRepeticao, rirMedio: a.rirMedio, statusProgressao: a.statusProgressao, adesao: a.adesao, recomendacao: a.recomendacao, justificativa: a.justificativa });
     }
     const allGeneratedExercises = generatedPlans.flatMap(p => p.exercises.map(e => ({ ...e, treino: p.name })));
     const report = await base44.entities.RelatorioEvolucaoTreino.create({
