@@ -67,6 +67,9 @@
                 "quantity_g": {
                   "type": "number"
                 },
+                "unit": {
+                  "type": "string"
+                },
                 "calories": {
                   "type": "number"
                 },
@@ -78,6 +81,18 @@
                 },
                 "fat_g": {
                   "type": "number"
+                },
+                "acao": {
+                  "type": "string"
+                },
+                "motivo": {
+                  "type": "string"
+                },
+                "alimentoAntigoRelacionado": {
+                  "type": "string"
+                },
+                "confiancaEquivalencia": {
+                  "type": "string"
                 }
               }
             }
@@ -91,10 +106,59 @@
     "active": {
       "type": "boolean",
       "default": true
+    },
+    "versao": {
+      "type": "number",
+      "default": 1
+    },
+    "dietaAnteriorId": {
+      "type": "string"
+    },
+    "statusVersao": {
+      "type": "string",
+      "enum": [
+        "atual",
+        "arquivada",
+        "substituida",
+        "rascunho"
+      ],
+      "default": "atual"
+    },
+    "dataAplicacao": {
+      "type": "string"
+    },
+    "motivoAtualizacao": {
+      "type": "string"
+    },
+    "evoluidaPorIA": {
+      "type": "boolean",
+      "default": false
+    },
+    "historicoEvolucaoId": {
+      "type": "string"
+    },
+    "tipoDono": {
+      "type": "string",
+      "enum": [
+        "aluno",
+        "assinante"
+      ],
+      "default": "aluno"
+    },
+    "usuarioId": {
+      "type": "string"
+    },
+    "assinanteId": {
+      "type": "string"
+    },
+    "alunoId": {
+      "type": "string"
+    },
+    "personalId": {
+      "type": "string"
     }
   },
   "required": [
-    "student_id",
     "name"
   ],
   "rls": {
@@ -109,6 +173,11 @@
           "user_condition": {
             "role": "personal"
           }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
         }
       ]
     },
@@ -121,6 +190,15 @@
         },
         {
           "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -138,6 +216,15 @@
         },
         {
           "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
         }
       ]
     },
@@ -150,6 +237,9 @@
         },
         {
           "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.personalId": "{{user.email}}"
         }
       ]
     }
