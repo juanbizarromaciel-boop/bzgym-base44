@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Target, Zap, TrendingUp, Heart, Dumbbell, CheckCircle2, Shield } from "lucide-react";
+import { Target, Zap, TrendingUp, Heart, Dumbbell, CheckCircle2, Shield, UserPlus, Crown, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 
 const GOALS = [
@@ -18,6 +18,7 @@ const GOALS = [
 export default function Onboarding() {
   const [user, setUser] = useState(null);
   const [student, setStudent] = useState(null);
+  const [accountType, setAccountType] = useState("");
   const [selectedGoal, setSelectedGoal] = useState("");
   const [customGoal, setCustomGoal] = useState("");
   const [notes, setNotes] = useState("");
@@ -33,7 +34,10 @@ export default function Onboarding() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("invite");
-    if (code) setInviteCode(code.toUpperCase());
+    if (code) {
+      setInviteCode(code.toUpperCase());
+      setAccountType("aluno");
+    }
   }, []);
 
   useEffect(() => {
@@ -52,8 +56,18 @@ export default function Onboarding() {
   }, [navigate]);
 
   const handleSubmit = async () => {
+    if (!accountType) {
+      toast.error("Escolha se você quer entrar como aluno ou assinante");
+      return;
+    }
+
     if (!selectedGoal && !customGoal) {
       toast.error("Selecione ou escreva seu objetivo");
+      return;
+    }
+
+    if (accountType === "aluno" && !inviteCode.trim()) {
+      toast.error("Informe o código do seu professor para entrar como aluno");
       return;
     }
 
@@ -64,45 +78,66 @@ export default function Onboarding() {
 
     setLoading(true);
     try {
-      const goalValue = customGoal.trim() || selectedGoal;
+      const goalValue = selectedGoal || "saude";
+      const customGoalText = customGoal.trim() ? `Objetivo personalizado: ${customGoal.trim()}` : "";
 
-      // Check invite code and find personal
       let personalId = "";
-      if (inviteCode.trim()) {
+      if (accountType === "aluno") {
         const allCodes = await base44.entities.InviteCode.list();
         const found = allCodes.find(c => c.code === inviteCode.trim().toUpperCase() && c.status === "ativo");
-        if (found) {
-          personalId = found.personal_id;
-          // Mark code as used
-          await base44.entities.InviteCode.update(found.id, {
-            status: "usado",
-            used_by_email: user.email,
-            used_at: new Date().toISOString(),
-          });
+        if (!found) {
+          toast.error("Código do professor inválido ou já usado");
+          setLoading(false);
+          return;
         }
+        personalId = found.personal_id;
+        await base44.entities.InviteCode.update(found.id, {
+          status: "usado",
+          used_by_email: user.email,
+          used_at: new Date().toISOString(),
+        });
       }
 
-      const notesValue = [notes.trim(), restrictions.trim() ? `Restrições: ${restrictions.trim()}` : ""].filter(Boolean).join(" | ");
+      const notesValue = [customGoalText, notes.trim(), restrictions.trim() ? `Restrições: ${restrictions.trim()}` : ""].filter(Boolean).join(" | ");
 
-      if (student) {
-        await base44.entities.Student.update(student.id, {
+      if (accountType === "assinante") {
+        await base44.auth.updateMe({
+          role: "assinante",
+          account_type: "assinante",
+          goal: customGoal.trim() || selectedGoal,
+          phone: phone.trim(),
+          training_level: trainingLevel,
+          restrictions: restrictions.trim(),
+          notes: notes.trim(),
+          assinatura_status: "pendente",
+          assinatura_valor: 19.9
+        });
+        window.location.href = "/SubscriberBilling";
+        return;
+      }
+
+      let studentRecord = student;
+      if (studentRecord) {
+        studentRecord = await base44.entities.Student.update(student.id, {
           goal: goalValue,
           phone: phone.trim(),
           notes: notesValue || student.notes,
-          ...(personalId ? { personal_id: personalId } : {}),
+          personal_id: personalId,
+          active: false,
         });
       } else {
-        await base44.entities.Student.create({
+        studentRecord = await base44.entities.Student.create({
           name: user.full_name || user.email,
           email: user.email,
           phone: phone.trim(),
           goal: goalValue,
           notes: notesValue,
           active: false,
-          ...(personalId ? { personal_id: personalId } : {}),
+          personal_id: personalId,
         });
       }
 
+      await base44.auth.updateMe({ role: "user", account_type: "aluno", student_id: studentRecord.id, phone: phone.trim(), training_level: trainingLevel, restrictions: restrictions.trim(), notes: notesValue });
       setSubmitted(true);
     } catch (error) {
       toast.error("Erro ao salvar");
@@ -175,6 +210,26 @@ export default function Onboarding() {
             BEM-VINDO
           </h1>
           <p className="text-purple-400/60 font-mono-cyber text-sm">// configure seu perfil para começar</p>
+        </div>
+
+        {/* Account Type */}
+        <div className="cyber-card rounded-2xl p-6 md:p-8 border border-purple-900/30 mb-6">
+          <div className="flex items-center gap-2 mb-5">
+            <UserPlus className="w-5 h-5 text-cyan-400" />
+            <h2 className="font-cyber text-lg text-white tracking-wider">COMO VOCÊ QUER ENTRAR?</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <button onClick={() => setAccountType("aluno")} className={`p-5 rounded-xl border text-left transition-all ${accountType === "aluno" ? "border-cyan-500/60 bg-cyan-500/10" : "border-purple-900/30 bg-black/20 hover:border-cyan-500/30"}`}>
+              <UserPlus className="w-7 h-7 text-cyan-300 mb-3" />
+              <h3 className="font-bold text-white">Entrar como aluno</h3>
+              <p className="text-xs text-purple-300/55 mt-2">Use o código do seu professor para vincular seu perfil e aguardar liberação.</p>
+            </button>
+            <button onClick={() => setAccountType("assinante")} className={`p-5 rounded-xl border text-left transition-all ${accountType === "assinante" ? "border-emerald-500/60 bg-emerald-500/10" : "border-purple-900/30 bg-black/20 hover:border-emerald-500/30"}`}>
+              <Crown className="w-7 h-7 text-emerald-300 mb-3" />
+              <h3 className="font-bold text-white">Entrar como assinante</h3>
+              <p className="text-xs text-purple-300/55 mt-2">Responda seu perfil e escolha um plano do BZ Gym para liberar o app.</p>
+            </button>
+          </div>
         </div>
 
         {/* Goals */}
@@ -294,9 +349,9 @@ export default function Onboarding() {
         </div>
 
         {/* Invite code */}
-        <div className="cyber-card rounded-2xl p-6 md:p-8 border border-purple-900/30 mb-6">
+        {accountType === "aluno" && <div className="cyber-card rounded-2xl p-6 md:p-8 border border-purple-900/30 mb-6">
           <label className="text-xs text-purple-400/50 font-mono-cyber tracking-wider uppercase mb-3 block">
-            Código de convite (opcional)
+            Código do professor *
           </label>
           <input
             placeholder="Ex: AB3XK7PQ"
@@ -308,7 +363,7 @@ export default function Onboarding() {
           <p className="text-[10px] text-cyan-500/40 font-mono-cyber mt-2">
             // se o seu personal enviou um código, insira aqui para ser vinculado automaticamente
           </p>
-        </div>
+        </div>}
 
         {/* Notes */}
         <div className="cyber-card rounded-2xl p-6 md:p-8 border border-purple-900/30 mb-6">
@@ -328,10 +383,10 @@ export default function Onboarding() {
         {/* Submit */}
         <Button
           onClick={handleSubmit}
-          disabled={loading || (!selectedGoal && !customGoal) || !phone.trim()}
+          disabled={loading || !accountType || (!selectedGoal && !customGoal) || !phone.trim() || (accountType === "aluno" && !inviteCode.trim())}
           className="w-full btn-neon-purple py-6 rounded-xl font-cyber text-base tracking-widest"
         >
-          {loading ? "ENVIANDO..." : "ENVIAR CADASTRO →"}
+          {loading ? "ENVIANDO..." : accountType === "assinante" ? "CONTINUAR PARA ASSINATURA →" : "ENVIAR CADASTRO →"}
         </Button>
 
         <p className="text-center text-purple-500/30 text-xs font-mono-cyber mt-4">

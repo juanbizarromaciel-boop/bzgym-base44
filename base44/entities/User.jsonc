@@ -19,6 +19,30 @@
       "type": "string",
       "description": "ID do registro Student vinculado a este usu\u00e1rio"
     },
+    "account_type": {
+      "type": "string",
+      "enum": [
+        "aluno",
+        "assinante"
+      ],
+      "description": "Tipo de entrada escolhido no onboarding"
+    },
+    "goal": {
+      "type": "string",
+      "description": "Objetivo informado no onboarding"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "training_level": {
+      "type": "string"
+    },
+    "restrictions": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
     "assinatura_status": {
       "type": "string",
       "enum": [
