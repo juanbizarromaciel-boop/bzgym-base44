@@ -129,10 +129,14 @@ const subscriberNavGroups = [
   ]},
   { label: "Treino", color: "#ec4899", items: [
     { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+    { name: "Criar/Editar Treinos", icon: ClipboardList, page: "WorkoutPlans" },
+    { name: "IA de Treino", icon: Sparkles, page: "WorkoutAI" },
     { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
   ]},
   { label: "Nutrição", color: "#10b981", items: [
     { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
+    { name: "Criar/Editar Dieta", icon: ClipboardList, page: "Diet" },
+    { name: "IA de Dieta", icon: Sparkles, page: "DietAI" },
   ]},
   { label: "Comunidade", color: "#ec4899", items: [
     { name: "Comunidade", icon: Users2, page: "Comunidade" },
@@ -151,12 +155,14 @@ const studentNavGroups = [
   { label: "Treino", color: "#ec4899", items: [
     { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
     { name: "Criar/Editar Treinos", icon: ClipboardList, page: "WorkoutPlans" },
-    { name: "Analisar Treino IA", icon: Sparkles, page: "WorkoutPlans" },
+    { name: "IA de Treino", icon: Sparkles, page: "WorkoutAI" },
     { name: "Aprender Exercícios", icon: BookOpen, page: "LearnExercises" },
     { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
   ]},
   { label: "Nutrição", color: "#10b981", items: [
     { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
+    { name: "Criar/Editar Dieta", icon: ClipboardList, page: "Diet" },
+    { name: "IA de Dieta", icon: Sparkles, page: "DietAI" },
   ]},
   { label: "Evolução", color: "#f59e0b", items: [
     { name: "Progresso", icon: BarChart3, page: "Progress" },

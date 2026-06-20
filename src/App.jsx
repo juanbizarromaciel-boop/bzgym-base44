@@ -21,6 +21,7 @@ import AccessDenied from './pages/AccessDenied';
 import MyWorkout from './pages/MyWorkout';
 import WorkoutPlans from './pages/WorkoutPlans';
 import MyDiet from './pages/MyDiet';
+import Diet from './pages/Diet';
 import DietLogs from './pages/DietLogs';
 import ExerciseLibrary from './pages/ExerciseLibrary';
 import Welcome from './pages/Welcome';
@@ -46,6 +47,8 @@ import SportsNewsDetail from './pages/SportsNewsDetail';
 import SubscriptionManagement from './pages/SubscriptionManagement';
 import PaymentOverdue from './pages/PaymentOverdue';
 import SubscriberBilling from './pages/SubscriberBilling';
+import WorkoutAI from './pages/WorkoutAI';
+import DietAI from './pages/DietAI';
 import { useState, useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -124,8 +127,11 @@ const AuthenticatedApp = () => {
       <Route path="/SubscriberDashboard" element={<LayoutWrapper currentPageName="SubscriberDashboard"><SubscriberDashboard /></LayoutWrapper>} />
       <Route path="/MyWorkout" element={<LayoutWrapper currentPageName="MyWorkout"><MyWorkout /></LayoutWrapper>} />
       <Route path="/WorkoutPlans" element={<LayoutWrapper currentPageName="WorkoutPlans"><WorkoutPlans /></LayoutWrapper>} />
+      <Route path="/WorkoutAI" element={<LayoutWrapper currentPageName="WorkoutAI"><WorkoutAI /></LayoutWrapper>} />
       <Route path="/ExerciseLibrary" element={<LayoutWrapper currentPageName="ExerciseLibrary"><ExerciseLibrary /></LayoutWrapper>} />
       <Route path="/MyDiet" element={<LayoutWrapper currentPageName="MyDiet"><MyDiet /></LayoutWrapper>} />
+      <Route path="/Diet" element={<LayoutWrapper currentPageName="Diet"><Diet /></LayoutWrapper>} />
+      <Route path="/DietAI" element={<LayoutWrapper currentPageName="DietAI"><DietAI /></LayoutWrapper>} />
       <Route path="/Comunidade" element={<LayoutWrapper currentPageName="Comunidade"><Comunidade /></LayoutWrapper>} />
       <Route path="/SportsNewsDetail" element={<LayoutWrapper currentPageName="SportsNewsDetail"><SportsNewsDetail /></LayoutWrapper>} />
       <Route path="/FocusRoutine" element={<LayoutWrapper currentPageName="FocusRoutine"><FocusRoutine /></LayoutWrapper>} />
@@ -205,6 +211,8 @@ const AuthenticatedApp = () => {
       <Route path="/NewsManagement" element={<LayoutWrapper currentPageName="NewsManagement"><NewsManagement /></LayoutWrapper>} />
       <Route path="/SubscriptionManagement" element={<LayoutWrapper currentPageName="SubscriptionManagement"><SubscriptionManagement /></LayoutWrapper>} />
       <Route path="/SubscriberBilling" element={<LayoutWrapper currentPageName="SubscriberBilling"><SubscriberBilling /></LayoutWrapper>} />
+      <Route path="/WorkoutAI" element={<LayoutWrapper currentPageName="WorkoutAI"><WorkoutAI /></LayoutWrapper>} />
+      <Route path="/DietAI" element={<LayoutWrapper currentPageName="DietAI"><DietAI /></LayoutWrapper>} />
       <Route path="/SportsNewsDetail" element={<LayoutWrapper currentPageName="SportsNewsDetail"><SportsNewsDetail /></LayoutWrapper>} />
       <Route path="/PaymentOverdue" element={<PaymentOverdue />} />
       <Route path="/AccessDenied" element={<AccessDenied />} />

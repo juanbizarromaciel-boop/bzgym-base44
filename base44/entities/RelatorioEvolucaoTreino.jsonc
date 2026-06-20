@@ -8,6 +8,12 @@
     "personalId": {
       "type": "string"
     },
+    "usuarioId": {
+      "type": "string"
+    },
+    "assinanteId": {
+      "type": "string"
+    },
     "modoRelatorio": {
       "type": "string",
       "enum": [
@@ -200,6 +206,20 @@
           "user_condition": {
             "role": "personal"
           }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
+          }
+        },
+        {
+          "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
         }
       ]
     },
@@ -212,6 +232,12 @@
         },
         {
           "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
         },
         {
           "data.visivelParaAluno": true
@@ -227,13 +253,29 @@
         },
         {
           "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
         }
       ]
     },
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        }
+      ]
     }
   }
 }

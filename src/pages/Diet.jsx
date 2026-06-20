@@ -51,19 +51,27 @@ export default function Diet() {
   const { data: allStudentsDiet = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: allPlansDiet = [] } = useQuery({ queryKey: ["diet_plans"], queryFn: () => base44.entities.DietPlan.list() });
 
-  // Personal só vê seus próprios alunos e dietas
-  const students = (currentUser?.role === "personal")
+  const isSelfManagedDiet = currentUser?.role === "assinante" || currentUser?.role === "user";
+  const linkedStudent = allStudentsDiet.find(s => s.email?.toLowerCase() === currentUser?.email?.toLowerCase());
+  const ownStudent = linkedStudent || (currentUser ? { id: currentUser.email, name: currentUser.full_name || "Meu perfil", email: currentUser.email } : null);
+  const ownIds = [ownStudent?.id, currentUser?.email].filter(Boolean);
+
+  const students = currentUser?.role === "personal"
     ? allStudentsDiet.filter(s => s.personal_id === currentUser.email)
-    : allStudentsDiet;
-  const plans = (currentUser?.role === "personal")
+    : isSelfManagedDiet
+      ? [ownStudent].filter(Boolean)
+      : allStudentsDiet;
+  const plans = currentUser?.role === "personal"
     ? allPlansDiet.filter(p => p.personal_id === currentUser.email)
-    : allPlansDiet;
+    : isSelfManagedDiet
+      ? allPlansDiet.filter(p => ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email)
+      : allPlansDiet;
 
   const createMut = useMutation({ mutationFn: (d) => base44.entities.DietPlan.create(d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["diet_plans"] }); closeDialog(); toast.success("Dieta criada!"); } });
   const updateMut = useMutation({ mutationFn: ({ id, d }) => base44.entities.DietPlan.update(id, d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["diet_plans"] }); closeDialog(); toast.success("Dieta atualizada!"); } });
   const deleteMut = useMutation({ mutationFn: (id) => base44.entities.DietPlan.delete(id), onSuccess: () => { qc.invalidateQueries({ queryKey: ["diet_plans"] }); toast.success("Dieta removida!"); } });
 
-  const openCreate = () => { setEditing(null); setForm(emptyPlan); setDialogOpen(true); };
+  const openCreate = () => { setEditing(null); setForm({ ...emptyPlan, student_id: isSelfManagedDiet ? (ownStudent?.id || currentUser?.email || "") : "" }); setDialogOpen(true); };
   const openEdit = (p) => { setEditing(p); setForm({ ...p }); setDialogOpen(true); };
   const closeDialog = () => { setDialogOpen(false); setEditing(null); };
 
@@ -79,9 +87,11 @@ export default function Diet() {
   };
 
   const handleSave = () => {
-    if (!form.student_id || !form.name) { toast.error("Aluno e nome são obrigatórios"); return; }
+    if (!form.name || (!isSelfManagedDiet && !form.student_id)) { toast.error(isSelfManagedDiet ? "Nome da dieta é obrigatório" : "Aluno e nome são obrigatórios"); return; }
     const totals = recalcTotals(form.meals);
-    const data = { ...form, ...totals };
+    const data = isSelfManagedDiet
+      ? { ...form, student_id: form.student_id || ownStudent?.id || currentUser.email, ...totals, usuarioId: currentUser.email, assinanteId: currentUser.email, tipoDono: "assinante", personal_id: currentUser.email, personalId: currentUser.email }
+      : { ...form, ...totals };
     if (editing) updateMut.mutate({ id: editing.id, d: data });
     else createMut.mutate(data);
   };
@@ -140,7 +150,7 @@ export default function Diet() {
             <div className="flex items-center gap-2" style={{ paddingLeft: '14px' }}>
               <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#10b981', boxShadow: '0 0 8px #10b981, 0 0 16px rgba(16,185,129,0.6)' }} />
               <p className="text-sm font-mono-cyber tracking-wide" style={{ color: 'rgba(16,185,129,0.8)', textShadow: '0 0 10px rgba(16,185,129,0.5)' }}>
-                Planos nutricionais dos alunos
+                {isSelfManagedDiet ? "Crie, edite e evolua sua própria dieta" : "Planos nutricionais dos alunos"}
               </p>
             </div>
           </div>
@@ -167,7 +177,7 @@ export default function Diet() {
       </div>
 
       {/* Filter */}
-      <motion.div variants={fadeUp} className="mb-6">
+      <motion.div variants={fadeUp} className={`mb-6 ${isSelfManagedDiet ? "hidden" : ""}`}>
         <Select value={filterStudent} onValueChange={setFilterStudent}>
           <SelectTrigger className="cyber-input w-full sm:w-64">
             <SelectValue placeholder="Filtrar por aluno" />
@@ -335,7 +345,7 @@ export default function Diet() {
             <DialogTitle className="font-cyber tracking-widest text-purple-300">{editing ? "EDITAR DIETA" : "NOVA DIETA"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
+            <div className={isSelfManagedDiet ? "hidden" : ""}>
               <Label className="text-purple-400/60 text-xs tracking-wider">ALUNO *</Label>
               <Select value={form.student_id} onValueChange={(v) => setForm({ ...form, student_id: v })}>
                 <SelectTrigger className="cyber-input mt-1"><SelectValue placeholder="Selecione o aluno" /></SelectTrigger>
@@ -432,9 +442,10 @@ export default function Diet() {
         open={!!aiDietTarget}
         onOpenChange={() => setAiDietTarget(null)}
         plan={aiDietTarget?.plan}
-        owner={aiDietTarget?.owner}
+        owner={aiDietTarget?.owner || ownStudent || currentUser}
         currentUser={currentUser}
         allPlans={plans}
+        selfMode={isSelfManagedDiet}
         onApplied={() => qc.invalidateQueries({ queryKey: ["diet_plans"] })}
       />
     </motion.div>

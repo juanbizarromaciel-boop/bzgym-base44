@@ -104,6 +104,12 @@ export default function WorkoutPlans() {
     },
   });
 
+  const openCreatePlan = () => {
+    setEditingPlan(null);
+    setPlanForm({ student_id: isSelfManagedWorkout ? (ownStudent?.id || currentUser?.email || "") : "", name: "", day_of_week: "segunda", exercises: [] });
+    setPlanDialogOpen(true);
+  };
+
   const closePlanDialog = () => {
     setPlanDialogOpen(false);
     setEditingPlan(null);
@@ -171,13 +177,13 @@ export default function WorkoutPlans() {
   const plansByStudent = students
     .map(s => ({
       student: s,
-      activePlans: filteredPlans.filter(p => p.student_id === s.id && p.active !== false),
-      archivedPlans: filteredPlans.filter(p => p.student_id === s.id && p.active === false),
+      activePlans: filteredPlans.filter(p => (isSelfManagedWorkout ? (ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) : p.student_id === s.id) && p.active !== false),
+      archivedPlans: filteredPlans.filter(p => (isSelfManagedWorkout ? (ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) : p.student_id === s.id) && p.active === false),
     }))
     .filter(g => g.activePlans.length > 0 || g.archivedPlans.length > 0);
 
   // Plans with no matching student
-  const orphanPlans = filteredPlans.filter(p => !students.find(s => s.id === p.student_id));
+  const orphanPlans = isSelfManagedWorkout ? [] : filteredPlans.filter(p => !students.find(s => s.id === p.student_id));
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger}>
@@ -204,7 +210,7 @@ export default function WorkoutPlans() {
           </div>
 
           <button
-            onClick={() => setPlanDialogOpen(true)}
+            onClick={openCreatePlan}
             className="relative px-5 py-3 rounded-xl font-medium tracking-wider flex items-center gap-2 overflow-hidden group"
             style={{
               background: 'linear-gradient(135deg, rgba(236,72,153,0.2), rgba(168,85,247,0.15))',
@@ -225,7 +231,7 @@ export default function WorkoutPlans() {
         <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(236,72,153,0.8), rgba(168,85,247,0.6), transparent)' }} />
       </div>
 
-      <motion.div variants={fadeUp} className="mb-6 flex items-center gap-3">
+      {!isSelfManagedWorkout && <motion.div variants={fadeUp} className="mb-6 flex items-center gap-3">
         <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)' }} />
         <Select value={filterStudent} onValueChange={setFilterStudent}>
           <SelectTrigger className="w-full sm:w-80 cyber-input" style={{ borderColor: 'rgba(168,85,247,0.5)', boxShadow: '0 0 14px rgba(168,85,247,0.12)' }}>
@@ -462,7 +468,7 @@ export default function WorkoutPlans() {
             <DialogTitle className="font-cyber tracking-widest text-purple-300">{editingPlan ? "EDITAR TREINO" : "NOVO TREINO"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
+            {!isSelfManagedWorkout && <div>
               <Label className="text-purple-400/60 text-xs tracking-wider">ALUNO *</Label>
               <Select value={planForm.student_id} onValueChange={(v) => setPlanForm({ ...planForm, student_id: v })}>
                 <SelectTrigger className="cyber-input mt-1"><SelectValue placeholder="Selecione o aluno" /></SelectTrigger>

@@ -140,10 +140,11 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
   const { data: fotos = [] } = useQuery({ queryKey: ["evolution-fotos"], queryFn: () => base44.entities.FotoProgresso.list(), enabled: open });
 
   const canUse = currentUser?.role === "admin" || currentUser?.role === "personal" || currentUser?.role === "assinante" || currentUser?.role === "user";
-  const activePlans = useMemo(() => allPlans.filter(p => p.student_id === student?.id && p.active !== false && p.statusVersao !== "substituido"), [allPlans, student?.id]);
+  const ownerIds = [student?.id, student?.email, currentUser?.email].filter(Boolean);
+  const activePlans = useMemo(() => allPlans.filter(p => (ownerIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) && p.active !== false && p.statusVersao !== "substituido"), [allPlans, student?.id, student?.email, currentUser?.email]);
   const selectedPlans = useMemo(() => activePlans.filter(p => selectedPlanIds.includes(p.id)), [activePlans, selectedPlanIds]);
-  const studentLogs = logs.filter(l => l.student_id === student?.id);
-  const studentPrs = prs.filter(p => p.student_id === student?.id);
+  const studentLogs = logs.filter(l => ownerIds.includes(l.student_id));
+  const studentPrs = prs.filter(p => ownerIds.includes(p.student_id));
   const totalExercises = activePlans.reduce((a, p) => a + (p.exercises?.length || 0), 0);
   const lastExecution = studentLogs.map(l => l.date).sort().pop();
   const adherence = checkins.filter(c => c.student_id === student?.id).length ? Math.round(checkins.filter(c => c.student_id === student?.id).reduce((a, c) => a + Number(c.workout_adherence || 0), 0) / checkins.filter(c => c.student_id === student?.id).length * 20) : Math.min(100, studentLogs.length * 5);
@@ -269,6 +270,9 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
         day_of_week: gp.day_of_week,
         exercises: gp.exercises.filter(e => e.acao !== "remover").map((e, idx) => ({ exercise_id: e.exercise_id, exercise_name: e.exercise_name, sets: Number(e.sets || 0), reps: e.reps, load_kg: Number(e.cargaSugerida || 0), rest_seconds: Number(e.rest_seconds || 0), technique: e.technique || "normal", technique_details: e.technique_details || e.motivo, order: idx, notes: e.notes })),
         active: true,
+        usuarioId: currentUser.email,
+        assinanteId: currentUser.email,
+        tipoDono: currentUser.role === "assinante" || currentUser.role === "user" ? "assinante" : "aluno",
         versao: Number(oldPlan?.versao || 1) + 1,
         treinoAnteriorId: oldPlan?.id,
         cicloId: cycle?.id || oldPlan?.cicloId || "",
@@ -287,7 +291,7 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
     }
     const allGeneratedExercises = generatedPlans.flatMap(p => p.exercises.map(e => ({ ...e, treino: p.name })));
     const report = await base44.entities.RelatorioEvolucaoTreino.create({
-      alunoId: student.id, personalId: currentUser.email, modoRelatorio: mode, treinoAntigoId: selectedPlanIds[0] || "", treinoNovoId: newIds[0] || "", treinosAntigosIds: selectedPlanIds, treinosNovosIds: newIds, cicloAnteriorId: selectedPlans[0]?.cicloId || "", cicloNovoId: cycle?.id || "", historicoEvolucaoTreinoId: history.id,
+      alunoId: student.id, personalId: currentUser.email, usuarioId: currentUser.email, assinanteId: currentUser.email, modoRelatorio: mode, treinoAntigoId: selectedPlanIds[0] || "", treinoNovoId: newIds[0] || "", treinosAntigosIds: selectedPlanIds, treinosNovosIds: newIds, cicloAnteriorId: selectedPlans[0]?.cicloId || "", cicloNovoId: cycle?.id || "", historicoEvolucaoTreinoId: history.id,
       titulo: mode === "plano_completo" ? `Relatório Master · ${student.name}` : `Relatório de Evolução · ${student.name}`,
       periodoAnalisado: normalizedReport.periodoAnalisado,
       resumoExecutivo: normalizedReport.resumoExecutivo,
