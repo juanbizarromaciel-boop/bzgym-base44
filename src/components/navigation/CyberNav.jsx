@@ -49,6 +49,7 @@ const adminNavGroups = [
   ]},
   { label: "Administração", color: "#f97316", items: [
     { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
+    { name: "Gestão Assinaturas", icon: DollarSign, page: "SubscriptionManagement" },
     { name: "Gestão Notícias", icon: Newspaper, page: "NewsManagement" },
   ]},
   { label: "Agenda & Financeiro", color: "#10b981", items: [
@@ -103,6 +104,7 @@ const personalNavGroups = [
   { label: "Agenda & Financeiro", color: "#10b981", items: [
     { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
     { name: "Financeiro", icon: DollarSign, page: "Finance" },
+    { name: "Gestão Assinaturas", icon: DollarSign, page: "SubscriptionManagement" },
     { name: "Cal. de Aulas", icon: CalendarDays, page: "ClassCalendar" },
     { name: "Cobrança", icon: Briefcase, page: "ConsultancyBilling" },
   ]},
