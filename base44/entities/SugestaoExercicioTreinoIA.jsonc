@@ -5,6 +5,12 @@
     "sugestaoNovoTreinoId": {
       "type": "string"
     },
+    "usuarioId": {
+      "type": "string"
+    },
+    "assinanteId": {
+      "type": "string"
+    },
     "diaTreino": {
       "type": "string"
     },
@@ -93,6 +99,12 @@
           "user_condition": {
             "role": "personal"
           }
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
         }
       ]
     },
@@ -107,6 +119,12 @@
           "user_condition": {
             "role": "personal"
           }
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
         }
       ]
     },
@@ -121,13 +139,29 @@
           "user_condition": {
             "role": "personal"
           }
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
         }
       ]
     },
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        }
+      ]
     }
   }
 }
