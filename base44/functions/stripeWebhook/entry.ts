@@ -1,10 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import Stripe from 'npm:stripe@17.5.0';
 
-function addMonth(date) {
+function addBillingPeriod(date, interval) {
   const d = new Date(date);
   const day = d.getUTCDate();
-  d.setUTCMonth(d.getUTCMonth() + 1);
+  if (interval === 'year') d.setUTCFullYear(d.getUTCFullYear() + 1);
+  else d.setUTCMonth(d.getUTCMonth() + 1);
   if (d.getUTCDate() !== day) d.setUTCDate(0);
   return d.toISOString().slice(0, 10);
 }
@@ -23,7 +24,8 @@ Deno.serve(async (req) => {
       const email = session.metadata?.payer_email || session.customer_details?.email;
       const amount = Number(session.metadata?.amount_brl || (session.amount_total || 0) / 100);
       const paidDate = new Date().toISOString().slice(0, 10);
-      const nextDue = addMonth(`${paidDate}T00:00:00Z`);
+      const interval = session.metadata?.billing_interval || 'month';
+      const nextDue = addBillingPeriod(`${paidDate}T00:00:00Z`, interval);
       await base44.asServiceRole.entities.Payment.create({
         user_email: email,
         user_name: session.metadata?.payer_name || session.customer_details?.name || email,
@@ -38,10 +40,44 @@ Deno.serve(async (req) => {
         payment_method: 'stripe',
         stripe_checkout_session_id: session.id,
         stripe_customer_id: session.customer || '',
+        stripe_subscription_id: session.subscription || '',
         stripe_payment_intent_id: session.payment_intent || ''
       });
       const users = await base44.asServiceRole.entities.User.filter({ email });
-      if (users?.[0]) await base44.asServiceRole.entities.User.update(users[0].id, { role: session.metadata?.payer_role || users[0].role || 'assinante', assinatura_status: 'ativa', assinatura_vencimento: nextDue, assinatura_valor: amount, stripe_customer_id: session.customer || '' });
+      if (users?.[0]) await base44.asServiceRole.entities.User.update(users[0].id, { role: session.metadata?.payer_role || 'assinante', assinatura_status: 'ativa', assinatura_vencimento: nextDue, assinatura_valor: amount, assinatura_plano: session.metadata?.billing_plan || 'monthly', stripe_customer_id: session.customer || '', stripe_subscription_id: session.subscription || '' });
+    }
+
+    if (event.type === 'invoice.paid') {
+      const invoice = event.data.object;
+      if (invoice.billing_reason !== 'subscription_create') {
+        const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+        const subscription = subscriptionId ? await stripe.subscriptions.retrieve(subscriptionId) : null;
+        const metadata = subscription?.metadata || invoice.metadata || {};
+        const customer = invoice.customer ? await stripe.customers.retrieve(invoice.customer) : null;
+        const email = metadata.payer_email || customer?.email || invoice.customer_email;
+        const amount = Number(metadata.amount_brl || (invoice.amount_paid || 0) / 100);
+        const paidDate = new Date((invoice.status_transitions?.paid_at || Math.floor(Date.now() / 1000)) * 1000).toISOString().slice(0, 10);
+        const nextDue = invoice.lines?.data?.[0]?.period?.end ? new Date(invoice.lines.data[0].period.end * 1000).toISOString().slice(0, 10) : addBillingPeriod(`${paidDate}T00:00:00Z`, metadata.billing_interval || 'month');
+        await base44.asServiceRole.entities.Payment.create({
+          user_email: email,
+          user_name: metadata.payer_name || customer?.name || email,
+          user_role: metadata.payer_role || 'assinante',
+          personal_id: metadata.created_by || '',
+          amount,
+          payment_date: paidDate,
+          due_date: paidDate,
+          next_due_date: nextDue,
+          status: 'pago',
+          description: 'Renovação de assinatura via Stripe',
+          payment_method: 'stripe',
+          stripe_checkout_session_id: '',
+          stripe_customer_id: invoice.customer || '',
+          stripe_subscription_id: subscriptionId || '',
+          stripe_payment_intent_id: invoice.payment_intent || ''
+        });
+        const users = await base44.asServiceRole.entities.User.filter({ email });
+        if (users?.[0]) await base44.asServiceRole.entities.User.update(users[0].id, { role: metadata.payer_role || 'assinante', assinatura_status: 'ativa', assinatura_vencimento: nextDue, assinatura_valor: amount, assinatura_plano: metadata.billing_plan || 'monthly', stripe_customer_id: invoice.customer || '', stripe_subscription_id: subscriptionId || '' });
+      }
     }
 
     return Response.json({ received: true });
