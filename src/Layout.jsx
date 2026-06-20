@@ -51,6 +51,7 @@ const adminNavGroups = [
   ]},
   { label: "Administração", color: "#f97316", items: [
     { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
+    { name: "Gestão de Assinaturas", icon: DollarSign, page: "SubscriptionManagement" },
     { name: "Gestão de Notícias", icon: Newspaper, page: "NewsManagement" },
   ]},
   { label: "Agenda & Financeiro", color: "#10b981", items: [

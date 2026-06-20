@@ -42,6 +42,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import Notificacoes from './pages/Notificacoes';
 import NewsManagement from './pages/NewsManagement';
 import SportsNewsDetail from './pages/SportsNewsDetail';
+import SubscriptionManagement from './pages/SubscriptionManagement';
+import PaymentOverdue from './pages/PaymentOverdue';
 import { useState, useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -94,6 +96,14 @@ const AuthenticatedApp = () => {
       navigateToLogin();
       return null;
     }
+  }
+
+  // Role: bloqueado — pagamento atrasado
+  if (user && user.role === 'bloqueado') {
+    return <Routes>
+      <Route path="/PaymentOverdue" element={<PaymentOverdue />} />
+      <Route path="*" element={<Navigate to="/PaymentOverdue" replace />} />
+    </Routes>;
   }
 
   // Role: recente — só pode fazer onboarding
@@ -188,7 +198,9 @@ const AuthenticatedApp = () => {
       <Route path="/AdminDashboard" element={<LayoutWrapper currentPageName="AdminDashboard"><AdminDashboard /></LayoutWrapper>} />
       <Route path="/Notificacoes" element={<LayoutWrapper currentPageName="Notificacoes"><Notificacoes /></LayoutWrapper>} />
       <Route path="/NewsManagement" element={<LayoutWrapper currentPageName="NewsManagement"><NewsManagement /></LayoutWrapper>} />
+      <Route path="/SubscriptionManagement" element={<LayoutWrapper currentPageName="SubscriptionManagement"><SubscriptionManagement /></LayoutWrapper>} />
       <Route path="/SportsNewsDetail" element={<LayoutWrapper currentPageName="SportsNewsDetail"><SportsNewsDetail /></LayoutWrapper>} />
+      <Route path="/PaymentOverdue" element={<PaymentOverdue />} />
       <Route path="/AccessDenied" element={<AccessDenied />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
