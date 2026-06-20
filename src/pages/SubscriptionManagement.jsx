@@ -18,7 +18,14 @@ const addMonth = (date) => {
   return d.toISOString().slice(0, 10);
 };
 const money = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-const isOverdue = (user) => user.assinatura_vencimento && user.assinatura_vencimento < todayIso() && user.assinatura_status !== "ativa";
+const isOverdue = (user) => user.assinatura_vencimento && user.assinatura_vencimento < todayIso() && user.assinatura_status !== "isenta";
+const sourceLabel = (user, lastPayment) => {
+  if (user.assinatura_bloqueio_manual) return "Bloqueio manual";
+  if (user.assinatura_origem === "stripe" || user.stripe_subscription_id || lastPayment?.payment_method === "stripe") return user.assinatura_status === "bloqueada" ? "Stripe bloqueado" : "Stripe";
+  if (user.assinatura_origem === "manual" || lastPayment?.payment_method === "manual" || user.assinatura_status === "ativa") return user.assinatura_status === "bloqueada" ? "Manual bloqueado" : "Manual admin";
+  if (user.assinatura_status === "bloqueada") return "Bloqueado";
+  return "Sem assinatura";
+};
 
 export default function SubscriptionManagement() {
   const [search, setSearch] = useState("");
@@ -91,6 +98,10 @@ export default function SubscriptionManagement() {
       await base44.entities.User.update(payingUser.id, {
         role: payingUser.role === "bloqueado" ? "assinante" : payingUser.role,
         assinatura_status: "ativa",
+        assinatura_origem: "manual",
+        assinatura_bloqueio_manual: false,
+        assinatura_liberado_manual_por: currentUser?.email || "",
+        assinatura_plano: "manual",
         assinatura_vencimento: nextDue,
         assinatura_valor: finalAmount
       });
@@ -105,7 +116,7 @@ export default function SubscriptionManagement() {
     if (user.isStudentRecord) {
       await base44.entities.Student.update(user.id, { active: false });
     } else {
-      await base44.entities.User.update(user.id, { role: "bloqueado", assinatura_status: "bloqueada" });
+      await base44.entities.User.update(user.id, { role: "bloqueado", assinatura_status: "bloqueada", assinatura_bloqueio_manual: true });
     }
     toast.success("Acesso bloqueado.");
     refresh();
@@ -115,7 +126,7 @@ export default function SubscriptionManagement() {
     if (user.isStudentRecord) {
       await base44.entities.Student.update(user.id, { active: true });
     } else {
-      await base44.entities.User.update(user.id, { role: "assinante", assinatura_status: "ativa" });
+      await base44.entities.User.update(user.id, { role: "assinante", assinatura_status: "ativa", assinatura_origem: "manual", assinatura_bloqueio_manual: false, assinatura_liberado_manual_por: currentUser?.email || "", assinatura_plano: "manual", assinatura_vencimento: addMonth(todayIso()), assinatura_valor: Number(user.assinatura_valor || 19.9) });
     }
     toast.success("Acesso liberado.");
     refresh();
@@ -136,7 +147,9 @@ export default function SubscriptionManagement() {
       targetEmail: user.email,
       targetName: user.full_name || user.email,
       targetRole: user.role === "personal" ? "personal" : "assinante",
-      description: "Assinatura BZ Gym System"
+      description: "Assinatura BZ Gym System",
+      billingInterval: "month",
+      billingPlan: "monthly"
     });
     window.location.href = res.data.url;
   };
@@ -160,9 +173,10 @@ export default function SubscriptionManagement() {
       {isLoading ? <div className="p-10 text-center text-purple-300/50">Carregando...</div> : managedUsers.map((u) => {
         const blocked = u.role === "bloqueado" || u.assinatura_status === "bloqueada" || isOverdue(u);
         const last = lastPaymentByEmail[u.email];
+        const origin = sourceLabel(u, last);
         return <div key={u.id} className="grid md:grid-cols-12 gap-3 items-center px-4 py-4 border-t border-purple-500/10">
           <div className="md:col-span-3"><p className="font-semibold text-white">{u.full_name || "Sem nome"}</p><p className="text-xs text-purple-200/45">{u.email}</p></div>
-          <div className="md:col-span-2"><Badge className={blocked ? "bg-red-500/15 border border-red-500/30 text-red-200" : "bg-emerald-500/15 border border-emerald-500/30 text-emerald-200"}>{blocked ? "bloqueado" : u.role}</Badge></div>
+          <div className="md:col-span-2 space-y-1"><Badge className={blocked ? "bg-red-500/15 border border-red-500/30 text-red-200" : "bg-emerald-500/15 border border-emerald-500/30 text-emerald-200"}>{blocked ? "bloqueado" : u.role}</Badge><p className="text-[10px] text-purple-200/45">Origem: {origin}</p></div>
           <div className="md:col-span-2 text-sm text-purple-100/70">{u.assinatura_vencimento || "—"}</div>
           <div className="md:col-span-2 text-sm text-purple-100/70">{last ? `${money(last.amount)} em ${last.payment_date || last.created_date?.slice(0,10)}` : "—"}</div>
           <div className="md:col-span-3 flex flex-wrap justify-end gap-2">

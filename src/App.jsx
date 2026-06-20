@@ -59,6 +59,17 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
+const hasValidSubscriberAccess = (user) => {
+  if (!user) return false;
+  if (user.assinatura_bloqueio_manual || user.assinatura_status === 'bloqueada') return false;
+  if (user.assinatura_status === 'isenta') return true;
+  if (user.assinatura_status !== 'ativa') return false;
+  if (user.assinatura_vencimento && user.assinatura_vencimento < todayIso()) return false;
+  return user.assinatura_origem === 'manual' || user.assinatura_origem === 'stripe' || !!user.stripe_subscription_id || !user.assinatura_origem;
+};
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const [user, setUser] = useState(null);
@@ -103,8 +114,8 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Role: bloqueado — pagamento atrasado
-  if (user && user.role === 'bloqueado') {
+  // Assinante sem liberação válida, vencido ou bloqueado manualmente
+  if (user && (user.role === 'bloqueado' || (user.role === 'assinante' && !hasValidSubscriberAccess(user)))) {
     return <Routes>
       <Route path="/PaymentOverdue" element={<PaymentOverdue />} />
       <Route path="/SubscriberBilling" element={<SubscriberBilling />} />

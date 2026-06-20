@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
         stripe_payment_intent_id: session.payment_intent || ''
       });
       const users = await base44.asServiceRole.entities.User.filter({ email });
-      if (users?.[0]) await base44.asServiceRole.entities.User.update(users[0].id, { role: session.metadata?.payer_role || 'assinante', assinatura_status: 'ativa', assinatura_vencimento: nextDue, assinatura_valor: amount, assinatura_plano: session.metadata?.billing_plan || 'monthly', stripe_customer_id: session.customer || '', stripe_subscription_id: session.subscription || '' });
+      if (users?.[0]) await base44.asServiceRole.entities.User.update(users[0].id, { role: session.metadata?.payer_role || 'assinante', assinatura_status: 'ativa', assinatura_origem: 'stripe', assinatura_bloqueio_manual: false, assinatura_vencimento: nextDue, assinatura_valor: amount, assinatura_plano: session.metadata?.billing_plan || 'monthly', stripe_customer_id: session.customer || '', stripe_subscription_id: session.subscription || '' });
     }
 
     if (event.type === 'invoice.paid') {
@@ -76,8 +76,41 @@ Deno.serve(async (req) => {
           stripe_payment_intent_id: invoice.payment_intent || ''
         });
         const users = await base44.asServiceRole.entities.User.filter({ email });
-        if (users?.[0]) await base44.asServiceRole.entities.User.update(users[0].id, { role: metadata.payer_role || 'assinante', assinatura_status: 'ativa', assinatura_vencimento: nextDue, assinatura_valor: amount, assinatura_plano: metadata.billing_plan || 'monthly', stripe_customer_id: invoice.customer || '', stripe_subscription_id: subscriptionId || '' });
+        if (users?.[0]) await base44.asServiceRole.entities.User.update(users[0].id, { role: metadata.payer_role || 'assinante', assinatura_status: 'ativa', assinatura_origem: 'stripe', assinatura_bloqueio_manual: false, assinatura_vencimento: nextDue, assinatura_valor: amount, assinatura_plano: metadata.billing_plan || 'monthly', stripe_customer_id: invoice.customer || '', stripe_subscription_id: subscriptionId || '' });
       }
+    }
+
+    if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object;
+      const metadata = subscription.metadata || {};
+      const email = metadata.payer_email;
+      if (email) {
+        const isActive = subscription.status === 'active' || subscription.status === 'trialing';
+        const nextDue = subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString().slice(0, 10) : '';
+        const users = await base44.asServiceRole.entities.User.filter({ email });
+        if (users?.[0]) await base44.asServiceRole.entities.User.update(users[0].id, {
+          role: isActive ? (metadata.payer_role || 'assinante') : 'bloqueado',
+          assinatura_status: isActive ? 'ativa' : 'bloqueada',
+          assinatura_origem: 'stripe',
+          assinatura_bloqueio_manual: false,
+          assinatura_vencimento: nextDue || users[0].assinatura_vencimento || '',
+          assinatura_valor: Number(metadata.amount_brl || users[0].assinatura_valor || 0),
+          assinatura_plano: metadata.billing_plan || users[0].assinatura_plano || 'monthly',
+          stripe_customer_id: subscription.customer || users[0].stripe_customer_id || '',
+          stripe_subscription_id: subscription.id || users[0].stripe_subscription_id || ''
+        });
+      }
+    }
+
+    if (event.type === 'invoice.payment_failed') {
+      const invoice = event.data.object;
+      const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+      const subscription = subscriptionId ? await stripe.subscriptions.retrieve(subscriptionId) : null;
+      const metadata = subscription?.metadata || invoice.metadata || {};
+      const customer = invoice.customer ? await stripe.customers.retrieve(invoice.customer) : null;
+      const email = metadata.payer_email || customer?.email || invoice.customer_email;
+      const users = email ? await base44.asServiceRole.entities.User.filter({ email }) : [];
+      if (users?.[0]) await base44.asServiceRole.entities.User.update(users[0].id, { role: 'bloqueado', assinatura_status: 'bloqueada', assinatura_origem: 'stripe', assinatura_bloqueio_manual: false });
     }
 
     return Response.json({ received: true });

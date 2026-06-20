@@ -54,6 +54,32 @@
       ],
       "default": "pendente"
     },
+    "assinatura_origem": {
+      "type": "string",
+      "enum": [
+        "nenhuma",
+        "manual",
+        "stripe"
+      ],
+      "default": "nenhuma",
+      "description": "Indica se a assinatura foi liberada manualmente pelo admin ou paga via Stripe"
+    },
+    "assinatura_bloqueio_manual": {
+      "type": "boolean",
+      "default": false,
+      "description": "Bloqueio manual aplicado pelo admin"
+    },
+    "assinatura_liberado_manual_por": {
+      "type": "string"
+    },
+    "assinatura_plano": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "yearly",
+        "manual"
+      ]
+    },
     "assinatura_vencimento": {
       "type": "string",
       "format": "date"
