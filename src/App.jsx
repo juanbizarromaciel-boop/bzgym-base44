@@ -86,9 +86,13 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     let unsubscribeUser = null;
+    let pollUser = null;
 
     const loadCurrentUser = async () => {
-      const u = await base44.auth.me();
+      const authUser = await base44.auth.me();
+      const userRecords = await base44.entities.User.filter({ email: authUser.email });
+      const currentUserRecord = userRecords?.[0] || {};
+      const u = { ...authUser, ...currentUserRecord, role: currentUserRecord.role || authUser.role };
       setUser(u);
       if (u.role !== 'admin' && u.role !== 'personal') {
         const students = await base44.entities.Student.list();
@@ -104,6 +108,7 @@ const AuthenticatedApp = () => {
         unsubscribeUser = base44.entities.User.subscribe((event) => {
           if (event.data?.email?.toLowerCase() === u.email?.toLowerCase()) loadCurrentUser();
         });
+        pollUser = setInterval(loadCurrentUser, 5000);
       }).catch(() => {
         setCheckingStudent(false);
       });
@@ -113,6 +118,7 @@ const AuthenticatedApp = () => {
 
     return () => {
       if (unsubscribeUser) unsubscribeUser();
+      if (pollUser) clearInterval(pollUser);
     };
   }, [isLoadingAuth, authError]);
 
