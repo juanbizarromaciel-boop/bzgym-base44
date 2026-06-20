@@ -6,6 +6,23 @@
       "type": "string",
       "description": "ID do aluno"
     },
+    "user_email": {
+      "type": "string",
+      "description": "Email do assinante/personal/aluno cobrado"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_role": {
+      "type": "string",
+      "enum": [
+        "user",
+        "assinante",
+        "personal",
+        "admin"
+      ],
+      "default": "user"
+    },
     "personal_id": {
       "type": "string",
       "description": "Email do personal respons\u00e1vel"
@@ -24,12 +41,18 @@
       "format": "date",
       "description": "Data de vencimento"
     },
+    "next_due_date": {
+      "type": "string",
+      "format": "date"
+    },
     "status": {
       "type": "string",
       "enum": [
         "pago",
         "pendente",
-        "atrasado"
+        "atrasado",
+        "bloqueado",
+        "cancelado"
       ],
       "default": "pendente",
       "description": "Status do pagamento"
@@ -41,11 +64,32 @@
     "notes": {
       "type": "string",
       "description": "Observa\u00e7\u00f5es"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "stripe"
+      ],
+      "default": "manual"
+    },
+    "stripe_checkout_session_id": {
+      "type": "string"
+    },
+    "stripe_customer_id": {
+      "type": "string"
+    },
+    "stripe_subscription_id": {
+      "type": "string"
+    },
+    "stripe_payment_intent_id": {
+      "type": "string"
+    },
+    "checkout_url": {
+      "type": "string"
     }
   },
   "required": [
-    "student_id",
-    "personal_id",
     "due_date"
   ],
   "rls": {
@@ -60,6 +104,9 @@
           "user_condition": {
             "role": "personal"
           }
+        },
+        {
+          "data.user_email": "{{user.email}}"
         }
       ]
     },
@@ -72,6 +119,9 @@
         },
         {
           "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.user_email": "{{user.email}}"
         }
       ]
     },
@@ -84,6 +134,9 @@
         },
         {
           "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.user_email": "{{user.email}}"
         }
       ]
     },
