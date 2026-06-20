@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Dumbbell, Utensils, TrendingUp, MoreHorizontal,
   ClipboardCheck, Calendar, MessageSquare, Users2, Brain, X,
-  BookOpen, FileImage, Timer, UserCircle, Bell
+  BookOpen, FileImage, Timer, UserCircle, Bell, CreditCard
 } from "lucide-react";
 
 const studentTabs = [
@@ -31,6 +31,7 @@ const moreMenuItems = [
   { label: "Foco", icon: Brain, path: "/FocusRoutine", color: "#8b5cf6" },
   { label: "Cronômetro", icon: Timer, path: "/TimerPage", color: "#06b6d4" },
   { label: "Notificações", icon: Bell, path: "/Notificacoes", color: "#ec4899" },
+  { label: "Assinatura", icon: CreditCard, path: "/SubscriberBilling", color: "#10b981" },
   { label: "Perfil", icon: UserCircle, path: "/Profile", color: "#a855f7" },
 ];
 

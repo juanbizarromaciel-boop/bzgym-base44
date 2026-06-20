@@ -8,7 +8,7 @@ import {
   Library, LayoutDashboard, Utensils, BookOpen, Activity,
   FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
   Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase,
-  Zap, X, Brain, Users2, Lock, Newspaper
+  Zap, X, Brain, Users2, Lock, Newspaper, CreditCard
 } from "lucide-react";
 
 // ─── Nav data ────────────────────────────────────────────────────────────────
@@ -172,6 +172,7 @@ const subscriberNavGroups = [
     { name: "Comunidade", icon: Users2, page: "Comunidade" },
   ]},
   { label: "Conta", color: "#8b5cf6", items: [
+    { name: "Assinatura", icon: CreditCard, page: "SubscriberBilling" },
     { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
     { name: "Perfil", icon: UserCircle, page: "Profile" },
   ]},
