@@ -70,6 +70,14 @@ const hasValidSubscriberAccess = (user) => {
   return user.assinatura_origem === 'manual' || user.assinatura_origem === 'stripe' || !!user.stripe_subscription_id || !user.assinatura_origem;
 };
 
+const isAccessBlocked = (user) => {
+  if (!user || user.role === 'admin' || user.role === 'personal' || user.role === 'recente') return false;
+  if (user.role === 'bloqueado') return true;
+  if (user.assinatura_bloqueio_manual || user.assinatura_status === 'bloqueada') return true;
+  if (user.account_type === 'assinante' || user.role === 'assinante') return !hasValidSubscriberAccess(user);
+  return false;
+};
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const [user, setUser] = useState(null);
@@ -77,21 +85,35 @@ const AuthenticatedApp = () => {
   const [checkingStudent, setCheckingStudent] = useState(true);
 
   useEffect(() => {
+    let unsubscribeUser = null;
+
+    const loadCurrentUser = async () => {
+      const u = await base44.auth.me();
+      setUser(u);
+      if (u.role !== 'admin' && u.role !== 'personal') {
+        const students = await base44.entities.Student.list();
+        const found = students.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
+        setStudent(found);
+      }
+      setCheckingStudent(false);
+      return u;
+    };
+
     if (!isLoadingAuth && !authError) {
-      base44.auth.me().then(async (u) => {
-        setUser(u);
-        if (u.role !== 'admin' && u.role !== 'personal') {
-          const students = await base44.entities.Student.list();
-          const found = students.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
-          setStudent(found);
-        }
-        setCheckingStudent(false);
+      loadCurrentUser().then((u) => {
+        unsubscribeUser = base44.entities.User.subscribe((event) => {
+          if (event.data?.email?.toLowerCase() === u.email?.toLowerCase()) loadCurrentUser();
+        });
       }).catch(() => {
         setCheckingStudent(false);
       });
     } else {
       setCheckingStudent(false);
     }
+
+    return () => {
+      if (unsubscribeUser) unsubscribeUser();
+    };
   }, [isLoadingAuth, authError]);
 
   // Show loading spinner while checking app public settings or auth
@@ -114,8 +136,8 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // Assinante sem liberação válida, vencido ou bloqueado manualmente
-  if (user && (user.role === 'bloqueado' || (user.role === 'assinante' && !hasValidSubscriberAccess(user)))) {
+  // Usuário sem liberação válida, vencido ou bloqueado manualmente
+  if (isAccessBlocked(user)) {
     return <Routes>
       <Route path="/PaymentOverdue" element={<PaymentOverdue />} />
       <Route path="/SubscriberBilling" element={<SubscriberBilling />} />
