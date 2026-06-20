@@ -11,6 +11,7 @@ import CalorieSimulator from "../components/diet/CalorieSimulator";
 import DietChecklist from "../components/diet/DietChecklist";
 import DietHistory from "../components/diet/DietHistory";
 import MealDetailModal from "../components/diet/MealDetailModal";
+import AiDietEvolutionDialog from "../components/diet/AiDietEvolutionDialog";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -36,6 +37,7 @@ export default function MyDiet() {
   const [simPlanId, setSimPlanId] = useState("");
   const [historyPlanId, setHistoryPlanId] = useState("");
   const [mealDetail, setMealDetail] = useState(null); // { plan, mealIndex }
+  const [aiDietTarget, setAiDietTarget] = useState(null);
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
@@ -48,7 +50,7 @@ export default function MyDiet() {
     }
   }, [user, students]);
 
-  const myPlans = student ? allPlans.filter(p => p.student_id === student.id && p.active !== false) : [];
+  const myPlans = student ? allPlans.filter(p => p.student_id === student.id && p.active !== false) : user?.role === "assinante" ? allPlans.filter(p => (p.usuarioId === user.email || p.assinanteId === user.email) && p.active !== false) : [];
   const simPlan = simPlanId ? myPlans.find(p => p.id === simPlanId) : myPlans[0];
   const histPlan = historyPlanId ? myPlans.find(p => p.id === historyPlanId) : myPlans[0];
 
@@ -61,7 +63,7 @@ export default function MyDiet() {
     </div>
   );
 
-  if (user && students.length > 0 && !student) return (
+  if (user && students.length > 0 && !student && user.role !== "assinante") return (
     <div className="text-center py-20">
       <div className="w-16 h-16 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-5">
         <Utensils className="w-8 h-8 text-purple-500/40" />
@@ -152,15 +154,23 @@ export default function MyDiet() {
                     <div className="flex items-start justify-between gap-4 relative z-10">
                       <div className="flex-1">
                         <h2 className="font-cyber text-2xl font-black text-white tracking-wider mb-2">{plan.name}</h2>
-                        {plan.goal && (
-                          <Badge className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs border font-bold tracking-widest ${GOAL_COLORS[plan.goal]}`}
-                            style={{
-                              boxShadow: `0 0 15px ${plan.goal === 'cutting' ? 'rgba(236,72,153,0.3)' : plan.goal === 'bulking' ? 'rgba(6,182,212,0.3)' : 'rgba(168,85,247,0.3)'}`
-                            }}>
-                            <Sparkles className="w-3 h-3" />
-                            {GOAL_LABELS[plan.goal]}
-                          </Badge>
-                        )}
+                        <div className="flex flex-wrap gap-2">
+                          {plan.goal && (
+                            <Badge className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs border font-bold tracking-widest ${GOAL_COLORS[plan.goal]}`}
+                              style={{
+                                boxShadow: `0 0 15px ${plan.goal === 'cutting' ? 'rgba(236,72,153,0.3)' : plan.goal === 'bulking' ? 'rgba(6,182,212,0.3)' : 'rgba(168,85,247,0.3)'}`
+                              }}>
+                              <Sparkles className="w-3 h-3" />
+                              {GOAL_LABELS[plan.goal]}
+                            </Badge>
+                          )}
+                          {user?.role === "assinante" && <button onClick={() => setAiDietTarget(plan)} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs border font-bold tracking-widest border-emerald-500/25 text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/20">
+                            <Sparkles className="w-3 h-3" /> EVOLUIR MINHA DIETA COM IA
+                          </button>}
+                          {user?.role === "assinante" && <button onClick={() => setAiDietTarget(plan)} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs border font-bold tracking-widest border-cyan-500/25 text-cyan-200 bg-cyan-500/10 hover:bg-cyan-500/20">
+                            TROCAR ALIMENTOS COM IA
+                          </button>}
+                        </div>
                       </div>
                       {plan.total_calories > 0 && (
                         <motion.div
@@ -360,6 +370,15 @@ export default function MyDiet() {
         mealIndex={mealDetail?.mealIndex}
         onSave={() => {}}
         readOnly={true}
+      />
+      <AiDietEvolutionDialog
+        open={!!aiDietTarget}
+        onOpenChange={() => setAiDietTarget(null)}
+        plan={aiDietTarget}
+        owner={student || user}
+        currentUser={user}
+        allPlans={allPlans}
+        selfMode={user?.role === "assinante"}
       />
     </motion.div>
   );

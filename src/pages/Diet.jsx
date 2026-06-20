@@ -9,12 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Utensils, Flame, Beef, Wheat, Droplets, ChevronRight, Clock } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, Utensils, Flame, Beef, Wheat, Droplets, ChevronRight, Clock, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import DietPdfExport from "../components/diet/DietPdfExport";
 import MealFoodEditor from "../components/diet/MealFoodEditor";
 import MealDetailModal from "../components/diet/MealDetailModal";
+import AiDietEvolutionDialog from "../components/diet/AiDietEvolutionDialog";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -41,6 +42,7 @@ export default function Diet() {
   const [filterStudent, setFilterStudent] = useState("all");
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [mealDetail, setMealDetail] = useState(null); // { plan, mealIndex }
+  const [aiDietTarget, setAiDietTarget] = useState(null); // { plan, owner }
   const qc = useQueryClient();
 
   const [currentUser, setCurrentUser] = useState(null);
@@ -216,6 +218,12 @@ export default function Diet() {
                   <span onClick={e => e.stopPropagation()}>
                     <DietPdfExport plan={plan} studentName={st?.name || 'aluno'} />
                   </span>
+                  <button onClick={(e) => { e.stopPropagation(); setAiDietTarget({ plan, owner: st }); }} title="Evoluir Dieta com IA" className="p-1.5 text-emerald-400/60 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-lg transition-all">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); setAiDietTarget({ plan, owner: st }); }} className="hidden md:inline-flex px-2 py-1 rounded-lg text-[10px] border border-emerald-500/25 text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all">
+                    Trocar Alimentos com IA
+                  </button>
                   <button onClick={(e) => { e.stopPropagation(); openEdit(plan); }} className="p-1.5 text-purple-400/40 hover:text-purple-300 hover:bg-purple-500/10 rounded-lg transition-all">
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
@@ -419,6 +427,15 @@ export default function Diet() {
         mealIndex={mealDetail?.mealIndex}
         onSave={(mealIndex, newItems) => handleMealSave(mealDetail.plan, mealIndex, newItems)}
         readOnly={false}
+      />
+      <AiDietEvolutionDialog
+        open={!!aiDietTarget}
+        onOpenChange={() => setAiDietTarget(null)}
+        plan={aiDietTarget?.plan}
+        owner={aiDietTarget?.owner}
+        currentUser={currentUser}
+        allPlans={plans}
+        onApplied={() => qc.invalidateQueries({ queryKey: ["diet_plans"] })}
       />
     </motion.div>
   );

@@ -15,6 +15,7 @@ export default function SubscriberDashboard() {
     { label: "Meu Treino", icon: Dumbbell, href: "/MyWorkout", color: "#a855f7", desc: "Registre e acompanhe seus treinos" },
     { label: "Exercícios", icon: BookOpen, href: "/ExerciseLibrary", color: "#06b6d4", desc: "Biblioteca de exercícios" },
     { label: "Minha Dieta", icon: Utensils, href: "/MyDiet", color: "#ec4899", desc: "Cadastre e acompanhe sua dieta" },
+    { label: "Evoluir Dieta com IA", icon: Sparkles, href: "/MyDiet", color: "#10b981", desc: "Gerar nova versão e relatório premium" },
   ];
 
   return (
@@ -38,7 +39,7 @@ export default function SubscriberDashboard() {
       {/* Quick actions */}
       <div>
         <p className="text-[10px] font-mono-cyber text-purple-500/35 uppercase tracking-[0.25em] mb-4">▸ acesso rápido</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {actions.map((a, i) => (
             <Link key={i} to={a.href}
               className="flex flex-col gap-3 p-5 rounded-xl border border-purple-900/20 bg-black/50 hover:border-purple-500/25 transition-all group"
