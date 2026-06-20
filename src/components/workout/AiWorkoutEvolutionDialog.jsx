@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Brain, Loader2, Sparkles } from "lucide-react";
+import { Brain, CheckCircle2, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import EvolutionAnalysisDashboard from "./EvolutionAnalysisDashboard";
 import { buildPlainTextReport, buildWhatsAppReport, exportReportPdf, normalizeEvolutionReport, openPrintableReport } from "./evolutionReportUtils";
@@ -130,6 +130,7 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [appliedResult, setAppliedResult] = useState(null);
 
   const { data: logs = [] } = useQuery({ queryKey: ["evolution-logs"], queryFn: () => base44.entities.WorkoutLog.list(), enabled: open });
   const { data: prs = [] } = useQuery({ queryKey: ["evolution-prs"], queryFn: () => base44.entities.PRRecord.list(), enabled: open });
@@ -159,6 +160,7 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
     setError("");
     setGeneratedMeta(null);
     setGeneratedPlans([]);
+    setAppliedResult(null);
     setActiveTab("visao");
     setRequestText("");
     setSelected({ manter: [], trocar: [], ajustar: [], restricoes: [] });
@@ -326,7 +328,9 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
       base44.entities.GraficosRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, tipoGrafico: "progressao_carga", titulo: "Cargas", descricao: "Cargas mantidas, estimadas e sem dados", dadosJson: normalizedReport.graficos.cargas, ordem: 5 }),
       base44.entities.GraficosRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, tipoGrafico: "prs", titulo: "PRs no período", descricao: "PRs disponíveis no período analisado", dadosJson: normalizedReport.graficos.prsPeriodo, ordem: 6 }),
     ]);
+    for (const newId of newIds) await base44.entities.WorkoutPlan.update(newId, { historicoEvolucaoId: history.id });
     if (student.email) await base44.entities.Notificacao.create({ usuario_id: student.email, titulo: mode === "plano_completo" ? "Plano completo atualizado" : "Treino atualizado", mensagem: mode === "plano_completo" ? "Seu plano de treino completo foi atualizado pelo seu personal." : "Seu treino foi atualizado pelo seu personal.", tipo: "treino_novo", lida: false, link_destino: "/MyWorkout", icone: "Dumbbell" });
+    setAppliedResult({ newIds, names: generatedPlans.map(p => p.name) });
     setSaving(false); onApplied?.(); toast.success(mode === "plano_completo" ? "Plano completo aplicado como novo ciclo." : "Novo treino aplicado com segurança.");
   };
 
@@ -343,10 +347,17 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="text-white border border-purple-900/40 max-w-6xl max-h-[92vh] overflow-y-auto" style={{ background: "#04040e" }}>
-        <DialogHeader><DialogTitle className="font-cyber tracking-widest text-purple-200 flex items-center gap-2"><Sparkles className="w-5 h-5 text-cyan-300" /> EVOLUIR TREINO COM IA</DialogTitle></DialogHeader>
-        {!canUse ? <div className="p-6 rounded-xl border border-amber-500/20 bg-amber-500/5 text-amber-200">Seu perfil não tem permissão para evoluir treinos com IA.</div> : <div className="space-y-5">
-          <div className="grid grid-cols-2 md:grid-cols-7 gap-2">{steps.map((s, i) => <button key={s} onClick={() => i <= step && setStep(i)} className={`rounded-xl px-3 py-2 text-xs border ${i === step ? "border-cyan-400/50 bg-cyan-400/10 text-cyan-200" : "border-purple-900/30 bg-purple-500/5 text-purple-300/60"}`}>{i + 1}. {s}</button>)}</div>
+      <DialogContent className="text-white border border-purple-900/40 w-[96vw] sm:max-w-5xl max-h-[88dvh] overflow-y-auto p-3 sm:p-6" style={{ background: "#04040e" }}>
+        <DialogHeader><DialogTitle className="font-cyber tracking-widest text-purple-200 flex items-center gap-2 text-sm sm:text-base"><Sparkles className="w-5 h-5 text-cyan-300" /> EVOLUIR TREINO COM IA</DialogTitle></DialogHeader>
+        {appliedResult ? <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center space-y-4">
+          <CheckCircle2 className="w-14 h-14 mx-auto text-emerald-300" />
+          <h2 className="font-cyber text-xl text-white tracking-widest">TREINO TROCADO COM SUCESSO</h2>
+          <p className="text-emerald-100/80">O novo treino foi aplicado, o treino antigo foi arquivado como substituído e o histórico foi preservado.</p>
+          <div className="rounded-xl bg-black/25 border border-emerald-500/20 p-3 text-left text-sm">{appliedResult.names.map(n => <p key={n}>• {n}</p>)}</div>
+          {student?.email && <p className="text-sm text-purple-100/65">O aluno recebeu uma notificação em “Meu Treino”.</p>}
+          <div className="grid sm:grid-cols-3 gap-2"><Button onClick={() => exportPremiumPdf("claro")} className="btn-neon-purple">Exportar PDF</Button><Button onClick={exportWhatsApp} variant="outline">Copiar WhatsApp</Button><Button onClick={() => onOpenChange(false)} className="btn-neon-cyan">Fechar</Button></div>
+        </div> : !canUse ? <div className="p-6 rounded-xl border border-amber-500/20 bg-amber-500/5 text-amber-200">Seu perfil não tem permissão para evoluir treinos com IA.</div> : <div className="space-y-4 sm:space-y-5">
+          <div className="grid grid-cols-3 sm:grid-cols-7 gap-1.5 sm:gap-2">{steps.map((s, i) => <button key={s} onClick={() => i <= step && setStep(i)} className={`rounded-lg sm:rounded-xl px-2 sm:px-3 py-2 text-[10px] sm:text-xs border ${i === step ? "border-cyan-400/50 bg-cyan-400/10 text-cyan-200" : "border-purple-900/30 bg-purple-500/5 text-purple-300/60"}`}>{i + 1}. {s}</button>)}</div>
           <div className="rounded-xl border border-purple-900/30 bg-purple-500/5 p-4 grid md:grid-cols-4 gap-3"><div><p className="text-xs text-purple-400/60 font-mono-cyber">ALUNO</p><b>{student?.name}</b></div><div><p className="text-xs text-purple-400/60 font-mono-cyber">PERSONAL</p><b>{currentUser?.full_name || currentUser?.email}</b></div><div><p className="text-xs text-purple-400/60 font-mono-cyber">OBJETIVO</p><b>{student?.goal || "—"}</b></div><div><p className="text-xs text-purple-400/60 font-mono-cyber">TREINOS ATIVOS</p><b>{activePlans.length}</b></div></div>
 
           {step === 0 && <div className="space-y-4"><div className="grid md:grid-cols-2 gap-3"><button onClick={() => { setMode("treino_especifico"); setSelectedPlanIds([initialPlan?.id || activePlans[0]?.id].filter(Boolean)); }} className={`p-5 rounded-xl border text-left ${mode === "treino_especifico" ? "border-cyan-400/50 bg-cyan-400/10" : "border-purple-900/30 bg-purple-500/5"}`}><h3 className="font-bold">Evoluir treino específico</h3><p className="text-sm text-purple-200/60 mt-2">Atualize apenas este treino, mantendo os outros planos do aluno sem alteração.</p></button><button onClick={() => { setMode("plano_completo"); setSelectedPlanIds(activePlans.map(p => p.id)); }} className={`p-5 rounded-xl border text-left ${mode === "plano_completo" ? "border-cyan-400/50 bg-cyan-400/10" : "border-purple-900/30 bg-purple-500/5"}`}><h3 className="font-bold">Evoluir plano completo</h3><p className="text-sm text-purple-200/60 mt-2">Analise e atualize todos os treinos ativos do aluno de uma vez, criando um novo ciclo completo.</p></button></div><div className="grid grid-cols-2 md:grid-cols-5 gap-3">{[["Exercícios", totalExercises], ["Última execução", lastExecution ? new Date(lastExecution).toLocaleDateString("pt-BR") : "—"], ["Adesão geral", `${adherence || 0}%`], ["Período", "Histórico"], ["Nível", student?.level || "—"]].map(([k,v]) => <div key={k} className="rounded-xl border border-purple-900/20 bg-black/20 p-3"><p className="text-[10px] text-purple-400/50">{k}</p><p className="font-bold">{v}</p></div>)}</div><Button onClick={() => setStep(1)} className="w-full btn-neon-cyan">CONTINUAR</Button></div>}

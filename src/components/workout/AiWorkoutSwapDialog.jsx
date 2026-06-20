@@ -270,7 +270,7 @@ export default function AiWorkoutSwapDialog({ open, onOpenChange, plan, student,
     const history = await base44.entities.HistoricoTrocaTreino.create({ alunoId: student.id, personalId: currentUser.email, treinoAntigoId: basePlan.id, treinoNovoId: newPlan.id, dataTroca: new Date().toISOString(), motivoTroca: generated?.resumoExecutivo || "Troca gerada com IA", pedidoIA: requestText, resumoAnalise: generated?.resumoExecutivo || "", status: "aplicado", criadoPor: currentUser.email, aprovadoPor: currentUser.email, relatorioTexto: reportText });
     await base44.entities.RelatorioTrocaTreino.create({ alunoId: student.id, personalId: currentUser.email, treinoAntigoId: basePlan.id, treinoNovoId: newPlan.id, historicoTrocaTreinoId: history.id, titulo: `Relatório IA · ${student.name}`, periodoAnalisado: "histórico registrado", resumoExecutivo: generated?.resumoExecutivo || "", analisePorExercicio: analysis, analisePorGrupoMuscular: [], exerciciosMantidos: generatedExercises.filter(e => e.acao === "manter"), exerciciosSubstituidos: generatedExercises.filter(e => e.acao !== "manter"), estrategiaNovoTreino: generated?.estrategiaNovoTreino || "", alertas: generated?.alertas || [], proximosPassos: generated?.proximosPassos || [], textoCompleto: reportText, dataCriacao: new Date().toISOString() });
     if (student.email) await base44.entities.Notificacao.create({ usuario_id: student.email, titulo: "Treino atualizado", mensagem: "Seu treino foi atualizado pelo seu personal.", tipo: "treino_novo", lida: false, link_destino: "/MyWorkout", icone: "Dumbbell" });
-    setApplied(true); setSaving(false); onApplied?.(); toast.success("Novo treino aplicado com segurança.");
+    setApplied({ name: newPlan.name }); setSaving(false); onApplied?.(); toast.success("Novo treino aplicado com segurança.");
   };
 
   const exportText = () => {
@@ -288,17 +288,25 @@ export default function AiWorkoutSwapDialog({ open, onOpenChange, plan, student,
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="text-white border border-purple-900/40 max-w-6xl max-h-[92vh] overflow-y-auto" style={{ background: "#04040e" }}>
+      <DialogContent className="text-white border border-purple-900/40 w-[96vw] sm:max-w-5xl max-h-[88dvh] overflow-y-auto p-3 sm:p-6" style={{ background: "#04040e" }}>
         <DialogHeader>
-          <DialogTitle className="font-cyber tracking-widest text-purple-200 flex items-center gap-2"><Sparkles className="w-5 h-5 text-cyan-300" /> TROCAR TREINO COM IA</DialogTitle>
+          <DialogTitle className="font-cyber tracking-widest text-purple-200 flex items-center gap-2 text-sm sm:text-base"><Sparkles className="w-5 h-5 text-cyan-300" /> TROCAR TREINO COM IA</DialogTitle>
         </DialogHeader>
 
-        {!canUse ? (
+        {applied ? (
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center space-y-4">
+            <CheckCircle2 className="w-14 h-14 mx-auto text-emerald-300" />
+            <h2 className="font-cyber text-xl text-white tracking-widest">TREINO TROCADO COM SUCESSO</h2>
+            <p className="text-emerald-100/80">O novo treino <b>{applied.name}</b> foi aplicado, o treino antigo foi arquivado como substituído e o histórico foi preservado.</p>
+            {student?.email && <p className="text-sm text-purple-100/65">O aluno recebeu uma notificação em “Meu Treino”.</p>}
+            <div className="grid sm:grid-cols-3 gap-2"><Button onClick={exportPdf} className="btn-neon-purple">Exportar PDF</Button><Button onClick={exportText} variant="outline">Copiar WhatsApp</Button><Button onClick={() => onOpenChange(false)} className="btn-neon-cyan">Fechar</Button></div>
+          </div>
+        ) : !canUse ? (
           <div className="p-6 rounded-xl border border-amber-500/20 bg-amber-500/5 text-amber-200">Seu perfil não tem permissão para gerar troca de treino com IA.</div>
         ) : (
-          <div className="space-y-5">
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
-              {steps.map((s, i) => <button key={s} onClick={() => i <= step && setStep(i)} className={`rounded-xl px-3 py-2 text-xs border ${i === step ? "border-cyan-400/50 bg-cyan-400/10 text-cyan-200" : "border-purple-900/30 bg-purple-500/5 text-purple-300/60"}`}>{i + 1}. {s}</button>)}
+          <div className="space-y-4 sm:space-y-5">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2">
+              {steps.map((s, i) => <button key={s} onClick={() => i <= step && setStep(i)} className={`rounded-lg sm:rounded-xl px-2 sm:px-3 py-2 text-[10px] sm:text-xs border ${i === step ? "border-cyan-400/50 bg-cyan-400/10 text-cyan-200" : "border-purple-900/30 bg-purple-500/5 text-purple-300/60"}`}>{i + 1}. {s}</button>)}
             </div>
 
             <div className="rounded-xl border border-purple-900/30 bg-purple-500/5 p-4 flex flex-col md:flex-row md:items-center gap-3 justify-between">
@@ -337,10 +345,10 @@ export default function AiWorkoutSwapDialog({ open, onOpenChange, plan, student,
                 <div><h4 className="font-cyber text-sm text-purple-200 mb-2">TREINO ANTIGO</h4>{(basePlan?.exercises || []).map((ex, idx) => { const a = analysis.find(x => x.nome === ex.exercise_name); return <div key={idx} className="rounded-xl border border-purple-900/25 bg-black/20 p-3 mb-2"><p className="font-semibold">{ex.exercise_name}</p><p className="text-xs text-purple-300/60">{ex.sets} séries · {ex.reps} reps · {ex.rest_seconds || 60}s · carga anterior {a?.ultimaCarga || ex.load_kg || "—"}kg</p><Badge className="mt-2 bg-purple-500/10 text-purple-200 border border-purple-500/20">{a?.statusProgressao || "sem dados"}</Badge></div>})}</div>
                 <div><div className="flex items-center justify-between mb-2"><h4 className="font-cyber text-sm text-cyan-200">TREINO NOVO</h4><Button size="sm" variant="outline" onClick={addGenerated}>Adicionar</Button></div>{generatedExercises.map((ex, idx) => <div key={idx} className="rounded-xl border border-cyan-900/30 bg-cyan-500/5 p-3 mb-2 space-y-2"><div className="flex gap-2"><Input value={ex.exercise_name} onChange={e => updateGenerated(idx, "exercise_name", e.target.value)} className="cyber-input" /><Button variant="ghost" size="icon" onClick={() => removeGenerated(idx)}><X className="w-4 h-4" /></Button></div><div className="grid grid-cols-3 gap-2"><Input value={ex.sets} onChange={e => updateGenerated(idx, "sets", e.target.value)} className="cyber-input" placeholder="Séries" /><Input value={ex.reps} onChange={e => updateGenerated(idx, "reps", e.target.value)} className="cyber-input" placeholder="Reps" /><Input value={ex.rest_seconds} onChange={e => updateGenerated(idx, "rest_seconds", e.target.value)} className="cyber-input" placeholder="Descanso" /></div><div className="grid grid-cols-3 gap-2"><Input value={ex.cargaSugerida} onChange={e => updateGenerated(idx, "cargaSugerida", e.target.value)} className="cyber-input" placeholder="Carga" /><Input value={ex.rir} onChange={e => updateGenerated(idx, "rir", e.target.value)} className="cyber-input" placeholder="RIR" /><Input value={ex.cadencia} onChange={e => updateGenerated(idx, "cadencia", e.target.value)} className="cyber-input" placeholder="Cadência" /></div><Textarea value={ex.notes} onChange={e => updateGenerated(idx, "notes", e.target.value)} className="cyber-input" /><div className="flex flex-wrap gap-2"><Badge>{ex.acao}</Badge><Badge className="bg-amber-500/10 text-amber-200 border border-amber-500/20">Confiança {ex.confiancaCarga}</Badge><Badge className="bg-cyan-500/10 text-cyan-200 border border-cyan-500/20">{ex.faixaCargaMin}–{ex.faixaCargaMax} kg</Badge></div><p className="text-xs text-purple-300/60">{ex.baseEstimativaCarga}</p></div>)}</div>
               </div>
-              <div className="grid sm:grid-cols-4 gap-2"><Button onClick={saveDraft} disabled={saving} variant="outline"><Save className="w-4 h-4 mr-2" />Rascunho</Button><Button onClick={() => setStep(5)} className="btn-neon-cyan"><FileText className="w-4 h-4 mr-2" />Relatório</Button><Button onClick={applyNewWorkout} disabled={saving || applied} className="btn-neon-purple"><CheckCircle2 className="w-4 h-4 mr-2" />Aplicar novo treino</Button><Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button></div>
+              <div className="sticky bottom-0 z-10 grid grid-cols-1 sm:grid-cols-4 gap-2 pt-3 pb-1 bg-[#04040e]/95 backdrop-blur-md"><Button onClick={saveDraft} disabled={saving} variant="outline"><Save className="w-4 h-4 mr-2" />Rascunho</Button><Button onClick={() => setStep(5)} className="btn-neon-cyan"><FileText className="w-4 h-4 mr-2" />Relatório</Button><Button onClick={applyNewWorkout} disabled={saving || applied} className="btn-neon-purple"><CheckCircle2 className="w-4 h-4 mr-2" />Aplicar novo treino</Button><Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button></div>
             </div>}
 
-            {step === 5 && <div className="space-y-4"><pre className="whitespace-pre-wrap rounded-xl border border-purple-900/25 bg-black/30 p-4 text-sm text-purple-100 max-h-[55vh] overflow-auto">{reportText}</pre><div className="grid sm:grid-cols-4 gap-2"><Button onClick={exportPdf} className="btn-neon-purple"><Download className="w-4 h-4 mr-2" />Exportar relatório PDF</Button><Button onClick={exportText} variant="outline">Texto/WhatsApp</Button><Button onClick={() => setStep(4)} variant="outline">Editar treino</Button><Button onClick={applyNewWorkout} disabled={saving || applied} className="btn-neon-cyan">Aplicar novo treino</Button></div></div>}
+            {step === 5 && <div className="space-y-4"><pre className="whitespace-pre-wrap rounded-xl border border-purple-900/25 bg-black/30 p-4 text-xs sm:text-sm text-purple-100 max-h-[55vh] overflow-auto">{reportText}</pre><div className="sticky bottom-0 z-10 grid grid-cols-1 sm:grid-cols-4 gap-2 pt-3 pb-1 bg-[#04040e]/95 backdrop-blur-md"><Button onClick={exportPdf} className="btn-neon-purple"><Download className="w-4 h-4 mr-2" />Exportar PDF</Button><Button onClick={exportText} variant="outline">Texto/WhatsApp</Button><Button onClick={() => setStep(4)} variant="outline">Editar treino</Button><Button onClick={applyNewWorkout} disabled={saving || applied} className="btn-neon-cyan">Aplicar novo treino</Button></div></div>}
           </div>
         )}
       </DialogContent>
