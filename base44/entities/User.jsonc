@@ -9,7 +9,8 @@
         "personal",
         "user",
         "assinante",
-        "recente"
+        "recente",
+        "bloqueado"
       ],
       "default": "recente",
       "description": "Cargo do usu\u00e1rio"
@@ -17,6 +18,30 @@
     "student_id": {
       "type": "string",
       "description": "ID do registro Student vinculado a este usu\u00e1rio"
+    },
+    "assinatura_status": {
+      "type": "string",
+      "enum": [
+        "ativa",
+        "pendente",
+        "atrasada",
+        "bloqueada",
+        "isenta"
+      ],
+      "default": "pendente"
+    },
+    "assinatura_vencimento": {
+      "type": "string",
+      "format": "date"
+    },
+    "assinatura_valor": {
+      "type": "number"
+    },
+    "stripe_customer_id": {
+      "type": "string"
+    },
+    "stripe_subscription_id": {
+      "type": "string"
     }
   },
   "required": []
