@@ -109,6 +109,7 @@ const personalNavGroups = [
   { label: "Agenda & Financeiro", color: "#10b981", items: [
     { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
     { name: "Financeiro", icon: DollarSign, page: "Finance" },
+    { name: "Gestão de Assinaturas", icon: DollarSign, page: "SubscriptionManagement" },
     { name: "Cal. de Aulas", icon: CalendarDays, page: "ClassCalendar" },
     { name: "Cobrança", icon: Briefcase, page: "ConsultancyBilling" },
   ]},

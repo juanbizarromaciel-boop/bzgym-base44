@@ -28,13 +28,30 @@ export default function SubscriptionManagement() {
   const [amount, setAmount] = useState("");
   const qc = useQueryClient();
 
-  const { data: users = [], isLoading } = useQuery({ queryKey: ["subscription-users"], queryFn: () => base44.entities.User.list() });
-  const { data: payments = [] } = useQuery({ queryKey: ["subscription-payments"], queryFn: () => base44.entities.Payment.list("-created_date") });
+  const { data: currentUser } = useQuery({ queryKey: ["me-subscription-management"], queryFn: () => base44.auth.me() });
+  const isAdmin = currentUser?.role === "admin";
+  const { data: users = [], isLoading: loadingUsers } = useQuery({ queryKey: ["subscription-users"], queryFn: () => base44.entities.User.list(), enabled: isAdmin });
+  const { data: students = [], isLoading: loadingStudents } = useQuery({ queryKey: ["subscription-students"], queryFn: () => base44.entities.Student.list(), enabled: !!currentUser });
+  const { data: payments = [] } = useQuery({ queryKey: ["subscription-payments"], queryFn: () => base44.entities.Payment.list("-created_date"), enabled: !!currentUser });
+  const isLoading = loadingUsers || loadingStudents;
 
-  const managedUsers = useMemo(() => users
-    .filter((u) => ["assinante", "personal", "user", "bloqueado"].includes(u.role))
-    .filter((u) => roleFilter === "todos" || u.role === roleFilter)
-    .filter((u) => `${u.full_name || ""} ${u.email || ""}`.toLowerCase().includes(search.toLowerCase())), [users, roleFilter, search]);
+  const managedUsers = useMemo(() => {
+    const source = isAdmin
+      ? users.filter((u) => ["assinante", "personal", "user", "bloqueado"].includes(u.role))
+      : students.filter((s) => s.personal_id === currentUser?.email).map((s) => ({
+          id: s.id,
+          full_name: s.name,
+          email: s.email,
+          role: "user",
+          assinatura_status: s.active === false ? "bloqueada" : "ativa",
+          assinatura_vencimento: payments.find((p) => p.student_id === s.id && p.status !== "pago")?.due_date || "",
+          assinatura_valor: payments.find((p) => p.student_id === s.id)?.amount || 0,
+          isStudentRecord: true
+        }));
+    return source
+      .filter((u) => roleFilter === "todos" || u.role === roleFilter)
+      .filter((u) => `${u.full_name || ""} ${u.email || ""}`.toLowerCase().includes(search.toLowerCase()));
+  }, [isAdmin, users, students, currentUser, payments, roleFilter, search]);
 
   const lastPaymentByEmail = useMemo(() => {
     const map = {};
@@ -59,6 +76,7 @@ export default function SubscriptionManagement() {
       user_email: payingUser.email,
       user_name: payingUser.full_name || payingUser.email,
       user_role: payingUser.role === "bloqueado" ? "assinante" : payingUser.role,
+      personal_id: currentUser?.email || "",
       amount: finalAmount,
       payment_date: paidAt,
       due_date: paidAt,
@@ -67,12 +85,16 @@ export default function SubscriptionManagement() {
       description: "Assinatura paga manualmente",
       payment_method: "manual"
     });
-    await base44.entities.User.update(payingUser.id, {
-      role: payingUser.role === "bloqueado" ? "assinante" : payingUser.role,
-      assinatura_status: "ativa",
-      assinatura_vencimento: nextDue,
-      assinatura_valor: finalAmount
-    });
+    if (payingUser.isStudentRecord) {
+      await base44.entities.Student.update(payingUser.id, { active: true });
+    } else {
+      await base44.entities.User.update(payingUser.id, {
+        role: payingUser.role === "bloqueado" ? "assinante" : payingUser.role,
+        assinatura_status: "ativa",
+        assinatura_vencimento: nextDue,
+        assinatura_valor: finalAmount
+      });
+    }
     toast.success("Pagamento confirmado e próximo vencimento criado.");
     setPayingUser(null);
     setAmount("");
@@ -80,13 +102,21 @@ export default function SubscriptionManagement() {
   };
 
   const blockUser = async (user) => {
-    await base44.entities.User.update(user.id, { role: "bloqueado", assinatura_status: "bloqueada" });
+    if (user.isStudentRecord) {
+      await base44.entities.Student.update(user.id, { active: false });
+    } else {
+      await base44.entities.User.update(user.id, { role: "bloqueado", assinatura_status: "bloqueada" });
+    }
     toast.success("Acesso bloqueado.");
     refresh();
   };
 
   const unblockUser = async (user) => {
-    await base44.entities.User.update(user.id, { role: "assinante", assinatura_status: "ativa" });
+    if (user.isStudentRecord) {
+      await base44.entities.Student.update(user.id, { active: true });
+    } else {
+      await base44.entities.User.update(user.id, { role: "assinante", assinatura_status: "ativa" });
+    }
     toast.success("Acesso liberado.");
     refresh();
   };
@@ -117,7 +147,7 @@ export default function SubscriptionManagement() {
         <div className="w-12 h-12 rounded-xl border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center"><CreditCard className="w-6 h-6 text-emerald-300" /></div>
         <div><h1 className="font-cyber text-2xl text-white">GESTÃO DE ASSINATURAS</h1><p className="text-sm text-emerald-100/60">Assinantes, Personais, vencimentos, bloqueios e pagamentos.</p></div>
       </div>
-      <Badge className="bg-purple-500/15 border border-purple-500/30 text-purple-200">Admin</Badge>
+      <Badge className="bg-purple-500/15 border border-purple-500/30 text-purple-200">{isAdmin ? "Admin" : "Personal"}</Badge>
     </div>
 
     <div className="flex flex-col md:flex-row gap-3">

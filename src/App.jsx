@@ -44,6 +44,7 @@ import NewsManagement from './pages/NewsManagement';
 import SportsNewsDetail from './pages/SportsNewsDetail';
 import SubscriptionManagement from './pages/SubscriptionManagement';
 import PaymentOverdue from './pages/PaymentOverdue';
+import SubscriberBilling from './pages/SubscriberBilling';
 import { useState, useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -102,6 +103,7 @@ const AuthenticatedApp = () => {
   if (user && user.role === 'bloqueado') {
     return <Routes>
       <Route path="/PaymentOverdue" element={<PaymentOverdue />} />
+      <Route path="/SubscriberBilling" element={<SubscriberBilling />} />
       <Route path="*" element={<Navigate to="/PaymentOverdue" replace />} />
     </Routes>;
   }
@@ -127,6 +129,7 @@ const AuthenticatedApp = () => {
       <Route path="/FocusRoutine" element={<LayoutWrapper currentPageName="FocusRoutine"><FocusRoutine /></LayoutWrapper>} />
       <Route path="/Profile" element={<LayoutWrapper currentPageName="Profile"><Profile /></LayoutWrapper>} />
       <Route path="/AppThemes" element={<LayoutWrapper currentPageName="AppThemes"><AppThemes /></LayoutWrapper>} />
+      <Route path="/SubscriberBilling" element={<LayoutWrapper currentPageName="SubscriberBilling"><SubscriberBilling /></LayoutWrapper>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>;
   }
@@ -199,6 +202,7 @@ const AuthenticatedApp = () => {
       <Route path="/Notificacoes" element={<LayoutWrapper currentPageName="Notificacoes"><Notificacoes /></LayoutWrapper>} />
       <Route path="/NewsManagement" element={<LayoutWrapper currentPageName="NewsManagement"><NewsManagement /></LayoutWrapper>} />
       <Route path="/SubscriptionManagement" element={<LayoutWrapper currentPageName="SubscriptionManagement"><SubscriptionManagement /></LayoutWrapper>} />
+      <Route path="/SubscriberBilling" element={<LayoutWrapper currentPageName="SubscriberBilling"><SubscriberBilling /></LayoutWrapper>} />
       <Route path="/SportsNewsDetail" element={<LayoutWrapper currentPageName="SportsNewsDetail"><SportsNewsDetail /></LayoutWrapper>} />
       <Route path="/PaymentOverdue" element={<PaymentOverdue />} />
       <Route path="/AccessDenied" element={<AccessDenied />} />

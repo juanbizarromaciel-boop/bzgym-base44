@@ -72,6 +72,7 @@ export default function AdminDashboard() {
   const statsMain = [
     { label: "Alunos Ativos", value: activeStudents.length, icon: Users, color: "#a855f7", link: "/Students" },
     { label: "Personais", value: uniquePersonals.length, icon: UserCog, color: "#06b6d4", link: "/PersonalManagement" },
+    { label: "Assinaturas", value: pendingPayments.length, icon: DollarSign, color: "#10b981", link: "/SubscriptionManagement" },
     { label: "Pend. Aprovação", value: pendingStudents.length, icon: AlertTriangle, color: "#f59e0b", link: "/PendingStudents" },
     { label: "Msgs não lidas", value: unreadMessages.length, icon: MessageSquare, color: "#ec4899", link: "/Chat" },
   ];
@@ -97,6 +98,7 @@ export default function AdminDashboard() {
   const quickActions = [
     { label: "Alunos", icon: Users, path: "/Students", color: "#a855f7" },
     { label: "Personais", icon: UserCog, path: "/PersonalManagement", color: "#06b6d4" },
+    { label: "Assinaturas", icon: DollarSign, path: "/SubscriptionManagement", color: "#10b981" },
     { label: "Treinos", icon: Dumbbell, path: "/WorkoutPlans", color: "#ec4899" },
     { label: "Dietas", icon: Utensils, path: "/Diet", color: "#10b981" },
     { label: "Progresso", icon: BarChart3, path: "/Progress", color: "#f59e0b" },

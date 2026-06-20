@@ -60,6 +60,7 @@ export default function PersonalDashboard() {
     { label: "Progresso", icon: TrendingUp, path: "/Progress", accent: ACCENT.amber },
     { label: "Chat", icon: MessageSquare, path: "/Chat", accent: ACCENT.pink },
     { label: "Financeiro", icon: DollarSign, path: "/Finance", accent: ACCENT.amber },
+    { label: "Assinaturas", icon: DollarSign, path: "/SubscriptionManagement", accent: ACCENT.green },
     { label: "Calendário", icon: Calendar, path: "/ClassCalendar", accent: ACCENT.purple },
     { label: "Novos Alunos", icon: UserPlus, path: "/PendingStudents", accent: ACCENT.cyan },
   ];
