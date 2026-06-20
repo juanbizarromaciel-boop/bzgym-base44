@@ -139,7 +139,7 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
   const { data: bios = [] } = useQuery({ queryKey: ["evolution-bio"], queryFn: () => base44.entities.Bioimpedancia.list(), enabled: open });
   const { data: fotos = [] } = useQuery({ queryKey: ["evolution-fotos"], queryFn: () => base44.entities.FotoProgresso.list(), enabled: open });
 
-  const canUse = currentUser?.role === "admin" || currentUser?.role === "personal";
+  const canUse = currentUser?.role === "admin" || currentUser?.role === "personal" || currentUser?.role === "assinante";
   const activePlans = useMemo(() => allPlans.filter(p => p.student_id === student?.id && p.active !== false && p.statusVersao !== "substituido"), [allPlans, student?.id]);
   const selectedPlans = useMemo(() => activePlans.filter(p => selectedPlanIds.includes(p.id)), [activePlans, selectedPlanIds]);
   const studentLogs = logs.filter(l => l.student_id === student?.id);
@@ -329,7 +329,7 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
       base44.entities.GraficosRelatorioTreino.create({ relatorioEvolucaoTreinoId: report.id, tipoGrafico: "prs", titulo: "PRs no período", descricao: "PRs disponíveis no período analisado", dadosJson: normalizedReport.graficos.prsPeriodo, ordem: 6 }),
     ]);
     for (const newId of newIds) await base44.entities.WorkoutPlan.update(newId, { historicoEvolucaoId: history.id });
-    if (student.email) await base44.entities.Notificacao.create({ usuario_id: student.email, titulo: mode === "plano_completo" ? "Plano completo atualizado" : "Treino atualizado", mensagem: mode === "plano_completo" ? "Seu plano de treino completo foi atualizado pelo seu personal." : "Seu treino foi atualizado pelo seu personal.", tipo: "treino_novo", lida: false, link_destino: "/MyWorkout", icone: "Dumbbell" });
+    if (student.email && currentUser?.role !== "assinante") await base44.entities.Notificacao.create({ usuario_id: student.email, titulo: mode === "plano_completo" ? "Plano completo atualizado" : "Treino atualizado", mensagem: mode === "plano_completo" ? "Seu plano de treino completo foi atualizado pelo seu personal." : "Seu treino foi atualizado pelo seu personal.", tipo: "treino_novo", lida: false, link_destino: "/MyWorkout", icone: "Dumbbell" });
     setAppliedResult({ newIds, names: generatedPlans.map(p => p.name) });
     setSaving(false); onApplied?.(); toast.success(mode === "plano_completo" ? "Plano completo aplicado como novo ciclo." : "Novo treino aplicado com segurança.");
   };

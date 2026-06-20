@@ -19,6 +19,7 @@ import ConsultancyBilling from './pages/ConsultancyBilling';
 import SubscriberDashboard from './pages/SubscriberDashboard';
 import AccessDenied from './pages/AccessDenied';
 import MyWorkout from './pages/MyWorkout';
+import WorkoutPlans from './pages/WorkoutPlans';
 import MyDiet from './pages/MyDiet';
 import DietLogs from './pages/DietLogs';
 import ExerciseLibrary from './pages/ExerciseLibrary';
@@ -122,6 +123,7 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<LayoutWrapper currentPageName="SubscriberDashboard"><SubscriberDashboard /></LayoutWrapper>} />
       <Route path="/SubscriberDashboard" element={<LayoutWrapper currentPageName="SubscriberDashboard"><SubscriberDashboard /></LayoutWrapper>} />
       <Route path="/MyWorkout" element={<LayoutWrapper currentPageName="MyWorkout"><MyWorkout /></LayoutWrapper>} />
+      <Route path="/WorkoutPlans" element={<LayoutWrapper currentPageName="WorkoutPlans"><WorkoutPlans /></LayoutWrapper>} />
       <Route path="/ExerciseLibrary" element={<LayoutWrapper currentPageName="ExerciseLibrary"><ExerciseLibrary /></LayoutWrapper>} />
       <Route path="/MyDiet" element={<LayoutWrapper currentPageName="MyDiet"><MyDiet /></LayoutWrapper>} />
       <Route path="/Comunidade" element={<LayoutWrapper currentPageName="Comunidade"><Comunidade /></LayoutWrapper>} />

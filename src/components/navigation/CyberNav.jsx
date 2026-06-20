@@ -155,6 +155,7 @@ const subscriberNavGroups = [
   ]},
   { label: "Treino", color: "#ec4899", items: [
     { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
+    { name: "Criar/Editar Treinos", icon: ClipboardList, page: "WorkoutPlans" },
     { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
   ]},
   { label: "Nutrição", color: "#10b981", items: [

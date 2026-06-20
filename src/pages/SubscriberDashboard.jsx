@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Dumbbell, Utensils, BookOpen, Sparkles } from "lucide-react";
+import { Dumbbell, Utensils, BookOpen, Sparkles, ClipboardList } from "lucide-react";
 import { Link } from "react-router-dom";
 import MacroAI from "../components/subscriber/MacroAI";
 
@@ -13,6 +13,7 @@ export default function SubscriberDashboard() {
 
   const actions = [
     { label: "Meu Treino", icon: Dumbbell, href: "/MyWorkout", color: "#a855f7", desc: "Registre e acompanhe seus treinos" },
+    { label: "Criar/Editar Treinos", icon: ClipboardList, href: "/WorkoutPlans", color: "#ec4899", desc: "Monte, edite e evolua seus treinos" },
     { label: "Exercícios", icon: BookOpen, href: "/ExerciseLibrary", color: "#06b6d4", desc: "Biblioteca de exercícios" },
     { label: "Minha Dieta", icon: Utensils, href: "/MyDiet", color: "#ec4899", desc: "Cadastre e acompanhe sua dieta" },
     { label: "Evoluir Dieta com IA", icon: Sparkles, href: "/MyDiet", color: "#10b981", desc: "Gerar nova versão e relatório premium" },
