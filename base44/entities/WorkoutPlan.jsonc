@@ -12,7 +12,7 @@
     },
     "name": {
       "type": "string",
-      "description": "Nome do treino"
+      "description": "Nome do treino (ex: Treino A - Peito/Tr\u00edceps)"
     },
     "day_of_week": {
       "type": "string",
@@ -84,13 +84,16 @@
     },
     "versao": {
       "type": "number",
-      "default": 1
+      "default": 1,
+      "description": "Vers\u00e3o do treino"
     },
     "treinoAnteriorId": {
-      "type": "string"
+      "type": "string",
+      "description": "ID do treino anterior usado como base"
     },
     "cicloId": {
-      "type": "string"
+      "type": "string",
+      "description": "ID do ciclo de treino"
     },
     "statusVersao": {
       "type": "string",
@@ -103,17 +106,20 @@
       "default": "atual"
     },
     "dataAplicacao": {
-      "type": "string"
+      "type": "string",
+      "description": "Data em que a vers\u00e3o foi aplicada"
     },
     "motivoAtualizacao": {
-      "type": "string"
+      "type": "string",
+      "description": "Motivo da atualiza\u00e7\u00e3o do treino"
     },
     "evoluidoPorIA": {
       "type": "boolean",
       "default": false
     },
     "historicoEvolucaoId": {
-      "type": "string"
+      "type": "string",
+      "description": "ID do hist\u00f3rico de evolu\u00e7\u00e3o com IA"
     },
     "tipoDono": {
       "type": "string",
@@ -152,6 +158,9 @@
         },
         {
           "data.assinanteId": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     },
@@ -180,6 +189,9 @@
         },
         {
           "data.assinanteId": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     },
@@ -203,6 +215,9 @@
         },
         {
           "data.assinanteId": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     },
@@ -223,6 +238,9 @@
         },
         {
           "data.assinanteId": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     }
