@@ -245,7 +245,7 @@ export default function WorkoutPlans() {
           </SelectContent>
         </Select>
         <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)' }} />
-      </motion.div>
+      </motion.div>}
 
       <motion.div variants={stagger} className="space-y-4">
         {plansByStudent.map(({ student, activePlans, archivedPlans }) => {
@@ -478,7 +478,7 @@ export default function WorkoutPlans() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </div>}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-purple-400/60 text-xs tracking-wider">NOME DO TREINO *</Label>
