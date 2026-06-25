@@ -10,8 +10,15 @@ export function useCurrentUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    base44.auth.me().then((u) => {
-      setUser(u);
+    base44.auth.me().then(async (authUser) => {
+      const records = await base44.entities.User.filter({ email: authUser.email });
+      const userRecord = records?.[0] || {};
+      const baseRole = userRecord.role || authUser.role || "user";
+      const hasSubscriberProfile = userRecord.account_type === "assinante" || userRecord.assinatura_status || userRecord.assinatura_vencimento || userRecord.assinatura_origem || userRecord.stripe_subscription_id;
+      const role = hasSubscriberProfile && !["admin", "personal", "recente", "bloqueado"].includes(baseRole)
+        ? "assinante"
+        : baseRole;
+      setUser({ ...authUser, ...userRecord, role });
       setLoading(false);
     }).catch(() => {
       setLoading(false);

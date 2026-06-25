@@ -92,7 +92,12 @@ const AuthenticatedApp = () => {
       const authUser = await base44.auth.me();
       const userRecords = await base44.entities.User.filter({ email: authUser.email });
       const currentUserRecord = userRecords?.[0] || {};
-      const u = { ...authUser, ...currentUserRecord, role: currentUserRecord.role || authUser.role };
+      const baseRole = currentUserRecord.role || authUser.role || 'user';
+      const hasSubscriberProfile = currentUserRecord.account_type === 'assinante' || currentUserRecord.assinatura_status || currentUserRecord.assinatura_vencimento || currentUserRecord.assinatura_origem || currentUserRecord.stripe_subscription_id;
+      const role = hasSubscriberProfile && !['admin', 'personal', 'recente', 'bloqueado'].includes(baseRole)
+        ? 'assinante'
+        : baseRole;
+      const u = { ...authUser, ...currentUserRecord, role };
       setUser(u);
       if (u.role !== 'admin' && u.role !== 'personal') {
         const students = await base44.entities.Student.list();

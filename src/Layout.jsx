@@ -191,9 +191,16 @@ export default function Layout({ children, currentPageName }) {
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    base44.auth.me().then((user) => {
-      setRole(user?.role || "user");
-      setUserName(user?.full_name || user?.email || "");
+    base44.auth.me().then(async (authUser) => {
+      const records = await base44.entities.User.filter({ email: authUser.email });
+      const userRecord = records?.[0] || {};
+      const baseRole = userRecord.role || authUser.role || "user";
+      const hasSubscriberProfile = userRecord.account_type === "assinante" || userRecord.assinatura_status || userRecord.assinatura_vencimento || userRecord.assinatura_origem || userRecord.stripe_subscription_id;
+      const effectiveRole = hasSubscriberProfile && !["admin", "personal", "recente", "bloqueado"].includes(baseRole)
+        ? "assinante"
+        : baseRole;
+      setRole(effectiveRole);
+      setUserName(userRecord.full_name || authUser.full_name || authUser.email || "");
     }).catch(() => setRole("user"));
   }, []);
 

@@ -39,6 +39,14 @@ export default function MyWorkout() {
   const qc = useQueryClient();
 
   const today = DAY_MAP[new Date().getDay()];
+  const isSubscriber = user?.role === "assinante" || user?.account_type === "assinante";
+  const owner = student || (isSubscriber && user ? {
+    id: user.email,
+    email: user.email,
+    name: user.full_name || user.email,
+    active: true,
+    goal: user.goal
+  } : null);
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list(), staleTime: 60000 });
   const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list(), staleTime: 30000, placeholderData: (prev) => prev });
@@ -48,7 +56,9 @@ export default function MyWorkout() {
   useEffect(() => {
     if (user && students.length > 0) {
       const found = students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase());
-      if (!found || !found.goal) {
+      if (isSubscriber) {
+        setStudent(found || null);
+      } else if (!found || !found.goal) {
         navigate("/Onboarding", { replace: true });
       } else if (!found.active) {
         navigate("/Welcome", { replace: true });
@@ -56,10 +66,15 @@ export default function MyWorkout() {
         setStudent(found);
       }
     }
-  }, [user, students]);
+  }, [user, students, isSubscriber, navigate]);
 
   const { blocked, personalName } = usePaymentStatus(student);
-  const myPlans = student ? allPlans.filter(p => p.student_id === student.id && p.active !== false) : [];
+  const myPlans = owner ? allPlans.filter(p => p.active !== false && (
+    p.student_id === owner.id ||
+    p.student_id === owner.email ||
+    p.usuarioId === owner.email ||
+    p.assinanteId === owner.email
+  )) : [];
   const selectedPlan = myPlans.find(p => p.id === selectedPlanId);
   const todayPlans = myPlans.filter(p => p.day_of_week === today);
 
@@ -95,7 +110,7 @@ export default function MyWorkout() {
     const sets = setsData[exKey] || initSets(exKey, exercise.sets);
     const maxLoad = Math.max(...sets.map(s => s.load_kg), 0);
     logMut.mutate({
-      student_id: student.id,
+      student_id: owner.id,
       workout_plan_id: selectedPlanId,
       exercise_id: exercise.exercise_id || "",
       exercise_name: exercise.exercise_name,
@@ -140,7 +155,7 @@ export default function MyWorkout() {
   };
 
   // Payment blocked
-  if (blocked) return <BlockedWorkoutBanner studentName={student?.name} personalName={personalName} />;
+  if (blocked && !isSubscriber) return <BlockedWorkoutBanner studentName={student?.name} personalName={personalName} />;
 
   // Loading
   if (!user) return (
@@ -150,7 +165,7 @@ export default function MyWorkout() {
   );
 
   // Not linked to a student or not active yet
-  if (user && students.length > 0 && (!student || !student.active)) {
+  if (user && students.length > 0 && !isSubscriber && (!student || !student.active)) {
     if (student && !student.active) {
       navigate("/Welcome", { replace: true });
       return null;
@@ -231,13 +246,13 @@ export default function MyWorkout() {
           className="font-cyber text-3xl md:text-4xl text-white tracking-widest mt-5"
           style={{ textShadow: '0 0 30px rgba(168,85,247,0.4)' }}
         >
-          OLÁ, {student?.name?.split(" ")[0]?.toUpperCase() || "ATLETA"}
+          OLÁ, {owner?.name?.split(" ")[0]?.toUpperCase() || "ATLETA"}
         </h1>
         <p className="text-purple-400/40 font-mono-cyber text-sm mt-1">// pronto para destruir o treino?</p>
-        {student?.goal && (
+        {owner?.goal && (
           <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-purple-500/20 bg-purple-500/5">
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400" style={{ boxShadow: '0 0 4px rgba(168,85,247,1)' }} />
-            <span className="text-xs font-mono-cyber text-purple-400/60 tracking-wider">{GOAL_LABELS[student.goal] || student.goal}</span>
+            <span className="text-xs font-mono-cyber text-purple-400/60 tracking-wider">{GOAL_LABELS[owner.goal] || owner.goal}</span>
           </div>
         )}
         </motion.div>
@@ -272,10 +287,10 @@ export default function MyWorkout() {
           <p className="text-[10px] text-purple-500/40 font-mono-cyber uppercase tracking-[0.25em] flex items-center gap-2">
             <Calendar className="w-3 h-3" /> Todos os treinos
           </p>
-          {student && myPlans.length > 0 && (
+          {owner && myPlans.length > 0 && (
             <WorkoutPdfExport
-              studentId={student.id}
-              studentName={student.name}
+              studentId={owner.id}
+              studentName={owner.name}
             />
           )}
         </div>
@@ -325,7 +340,7 @@ export default function MyWorkout() {
 
   // Workout execution
   const progress = selectedPlan.exercises?.length ? (completedExercises.size / selectedPlan.exercises.length) * 100 : 0;
-  const sortedExercises = student ? sortExercisesByProgression(selectedPlan.exercises || [], allLogs, student.id) : [];
+  const sortedExercises = owner ? sortExercisesByProgression(selectedPlan.exercises || [], allLogs, owner.id) : [];
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger}>
@@ -435,7 +450,7 @@ export default function MyWorkout() {
                     <div className="flex flex-wrap gap-2 mt-1.5">
                       <LastWeightBadge
                         exerciseName={exercise.exercise_name}
-                        logs={student ? allLogs.filter(l => l.student_id === student.id) : []}
+                        logs={owner ? allLogs.filter(l => l.student_id === owner.id || l.student_id === owner.email) : []}
                         onApply={(kg) => applyWeightToAllSets(exKey, kg, exercise.sets)}
                         disabled={isCompleted}
                       />

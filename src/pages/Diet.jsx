@@ -46,7 +46,18 @@ export default function Diet() {
   const qc = useQueryClient();
 
   const [currentUser, setCurrentUser] = useState(null);
-  useEffect(() => { base44.auth.me().then(setCurrentUser).catch(() => {}); }, []);
+  useEffect(() => {
+    base44.auth.me().then(async (authUser) => {
+      const records = await base44.entities.User.filter({ email: authUser.email });
+      const userRecord = records?.[0] || {};
+      const baseRole = userRecord.role || authUser.role || "user";
+      const hasSubscriberProfile = userRecord.account_type === "assinante" || userRecord.assinatura_status || userRecord.assinatura_vencimento || userRecord.assinatura_origem || userRecord.stripe_subscription_id;
+      const role = hasSubscriberProfile && !["admin", "personal", "recente", "bloqueado"].includes(baseRole)
+        ? "assinante"
+        : baseRole;
+      setCurrentUser({ ...authUser, ...userRecord, role });
+    }).catch(() => {});
+  }, []);
 
   const { data: allStudentsDiet = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: allPlansDiet = [] } = useQuery({ queryKey: ["diet_plans"], queryFn: () => base44.entities.DietPlan.list() });

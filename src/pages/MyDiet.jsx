@@ -39,7 +39,18 @@ export default function MyDiet() {
   const [mealDetail, setMealDetail] = useState(null); // { plan, mealIndex }
   const [aiDietTarget, setAiDietTarget] = useState(null);
 
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
+  useEffect(() => {
+    base44.auth.me().then(async (authUser) => {
+      const records = await base44.entities.User.filter({ email: authUser.email });
+      const userRecord = records?.[0] || {};
+      const baseRole = userRecord.role || authUser.role || "user";
+      const hasSubscriberProfile = userRecord.account_type === "assinante" || userRecord.assinatura_status || userRecord.assinatura_vencimento || userRecord.assinatura_origem || userRecord.stripe_subscription_id;
+      const role = hasSubscriberProfile && !["admin", "personal", "recente", "bloqueado"].includes(baseRole)
+        ? "assinante"
+        : baseRole;
+      setUser({ ...authUser, ...userRecord, role });
+    }).catch(() => {});
+  }, []);
 
   const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: allPlans = [] } = useQuery({ queryKey: ["diet_plans"], queryFn: () => base44.entities.DietPlan.list() });
@@ -50,7 +61,11 @@ export default function MyDiet() {
     }
   }, [user, students]);
 
-  const myPlans = student ? allPlans.filter(p => p.student_id === student.id && p.active !== false) : user?.role === "assinante" ? allPlans.filter(p => (p.usuarioId === user.email || p.assinanteId === user.email) && p.active !== false) : [];
+  const isSubscriber = user?.role === "assinante" || user?.account_type === "assinante";
+  const myPlans = allPlans.filter(p => p.active !== false && (
+    (student && p.student_id === student.id) ||
+    (user && (p.student_id === user.email || p.usuarioId === user.email || p.assinanteId === user.email || p.alunoId === user.email))
+  ));
   const simPlan = simPlanId ? myPlans.find(p => p.id === simPlanId) : myPlans[0];
   const histPlan = historyPlanId ? myPlans.find(p => p.id === historyPlanId) : myPlans[0];
 
@@ -63,7 +78,7 @@ export default function MyDiet() {
     </div>
   );
 
-  if (user && students.length > 0 && !student && user.role !== "assinante") return (
+  if (user && students.length > 0 && !student && !isSubscriber) return (
     <div className="text-center py-20">
       <div className="w-16 h-16 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-5">
         <Utensils className="w-8 h-8 text-purple-500/40" />
@@ -164,10 +179,10 @@ export default function MyDiet() {
                               {GOAL_LABELS[plan.goal]}
                             </Badge>
                           )}
-                          {user?.role === "assinante" && <button onClick={() => setAiDietTarget(plan)} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs border font-bold tracking-widest border-emerald-500/25 text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/20">
+                          {isSubscriber && <button onClick={() => setAiDietTarget(plan)} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs border font-bold tracking-widest border-emerald-500/25 text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/20">
                             <Sparkles className="w-3 h-3" /> EVOLUIR MINHA DIETA COM IA
                           </button>}
-                          {user?.role === "assinante" && <button onClick={() => setAiDietTarget(plan)} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs border font-bold tracking-widest border-cyan-500/25 text-cyan-200 bg-cyan-500/10 hover:bg-cyan-500/20">
+                          {isSubscriber && <button onClick={() => setAiDietTarget(plan)} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs border font-bold tracking-widest border-cyan-500/25 text-cyan-200 bg-cyan-500/10 hover:bg-cyan-500/20">
                             TROCAR ALIMENTOS COM IA
                           </button>}
                         </div>
@@ -378,7 +393,7 @@ export default function MyDiet() {
         owner={student || user}
         currentUser={user}
         allPlans={allPlans}
-        selfMode={user?.role === "assinante"}
+        selfMode={isSubscriber}
       />
     </motion.div>
   );
