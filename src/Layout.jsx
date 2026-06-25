@@ -192,15 +192,20 @@ export default function Layout({ children, currentPageName }) {
 
   useEffect(() => {
     base44.auth.me().then(async (authUser) => {
-      const records = await base44.entities.User.filter({ email: authUser.email });
-      const userRecord = records?.[0] || {};
-      const baseRole = userRecord.role || authUser.role || "user";
-      const hasSubscriberProfile = userRecord.account_type === "assinante" || userRecord.assinatura_status || userRecord.assinatura_vencimento || userRecord.assinatura_origem || userRecord.stripe_subscription_id;
+      let mergedUser = authUser;
+      try {
+        const profileResponse = await base44.functions.invoke('getCurrentUserProfile', {});
+        mergedUser = profileResponse.data.user || authUser;
+      } catch (error) {
+        mergedUser = authUser;
+      }
+      const baseRole = mergedUser.role || "user";
+      const hasSubscriberProfile = mergedUser.account_type === "assinante" || mergedUser.assinatura_status || mergedUser.assinatura_vencimento || mergedUser.assinatura_origem || mergedUser.stripe_subscription_id;
       const effectiveRole = hasSubscriberProfile && !["admin", "personal", "recente", "bloqueado"].includes(baseRole)
         ? "assinante"
         : baseRole;
       setRole(effectiveRole);
-      setUserName(userRecord.full_name || authUser.full_name || authUser.email || "");
+      setUserName(mergedUser.full_name || mergedUser.email || "");
     }).catch(() => setRole("user"));
   }, []);
 

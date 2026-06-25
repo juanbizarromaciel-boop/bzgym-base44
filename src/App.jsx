@@ -90,14 +90,19 @@ const AuthenticatedApp = () => {
 
     const loadCurrentUser = async () => {
       const authUser = await base44.auth.me();
-      const userRecords = await base44.entities.User.filter({ email: authUser.email });
-      const currentUserRecord = userRecords?.[0] || {};
-      const baseRole = currentUserRecord.role || authUser.role || 'user';
-      const hasSubscriberProfile = currentUserRecord.account_type === 'assinante' || currentUserRecord.assinatura_status || currentUserRecord.assinatura_vencimento || currentUserRecord.assinatura_origem || currentUserRecord.stripe_subscription_id;
+      let mergedUser = authUser;
+      try {
+        const profileResponse = await base44.functions.invoke('getCurrentUserProfile', {});
+        mergedUser = profileResponse.data.user || authUser;
+      } catch (error) {
+        mergedUser = authUser;
+      }
+      const baseRole = mergedUser.role || 'user';
+      const hasSubscriberProfile = mergedUser.account_type === 'assinante' || mergedUser.assinatura_status || mergedUser.assinatura_vencimento || mergedUser.assinatura_origem || mergedUser.stripe_subscription_id;
       const role = hasSubscriberProfile && !['admin', 'personal', 'recente', 'bloqueado'].includes(baseRole)
         ? 'assinante'
         : baseRole;
-      const u = { ...authUser, ...currentUserRecord, role };
+      const u = { ...mergedUser, role };
       setUser(u);
       if (u.role !== 'admin' && u.role !== 'personal') {
         const students = await base44.entities.Student.list();
