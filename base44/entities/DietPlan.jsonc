@@ -175,9 +175,16 @@
           }
         },
         {
-          "user_condition": {
-            "role": "assinante"
-          }
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.alunoId": "{{user.email}}"
         }
       ]
     },
@@ -201,9 +208,13 @@
           "data.assinanteId": "{{user.email}}"
         },
         {
-          "user_condition": {
-            "role": "user"
-          }
+          "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "data.alunoId": "{{user.email}}"
         }
       ]
     },
@@ -212,6 +223,11 @@
         {
           "user_condition": {
             "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
           }
         },
         {
@@ -225,6 +241,12 @@
         },
         {
           "data.assinanteId": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.alunoId": "{{user.email}}"
         }
       ]
     },
@@ -236,10 +258,27 @@
           }
         },
         {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
           "data.personal_id": "{{user.email}}"
         },
         {
           "data.personalId": "{{user.email}}"
+        },
+        {
+          "data.usuarioId": "{{user.email}}"
+        },
+        {
+          "data.assinanteId": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.alunoId": "{{user.email}}"
         }
       ]
     }
