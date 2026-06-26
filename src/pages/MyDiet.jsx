@@ -32,6 +32,7 @@ const TABS = [
 
 export default function MyDiet() {
   const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [student, setStudent] = useState(null);
   const [activeTab, setActiveTab] = useState("plano");
   const [simPlanId, setSimPlanId] = useState("");
@@ -54,10 +55,14 @@ export default function MyDiet() {
         ? "assinante"
         : baseRole;
       setUser({ ...mergedUser, role });
-    }).catch(() => {});
+      setLoadingUser(false);
+    }).catch(() => {
+      setLoadingUser(false);
+    });
   }, []);
 
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
+  const { data: students = [], isLoading: loadingStudents } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
+  const matchedStudent = user ? students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase()) : null;
   const { data: allPlans = [] } = useQuery({ queryKey: ["diet_plans"], queryFn: () => base44.entities.DietPlan.list() });
 
   useEffect(() => {
@@ -77,13 +82,15 @@ export default function MyDiet() {
   // Plans that have items-based meals (support checklist/history)
   const plansWithItems = myPlans.filter(p => (p.meals || []).some(m => (m.items || []).length > 0));
 
-  if (!user) return (
+  if (loadingUser || loadingStudents) return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
-  if (user && students.length > 0 && !student && !isSubscriber) return (
+  if (!user) return null;
+
+  if (user && !(student || matchedStudent) && !isSubscriber) return (
     <div className="text-center py-20">
       <div className="w-16 h-16 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-5">
         <Utensils className="w-8 h-8 text-purple-500/40" />

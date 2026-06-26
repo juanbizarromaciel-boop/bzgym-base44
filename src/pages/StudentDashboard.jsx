@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   Dumbbell, TrendingUp, Target, MessageSquare,
   ChevronRight, CheckCircle2, Clock, Utensils,
@@ -23,12 +24,10 @@ const fadeUp = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transi
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 
 export default function StudentDashboard() {
-  const [user, setUser] = useState(null);
+  const { user, loading: userLoading } = useCurrentUser();
   const [student, setStudent] = useState(null);
 
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
-
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
+  const { data: students = [], isLoading: loadingStudents } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list() });
   const { data: workoutLogs = [] } = useQuery({ queryKey: ["workoutLogs"], queryFn: () => base44.entities.WorkoutLog.list() });
   const { data: workoutPlans = [] } = useQuery({ queryKey: ["workoutPlans"], queryFn: () => base44.entities.WorkoutPlan.list() });
   const { data: messages = [] } = useQuery({ queryKey: ["messages"], queryFn: () => base44.entities.ChatMessage.list() });
@@ -36,15 +35,16 @@ export default function StudentDashboard() {
   const { data: checkIns = [] } = useQuery({ queryKey: ["checkIns"], queryFn: () => base44.entities.CheckIn.list() });
 
   useEffect(() => {
-    if (user && students.length > 0) {
+    if (user && !loadingStudents) {
       const found = students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase());
-      if (!found || !found.goal) { window.location.href = "/Onboarding"; }
+      if (user.role === "assinante") { window.location.href = "/SubscriberDashboard"; }
+      else if (!found || !found.goal) { window.location.href = "/Onboarding"; }
       else if (!found.active) { window.location.href = "/Welcome"; }
       else { setStudent(found); }
     }
-  }, [user, students]);
+  }, [user, students, loadingStudents]);
 
-  if (!student) {
+  if (userLoading || loadingStudents) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="relative">
@@ -57,9 +57,16 @@ export default function StudentDashboard() {
     );
   }
 
-  const myLogs = workoutLogs.filter(log => log.student_id === student.id);
-  const myPlans = workoutPlans.filter(plan => plan.student_id === student.id && plan.active !== false);
-  const unreadMessages = messages.filter(m => m.student_id === student.id && m.is_trainer && !m.read);
+  if (!student) return null;
+
+  const ownerIds = [student.id, student.email, user?.email].filter(Boolean);
+  const myLogs = workoutLogs.filter(log => ownerIds.includes(log.student_id));
+  const myPlans = workoutPlans.filter(plan => plan.active !== false && (
+    ownerIds.includes(plan.student_id) ||
+    ownerIds.includes(plan.usuarioId) ||
+    ownerIds.includes(plan.assinanteId)
+  ));
+  const unreadMessages = messages.filter(m => ownerIds.includes(m.student_id) && m.is_trainer && !m.read);
 
   const last7Days = new Date(); last7Days.setDate(last7Days.getDate() - 7);
   const recentLogs = myLogs.filter(log => new Date(log.date) >= last7Days);
@@ -74,8 +81,13 @@ export default function StudentDashboard() {
   const daysSince = lastLog?.date ? Math.floor((new Date() - new Date(lastLog.date)) / 86400000) : null;
 
   const todayStr = new Date().toISOString().split("T")[0];
-  const myDietPlan = dietPlans.find(d => d.student_id === student?.id && d.active !== false);
-  const todayCheckIn = checkIns.find(c => c.student_id === student?.id && c.date === todayStr);
+  const myDietPlan = dietPlans.find(d => d.active !== false && (
+    ownerIds.includes(d.student_id) ||
+    ownerIds.includes(d.usuarioId) ||
+    ownerIds.includes(d.assinanteId) ||
+    ownerIds.includes(d.alunoId)
+  ));
+  const todayCheckIn = checkIns.find(c => ownerIds.includes(c.student_id) && c.date === todayStr);
   const todayCalories = myDietPlan?.total_calories || null;
   const todayMeals = myDietPlan?.meals?.length || 0;
 

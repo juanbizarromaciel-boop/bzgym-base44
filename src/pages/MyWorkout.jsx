@@ -27,7 +27,7 @@ const GOAL_LABELS = { hipertrofia: "HIPERTROFIA", emagrecimento: "EMAGRECIMENTO"
 
 export default function MyWorkout() {
   const navigate = useNavigate();
-  const { user } = useCurrentUser();
+  const { user, loading: userLoading } = useCurrentUser();
   const [student, setStudent] = useState(null);
   const [selectedPlanId, setSelectedPlanId] = useState(null);
   const [setsData, setSetsData] = useState({});
@@ -48,7 +48,8 @@ export default function MyWorkout() {
     goal: user.goal
   } : null);
 
-  const { data: students = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list(), staleTime: 60000 });
+  const { data: students = [], isLoading: loadingStudents } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list(), staleTime: 60000 });
+  const matchedStudent = user ? students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase()) : null;
   const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list(), staleTime: 30000, placeholderData: (prev) => prev });
   const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list(), staleTime: 60000, placeholderData: (prev) => prev });
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list(), staleTime: 60000 });
@@ -158,15 +159,17 @@ export default function MyWorkout() {
   if (blocked && !isSubscriber) return <BlockedWorkoutBanner studentName={student?.name} personalName={personalName} />;
 
   // Loading
-  if (!user) return (
+  if (userLoading || loadingStudents) return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
+  if (!user) return null;
+
   // Not linked to a student or not active yet
-  if (user && students.length > 0 && !isSubscriber && (!student || !student.active)) {
-    if (student && !student.active) {
+  if (user && !isSubscriber && (!(student || matchedStudent) || !(student || matchedStudent).active)) {
+    if ((student || matchedStudent) && !(student || matchedStudent).active) {
       navigate("/Welcome", { replace: true });
       return null;
     }

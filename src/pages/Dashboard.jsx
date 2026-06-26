@@ -45,6 +45,13 @@ export default function Dashboard() {
     );
   }
 
+  if (!user) return null;
+
+  if (role === "assinante") {
+    navigate("/SubscriberDashboard", { replace: true });
+    return null;
+  }
+
   if (role === "user") {
     navigate("/StudentDashboard", { replace: true });
     return null;
