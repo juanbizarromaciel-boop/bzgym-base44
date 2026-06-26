@@ -111,7 +111,7 @@ export default function MyWorkout() {
     const sets = setsData[exKey] || initSets(exKey, exercise.sets);
     const maxLoad = Math.max(...sets.map(s => s.load_kg), 0);
     logMut.mutate({
-      student_id: owner.id,
+      student_id: owner.email || owner.id,
       workout_plan_id: selectedPlanId,
       exercise_id: exercise.exercise_id || "",
       exercise_name: exercise.exercise_name,
