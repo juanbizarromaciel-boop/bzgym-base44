@@ -4,7 +4,7 @@
   "properties": {
     "student_id": {
       "type": "string",
-      "description": "ID do aluno"
+      "description": "ID ou email do aluno"
     },
     "workout_plan_id": {
       "type": "string",
@@ -61,20 +61,10 @@
     "create": {
       "$or": [
         {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "assinante"
-          }
-        },
-        {
-          "created_by": "{{user.email}}"
-        },
-        {
           "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
         }
       ]
     },
@@ -91,9 +81,6 @@
           }
         },
         {
-          "created_by": "{{user.email}}"
-        },
-        {
           "data.student_id": "{{user.email}}"
         },
         {
@@ -104,20 +91,10 @@
     "update": {
       "$or": [
         {
-          "user_condition": {
-            "role": "user"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "assinante"
-          }
-        },
-        {
-          "created_by": "{{user.email}}"
-        },
-        {
           "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
         }
       ]
     },
@@ -130,6 +107,9 @@
         },
         {
           "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
         }
       ]
     }
