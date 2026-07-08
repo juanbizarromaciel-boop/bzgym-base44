@@ -64,8 +64,8 @@ export default function WorkoutPlans() {
     : isSelfManagedWorkout
       ? [ownStudent].filter(Boolean)
       : allStudents.filter(s => s.personal_id === currentUser?.email);
-  const myStudentIds = new Set(students.map(s => s.id));
-  const ownIds = [currentUser?.email, linkedStudent?.id].filter(Boolean);
+  const myStudentIds = new Set(students.flatMap(s => [s.id, s.email].filter(Boolean)));
+  const ownIds = [currentUser?.email, linkedStudent?.id, linkedStudent?.email].filter(Boolean);
   const plans = isAdmin
     ? allPlans
     : isSelfManagedWorkout
@@ -177,13 +177,13 @@ export default function WorkoutPlans() {
   const plansByStudent = students
     .map(s => ({
       student: s,
-      activePlans: filteredPlans.filter(p => (isSelfManagedWorkout ? (ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) : p.student_id === s.id) && p.active !== false),
-      archivedPlans: filteredPlans.filter(p => (isSelfManagedWorkout ? (ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) : p.student_id === s.id) && p.active === false),
+      activePlans: filteredPlans.filter(p => (isSelfManagedWorkout ? (ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) : (p.student_id === s.id || p.student_id === s.email || p.personal_id === currentUser?.email)) && p.active !== false),
+      archivedPlans: filteredPlans.filter(p => (isSelfManagedWorkout ? (ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) : (p.student_id === s.id || p.student_id === s.email || p.personal_id === currentUser?.email)) && p.active === false),
     }))
     .filter(g => g.activePlans.length > 0 || g.archivedPlans.length > 0);
 
   // Plans with no matching student
-  const orphanPlans = isSelfManagedWorkout ? [] : filteredPlans.filter(p => !students.find(s => s.id === p.student_id));
+  const orphanPlans = isSelfManagedWorkout ? [] : filteredPlans.filter(p => !students.find(s => s.id === p.student_id || s.email === p.student_id));
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger}>

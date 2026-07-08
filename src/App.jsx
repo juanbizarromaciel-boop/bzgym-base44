@@ -102,13 +102,17 @@ const AuthenticatedApp = () => {
       const role = hasSubscriberProfile && !['admin', 'personal', 'recente', 'bloqueado'].includes(baseRole)
         ? 'assinante'
         : baseRole;
-      const u = { ...mergedUser, role };
-      setUser(u);
+      let u = { ...mergedUser, role };
       if (u.role !== 'admin' && u.role !== 'personal') {
         const students = await base44.entities.Student.list();
         const found = students.find(s => s.email?.toLowerCase() === u.email?.toLowerCase());
+        if (found?.id && u.student_id !== found.id) {
+          await base44.auth.updateMe({ student_id: found.id });
+          u = { ...u, student_id: found.id };
+        }
         setStudent(found);
       }
+      setUser(u);
       setCheckingStudent(false);
       return u;
     };
