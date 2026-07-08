@@ -177,8 +177,8 @@ export default function WorkoutPlans() {
   const plansByStudent = students
     .map(s => ({
       student: s,
-      activePlans: filteredPlans.filter(p => (isSelfManagedWorkout ? (ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) : (p.student_id === s.id || p.student_id === s.email || p.personal_id === currentUser?.email)) && p.active !== false),
-      archivedPlans: filteredPlans.filter(p => (isSelfManagedWorkout ? (ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) : (p.student_id === s.id || p.student_id === s.email || p.personal_id === currentUser?.email)) && p.active === false),
+      activePlans: filteredPlans.filter(p => (isSelfManagedWorkout ? (ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) : (p.student_id === s.id || p.student_id === s.email)) && p.active !== false),
+      archivedPlans: filteredPlans.filter(p => (isSelfManagedWorkout ? (ownIds.includes(p.student_id) || p.usuarioId === currentUser?.email || p.assinanteId === currentUser?.email) : (p.student_id === s.id || p.student_id === s.email)) && p.active === false),
     }))
     .filter(g => g.activePlans.length > 0 || g.archivedPlans.length > 0);
 
