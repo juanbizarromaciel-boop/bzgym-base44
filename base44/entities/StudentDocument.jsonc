@@ -4,7 +4,7 @@
   "properties": {
     "student_id": {
       "type": "string",
-      "description": "ID do aluno"
+      "description": "ID do aluno ou email vinculado"
     },
     "document_type": {
       "type": "string",
@@ -52,7 +52,15 @@
           }
         },
         {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
           "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     },
@@ -64,7 +72,15 @@
           }
         },
         {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
           "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     },
@@ -76,7 +92,15 @@
           }
         },
         {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
           "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     },
@@ -88,7 +112,15 @@
           }
         },
         {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
           "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     }
