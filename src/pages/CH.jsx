@@ -163,12 +163,12 @@ export default function CH() {
   const filteredCycles = cycles.filter(c => {
     if (!c.active) return false;
     if (user?.role === "admin" || user?.role === "personal") return true;
-    if (user?.role === "user" && student) return c.student_id === student.id;
+    if (user?.role === "user" && student) return c.student_id === student.id || c.student_id === student.email;
     if (user?.role === "user" && !student) return true; // RLS já filtra pelo servidor
     return false;
   });
 
-  const getStudentName = (id) => students.find(s => s.id === id)?.name || "Aluno";
+  const getStudentName = (id) => students.find(s => s.id === id || s.email === id)?.name || student?.name || "Aluno";
 
   const isAdmin = user?.role === "admin";
 

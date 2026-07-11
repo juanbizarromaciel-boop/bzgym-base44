@@ -42,7 +42,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-export default function MedidasCorporaisPanel({ studentId, personalId }) {
+export default function MedidasCorporaisPanel({ studentId, studentIds, personalId }) {
+  const ownerIds = studentIds?.length ? studentIds : [studentId].filter(Boolean);
   const { user, isAdmin } = useCurrentUser();
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -58,7 +59,7 @@ export default function MedidasCorporaisPanel({ studentId, personalId }) {
   });
 
   const records = allMedidas
-    .filter(m => m.student_id === studentId)
+    .filter(m => ownerIds.includes(m.student_id))
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const chronological = [...records].reverse();

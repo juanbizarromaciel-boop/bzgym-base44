@@ -32,9 +32,10 @@ function getProgressionScore(logs) {
  */
 export function sortExercisesByProgression(exercises, allLogs, studentId) {
   if (!exercises?.length) return [];
+  const ownerIds = Array.isArray(studentId) ? studentId.filter(Boolean) : [studentId].filter(Boolean);
 
   // Build per-exercise log map
-  const studentLogs = (allLogs || []).filter(l => l.student_id === studentId);
+  const studentLogs = (allLogs || []).filter(l => ownerIds.includes(l.student_id));
   const logMap = {};
   studentLogs.forEach(log => {
     if (!log.exercise_name) return;
@@ -59,8 +60,9 @@ export function sortExercisesByProgression(exercises, allLogs, studentId) {
  * Returns progression info for a single exercise
  */
 export function getExerciseProgression(exerciseName, allLogs, studentId) {
+  const ownerIds = Array.isArray(studentId) ? studentId.filter(Boolean) : [studentId].filter(Boolean);
   const logs = (allLogs || [])
-    .filter(l => l.student_id === studentId && l.exercise_name === exerciseName)
+    .filter(l => ownerIds.includes(l.student_id) && l.exercise_name === exerciseName)
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
   if (logs.length < 2) return null;

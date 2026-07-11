@@ -106,8 +106,8 @@ export default function PRBoard() {
     return byModality;
   }, [allPRs]);
 
-  const getStudentName = (studentId) => students.find(s => s.id === studentId)?.name || "Atleta";
-  const getStudentPhoto = (studentId) => students.find(s => s.id === studentId)?.photo_url || null;
+  const getStudentName = (studentId) => students.find(s => s.id === studentId || s.email === studentId)?.name || "Atleta";
+  const getStudentPhoto = (studentId) => students.find(s => s.id === studentId || s.email === studentId)?.photo_url || null;
 
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
@@ -280,7 +280,7 @@ export default function PRBoard() {
           <div className="mt-8">
             <p className="text-[10px] font-mono-cyber text-purple-500/40 tracking-[0.2em] uppercase mb-4">// seus PRs recentes</p>
             <div className="space-y-2">
-              {allPRs.filter(p => p.student_id === student?.id).slice(0, 5).map(pr => {
+              {allPRs.filter(p => [student?.id, student?.email].filter(Boolean).includes(p.student_id)).slice(0, 5).map(pr => {
                 const c = MODALITY_COLORS[pr.modality] || MODALITY_COLORS["1rm"];
                 return (
                   <div key={pr.id} onClick={() => openMedia(pr)}

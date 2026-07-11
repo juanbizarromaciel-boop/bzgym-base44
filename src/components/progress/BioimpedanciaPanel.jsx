@@ -24,7 +24,8 @@ const FIELDS = [
 
 const EMPTY_FORM = { date: new Date().toISOString().split("T")[0], weight_kg: "", body_fat_percent: "", lean_mass_kg: "", fat_mass_kg: "", body_water_percent: "", basal_metabolism: "", visceral_fat: "", bone_mass_kg: "", notes: "" };
 
-export default function BioimpedanciaPanel({ studentId, personalId }) {
+export default function BioimpedanciaPanel({ studentId, studentIds, personalId }) {
+  const ownerIds = studentIds?.length ? studentIds : [studentId].filter(Boolean);
   const { user, isAdmin } = useCurrentUser();
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -38,7 +39,7 @@ export default function BioimpedanciaPanel({ studentId, personalId }) {
     staleTime: 30000,
   });
 
-  const records = allBio.filter(b => b.student_id === studentId).sort((a, b) => new Date(b.date) - new Date(a.date));
+  const records = allBio.filter(b => ownerIds.includes(b.student_id)).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const createMut = useMutation({
     mutationFn: (d) => base44.entities.Bioimpedancia.create(d),

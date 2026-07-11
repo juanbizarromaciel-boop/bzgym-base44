@@ -16,7 +16,8 @@ const PHOTO_TYPES = [
   { key: "costas_url", label: "Costas", emoji: "🔙" },
 ];
 
-export default function FotosProgressoPanel({ studentId, personalId }) {
+export default function FotosProgressoPanel({ studentId, studentIds, personalId }) {
+  const ownerIds = studentIds?.length ? studentIds : [studentId].filter(Boolean);
   const { user, isAdmin } = useCurrentUser();
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -33,7 +34,7 @@ export default function FotosProgressoPanel({ studentId, personalId }) {
   });
 
   const fotos = allFotos
-    .filter(f => f.student_id === studentId)
+    .filter(f => ownerIds.includes(f.student_id))
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const createMut = useMutation({

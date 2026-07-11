@@ -68,7 +68,8 @@ export default function CheckInPage() {
     }
   }, [user, students]);
 
-  const todayCheckIn = student ? existingCheckIns.find(c => c.student_id === student.id && c.date === todayStr) : null;
+  const ownerIds = student ? [student.id, student.email].filter(Boolean) : [];
+  const todayCheckIn = student ? existingCheckIns.find(c => ownerIds.includes(c.student_id) && c.date === todayStr) : null;
 
   const createMut = useMutation({
     mutationFn: (data) => base44.entities.CheckIn.create(data),

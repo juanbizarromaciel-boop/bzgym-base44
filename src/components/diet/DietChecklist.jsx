@@ -26,8 +26,12 @@ export default function DietChecklist({ plan, student }) {
 
   // Fetch today's log from DB
   const { data: logs = [], isLoading } = useQuery({
-    queryKey: ["diet_logs", student?.id, plan.id, today],
-    queryFn: () => base44.entities.DietLog.filter({ student_id: student.id, plan_id: plan.id, date: today }),
+    queryKey: ["diet_logs", student?.id, student?.email, plan.id, today],
+    queryFn: async () => {
+      const ids = [student.id, student.email].filter(Boolean);
+      const lists = await Promise.all(ids.map(id => base44.entities.DietLog.filter({ student_id: id, plan_id: plan.id, date: today })));
+      return lists.flat().filter((log, index, list) => list.findIndex(l => l.id === log.id) === index);
+    },
     enabled: !!student?.id,
     staleTime: 0,
   });

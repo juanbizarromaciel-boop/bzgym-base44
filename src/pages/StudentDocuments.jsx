@@ -137,11 +137,15 @@ export default function StudentDocuments() {
     outro: "Outro"
   };
 
+  const selectedStudentRecord = students.find(s => s.id === selectedStudent);
+  const ownerIds = [student?.id, student?.email].filter(Boolean);
+  const selectedOwnerIds = [selectedStudent, selectedStudentRecord?.email].filter(Boolean);
+
   const filteredDocuments = documents.filter(d => {
     if (user?.role === "admin" || user?.role === "personal") {
-      return selectedStudent ? d.student_id === selectedStudent : true;
+      return selectedStudent ? selectedOwnerIds.includes(d.student_id) : true;
     } else {
-      return d.student_id === student?.id;
+      return ownerIds.includes(d.student_id);
     }
   });
 

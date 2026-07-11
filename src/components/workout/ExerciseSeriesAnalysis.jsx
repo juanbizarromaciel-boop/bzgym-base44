@@ -255,11 +255,12 @@ function ExerciseCard({ exerciseName, logs }) {
   );
 }
 
-export default function ExerciseSeriesAnalysis({ studentId, allLogs }) {
+export default function ExerciseSeriesAnalysis({ studentId, studentIds, allLogs }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const ownerIds = studentIds?.length ? studentIds : [studentId].filter(Boolean);
 
   const exerciseLogsMap = useMemo(() => {
-    const studentLogs = allLogs.filter(l => l.student_id === studentId);
+    const studentLogs = allLogs.filter(l => ownerIds.includes(l.student_id));
     const map = {};
     studentLogs.forEach(log => {
       if (!log.exercise_name) return;
@@ -271,7 +272,7 @@ export default function ExerciseSeriesAnalysis({ studentId, allLogs }) {
       map[name].sort((a, b) => new Date(a.date) - new Date(b.date));
     });
     return map;
-  }, [allLogs, studentId]);
+  }, [allLogs, ownerIds.join("|")]);
 
   // Sort exercises: worst progression first
   const sortedExercises = useMemo(() => {

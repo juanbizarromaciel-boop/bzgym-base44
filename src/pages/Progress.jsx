@@ -74,16 +74,19 @@ export default function Progress() {
     }
   }, [isAdmin, isPersonal, currentUser, students]);
 
+  const selectedStudent = students.find(s => s.id === selectedStudentId);
+  const selectedOwnerIds = [selectedStudentId, selectedStudent?.email].filter(Boolean);
+
   const studentLogs = useMemo(() => {
-    return logs.filter((l) => l.student_id === selectedStudentId).sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [logs, selectedStudentId]);
+    return logs.filter((l) => selectedOwnerIds.includes(l.student_id)).sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [logs, selectedStudentId, selectedStudent?.email]);
 
   const allStudentExercises = useMemo(() => {
-    const plans = allPlans.filter(p => p.student_id === selectedStudentId);
+    const plans = allPlans.filter(p => selectedOwnerIds.includes(p.student_id));
     const exs = [];
     plans.forEach(plan => { if (plan.exercises) exs.push(...plan.exercises); });
     return exs;
-  }, [allPlans, selectedStudentId]);
+  }, [allPlans, selectedStudentId, selectedStudent?.email]);
 
   const exerciseNames = useMemo(() => {
     return [...new Set(studentLogs.map((l) => l.exercise_name))].filter(Boolean).sort();
@@ -315,14 +318,14 @@ export default function Progress() {
       {/* SERIES TAB */}
       {activeTab === "series" && (
         <motion.div variants={fadeUp}>
-          <ExerciseSeriesAnalysis studentId={selectedStudentId} allLogs={logs} />
+          <ExerciseSeriesAnalysis studentId={selectedStudentId} studentIds={selectedOwnerIds} allLogs={logs} />
         </motion.div>
       )}
 
       {/* CHECK-INS TAB */}
       {activeTab === "checkins" && selectedStudentId && (
         <motion.div variants={fadeUp}>
-          <CheckInHistory studentId={selectedStudentId} />
+          <CheckInHistory studentId={selectedStudentId} studentIds={selectedOwnerIds} />
         </motion.div>
       )}
       {activeTab === "checkins" && !selectedStudentId && (isAdmin || isPersonal) && (
@@ -335,7 +338,7 @@ export default function Progress() {
       {/* BIO TAB */}
       {activeTab === "bio" && selectedStudentId && (
         <motion.div variants={fadeUp}>
-          <BioimpedanciaPanel studentId={selectedStudentId} />
+          <BioimpedanciaPanel studentId={selectedStudentId} studentIds={selectedOwnerIds} />
         </motion.div>
       )}
       {activeTab === "bio" && !selectedStudentId && (isAdmin || isPersonal) && (
@@ -348,7 +351,7 @@ export default function Progress() {
       {/* MEDIDAS TAB */}
       {activeTab === "medidas" && selectedStudentId && (
         <motion.div variants={fadeUp}>
-          <MedidasCorporaisPanel studentId={selectedStudentId} />
+          <MedidasCorporaisPanel studentId={selectedStudentId} studentIds={selectedOwnerIds} />
         </motion.div>
       )}
       {activeTab === "medidas" && !selectedStudentId && (isAdmin || isPersonal) && (
@@ -361,7 +364,7 @@ export default function Progress() {
       {/* FOTOS TAB */}
       {activeTab === "fotos" && selectedStudentId && (
         <motion.div variants={fadeUp}>
-          <FotosProgressoPanel studentId={selectedStudentId} />
+          <FotosProgressoPanel studentId={selectedStudentId} studentIds={selectedOwnerIds} />
         </motion.div>
       )}
       {activeTab === "fotos" && !selectedStudentId && (isAdmin || isPersonal) && (

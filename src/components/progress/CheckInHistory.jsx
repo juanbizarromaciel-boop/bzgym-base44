@@ -26,7 +26,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-export default function CheckInHistory({ studentId }) {
+export default function CheckInHistory({ studentId, studentIds }) {
+  const ownerIds = studentIds?.length ? studentIds : [studentId].filter(Boolean);
   const { data: allCheckIns = [], isLoading } = useQuery({
     queryKey: ["checkIns"],
     queryFn: () => base44.entities.CheckIn.list(),
@@ -34,7 +35,7 @@ export default function CheckInHistory({ studentId }) {
   });
 
   const checkIns = allCheckIns
-    .filter(c => c.student_id === studentId)
+    .filter(c => ownerIds.includes(c.student_id))
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
   const weightData = checkIns

@@ -111,7 +111,7 @@ export default function MyWorkout() {
     const sets = setsData[exKey] || initSets(exKey, exercise.sets);
     const maxLoad = Math.max(...sets.map(s => s.load_kg), 0);
     logMut.mutate({
-      student_id: owner.email || owner.id,
+      student_id: owner.id || owner.email,
       workout_plan_id: selectedPlanId,
       exercise_id: exercise.exercise_id || "",
       exercise_name: exercise.exercise_name,
@@ -343,7 +343,8 @@ export default function MyWorkout() {
 
   // Workout execution
   const progress = selectedPlan.exercises?.length ? (completedExercises.size / selectedPlan.exercises.length) * 100 : 0;
-  const sortedExercises = owner ? sortExercisesByProgression(selectedPlan.exercises || [], allLogs, owner.id) : [];
+  const ownerIds = owner ? [owner.id, owner.email].filter(Boolean) : [];
+  const sortedExercises = owner ? sortExercisesByProgression(selectedPlan.exercises || [], allLogs, ownerIds) : [];
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger}>
@@ -410,7 +411,7 @@ export default function MyWorkout() {
           const exKey = getExKey(exercise, exerciseIdx);
           const isCompleted = completedExercises.has(exerciseIdx);
           const sets = setsData[exKey] || initSets(exKey, exercise.sets);
-          const progression = student ? getExerciseProgression(exercise.exercise_name, allLogs, student.id) : null;
+          const progression = ownerIds.length ? getExerciseProgression(exercise.exercise_name, allLogs, ownerIds) : null;
 
           return (
             <motion.div variants={fadeUp}

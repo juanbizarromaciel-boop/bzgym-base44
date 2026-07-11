@@ -23,8 +23,12 @@ export default function DietHistory({ student, plan }) {
   const [expandedDay, setExpandedDay] = useState(null);
 
   const { data: logs = [], isLoading } = useQuery({
-    queryKey: ["diet_logs_history", student?.id, plan?.id],
-    queryFn: () => base44.entities.DietLog.filter({ student_id: student.id, plan_id: plan.id }),
+    queryKey: ["diet_logs_history", student?.id, student?.email, plan?.id],
+    queryFn: async () => {
+      const ids = [student.id, student.email].filter(Boolean);
+      const lists = await Promise.all(ids.map(id => base44.entities.DietLog.filter({ student_id: id, plan_id: plan.id })));
+      return lists.flat().filter((log, index, list) => list.findIndex(l => l.id === log.id) === index);
+    },
     enabled: !!student?.id && !!plan?.id,
     staleTime: 30000,
   });

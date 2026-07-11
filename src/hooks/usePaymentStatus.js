@@ -16,7 +16,10 @@ export function usePaymentStatus(student) {
 
     const check = async () => {
       try {
-        const payments = await base44.entities.Payment.filter({ student_id: student.id });
+        const paymentsById = await base44.entities.Payment.filter({ student_id: student.id });
+        const paymentsByEmail = student.email ? await base44.entities.Payment.filter({ student_id: student.email }) : [];
+        const paymentsByUserEmail = student.email ? await base44.entities.Payment.filter({ user_email: student.email }) : [];
+        const payments = [...paymentsById, ...paymentsByEmail, ...paymentsByUserEmail].filter((payment, index, list) => list.findIndex(p => p.id === payment.id) === index);
         if (!payments || payments.length === 0) { setLoading(false); return; }
 
         // Sort by due_date desc to get latest
