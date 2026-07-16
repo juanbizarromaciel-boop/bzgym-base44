@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { CheckCircle, Dumbbell, PlayCircle, Trophy, TrendingDown, AlertTriangle, RotateCcw } from "lucide-react";
+import { CheckCircle, Dumbbell, PlayCircle, Trophy, TrendingDown, AlertTriangle, RotateCcw, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../components/shared/PageHeader";
 import RestTimer from "../components/workout/RestTimer";
@@ -17,6 +17,7 @@ import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
 import UncheckExerciseDialog from "../components/workout/UncheckExerciseDialog";
 import { sortExercisesByProgression, getExerciseProgression } from "../utils/progressionSort";
+import { usePersistentWorkoutSession } from "@/hooks/usePersistentWorkoutSession";
 
 export default function StudentWorkout() {
   const [selectedStudentId, setSelectedStudentId] = useState("");
@@ -26,7 +27,10 @@ export default function StudentWorkout() {
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [workoutFinished, setWorkoutFinished] = useState(false);
+  const [isFinalizing, setIsFinalizing] = useState(false);
+  const [startedAt, setStartedAt] = useState("");
   const [uncheckDialog, setUncheckDialog] = useState(null); // { exerciseIdx, exerciseName }
+  const restoredRef = useRef(false);
   const qc = useQueryClient();
   const { user: currentUser } = useCurrentUser();
 
@@ -58,15 +62,39 @@ export default function StudentWorkout() {
   const studentPlans = myPlans.filter((p) => selectedStudentIds.includes(p.student_id));
   const selectedPlan = myPlans.find((p) => p.id === selectedPlanId);
 
+  const workoutSnapshot = useMemo(() => ({
+    trainer_email: currentUser?.email || "",
+    student_id: selectedStudentId,
+    student_email: selectedStudent?.email || "",
+    workout_plan_id: selectedPlanId,
+    sets_data: setsData,
+    completed_exercises: Array.from(completedExercises),
+    status: "active",
+    started_at: startedAt,
+  }), [currentUser?.email, selectedStudentId, selectedStudent?.email, selectedPlanId, setsData, completedExercises, startedAt]);
+
+  const { restoredSession, isLoaded: sessionLoaded, closeSession, reopenSession } = usePersistentWorkoutSession({
+    trainerEmail: currentUser?.email,
+    snapshot: workoutSnapshot,
+    enabled: !!selectedStudentId && !!selectedPlanId && !!startedAt,
+  });
+
+  useEffect(() => {
+    if (!sessionLoaded || restoredRef.current) return;
+    restoredRef.current = true;
+    if (!restoredSession) return;
+    setSelectedStudentId(restoredSession.student_id);
+    setSelectedPlanId(restoredSession.workout_plan_id);
+    setSetsData(restoredSession.sets_data || {});
+    setCompletedExercises(new Set(restoredSession.completed_exercises || []));
+    setStartedAt(restoredSession.started_at || new Date().toISOString());
+    toast.info("Andamento do treino restaurado.");
+  }, [sessionLoaded, restoredSession]);
+
   // Sort exercises by progression (worst first)
   const sortedExercises = selectedPlan && selectedStudentIds.length
     ? sortExercisesByProgression(selectedPlan.exercises || [], allLogs, selectedStudentIds)
     : [];
-
-  const logMut = useMutation({
-    mutationFn: (data) => base44.entities.WorkoutLog.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["logs"] }),
-  });
 
   // Use exercise_name as stable key instead of index to avoid data loss on re-renders
   const getExerciseKey = (exercise, idx) => exercise.exercise_name || `exercise_${idx}`;
@@ -93,28 +121,52 @@ export default function StudentWorkout() {
     const exercise = selectedPlan.exercises[exerciseIdx];
     const exerciseKey = getExerciseKey(exercise, exerciseIdx);
     const sets = setsData[exerciseKey] || initSets(exerciseKey, exercise.sets);
-    const maxLoad = Math.max(...sets.map((s) => s.load_kg), 0);
-
-    logMut.mutate({
-      student_id: selectedStudentId,
-      workout_plan_id: selectedPlanId,
-      exercise_id: exercise.exercise_id || "",
-      exercise_name: exercise.exercise_name,
-      date: new Date().toISOString().split("T")[0],
-      sets_completed: sets,
-      technique_used: exercise.technique || "normal",
-      max_load_kg: maxLoad,
-    });
-
-    setCompletedExercises(new Set([...completedExercises, exerciseIdx]));
-    toast.success(`${exercise.exercise_name} registrado!`);
+    setSetsData(prev => ({ ...prev, [exerciseKey]: sets }));
+    setCompletedExercises(prev => new Set([...prev, exerciseIdx]));
+    toast.success(`${exercise.exercise_name} registrado no andamento!`);
   };
 
   const allExercisesDone = selectedPlan && selectedPlan.exercises?.length > 0 &&
     completedExercises.size === selectedPlan.exercises.length;
 
-  const handleFinishWorkout = () => {
-    setWorkoutFinished(true);
+  const handleFinishWorkout = async () => {
+    if (!selectedPlan || !allExercisesDone) return;
+    setIsFinalizing(true);
+    try {
+      const logs = selectedPlan.exercises.map((exercise, exerciseIdx) => {
+        const exerciseKey = getExerciseKey(exercise, exerciseIdx);
+        const sets = setsData[exerciseKey] || initSets(exerciseKey, exercise.sets);
+        return {
+          student_id: selectedStudentId,
+          workout_plan_id: selectedPlanId,
+          exercise_id: exercise.exercise_id || "",
+          exercise_name: exercise.exercise_name,
+          date: new Date().toISOString().split("T")[0],
+          sets_completed: sets,
+          technique_used: exercise.technique || "normal",
+          max_load_kg: Math.max(...sets.map(set => Number(set.load_kg) || 0), 0),
+        };
+      });
+      await base44.entities.WorkoutLog.bulkCreate(logs);
+      await closeSession();
+      await qc.invalidateQueries({ queryKey: ["logs"] });
+      setWorkoutFinished(true);
+    } catch (error) {
+      toast.error("Não foi possível finalizar o treino. O andamento continua salvo.");
+    } finally {
+      setIsFinalizing(false);
+    }
+  };
+
+  const handleCancelWorkout = async () => {
+    if (!window.confirm("Cancelar este treino? O andamento será descartado e não entrará no histórico.")) return;
+    await closeSession();
+    setSetsData({});
+    setCompletedExercises(new Set());
+    setSelectedPlanId("");
+    setSelectedStudentId("");
+    setStartedAt("");
+    toast.info("Treino cancelado sem salvar no histórico.");
   };
 
   const handleResetWorkout = () => {
@@ -123,6 +175,7 @@ export default function StudentWorkout() {
     setCompletedExercises(new Set());
     setSelectedPlanId("");
     setSelectedStudentId("");
+    setStartedAt("");
   };
 
   const handleUncheckRequest = (exerciseIdx, exerciseName) => {
@@ -155,7 +208,7 @@ export default function StudentWorkout() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
         <div className="relative">
           <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none z-10" style={{ borderTop: '2px solid #a855f7', borderLeft: '2px solid #a855f7', boxShadow: '-1px -1px 6px rgba(168,85,247,0.5)' }} />
-          <Select value={selectedStudentId} onValueChange={(v) => { setSelectedStudentId(v); setSelectedPlanId(""); setSetsData({}); setCompletedExercises(new Set()); }}>
+          <Select value={selectedStudentId} onValueChange={(v) => { reopenSession(); setSelectedStudentId(v); setSelectedPlanId(""); setSetsData({}); setCompletedExercises(new Set()); setStartedAt(new Date().toISOString()); }}>
             <SelectTrigger className="cyber-input" style={{ borderColor: 'rgba(168,85,247,0.5)', boxShadow: '0 0 14px rgba(168,85,247,0.15)' }}>
               <SelectValue placeholder="Selecione o aluno" />
             </SelectTrigger>
@@ -169,7 +222,7 @@ export default function StudentWorkout() {
 
         <div className="relative">
           <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none z-10" style={{ borderTop: '2px solid #06b6d4', borderLeft: '2px solid #06b6d4', boxShadow: '-1px -1px 6px rgba(6,182,212,0.5)' }} />
-          <Select value={selectedPlanId} onValueChange={(v) => { setSelectedPlanId(v); setSetsData({}); setCompletedExercises(new Set()); }}>
+          <Select value={selectedPlanId} onValueChange={(v) => { reopenSession(); setSelectedPlanId(v); setSetsData({}); setCompletedExercises(new Set()); if (!startedAt) setStartedAt(new Date().toISOString()); }}>
             <SelectTrigger className="cyber-input" style={{ borderColor: 'rgba(6,182,212,0.5)', boxShadow: '0 0 14px rgba(6,182,212,0.15)' }}>
               <SelectValue placeholder="Selecione o treino" />
             </SelectTrigger>
@@ -216,15 +269,26 @@ export default function StudentWorkout() {
             </div>
           </div>
 
+          <button
+            onClick={handleCancelWorkout}
+            disabled={isFinalizing}
+            className="w-full py-2.5 rounded-lg text-xs font-mono-cyber tracking-wider flex items-center justify-center gap-2 mb-2"
+            style={{ border: '1px solid rgba(236,72,153,0.35)', background: 'rgba(236,72,153,0.06)', color: '#f9a8d4' }}
+          >
+            <XCircle className="w-4 h-4" />
+            CANCELAR TREINO
+          </button>
+
           {/* Botão Finalizar Treino */}
           {allExercisesDone && !workoutFinished && (
             <button
               onClick={handleFinishWorkout}
+              disabled={isFinalizing}
               className="w-full btn-neon-purple py-4 rounded-xl font-cyber text-base tracking-widest flex items-center justify-center gap-3 mb-2"
               style={{boxShadow: '0 0 30px rgba(168,85,247,0.4)'}}
             >
               <Trophy className="w-5 h-5" />
-              FINALIZAR TREINO
+              {isFinalizing ? "FINALIZANDO..." : "FINALIZAR TREINO"}
             </button>
           )}
 
@@ -360,7 +424,7 @@ export default function StudentWorkout() {
                   <button
                     onClick={() => saveExerciseLog(exerciseIdx)}
                     className="w-full mt-4 py-3 rounded-lg text-sm font-cyber tracking-widest flex items-center justify-center gap-2 transition-all"
-                    disabled={logMut.isPending}
+                    disabled={isFinalizing}
                     style={{
                       background: 'linear-gradient(135deg, rgba(168,85,247,0.22), rgba(236,72,153,0.12))',
                       border: '1px solid rgba(168,85,247,0.65)',

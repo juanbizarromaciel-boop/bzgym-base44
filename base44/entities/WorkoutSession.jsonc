@@ -1,0 +1,93 @@
+{
+  "name": "WorkoutSession",
+  "type": "object",
+  "properties": {
+    "trainer_email": {
+      "type": "string"
+    },
+    "student_id": {
+      "type": "string"
+    },
+    "student_email": {
+      "type": "string"
+    },
+    "workout_plan_id": {
+      "type": "string"
+    },
+    "sets_data": {
+      "type": "object"
+    },
+    "completed_exercises": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active"
+      ],
+      "default": "active"
+    },
+    "started_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "trainer_email",
+    "student_id",
+    "workout_plan_id",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.trainer_email": "{{user.email}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.trainer_email": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.trainer_email": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.trainer_email": "{{user.email}}"
+        }
+      ]
+    }
+  }
+}
