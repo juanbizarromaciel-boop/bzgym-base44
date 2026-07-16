@@ -1,14 +1,28 @@
 import React, { useState } from "react";
 import { History, ChevronsUp, Pencil, Check, ChevronDown, ChevronUp } from "lucide-react";
 
-export default function LastWeightBadge({ exerciseName, logs = [], onApply, disabled }) {
+export default function LastWeightBadge({ exerciseId, exerciseName, logs = [], onApply, disabled }) {
   const [editing, setEditing] = useState(false);
   const [customValue, setCustomValue] = useState("");
   const [showSets, setShowSets] = useState(false);
 
-  const lastLog = [...logs]
-    .filter(l => l.exercise_name === exerciseName && l.max_load_kg > 0)
-    .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+  const normalizeName = (value) => (value || "").trim().toLocaleLowerCase("pt-BR");
+  const getMaxLoad = (log) => {
+    const savedMax = Number(log.max_load_kg) || 0;
+    const setsMax = Math.max(...(log.sets_completed || []).map(set => Number(set.load_kg) || 0), 0);
+    return Math.max(savedMax, setsMax);
+  };
+  const matchesExercise = (log) => {
+    const sameId = exerciseId && log.exercise_id && log.exercise_id === exerciseId;
+    const sameName = normalizeName(log.exercise_name) === normalizeName(exerciseName);
+    return sameId || sameName;
+  };
+
+  const lastLog = logs
+    .filter(matchesExercise)
+    .map(log => ({ ...log, max_load_kg: getMaxLoad(log) }))
+    .filter(log => log.max_load_kg > 0)
+    .sort((a, b) => new Date(b.created_date || `${b.date}T12:00:00`) - new Date(a.created_date || `${a.date}T12:00:00`))[0];
 
   if (!lastLog) return null;
 

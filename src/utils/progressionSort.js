@@ -8,6 +8,16 @@ function calcVolume(sets) {
   return sets.reduce((acc, s) => acc + ((s.reps_done || 0) * (s.load_kg || 0)), 0);
 }
 
+function normalizeExerciseName(value) {
+  return (value || "").trim().toLocaleLowerCase("pt-BR");
+}
+
+function getMaxLoad(log) {
+  const savedMax = Number(log?.max_load_kg) || 0;
+  const setsMax = Math.max(...(log?.sets_completed || []).map(set => Number(set.load_kg) || 0), 0);
+  return Math.max(savedMax, setsMax);
+}
+
 function getProgressionScore(logs) {
   // logs: sorted by date asc for this exercise
   if (!logs || logs.length === 0) return 2; // unknown, middle
@@ -16,8 +26,8 @@ function getProgressionScore(logs) {
   const prev = logs[logs.length - 2];
   const lastVol = calcVolume(last.sets_completed);
   const prevVol = calcVolume(prev.sets_completed);
-  const lastLoad = last.max_load_kg || 0;
-  const prevLoad = prev.max_load_kg || 0;
+  const lastLoad = getMaxLoad(last);
+  const prevLoad = getMaxLoad(prev);
 
   if (lastVol < prevVol || lastLoad < prevLoad) return 0; // regressing — first
   if (lastVol === prevVol && lastLoad === prevLoad) return 1; // stagnant
@@ -38,20 +48,21 @@ export function sortExercisesByProgression(exercises, allLogs, studentId) {
   const studentLogs = (allLogs || []).filter(l => ownerIds.includes(l.student_id));
   const logMap = {};
   studentLogs.forEach(log => {
-    if (!log.exercise_name) return;
-    if (!logMap[log.exercise_name]) logMap[log.exercise_name] = [];
-    logMap[log.exercise_name].push(log);
+    const exerciseKey = normalizeExerciseName(log.exercise_name);
+    if (!exerciseKey) return;
+    if (!logMap[exerciseKey]) logMap[exerciseKey] = [];
+    logMap[exerciseKey].push(log);
   });
-  // Sort each list by date
+  // Sort each list by date and creation time
   Object.keys(logMap).forEach(name => {
-    logMap[name].sort((a, b) => new Date(a.date) - new Date(b.date));
+    logMap[name].sort((a, b) => new Date(a.created_date || `${a.date}T12:00:00`) - new Date(b.created_date || `${b.date}T12:00:00`));
   });
 
   return exercises
     .map((ex, originalIndex) => ({ ...ex, originalIndex }))
     .sort((a, b) => {
-      const scoreA = getProgressionScore(logMap[a.exercise_name]);
-      const scoreB = getProgressionScore(logMap[b.exercise_name]);
+      const scoreA = getProgressionScore(logMap[normalizeExerciseName(a.exercise_name)]);
+      const scoreB = getProgressionScore(logMap[normalizeExerciseName(b.exercise_name)]);
       return scoreA - scoreB;
     });
 }
@@ -61,9 +72,10 @@ export function sortExercisesByProgression(exercises, allLogs, studentId) {
  */
 export function getExerciseProgression(exerciseName, allLogs, studentId) {
   const ownerIds = Array.isArray(studentId) ? studentId.filter(Boolean) : [studentId].filter(Boolean);
+  const normalizedName = normalizeExerciseName(exerciseName);
   const logs = (allLogs || [])
-    .filter(l => ownerIds.includes(l.student_id) && l.exercise_name === exerciseName)
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
+    .filter(l => ownerIds.includes(l.student_id) && normalizeExerciseName(l.exercise_name) === normalizedName)
+    .sort((a, b) => new Date(a.created_date || `${a.date}T12:00:00`) - new Date(b.created_date || `${b.date}T12:00:00`));
 
   if (logs.length < 2) return null;
 
@@ -71,8 +83,8 @@ export function getExerciseProgression(exerciseName, allLogs, studentId) {
   const prev = logs[logs.length - 2];
   const lastVol = calcVolume(last.sets_completed);
   const prevVol = calcVolume(prev.sets_completed);
-  const lastLoad = last.max_load_kg || 0;
-  const prevLoad = prev.max_load_kg || 0;
+  const lastLoad = getMaxLoad(last);
+  const prevLoad = getMaxLoad(prev);
 
   if (lastVol < prevVol || lastLoad < prevLoad) {
     return { type: "down", label: "Sem progressão no treino anterior", color: "#ec4899" };

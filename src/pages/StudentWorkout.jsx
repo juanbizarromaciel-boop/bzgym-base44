@@ -37,19 +37,30 @@ export default function StudentWorkout() {
   const students = isAdmin
     ? allStudents.filter(s => s.active !== false)
     : allStudents.filter(s => s.active !== false && s.personal_id === currentUser?.email);
-  const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list(), staleTime: 60000 });
-  const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list(), staleTime: 30000 });
+  const selectedStudent = students.find(s => s.id === selectedStudentId);
+  const selectedStudentIds = [selectedStudent?.id, selectedStudent?.email].filter(Boolean);
 
-  const myStudentIds = new Set(students.map(s => s.id));
+  const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list(), staleTime: 60000 });
+  const { data: allLogs = [] } = useQuery({
+    queryKey: ["logs", ...selectedStudentIds],
+    queryFn: async () => {
+      const lists = await Promise.all(selectedStudentIds.map(id => base44.entities.WorkoutLog.filter({ student_id: id }, "-date", 500)));
+      return lists.flat().filter((log, index, list) => list.findIndex(item => item.id === log.id) === index);
+    },
+    enabled: selectedStudentIds.length > 0,
+    staleTime: 30000,
+  });
+
+  const myStudentIds = new Set(students.flatMap(s => [s.id, s.email].filter(Boolean)));
   const myPlans = isAdmin
     ? allPlans
     : allPlans.filter(p => p.personal_id === currentUser?.email || myStudentIds.has(p.student_id));
-  const studentPlans = myPlans.filter((p) => p.student_id === selectedStudentId);
+  const studentPlans = myPlans.filter((p) => selectedStudentIds.includes(p.student_id));
   const selectedPlan = myPlans.find((p) => p.id === selectedPlanId);
 
   // Sort exercises by progression (worst first)
-  const sortedExercises = selectedPlan && selectedStudentId
-    ? sortExercisesByProgression(selectedPlan.exercises || [], allLogs, selectedStudentId)
+  const sortedExercises = selectedPlan && selectedStudentIds.length
+    ? sortExercisesByProgression(selectedPlan.exercises || [], allLogs, selectedStudentIds)
     : [];
 
   const logMut = useMutation({
@@ -222,7 +233,7 @@ export default function StudentWorkout() {
             const exerciseKey = getExerciseKey(exercise, exerciseIdx);
             const isCompleted = completedExercises.has(exerciseIdx);
             const sets = setsData[exerciseKey] || initSets(exerciseKey, exercise.sets);
-            const progression = getExerciseProgression(exercise.exercise_name, allLogs, selectedStudentId);
+            const progression = getExerciseProgression(exercise.exercise_name, allLogs, selectedStudentIds);
 
             return (
               <div
@@ -279,8 +290,9 @@ export default function StudentWorkout() {
                       )}
                       <div className="flex flex-wrap gap-2 mt-1.5">
                         <LastWeightBadge
+                          exerciseId={exercise.exercise_id}
                           exerciseName={exercise.exercise_name}
-                          logs={allLogs.filter(l => l.student_id === selectedStudentId)}
+                          logs={allLogs.filter(l => selectedStudentIds.includes(l.student_id))}
                           onApply={(kg) => applyWeightToAllSets(exerciseKey, kg, exercise.sets)}
                           disabled={isCompleted}
                         />
