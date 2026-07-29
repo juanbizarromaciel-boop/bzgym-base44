@@ -59,11 +59,17 @@ export default function WorkoutPlans() {
   } : null;
   const linkedStudent = allStudents.find(s => s.email?.toLowerCase() === currentUser?.email?.toLowerCase());
   const ownStudent = linkedStudent || subscriberStudent;
-  const students = isAdmin
+  const scopedStudents = isAdmin
     ? allStudents
     : isSelfManagedWorkout
       ? [ownStudent].filter(Boolean)
       : allStudents.filter(s => s.personal_id === currentUser?.email);
+  const students = [...scopedStudents.reduce((map, student) => {
+    const key = student.email?.trim().toLowerCase() || student.id;
+    const current = map.get(key);
+    if (!current || (student.active !== false && current.active === false) || student.created_date > current.created_date) map.set(key, student);
+    return map;
+  }, new Map()).values()];
   const myStudentIds = new Set(students.flatMap(s => [s.id, s.email].filter(Boolean)));
   const ownIds = [currentUser?.email, linkedStudent?.id, linkedStudent?.email].filter(Boolean);
   const plans = isAdmin
@@ -182,8 +188,9 @@ export default function WorkoutPlans() {
     }))
     .filter(g => g.activePlans.length > 0 || g.archivedPlans.length > 0);
 
-  // Plans with no matching student
-  const orphanPlans = isSelfManagedWorkout ? [] : filteredPlans.filter(p => !students.find(s => s.id === p.student_id || s.email === p.student_id));
+  // Plans with no matching student (ignore records linked to an older duplicate profile)
+  const knownStudentIds = new Set(scopedStudents.flatMap(s => [s.id, s.email].filter(Boolean)));
+  const orphanPlans = isSelfManagedWorkout ? [] : filteredPlans.filter(p => !knownStudentIds.has(p.student_id));
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger}>

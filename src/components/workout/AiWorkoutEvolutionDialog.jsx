@@ -202,16 +202,16 @@ export default function AiWorkoutEvolutionDialog({ open, onOpenChange, initialPl
         }
       });
       const out = res?.data || res;
-      const plansFromAi = out.treinos?.length ? out.treinos : selectedPlans.map(p => ({ treinoBaseId: p.id, nomeNovoTreino: `${p.name} v${Number(p.versao || 1) + 1} IA`, day_of_week: p.day_of_week, exercicios: p.exercises || [] }));
-      const normalized = plansFromAi.map((p, idx) => {
-        const oldPlan = selectedPlans.find(base => base.id === p.treinoBaseId) || selectedPlans[idx] || selectedPlans[0];
+      const plansFromAi = out.treinos || [];
+      const normalized = selectedPlans.map((oldPlan, idx) => {
+        const p = plansFromAi.find(candidate => candidate.treinoBaseId === oldPlan.id) || plansFromAi[idx];
         const planAnalysis = analyses.find(a => a.plan.id === oldPlan.id)?.exerciseAnalysis || [];
         return {
           basePlanId: oldPlan.id,
-          name: p.nomeNovoTreino || `${oldPlan.name} v${Number(oldPlan.versao || 1) + 1} IA`,
-          day_of_week: p.day_of_week || oldPlan.day_of_week,
-          foco: p.foco || "",
-          exercises: (p.exercicios || oldPlan.exercises || []).map((ex, exIdx) => normalizeExercise(ex, oldPlan, planAnalysis, exIdx)),
+          name: p?.nomeNovoTreino || `${oldPlan.name} v${Number(oldPlan.versao || 1) + 1} IA`,
+          day_of_week: p?.day_of_week || oldPlan.day_of_week,
+          foco: p?.foco || "",
+          exercises: (p?.exercicios || oldPlan.exercises || []).map((ex, exIdx) => normalizeExercise(ex, oldPlan, planAnalysis, exIdx)),
         };
       });
       setGeneratedMeta(out);
