@@ -19,6 +19,18 @@
       "type": "number",
       "description": "Peso em kg"
     },
+    "height_cm": {
+      "type": "number",
+      "description": "Altura em cent\u00edmetros"
+    },
+    "bmi": {
+      "type": "number",
+      "description": "\u00cdndice de massa corporal calculado"
+    },
+    "bmi_classification": {
+      "type": "string",
+      "description": "Classifica\u00e7\u00e3o do IMC"
+    },
     "body_fat_percent": {
       "type": "number",
       "description": "% de gordura corporal"

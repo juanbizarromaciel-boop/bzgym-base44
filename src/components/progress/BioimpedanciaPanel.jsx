@@ -8,6 +8,7 @@ import { Plus, Scale, Flame, Droplets, Bone, Activity, Edit, Trash2 } from "luci
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import BmiFields, { getBmiClass } from "@/components/progress/BmiFields";
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
 
@@ -22,7 +23,7 @@ const FIELDS = [
   { key: "bone_mass_kg", label: "Massa Óssea (kg)", icon: Bone, color: "#84cc16" },
 ];
 
-const EMPTY_FORM = { date: new Date().toISOString().split("T")[0], weight_kg: "", body_fat_percent: "", lean_mass_kg: "", fat_mass_kg: "", body_water_percent: "", basal_metabolism: "", visceral_fat: "", bone_mass_kg: "", notes: "" };
+const EMPTY_FORM = { date: new Date().toISOString().split("T")[0], weight_kg: "", height_cm: "", body_fat_percent: "", lean_mass_kg: "", fat_mass_kg: "", body_water_percent: "", basal_metabolism: "", visceral_fat: "", bone_mass_kg: "", notes: "" };
 
 export default function BioimpedanciaPanel({ studentId, studentIds, personalId }) {
   const ownerIds = studentIds?.length ? studentIds : [studentId].filter(Boolean);
@@ -34,8 +35,12 @@ export default function BioimpedanciaPanel({ studentId, studentIds, personalId }
   const canEdit = isAdmin || user?.role === "personal";
 
   const { data: allBio = [], isLoading } = useQuery({
-    queryKey: ["bioimpedancia", studentId],
-    queryFn: () => base44.entities.Bioimpedancia.list(),
+    queryKey: ["bioimpedancia", ...ownerIds],
+    queryFn: async () => {
+      const lists = await Promise.all(ownerIds.map(id => base44.entities.Bioimpedancia.filter({ student_id: id }, "-date", 100)));
+      return lists.flat().filter((record, index, list) => list.findIndex(item => item.id === record.id) === index);
+    },
+    enabled: ownerIds.length > 0,
     staleTime: 30000,
   });
 
@@ -43,27 +48,35 @@ export default function BioimpedanciaPanel({ studentId, studentIds, personalId }
 
   const createMut = useMutation({
     mutationFn: (d) => base44.entities.Bioimpedancia.create(d),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["bioimpedancia", studentId] }); toast.success("Avaliação registrada"); setDialogOpen(false); }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["bioimpedancia"] }); toast.success("Avaliação registrada"); setDialogOpen(false); },
+    onError: () => toast.error("Não foi possível salvar a avaliação")
   });
   const updateMut = useMutation({
     mutationFn: ({ id, d }) => base44.entities.Bioimpedancia.update(id, d),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["bioimpedancia", studentId] }); toast.success("Atualizado"); setDialogOpen(false); setEditing(null); }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["bioimpedancia"] }); toast.success("Atualizado"); setDialogOpen(false); setEditing(null); },
+    onError: () => toast.error("Não foi possível atualizar a avaliação")
   });
   const deleteMut = useMutation({
     mutationFn: (id) => base44.entities.Bioimpedancia.delete(id),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["bioimpedancia", studentId] }); toast.success("Removido"); }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["bioimpedancia"] }); toast.success("Removido"); },
+    onError: () => toast.error("Não foi possível remover a avaliação")
   });
 
-  const openNew = () => { setEditing(null); setForm(EMPTY_FORM); setDialogOpen(true); };
+  const openNew = () => { const latest = records[0]; setEditing(null); setForm({ ...EMPTY_FORM, weight_kg: latest?.weight_kg || "", height_cm: latest?.height_cm || "" }); setDialogOpen(true); };
   const openEdit = (r) => {
     setEditing(r);
-    setForm({ date: r.date || EMPTY_FORM.date, weight_kg: r.weight_kg || "", body_fat_percent: r.body_fat_percent || "", lean_mass_kg: r.lean_mass_kg || "", fat_mass_kg: r.fat_mass_kg || "", body_water_percent: r.body_water_percent || "", basal_metabolism: r.basal_metabolism || "", visceral_fat: r.visceral_fat || "", bone_mass_kg: r.bone_mass_kg || "", notes: r.notes || "" });
+    setForm({ date: r.date || EMPTY_FORM.date, weight_kg: r.weight_kg || "", height_cm: r.height_cm || "", body_fat_percent: r.body_fat_percent || "", lean_mass_kg: r.lean_mass_kg || "", fat_mass_kg: r.fat_mass_kg || "", body_water_percent: r.body_water_percent || "", basal_metabolism: r.basal_metabolism || "", visceral_fat: r.visceral_fat || "", bone_mass_kg: r.bone_mass_kg || "", notes: r.notes || "" });
     setDialogOpen(true);
   };
 
   const handleSubmit = () => {
-    const payload = { student_id: studentId, personal_id: personalId || "", ...form };
-    FIELDS.forEach(f => { if (payload[f.key] !== "") payload[f.key] = parseFloat(payload[f.key]) || null; });
+    const weight = Number(form.weight_kg);
+    const height = Number(form.height_cm);
+    if (!weight || weight <= 0) { toast.error("Informe um peso válido maior que zero"); return; }
+    if (!height || height <= 0) { toast.error("Informe uma altura válida maior que zero"); return; }
+    const bmi = Number((weight / ((height / 100) ** 2)).toFixed(2));
+    const payload = { student_id: studentId, personal_id: personalId || user?.email || "", ...form, weight_kg: weight, height_cm: height, bmi, bmi_classification: getBmiClass(bmi) };
+    FIELDS.forEach(f => { if (payload[f.key] !== "") payload[f.key] = Number(payload[f.key]); });
     editing ? updateMut.mutate({ id: editing.id, d: payload }) : createMut.mutate(payload);
   };
 
@@ -114,6 +127,7 @@ export default function BioimpedanciaPanel({ studentId, studentIds, personalId }
                   </div>
                 ) : null)}
               </div>
+              {r.bmi != null && <div className="mt-2 rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-2 text-center text-sm text-cyan-300">IMC {r.bmi} · {r.bmi_classification}</div>}
               {r.notes && <p className="text-xs text-purple-400/40 font-mono-cyber mt-2 italic border-t border-purple-900/20 pt-2">// {r.notes}</p>}
             </motion.div>
           ))}
@@ -133,12 +147,13 @@ export default function BioimpedanciaPanel({ studentId, studentIds, personalId }
             <div className="grid grid-cols-2 gap-2">
               {FIELDS.map(f => (
                 <div key={f.key}>
-                  <Label className="text-purple-400/60 text-[10px] tracking-wider">{f.label}</Label>
-                  <input type="number" step="0.1" value={form[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                  <Label className="text-purple-400/60 text-[10px] tracking-wider">{f.label}{f.key === "weight_kg" ? " *" : ""}</Label>
+                  <input type="number" min="0" step="0.1" value={form[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
                     className="cyber-input w-full px-3 py-2 rounded-lg mt-1 text-white text-sm" placeholder="—" />
                 </div>
               ))}
             </div>
+            <BmiFields weight={form.weight_kg} height={form.height_cm} onHeightChange={height_cm => setForm(p => ({ ...p, height_cm }))} />
             <div>
               <Label className="text-purple-400/60 text-xs tracking-wider">OBSERVAÇÕES</Label>
               <Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="cyber-input mt-1 resize-none" rows={2} />

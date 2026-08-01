@@ -51,8 +51,11 @@ export default function Students() {
   const qc = useQueryClient();
 
   const { data: allStudents = [], isLoading } = useQuery({
-    queryKey: ["students"],
-    queryFn: () => base44.entities.Student.list(),
+    queryKey: ["students", currentUser?.email],
+    queryFn: () => currentUser?.role === "personal"
+      ? base44.entities.Student.filter({ personal_id: currentUser.email }, "-created_date", 500)
+      : base44.entities.Student.list(),
+    enabled: !!currentUser,
   });
 
   // Personal só vê seus próprios alunos; admin vê todos

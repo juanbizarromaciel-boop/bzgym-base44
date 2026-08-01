@@ -107,7 +107,7 @@ export default function Diet() {
     const totals = recalcTotals(form.meals);
     const data = isSelfManagedDiet
       ? { ...form, student_id: form.student_id || ownStudent?.id || currentUser.email, ...totals, usuarioId: currentUser.email, assinanteId: currentUser.email, tipoDono: "assinante", personal_id: currentUser.email, personalId: currentUser.email }
-      : { ...form, ...totals };
+      : { ...form, ...totals, personal_id: currentUser?.email, personalId: currentUser?.email };
     if (editing) updateMut.mutate({ id: editing.id, d: data });
     else createMut.mutate(data);
   };

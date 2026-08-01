@@ -43,10 +43,14 @@ function getFirstDayOfMonth(year, month) {
 
 export default function CalendarioGeral() {
   const [user, setUser] = useState(null);
+  const urlParams = new URLSearchParams(window.location.search);
   const today = new Date();
-  const [viewYear, setViewYear] = useState(today.getFullYear());
-  const [viewMonth, setViewMonth] = useState(today.getMonth());
-  const [selectedDate, setSelectedDate] = useState(today.toISOString().split("T")[0]);
+  const requestedDate = urlParams.get("date");
+  const initialDate = requestedDate && /^\d{4}-\d{2}-\d{2}$/.test(requestedDate) ? requestedDate : today.toISOString().split("T")[0];
+  const initialViewDate = new Date(`${initialDate}T12:00:00`);
+  const [viewYear, setViewYear] = useState(initialViewDate.getFullYear());
+  const [viewMonth, setViewMonth] = useState(initialViewDate.getMonth());
+  const [selectedDate, setSelectedDate] = useState(initialDate);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingEvento, setEditingEvento] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -56,8 +60,10 @@ export default function CalendarioGeral() {
   useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
   const { data: eventos = [], isLoading } = useQuery({
-    queryKey: ["calendarioEventos"],
-    queryFn: () => base44.entities.CalendarioEvento.list("-created_date", 200),
+    queryKey: ["calendarioEventos", user?.email],
+    queryFn: () => user?.role === "admin"
+      ? base44.entities.CalendarioEvento.list("-created_date", 200)
+      : base44.entities.CalendarioEvento.filter({ usuario_id: user.email }, "-created_date", 200),
     enabled: !!user,
     staleTime: 30000,
   });

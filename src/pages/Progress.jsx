@@ -49,11 +49,12 @@ function calcVolume(log) {
 }
 
 export default function Progress() {
-  const [selectedStudentId, setSelectedStudentId] = useState("");
+  const urlParams = new URLSearchParams(window.location.search);
+  const [selectedStudentId, setSelectedStudentId] = useState(urlParams.get("student") || "");
   const [selectedExercise, setSelectedExercise] = useState("all");
   const [selectedMuscle, setSelectedMuscle] = useState("all");
   const [period, setPeriod] = useState("weekly");
-  const [activeTab, setActiveTab] = useState("evolucao"); // "evolucao" | "series" | "checkins" | "bio" | "medidas" | "fotos"
+  const [activeTab, setActiveTab] = useState(urlParams.get("tab") || "evolucao"); // "evolucao" | "series" | "checkins" | "bio" | "medidas" | "fotos"
   const { user: currentUser, isAdmin } = useCurrentUser();
   const userRole = currentUser?.role || null;
 
@@ -338,7 +339,7 @@ export default function Progress() {
       {/* BIO TAB */}
       {activeTab === "bio" && selectedStudentId && (
         <motion.div variants={fadeUp}>
-          <BioimpedanciaPanel studentId={selectedStudentId} studentIds={selectedOwnerIds} />
+          <BioimpedanciaPanel studentId={selectedStudentId} studentIds={selectedOwnerIds} personalId={currentUser?.email} />
         </motion.div>
       )}
       {activeTab === "bio" && !selectedStudentId && (isAdmin || isPersonal) && (

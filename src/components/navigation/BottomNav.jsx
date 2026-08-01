@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Dumbbell, Utensils, TrendingUp, MoreHorizontal,
   ClipboardCheck, Calendar, MessageSquare, Users2, Brain, X,
-  BookOpen, FileImage, Timer, UserCircle, Bell, CreditCard
+  BookOpen, FileImage, Timer, UserCircle, Bell, CreditCard, LogOut
 } from "lucide-react";
 
 const studentTabs = [
@@ -21,6 +22,13 @@ const subscriberTabs = [
   { label: "Progresso", icon: TrendingUp, path: "/Progress" },
 ];
 
+const personalTabs = [
+  { label: "Início", icon: LayoutDashboard, path: "/PersonalDashboard" },
+  { label: "Alunos", icon: Users2, path: "/Students" },
+  { label: "Agenda", icon: Calendar, path: "/CalendarioGeral" },
+  { label: "Financeiro", icon: CreditCard, path: "/Finance" },
+];
+
 const moreMenuItems = [
   { label: "Progresso", icon: TrendingUp, path: "/Progress", color: "#f59e0b" },
   { label: "Calendário", icon: Calendar, path: "/CalendarioGeral", color: "#a855f7" },
@@ -35,11 +43,22 @@ const moreMenuItems = [
   { label: "Perfil", icon: UserCircle, path: "/Profile", color: "#a855f7" },
 ];
 
+const personalMoreItems = [
+  { label: "Perfil", icon: UserCircle, path: "/Profile", color: "#a855f7" },
+  { label: "Mensagens", icon: MessageSquare, path: "/Chat", color: "#ec4899" },
+  { label: "Relatórios", icon: TrendingUp, path: "/Relatorios", color: "#06b6d4" },
+  { label: "Avaliações", icon: ClipboardCheck, path: "/Progress", color: "#f59e0b" },
+  { label: "Treinos", icon: Dumbbell, path: "/WorkoutPlans", color: "#8b5cf6" },
+  { label: "Dietas", icon: Utensils, path: "/Diet", color: "#10b981" },
+  { label: "Sair", icon: LogOut, action: "logout", color: "#ef4444" },
+];
+
 export default function BottomNav({ role, onMoreClick }) {
   const location = useLocation();
   const [showMore, setShowMore] = useState(false);
 
-  const tabs = role === "assinante" ? subscriberTabs : studentTabs;
+  const tabs = role === "personal" ? personalTabs : role === "assinante" ? subscriberTabs : studentTabs;
+  const menuItems = role === "personal" ? personalMoreItems : moreMenuItems;
 
   return (
     <>
@@ -63,19 +82,12 @@ export default function BottomNav({ role, onMoreClick }) {
                 <button onClick={() => setShowMore(false)} className="p-1 rounded-lg text-purple-400/40 hover:text-white transition-colors"><X className="w-4 h-4" /></button>
               </div>
               <div className="grid grid-cols-3 gap-0 p-3">
-                {moreMenuItems.map((item) => {
+                {menuItems.map((item) => {
                   const isActive = location.pathname === item.path;
-                  return (
-                    <Link key={item.path} to={item.path} onClick={() => setShowMore(false)}
-                      className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all"
-                      style={isActive ? { background: `${item.color}15`, border: `1px solid ${item.color}30` } : { border: '1px solid transparent' }}>
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                        style={{ background: `${item.color}18`, border: `1px solid ${item.color}35` }}>
-                        <item.icon className="w-5 h-5" style={{ color: item.color, filter: `drop-shadow(0 0 5px ${item.color})` }} />
-                      </div>
-                      <span className="text-[9px] font-mono-cyber tracking-wide text-center leading-tight" style={{ color: isActive ? item.color : 'rgba(255,255,255,0.6)' }}>{item.label}</span>
-                    </Link>
-                  );
+                  const content = <><div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${item.color}18`, border: `1px solid ${item.color}35` }}><item.icon className="w-5 h-5" style={{ color: item.color }} /></div><span className="text-[9px] font-mono-cyber tracking-wide text-center leading-tight" style={{ color: isActive ? item.color : 'rgba(255,255,255,0.6)' }}>{item.label}</span></>;
+                  return item.action === "logout"
+                    ? <button key={item.label} onClick={() => base44.auth.logout()} className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all border border-transparent">{content}</button>
+                    : <Link key={item.path} to={item.path} onClick={() => setShowMore(false)} className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all" style={isActive ? { background: `${item.color}15`, border: `1px solid ${item.color}30` } : { border: '1px solid transparent' }}>{content}</Link>;
                 })}
               </div>
             </motion.div>
@@ -103,7 +115,8 @@ export default function BottomNav({ role, onMoreClick }) {
             const isActive =
               location.pathname === tab.path ||
               (tab.path === "/StudentDashboard" && location.pathname === "/") ||
-              (tab.path === "/SubscriberDashboard" && location.pathname === "/");
+              (tab.path === "/SubscriberDashboard" && location.pathname === "/") ||
+              (tab.path === "/PersonalDashboard" && location.pathname === "/");
             return (
               <Link key={tab.path} to={tab.path}
                 className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all relative min-w-0"

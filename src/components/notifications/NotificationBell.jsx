@@ -119,8 +119,10 @@ export default function NotificationBell() {
         return createdDate > oneDayAgo;
       }).length;
 
+  const personalStudentIds = new Set(allStudents.filter(s => s.personal_id === user?.email).flatMap(s => [s.id, s.email].filter(Boolean)));
   const unreadMessages = messages.filter(m => {
     if (user?.role === "admin") return !m.read && !m.is_trainer;
+    if (user?.role === "personal") return !m.read && !m.is_trainer && personalStudentIds.has(m.student_id);
     return !m.read && m.is_trainer && m.student_id === student?.id;
   });
 

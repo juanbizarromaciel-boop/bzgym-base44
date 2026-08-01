@@ -269,9 +269,10 @@ export default function Layout({ children, currentPageName }) {
         style={{
           background: 'color-mix(in srgb, var(--bg-void) 95%, transparent)',
           borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 40%, transparent)',
-          boxShadow: '0 2px 20px color-mix(in srgb, var(--neon-purple) 15%, transparent)'
+          boxShadow: '0 2px 20px color-mix(in srgb, var(--neon-purple) 15%, transparent)',
+          paddingTop: 'max(0.75rem, env(safe-area-inset-top))'
         }}>
-        <div className="flex items-baseline gap-0.5 px-2 py-1 rounded-lg"
+        <Link to="/" aria-label="Ir para o início" className="flex items-baseline gap-0.5 px-2 py-1 rounded-lg"
           style={{
             border: '1px solid color-mix(in srgb, var(--neon-purple) 65%, transparent)',
             background: 'color-mix(in srgb, var(--neon-purple) 12%, transparent)',
@@ -281,9 +282,10 @@ export default function Layout({ children, currentPageName }) {
             style={{ color: '#ffffff', textShadow: '0 0 14px var(--neon-purple), 0 0 30px color-mix(in srgb, var(--neon-purple) 50%, transparent), 0 0 2px #fff' }}>B</span>
           <span className="font-cyber font-black text-2xl leading-none select-none italic"
             style={{ color: 'var(--neon-purple)', textShadow: '0 0 18px var(--neon-purple), 0 0 40px color-mix(in srgb, var(--neon-purple) 55%, transparent)' }}>Z</span>
-        </div>
+        </Link>
         <div className="flex items-center gap-2">
           <NotificationBell />
+          {isPersonal && <Link to="/Profile" aria-label="Abrir perfil" className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-xs font-semibold text-primary">{userName ? userName.split(' ').map(part => part[0]).slice(0, 2).join('').toUpperCase() : 'PT'}</Link>}
           <CyberNav role={role} currentPageName={currentPageName} userName={userName} />
         </div>
       </div>
@@ -365,8 +367,8 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </aside>
 
-      {/* Bottom Nav — only for alunos/assinantes on mobile */}
-      {(role === "user" || role === "assinante") && (
+      {/* Bottom navigation for mobile app profiles */}
+      {(role === "user" || role === "assinante" || role === "personal") && (
         <BottomNav role={role} onMoreClick={() => {
           // Open the CyberNav overlay — dispatch a synthetic click on the CyberNav button
           const btn = document.querySelector('[data-cybernav-trigger]');
@@ -375,7 +377,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Main Content */}
-      <main className={`lg:ml-60 pt-16 lg:pt-0 min-h-screen ${(role === "user" || role === "assinante") ? "pb-24 lg:pb-0" : ""}`}>
+      <main className={`lg:ml-60 pt-16 lg:pt-0 min-h-screen ${(role === "user" || role === "assinante" || role === "personal") ? "pb-24 lg:pb-0" : ""}`}>
         <div className="hidden lg:block fixed top-5 right-6 z-30">
           <NotificationBell />
         </div>
