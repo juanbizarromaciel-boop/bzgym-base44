@@ -49,6 +49,12 @@ import PaymentOverdue from './pages/PaymentOverdue';
 import SubscriberBilling from './pages/SubscriberBilling';
 import WorkoutAI from './pages/WorkoutAI';
 import DietAI from './pages/DietAI';
+import StudentDashboard from './pages/StudentDashboard';
+import Students from './pages/Students';
+import StudentWorkout from './pages/StudentWorkout';
+import Progress from './pages/Progress';
+import FoodDatabase from './pages/FoodDatabase';
+import TimerPage from './pages/TimerPage';
 import { useState, useEffect } from 'react';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -213,6 +219,61 @@ const AuthenticatedApp = () => {
         <Route path="*" element={<Navigate to="/Welcome" replace />} />
       </Routes>;
     }
+    return <Routes>
+      <Route path="/" element={<LayoutWrapper currentPageName="StudentDashboard"><StudentDashboard /></LayoutWrapper>} />
+      <Route path="/StudentDashboard" element={<LayoutWrapper currentPageName="StudentDashboard"><StudentDashboard /></LayoutWrapper>} />
+      <Route path="/MyWorkout" element={<LayoutWrapper currentPageName="MyWorkout"><MyWorkout /></LayoutWrapper>} />
+      <Route path="/MyDiet" element={<LayoutWrapper currentPageName="MyDiet"><MyDiet /></LayoutWrapper>} />
+      <Route path="/CheckIn" element={<LayoutWrapper currentPageName="CheckIn"><CheckInPage /></LayoutWrapper>} />
+      <Route path="/Progress" element={<LayoutWrapper currentPageName="Progress"><Progress /></LayoutWrapper>} />
+      <Route path="/Chat" element={<LayoutWrapper currentPageName="Chat"><Chat /></LayoutWrapper>} />
+      <Route path="/CalendarioGeral" element={<LayoutWrapper currentPageName="CalendarioGeral"><CalendarioGeral /></LayoutWrapper>} />
+      <Route path="/StudentDocuments" element={<LayoutWrapper currentPageName="StudentDocuments"><StudentDocuments /></LayoutWrapper>} />
+      <Route path="/LearnExercises" element={<LayoutWrapper currentPageName="LearnExercises"><LearnExercises /></LayoutWrapper>} />
+      <Route path="/PRBoard" element={<LayoutWrapper currentPageName="PRBoard"><PRBoard /></LayoutWrapper>} />
+      <Route path="/CH" element={<LayoutWrapper currentPageName="CH"><CH /></LayoutWrapper>} />
+      <Route path="/Comunidade" element={<LayoutWrapper currentPageName="Comunidade"><Comunidade /></LayoutWrapper>} />
+      <Route path="/FocusRoutine" element={<LayoutWrapper currentPageName="FocusRoutine"><FocusRoutine /></LayoutWrapper>} />
+      <Route path="/TimerPage" element={<LayoutWrapper currentPageName="TimerPage"><TimerPage /></LayoutWrapper>} />
+      <Route path="/Profile" element={<LayoutWrapper currentPageName="Profile"><Profile /></LayoutWrapper>} />
+      <Route path="/AppThemes" element={<LayoutWrapper currentPageName="AppThemes"><AppThemes /></LayoutWrapper>} />
+      <Route path="/Notificacoes" element={<LayoutWrapper currentPageName="Notificacoes"><Notificacoes /></LayoutWrapper>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>;
+  }
+
+  if (user && user.role === 'personal') {
+    return <Routes>
+      <Route path="/" element={<LayoutWrapper currentPageName="PersonalDashboard"><PersonalDashboard /></LayoutWrapper>} />
+      <Route path="/PersonalDashboard" element={<LayoutWrapper currentPageName="PersonalDashboard"><PersonalDashboard /></LayoutWrapper>} />
+      <Route path="/PendingStudents" element={<LayoutWrapper currentPageName="PendingStudents"><PendingStudents /></LayoutWrapper>} />
+      <Route path="/Students" element={<LayoutWrapper currentPageName="Students"><Students /></LayoutWrapper>} />
+      <Route path="/StudentDocuments" element={<LayoutWrapper currentPageName="StudentDocuments"><StudentDocuments /></LayoutWrapper>} />
+      <Route path="/WorkoutPlans" element={<LayoutWrapper currentPageName="WorkoutPlans"><WorkoutPlans /></LayoutWrapper>} />
+      <Route path="/ExerciseLibrary" element={<LayoutWrapper currentPageName="ExerciseLibrary"><ExerciseLibrary /></LayoutWrapper>} />
+      <Route path="/StudentWorkout" element={<LayoutWrapper currentPageName="StudentWorkout"><StudentWorkout /></LayoutWrapper>} />
+      <Route path="/Progress" element={<LayoutWrapper currentPageName="Progress"><Progress /></LayoutWrapper>} />
+      <Route path="/Relatorios" element={<LayoutWrapper currentPageName="Relatorios"><Relatorios /></LayoutWrapper>} />
+      <Route path="/PRBoard" element={<LayoutWrapper currentPageName="PRBoard"><PRBoard /></LayoutWrapper>} />
+      <Route path="/Diet" element={<LayoutWrapper currentPageName="Diet"><Diet /></LayoutWrapper>} />
+      <Route path="/DietLogs" element={<LayoutWrapper currentPageName="DietLogs"><DietLogs /></LayoutWrapper>} />
+      <Route path="/FoodDatabase" element={<LayoutWrapper currentPageName="FoodDatabase"><FoodDatabase /></LayoutWrapper>} />
+      <Route path="/Chat" element={<LayoutWrapper currentPageName="Chat"><Chat /></LayoutWrapper>} />
+      <Route path="/CH" element={<LayoutWrapper currentPageName="CH"><CH /></LayoutWrapper>} />
+      <Route path="/AICoach" element={<LayoutWrapper currentPageName="AICoach"><AICoach /></LayoutWrapper>} />
+      <Route path="/Finance" element={<LayoutWrapper currentPageName="Finance"><Finance /></LayoutWrapper>} />
+      <Route path="/ClassCalendar" element={<LayoutWrapper currentPageName="ClassCalendar"><ClassCalendar /></LayoutWrapper>} />
+      <Route path="/ConsultancyBilling" element={<LayoutWrapper currentPageName="ConsultancyBilling"><ConsultancyBilling /></LayoutWrapper>} />
+      <Route path="/SubscriptionManagement" element={<LayoutWrapper currentPageName="SubscriptionManagement"><SubscriptionManagement /></LayoutWrapper>} />
+      <Route path="/CalendarioGeral" element={<LayoutWrapper currentPageName="CalendarioGeral"><CalendarioGeral /></LayoutWrapper>} />
+      <Route path="/Comunidade" element={<LayoutWrapper currentPageName="Comunidade"><Comunidade /></LayoutWrapper>} />
+      <Route path="/FocusRoutine" element={<LayoutWrapper currentPageName="FocusRoutine"><FocusRoutine /></LayoutWrapper>} />
+      <Route path="/TimerPage" element={<LayoutWrapper currentPageName="TimerPage"><TimerPage /></LayoutWrapper>} />
+      <Route path="/Profile" element={<LayoutWrapper currentPageName="Profile"><Profile /></LayoutWrapper>} />
+      <Route path="/AppThemes" element={<LayoutWrapper currentPageName="AppThemes"><AppThemes /></LayoutWrapper>} />
+      <Route path="/Notificacoes" element={<LayoutWrapper currentPageName="Notificacoes"><Notificacoes /></LayoutWrapper>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>;
   }
 
   // Render the main app

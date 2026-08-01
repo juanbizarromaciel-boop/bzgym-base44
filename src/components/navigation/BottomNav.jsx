@@ -4,22 +4,22 @@ import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Dumbbell, Utensils, TrendingUp, MoreHorizontal,
-  ClipboardCheck, Calendar, MessageSquare, Users2, Brain, X,
+  ClipboardCheck, Calendar, MessageSquare, Users2, Brain, X, Sparkles,
   BookOpen, FileImage, Timer, UserCircle, Bell, CreditCard, LogOut
 } from "lucide-react";
 
 const studentTabs = [
   { label: "Início", icon: LayoutDashboard, path: "/StudentDashboard" },
   { label: "Treino", icon: Dumbbell, path: "/MyWorkout" },
-  { label: "Check-in", icon: ClipboardCheck, path: "/CheckIn" },
   { label: "Dieta", icon: Utensils, path: "/MyDiet" },
+  { label: "Agenda", icon: Calendar, path: "/CalendarioGeral" },
 ];
 
 const subscriberTabs = [
   { label: "Início", icon: LayoutDashboard, path: "/SubscriberDashboard" },
-  { label: "Treino", icon: Dumbbell, path: "/MyWorkout" },
-  { label: "Dieta", icon: Utensils, path: "/MyDiet" },
-  { label: "Progresso", icon: TrendingUp, path: "/Progress" },
+  { label: "Conteúdos", icon: Users2, path: "/Comunidade" },
+  { label: "Plano", icon: CreditCard, path: "/SubscriberBilling" },
+  { label: "Recursos", icon: Sparkles, path: "/WorkoutAI" },
 ];
 
 const personalTabs = [
@@ -29,18 +29,24 @@ const personalTabs = [
   { label: "Financeiro", icon: CreditCard, path: "/Finance" },
 ];
 
-const moreMenuItems = [
-  { label: "Progresso", icon: TrendingUp, path: "/Progress", color: "#f59e0b" },
-  { label: "Calendário", icon: Calendar, path: "/CalendarioGeral", color: "#a855f7" },
-  { label: "Chat", icon: MessageSquare, path: "/Chat", color: "#06b6d4" },
-  { label: "Comunidade", icon: Users2, path: "/Comunidade", color: "#ec4899" },
-  { label: "Exercícios", icon: BookOpen, path: "/LearnExercises", color: "#10b981" },
-  { label: "Documentos", icon: FileImage, path: "/StudentDocuments", color: "#f97316" },
-  { label: "Foco", icon: Brain, path: "/FocusRoutine", color: "#8b5cf6" },
-  { label: "Cronômetro", icon: Timer, path: "/TimerPage", color: "#06b6d4" },
-  { label: "Notificações", icon: Bell, path: "/Notificacoes", color: "#ec4899" },
-  { label: "Assinatura", icon: CreditCard, path: "/SubscriberBilling", color: "#10b981" },
+const studentMoreItems = [
   { label: "Perfil", icon: UserCircle, path: "/Profile", color: "#a855f7" },
+  { label: "Mensagens", icon: MessageSquare, path: "/Chat", color: "#ec4899" },
+  { label: "Progresso", icon: TrendingUp, path: "/Progress", color: "#06b6d4" },
+  { label: "Check-in", icon: ClipboardCheck, path: "/CheckIn", color: "#10b981" },
+  { label: "Documentos", icon: FileImage, path: "/StudentDocuments", color: "#f59e0b" },
+  { label: "Exercícios", icon: BookOpen, path: "/LearnExercises", color: "#06b6d4" },
+  { label: "Sair", icon: LogOut, action: "logout", color: "#ef4444" },
+];
+
+const subscriberMoreItems = [
+  { label: "Perfil", icon: UserCircle, path: "/Profile", color: "#a855f7" },
+  { label: "Conteúdos", icon: Users2, path: "/Comunidade", color: "#ec4899" },
+  { label: "Treino IA", icon: Sparkles, path: "/WorkoutAI", color: "#8b5cf6" },
+  { label: "Dieta IA", icon: Utensils, path: "/DietAI", color: "#10b981" },
+  { label: "Exercícios", icon: BookOpen, path: "/ExerciseLibrary", color: "#06b6d4" },
+  { label: "Foco", icon: Brain, path: "/FocusRoutine", color: "#f59e0b" },
+  { label: "Sair", icon: LogOut, action: "logout", color: "#ef4444" },
 ];
 
 const personalMoreItems = [
@@ -58,7 +64,7 @@ export default function BottomNav({ role, onMoreClick }) {
   const [showMore, setShowMore] = useState(false);
 
   const tabs = role === "personal" ? personalTabs : role === "assinante" ? subscriberTabs : studentTabs;
-  const menuItems = role === "personal" ? personalMoreItems : moreMenuItems;
+  const menuItems = role === "personal" ? personalMoreItems : role === "assinante" ? subscriberMoreItems : studentMoreItems;
 
   return (
     <>
@@ -74,8 +80,8 @@ export default function BottomNav({ role, onMoreClick }) {
             <motion.div
               initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              className="fixed left-3 right-3 z-50 overflow-hidden rounded-2xl lg:hidden"
-              style={{ bottom: role === "personal" ? "calc(94px + env(safe-area-inset-bottom))" : "5rem", background: 'linear-gradient(145deg, rgba(8,5,22,0.98), rgba(4,3,14,0.99))', border: '1px solid rgba(168,85,247,0.35)', boxShadow: '0 -8px 40px rgba(168,85,247,0.2), 0 0 60px rgba(0,0,0,0.8)' }}>
+              className="app-glass-nav fixed left-3 right-3 z-50 overflow-hidden rounded-2xl lg:hidden"
+              style={{ bottom: "calc(94px + env(safe-area-inset-bottom))" }}>
               <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.8), rgba(6,182,212,0.6), transparent)' }} />
               <div className="flex items-center justify-between px-5 py-3 border-b border-purple-900/20">
                 <p className="text-[10px] font-mono-cyber tracking-[0.3em] text-purple-400/50 uppercase">// mais opções</p>
@@ -97,20 +103,12 @@ export default function BottomNav({ role, onMoreClick }) {
 
       {/* Bottom Bar */}
       <nav
-        className={role === "personal" ? "app-glass-nav fixed left-4 right-4 z-40 mx-auto h-[72px] max-w-[398px] overflow-hidden rounded-[23px] lg:hidden" : "fixed bottom-0 left-0 right-0 z-40 lg:hidden"}
-        style={role === "personal" ? { bottom: "calc(8px + env(safe-area-inset-bottom))" } : {
-          background: "linear-gradient(to top, rgba(6,4,18,0.98) 0%, rgba(8,5,22,0.96) 100%)",
-          borderTop: "1px solid rgba(168,85,247,0.25)",
-          boxShadow: "0 -4px 30px rgba(168,85,247,0.12), 0 -1px 0 rgba(168,85,247,0.15)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          paddingBottom: "env(safe-area-inset-bottom, 0px)",
-        }}
+        className="app-glass-nav fixed left-4 right-4 z-40 mx-auto h-[72px] max-w-[398px] overflow-hidden rounded-[23px] lg:hidden"
+        style={{ bottom: "calc(8px + env(safe-area-inset-bottom))" }}
       >
-        <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: role === "personal" ? "linear-gradient(90deg, transparent, hsl(var(--app-primary) / 0.24), transparent)" : "linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(6,182,212,0.4), rgba(168,85,247,0.6), transparent)" }} />
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, hsl(var(--app-primary) / 0.24), transparent)" }} />
 
-        <div className={`flex items-center justify-around px-2 py-2 ${role === "personal" ? "h-full" : ""}`}>
+        <div className="flex h-full items-center justify-around px-2 py-2">
           {tabs.map((tab) => {
             const isActive =
               location.pathname === tab.path ||
@@ -119,18 +117,18 @@ export default function BottomNav({ role, onMoreClick }) {
               (tab.path === "/PersonalDashboard" && location.pathname === "/");
             return (
               <Link key={tab.path} to={tab.path}
-                className={role === "personal" ? "relative flex min-w-0 flex-col items-center gap-1 rounded-xl px-2 py-2 transition-all" : "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all relative min-w-0"}
-                style={role === "personal" ? { background: isActive ? "hsl(var(--app-primary) / 0.1)" : "transparent" } : { background: isActive ? "rgba(168,85,247,0.12)" : "transparent", border: isActive ? "1px solid rgba(168,85,247,0.3)" : "1px solid transparent" }}>
+                className="relative flex min-w-0 flex-col items-center gap-1 rounded-xl px-2 py-2 transition-all"
+                style={{ background: isActive ? "hsl(var(--app-primary) / 0.1)" : "transparent" }}>
                 {isActive && (
                   <motion.div layoutId="bottom-nav-indicator"
                     className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-px rounded-full"
-                    style={{ background: role === "personal" ? "linear-gradient(90deg, transparent, hsl(var(--app-primary)), transparent)" : "linear-gradient(90deg, transparent, #a855f7, transparent)", boxShadow: role === "personal" ? "0 0 4px hsl(var(--app-primary) / 0.45)" : "0 0 8px #a855f7" }}
+                    style={{ background: "linear-gradient(90deg, transparent, hsl(var(--app-primary)), transparent)", boxShadow: "0 0 4px hsl(var(--app-primary) / 0.45)" }}
                     transition={{ type: "spring", stiffness: 380, damping: 30 }} />
                 )}
                 <tab.icon className="w-5 h-5 flex-shrink-0"
-                  style={{ color: isActive ? "#d8b4fe" : "rgba(168,85,247,0.45)", filter: isActive ? (role === "personal" ? "drop-shadow(0 0 4px rgba(168,85,247,0.55))" : "drop-shadow(0 0 6px rgba(168,85,247,0.9))") : "none", transition: "all 0.2s ease" }} />
+                  style={{ color: isActive ? "#d8b4fe" : "rgba(168,85,247,0.45)", filter: isActive ? "drop-shadow(0 0 4px rgba(168,85,247,0.55))" : "none", transition: "all 0.2s ease" }} />
                 <span className="text-[9px] font-mono-cyber tracking-wider leading-none"
-                  style={{ color: isActive ? "#d8b4fe" : "rgba(168,85,247,0.35)", textShadow: isActive ? (role === "personal" ? "0 0 4px rgba(168,85,247,0.55)" : "0 0 8px rgba(168,85,247,0.8)") : "none" }}>
+                  style={{ color: isActive ? "#d8b4fe" : "rgba(168,85,247,0.35)", textShadow: isActive ? "0 0 4px rgba(168,85,247,0.55)" : "none" }}>
                   {tab.label}
                 </span>
               </Link>
@@ -141,8 +139,8 @@ export default function BottomNav({ role, onMoreClick }) {
           <button
             data-cybernav-trigger
             onClick={() => setShowMore(s => !s)}
-            className={role === "personal" ? "flex flex-col items-center gap-1 rounded-xl px-2 py-2 transition-all" : "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all"}
-            style={role === "personal" ? { background: showMore ? "hsl(var(--app-primary) / 0.1)" : "transparent" } : { background: showMore ? "rgba(168,85,247,0.12)" : "transparent", border: showMore ? "1px solid rgba(168,85,247,0.3)" : "1px solid transparent" }}>
+            className="flex flex-col items-center gap-1 rounded-xl px-2 py-2 transition-all"
+            style={{ background: showMore ? "hsl(var(--app-primary) / 0.1)" : "transparent" }}>
             <MoreHorizontal className="w-5 h-5" style={{ color: showMore ? "#d8b4fe" : "rgba(168,85,247,0.45)" }} />
             <span className="text-[9px] font-mono-cyber tracking-wider leading-none" style={{ color: showMore ? "#d8b4fe" : "rgba(168,85,247,0.35)" }}>Mais</span>
           </button>
