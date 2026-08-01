@@ -85,14 +85,16 @@
           }
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
+          "data.usuario_id": "{{user.email}}"
         },
         {
-          "user_condition": {
-            "role": "user"
-          }
+          "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     },
@@ -104,14 +106,16 @@
           }
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
+          "data.usuario_id": "{{user.email}}"
         },
         {
-          "user_condition": {
-            "role": "user"
-          }
+          "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     },
@@ -124,6 +128,15 @@
         },
         {
           "data.usuario_id": "{{user.email}}"
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         }
       ]
     },
@@ -136,6 +149,9 @@
         },
         {
           "data.usuario_id": "{{user.email}}"
+        },
+        {
+          "data.personal_id": "{{user.email}}"
         }
       ]
     }
