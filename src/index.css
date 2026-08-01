@@ -32,8 +32,14 @@
     --professor-bg: 236 44% 4%;
     --professor-card: 238 33% 9%;
     --professor-text: 270 27% 96%;
-    --professor-muted: 265 17% 72%;
-    --professor-border: 270 91% 65%;
+    --professor-muted: 262 17% 74%;
+    --professor-border: 266 72% 68%;
+    --app-bg: 236 44% 4%;
+    --app-surface: 238 33% 9%;
+    --app-surface-highlight: 239 29% 14%;
+    --app-text: 270 27% 96%;
+    --app-muted: 262 17% 74%;
+    --app-primary: 266 72% 68%;
     --radius: 0.5rem;
     --sidebar-background: 240 28% 10%;
     --sidebar-foreground: 270 20% 85%;
@@ -73,8 +79,14 @@
     --professor-bg: 236 44% 4%;
     --professor-card: 238 33% 9%;
     --professor-text: 270 27% 96%;
-    --professor-muted: 265 17% 72%;
-    --professor-border: 270 91% 65%;
+    --professor-muted: 262 17% 74%;
+    --professor-border: 266 72% 68%;
+    --app-bg: 236 44% 4%;
+    --app-surface: 238 33% 9%;
+    --app-surface-highlight: 239 29% 14%;
+    --app-text: 270 27% 96%;
+    --app-muted: 262 17% 74%;
+    --app-primary: 266 72% 68%;
     --sidebar-background: 240 28% 10%;
     --sidebar-foreground: 270 20% 85%;
     --sidebar-primary: 270 60% 55%;
@@ -95,5 +107,58 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .premium-app-shell {
+    background-color: hsl(var(--app-bg));
+    background-image:
+      radial-gradient(circle at 12% -8%, hsl(var(--app-primary) / 0.11), transparent 30%),
+      radial-gradient(circle at 92% 24%, hsl(190 70% 48% / 0.045), transparent 27%);
+  }
+
+  .app-glass-card {
+    background: linear-gradient(145deg, hsl(var(--app-surface-highlight) / 0.67), hsl(var(--app-surface) / 0.58));
+    border: 1px solid hsl(var(--app-primary) / 0.16);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.035), 0 12px 34px hsl(240 50% 2% / 0.24);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .app-glass-card-interactive {
+    transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+  }
+
+  .app-glass-card-interactive:hover {
+    border-color: hsl(var(--app-primary) / 0.28);
+  }
+
+  .app-glass-header {
+    background: hsl(var(--app-bg) / 0.78);
+    border-bottom: 1px solid hsl(var(--app-primary) / 0.1);
+    box-shadow: 0 8px 30px hsl(240 50% 2% / 0.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .app-glass-nav {
+    background: linear-gradient(145deg, hsl(var(--app-surface-highlight) / 0.82), hsl(var(--app-surface) / 0.76));
+    border: 1px solid hsl(var(--app-primary) / 0.16);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04), 0 14px 38px hsl(240 50% 2% / 0.42);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .app-glass-icon {
+    background: linear-gradient(145deg, hsl(var(--app-surface-highlight) / 0.76), hsl(var(--app-primary) / 0.08));
+    border: 1px solid hsl(var(--app-primary) / 0.2);
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
+  }
+
+  .app-section-title {
+    color: hsl(var(--app-muted));
+    font-weight: 500;
+    letter-spacing: 0.01em;
   }
 }

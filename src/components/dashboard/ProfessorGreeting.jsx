@@ -26,9 +26,9 @@ export default function ProfessorGreeting({ user }) {
       <div className="min-w-0">
         <p className="text-[16px] text-professor-muted">{greeting},</p>
         <h1 className="truncate text-[44px] font-semibold leading-[0.95] tracking-[-0.04em] text-professor min-[390px]:text-[48px]">{firstName}</h1>
-        <div className="mt-2.5 inline-flex h-8 items-center gap-2 rounded-full border border-professor-border/25 bg-professor-border/10 px-3 text-[10px] text-purple-300"><UserRound className="h-3.5 w-3.5" /> Professor / Personal</div>
+        <div className="mt-2.5 inline-flex h-8 items-center gap-2 rounded-full border border-app-primary/20 bg-app-primary/10 px-3 text-[10px] text-purple-200"><UserRound className="h-3.5 w-3.5" /> Professor / Personal</div>
       </div>
-      <div className="flex h-[104px] flex-col justify-center rounded-[18px] border border-professor-border/20 bg-professor-card/75 px-2 text-center backdrop-blur-md">
+      <div className="app-glass-card flex h-[104px] flex-col justify-center rounded-[18px] px-2 text-center">
         <div className="flex items-center justify-center gap-1 text-[10px] capitalize text-professor-muted"><CalendarDays className="h-3 w-3" />{weekday}</div>
         <p className="mt-1 text-[32px] font-semibold leading-none">{now.getDate()}</p>
         <p className="mt-1 text-[10px] capitalize text-professor-muted">{month}</p>

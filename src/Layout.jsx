@@ -277,15 +277,15 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Mobile Header */}
       {isPersonal ? (
-        <header className="fixed left-0 right-0 top-0 z-50 border-b border-professor-border/10 bg-professor-bg/95 backdrop-blur-md lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <header className="app-glass-header fixed left-0 right-0 top-0 z-50 lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="mx-auto flex h-[72px] w-full max-w-[430px] items-center justify-between px-4">
             <Link to="/" aria-label="Ir para o início" className="flex min-w-0 items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] border border-professor-border/25 bg-professor-border/10 text-[22px] font-black italic tracking-[-0.08em] text-professor shadow-[0_0_12px_rgba(168,85,247,0.1)]">BZ</div>
+              <div className="app-glass-icon flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] text-[22px] font-black italic tracking-[-0.08em] text-professor">BZ</div>
               <div className="min-w-0"><p className="truncate text-[13px] font-semibold text-professor">BZ Gym System</p></div>
             </Link>
             <div className="flex items-center gap-2">
-              <NotificationBell />
-              <Link to="/Profile" aria-label="Abrir perfil" className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-professor-border/35 bg-professor-border/10 text-xs font-semibold text-purple-200">
+              <NotificationBell premium />
+              <Link to="/Profile" aria-label="Abrir perfil" className="app-glass-icon flex h-11 w-11 items-center justify-center overflow-hidden rounded-full text-xs font-semibold text-purple-100">
                 {userAvatar ? <img src={userAvatar} alt="Perfil" className="h-full w-full object-cover" /> : userName.split(' ').map(part => part[0]).slice(0, 2).join('').toUpperCase()}
               </Link>
             </div>

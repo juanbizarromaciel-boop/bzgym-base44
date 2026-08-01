@@ -12,9 +12,9 @@ const items = [
 export default function DashboardMetrics({ values }) {
   return (
     <section>
-      <h2 className="mb-2.5 text-[13px] font-medium text-professor-muted">Resumo geral</h2>
+      <h2 className="app-section-title mb-2.5 text-[13px]">Resumo geral</h2>
       <div className="grid grid-cols-4 gap-2">
-        {items.map(({ key, label, icon: Icon, path, color, bg }) => <Link key={key} to={path} className="h-[128px] min-w-0 rounded-[17px] border border-professor-border/20 bg-professor-card/75 p-3 backdrop-blur-md transition-colors hover:border-professor-border/30"><div className={`flex h-8 w-8 items-center justify-center rounded-xl ${bg}`}><Icon className={`h-[17px] w-[17px] ${color}`} /></div><p className="mt-4 text-[26px] font-semibold leading-none">{values[key] || 0}</p><p className="mt-2 text-[9px] leading-tight text-professor-muted">{label}</p></Link>)}
+        {items.map(({ key, label, icon: Icon, path, color, bg }) => <Link key={key} to={path} className="app-glass-card app-glass-card-interactive h-[128px] min-w-0 rounded-[17px] p-3"><div className={`flex h-8 w-8 items-center justify-center rounded-xl ${bg}`}><Icon className={`h-[17px] w-[17px] ${color}`} /></div><p className="mt-4 text-[26px] font-medium leading-none tracking-tight text-professor">{values[key] || 0}</p><p className="mt-2 text-[9px] leading-tight text-professor-muted">{label}</p></Link>)}
       </div>
     </section>
   );

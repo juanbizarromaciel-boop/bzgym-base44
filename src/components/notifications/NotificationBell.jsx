@@ -24,7 +24,7 @@ function saveDismissed(data) {
   } catch {}
 }
 
-export default function NotificationBell() {
+export default function NotificationBell({ premium = false }) {
   const [user, setUser] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [student, setStudent] = useState(null);
@@ -178,13 +178,13 @@ export default function NotificationBell() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-purple-500/10 transition-colors"
+        className={premium ? "app-glass-icon relative flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:border-app-primary/30" : "relative p-2 rounded-lg hover:bg-purple-500/10 transition-colors"}
       >
-        <Bell className="w-5 h-5 text-purple-400" />
+        <Bell className={premium ? "h-[18px] w-[18px] text-purple-200" : "w-5 h-5 text-purple-400"} />
         {totalNotifications > 0 && (
           <span
-            className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-pink-500 border-2 border-black flex items-center justify-center text-[10px] font-bold text-white"
-            style={{ boxShadow: '0 0 10px rgba(236,72,153,0.8)' }}
+            className={premium ? "absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full border border-app-bg bg-pink-400 px-1 text-[8px] font-semibold text-app-bg" : "absolute -top-1 -right-1 w-5 h-5 rounded-full bg-pink-500 border-2 border-black flex items-center justify-center text-[10px] font-bold text-white"}
+            style={premium ? undefined : { boxShadow: '0 0 10px rgba(236,72,153,0.8)' }}
           >
             {totalNotifications > 9 ? '9+' : totalNotifications}
           </span>

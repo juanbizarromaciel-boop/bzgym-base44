@@ -97,7 +97,7 @@ export default function BottomNav({ role, onMoreClick }) {
 
       {/* Bottom Bar */}
       <nav
-        className={role === "personal" ? "fixed left-4 right-4 z-40 mx-auto h-[72px] max-w-[398px] overflow-hidden rounded-[23px] border border-professor-border/20 bg-professor-card/90 shadow-[0_10px_32px_rgba(0,0,0,0.4)] backdrop-blur-lg lg:hidden" : "fixed bottom-0 left-0 right-0 z-40 lg:hidden"}
+        className={role === "personal" ? "app-glass-nav fixed left-4 right-4 z-40 mx-auto h-[72px] max-w-[398px] overflow-hidden rounded-[23px] lg:hidden" : "fixed bottom-0 left-0 right-0 z-40 lg:hidden"}
         style={role === "personal" ? { bottom: "calc(8px + env(safe-area-inset-bottom))" } : {
           background: "linear-gradient(to top, rgba(6,4,18,0.98) 0%, rgba(8,5,22,0.96) 100%)",
           borderTop: "1px solid rgba(168,85,247,0.25)",
@@ -108,7 +108,7 @@ export default function BottomNav({ role, onMoreClick }) {
         }}
       >
         <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: role === "personal" ? "linear-gradient(90deg, transparent, rgba(168,85,247,0.3), transparent)" : "linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(6,182,212,0.4), rgba(168,85,247,0.6), transparent)" }} />
+          style={{ background: role === "personal" ? "linear-gradient(90deg, transparent, hsl(var(--app-primary) / 0.24), transparent)" : "linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(6,182,212,0.4), rgba(168,85,247,0.6), transparent)" }} />
 
         <div className={`flex items-center justify-around px-2 py-2 ${role === "personal" ? "h-full" : ""}`}>
           {tabs.map((tab) => {
@@ -120,11 +120,11 @@ export default function BottomNav({ role, onMoreClick }) {
             return (
               <Link key={tab.path} to={tab.path}
                 className={role === "personal" ? "relative flex min-w-0 flex-col items-center gap-1 rounded-xl px-2 py-2 transition-all" : "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all relative min-w-0"}
-                style={role === "personal" ? { background: isActive ? "rgba(168,85,247,0.08)" : "transparent" } : { background: isActive ? "rgba(168,85,247,0.12)" : "transparent", border: isActive ? "1px solid rgba(168,85,247,0.3)" : "1px solid transparent" }}>
+                style={role === "personal" ? { background: isActive ? "hsl(var(--app-primary) / 0.1)" : "transparent" } : { background: isActive ? "rgba(168,85,247,0.12)" : "transparent", border: isActive ? "1px solid rgba(168,85,247,0.3)" : "1px solid transparent" }}>
                 {isActive && (
                   <motion.div layoutId="bottom-nav-indicator"
                     className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-px rounded-full"
-                    style={{ background: "linear-gradient(90deg, transparent, #a855f7, transparent)", boxShadow: role === "personal" ? "0 0 4px rgba(168,85,247,0.65)" : "0 0 8px #a855f7" }}
+                    style={{ background: role === "personal" ? "linear-gradient(90deg, transparent, hsl(var(--app-primary)), transparent)" : "linear-gradient(90deg, transparent, #a855f7, transparent)", boxShadow: role === "personal" ? "0 0 4px hsl(var(--app-primary) / 0.45)" : "0 0 8px #a855f7" }}
                     transition={{ type: "spring", stiffness: 380, damping: 30 }} />
                 )}
                 <tab.icon className="w-5 h-5 flex-shrink-0"
@@ -142,7 +142,7 @@ export default function BottomNav({ role, onMoreClick }) {
             data-cybernav-trigger
             onClick={() => setShowMore(s => !s)}
             className={role === "personal" ? "flex flex-col items-center gap-1 rounded-xl px-2 py-2 transition-all" : "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all"}
-            style={role === "personal" ? { background: showMore ? "rgba(168,85,247,0.08)" : "transparent" } : { background: showMore ? "rgba(168,85,247,0.12)" : "transparent", border: showMore ? "1px solid rgba(168,85,247,0.3)" : "1px solid transparent" }}>
+            style={role === "personal" ? { background: showMore ? "hsl(var(--app-primary) / 0.1)" : "transparent" } : { background: showMore ? "rgba(168,85,247,0.12)" : "transparent", border: showMore ? "1px solid rgba(168,85,247,0.3)" : "1px solid transparent" }}>
             <MoreHorizontal className="w-5 h-5" style={{ color: showMore ? "#d8b4fe" : "rgba(168,85,247,0.45)" }} />
             <span className="text-[9px] font-mono-cyber tracking-wider leading-none" style={{ color: showMore ? "#d8b4fe" : "rgba(168,85,247,0.35)" }}>Mais</span>
           </button>

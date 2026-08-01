@@ -62,6 +62,14 @@ module.exports = {
   			   muted: 'hsl(var(--professor-muted) / <alpha-value>)',
   			   border: 'hsl(var(--professor-border) / <alpha-value>)'
   			 },
+  			 app: {
+  			   bg: 'hsl(var(--app-bg) / <alpha-value>)',
+  			   surface: 'hsl(var(--app-surface) / <alpha-value>)',
+  			   highlight: 'hsl(var(--app-surface-highlight) / <alpha-value>)',
+  			   text: 'hsl(var(--app-text) / <alpha-value>)',
+  			   muted: 'hsl(var(--app-muted) / <alpha-value>)',
+  			   primary: 'hsl(var(--app-primary) / <alpha-value>)'
+  			 },
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',
   				foreground: 'hsl(var(--sidebar-foreground))',
