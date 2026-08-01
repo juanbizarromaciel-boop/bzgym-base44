@@ -149,9 +149,16 @@
           }
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
+          "$and": [
+            {
+              "user_condition": {
+                "role": "personal"
+              }
+            },
+            {
+              "data.personal_id": "{{user.email}}"
+            }
+          ]
         },
         {
           "data.usuarioId": "{{user.email}}"
@@ -172,12 +179,16 @@
           }
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
-        },
-        {
-          "data.personal_id": "{{user.email}}"
+          "$and": [
+            {
+              "user_condition": {
+                "role": "personal"
+              }
+            },
+            {
+              "data.personal_id": "{{user.email}}"
+            }
+          ]
         },
         {
           "data.usuarioId": "{{user.email}}"
@@ -190,6 +201,9 @@
         },
         {
           "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "data.created_by_id": "{{user.id}}"
         }
       ]
     },
@@ -201,12 +215,16 @@
           }
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
-        },
-        {
-          "data.personal_id": "{{user.email}}"
+          "$and": [
+            {
+              "user_condition": {
+                "role": "personal"
+              }
+            },
+            {
+              "data.personal_id": "{{user.email}}"
+            }
+          ]
         },
         {
           "data.usuarioId": "{{user.email}}"
@@ -216,6 +234,9 @@
         },
         {
           "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.created_by_id": "{{user.id}}"
         }
       ]
     },
@@ -227,9 +248,16 @@
           }
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
+          "$and": [
+            {
+              "user_condition": {
+                "role": "personal"
+              }
+            },
+            {
+              "data.personal_id": "{{user.email}}"
+            }
+          ]
         },
         {
           "data.usuarioId": "{{user.email}}"
@@ -239,6 +267,9 @@
         },
         {
           "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.created_by_id": "{{user.id}}"
         }
       ]
     }
