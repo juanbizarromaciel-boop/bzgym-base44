@@ -219,9 +219,11 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
+        user?.role === 'admin'
+          ? <LayoutWrapper currentPageName="AdminDashboard"><AdminDashboard /></LayoutWrapper>
+          : user?.role === 'personal'
+            ? <LayoutWrapper currentPageName="PersonalDashboard"><PersonalDashboard /></LayoutWrapper>
+            : <LayoutWrapper currentPageName={mainPageKey}><MainPage /></LayoutWrapper>
       } />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
