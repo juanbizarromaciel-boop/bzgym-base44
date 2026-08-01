@@ -40,10 +40,13 @@ export default function PersonalDashboard() {
   const pendingAppointments = (eventsQuery.data || []).filter(event => !["concluido", "cancelado"].includes(event.status)).sort((a, b) => (a.horario || "99:99").localeCompare(b.horario || "99:99"));
   const appointments = [...pendingAppointments.filter(event => !event.horario || event.horario >= currentTime), ...pendingAppointments.filter(event => event.horario && event.horario < currentTime)];
   const pendingReviews = (checkInsQuery.data || []).filter(checkIn => checkIn.status === "enviado" || checkIn.status === "pendente");
-  const pendingPayments = (paymentsQuery.data || []).filter(payment => payment.status === "pendente" || payment.status === "atrasado");
+  const payments = paymentsQuery.data || [];
+  const pendingPayments = payments.filter(payment => payment.status === "pendente" || payment.status === "atrasado");
+  const monthPrefix = today.slice(0, 7);
+  const financialTotal = payments.filter(payment => payment.status === "pago" && payment.payment_date?.startsWith(monthPrefix)).reduce((total, payment) => total + (Number(payment.amount) || 0), 0);
   const studentsWithPlans = new Set(plans.map(plan => plan.student_id));
   const withoutWorkout = activeStudents.filter(student => !studentsWithPlans.has(student.id) && !studentsWithPlans.has(student.email));
   const alerts = [pendingReviews.length > 0 && { text: `${pendingReviews.length} avaliação(ões) aguardando revisão`, path: "/Progress?tab=checkins" }, withoutWorkout.length > 0 && { text: `${withoutWorkout.length} aluno(s) sem treino ativo`, path: "/WorkoutPlans" }, unread.length > 0 && { text: `${unread.length} mensagem(ns) não lida(s)`, path: "/Chat" }, pendingPayments.length > 0 && { text: `${pendingPayments.length} pagamento(s) pendente(s)`, path: "/Finance" }];
 
-  return <DashboardProfessor user={user} appointment={appointments[0]} today={today} metrics={{ students: activeStudents.length, workouts: plans.length, diets: diets.length, messages: unread.length }} alerts={alerts} />;
+  return <DashboardProfessor user={user} appointment={appointments[0]} today={today} metrics={{ students: activeStudents.length, workouts: plans.length, diets: diets.length, messages: unread.length }} alerts={alerts} financialTotal={financialTotal} />;
 }

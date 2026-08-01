@@ -189,6 +189,7 @@ const studentNavGroups = [
 export default function Layout({ children, currentPageName }) {
   const [role, setRole] = useState(null);
   const [userName, setUserName] = useState("");
+  const [userAvatar, setUserAvatar] = useState("");
 
   useEffect(() => {
     base44.auth.me().then(async (authUser) => {
@@ -205,7 +206,16 @@ export default function Layout({ children, currentPageName }) {
         ? "assinante"
         : baseRole;
       setRole(effectiveRole);
-      setUserName(mergedUser.full_name || mergedUser.email || "");
+      const rawName = [mergedUser.display_name, mergedUser.full_name, mergedUser.name, mergedUser.nome].find(value => typeof value === "string" && !["", "lost", "undefined", "null"].includes(value.trim().toLowerCase()));
+      const emailName = mergedUser.email?.split("@")[0]?.replace(/[._-]+/g, " ") || "";
+      const personalName = rawName || (!["", "lost", "undefined", "null"].includes(emailName.toLowerCase()) ? emailName : "Professor");
+      setUserName(effectiveRole === "personal" ? personalName : (mergedUser.full_name || mergedUser.email || ""));
+      let avatar = mergedUser.photo_url || mergedUser.avatar_url || mergedUser.profile_image || "";
+      if (!avatar && effectiveRole === "personal") {
+        const profiles = await base44.entities.Student.filter({ email: mergedUser.email }, "-created_date", 1);
+        avatar = profiles[0]?.photo_url || "";
+      }
+      setUserAvatar(avatar);
     }).catch(() => setRole("user"));
   }, []);
 
@@ -216,6 +226,7 @@ export default function Layout({ children, currentPageName }) {
     : isPersonal ? personalNavGroups
     : isSubscriber ? subscriberNavGroups
     : studentNavGroups;
+  const isPersonalDashboard = isPersonal && currentPageName === "PersonalDashboard";
 
   const NavLink = ({ item }) => {
     const isActive = currentPageName === item.page;
@@ -262,33 +273,44 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-grid text-white" style={{ backgroundColor: 'var(--bg-void)', color: 'var(--text-primary)' }}>
+    <div className={`min-h-screen text-white ${isPersonalDashboard ? "bg-professor-bg" : "bg-grid"}`} style={isPersonalDashboard ? undefined : { backgroundColor: 'var(--bg-void)', color: 'var(--text-primary)' }}>
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 backdrop-blur-md px-4 py-3 flex items-center justify-between"
-        style={{
-          background: 'color-mix(in srgb, var(--bg-void) 95%, transparent)',
-          borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 40%, transparent)',
-          boxShadow: '0 2px 20px color-mix(in srgb, var(--neon-purple) 15%, transparent)',
-          paddingTop: 'max(0.75rem, env(safe-area-inset-top))'
-        }}>
-        <Link to="/" aria-label="Ir para o início" className="flex items-baseline gap-0.5 px-2 py-1 rounded-lg"
+      {isPersonal ? (
+        <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/5 bg-professor-bg/95 backdrop-blur-xl lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <div className="mx-auto flex h-[72px] w-full max-w-[430px] items-center justify-between px-4">
+            <Link to="/" aria-label="Ir para o início" className="flex min-w-0 items-center gap-3">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] border border-professor-border/35 bg-professor-border/10 text-[22px] font-black italic tracking-[-0.08em] text-professor shadow-[0_0_18px_rgba(168,85,247,0.16)]">BZ</div>
+              <div className="min-w-0"><p className="truncate text-[13px] font-semibold text-professor">BZ Gym System</p></div>
+            </Link>
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <Link to="/Profile" aria-label="Abrir perfil" className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-professor-border/35 bg-professor-border/10 text-xs font-semibold text-purple-200">
+                {userAvatar ? <img src={userAvatar} alt="Perfil" className="h-full w-full object-cover" /> : userName.split(' ').map(part => part[0]).slice(0, 2).join('').toUpperCase()}
+              </Link>
+            </div>
+          </div>
+        </header>
+      ) : (
+        <div className="lg:hidden fixed top-0 left-0 right-0 z-50 backdrop-blur-md px-4 py-3 flex items-center justify-between"
           style={{
-            border: '1px solid color-mix(in srgb, var(--neon-purple) 65%, transparent)',
-            background: 'color-mix(in srgb, var(--neon-purple) 12%, transparent)',
-            boxShadow: '0 0 20px color-mix(in srgb, var(--neon-purple) 40%, transparent), inset 0 0 8px color-mix(in srgb, var(--neon-purple) 10%, transparent)',
+            background: 'color-mix(in srgb, var(--bg-void) 95%, transparent)',
+            borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 40%, transparent)',
+            boxShadow: '0 2px 20px color-mix(in srgb, var(--neon-purple) 15%, transparent)',
+            paddingTop: 'max(0.75rem, env(safe-area-inset-top))'
           }}>
-          <span className="font-cyber font-black text-2xl leading-none select-none italic"
-            style={{ color: '#ffffff', textShadow: '0 0 14px var(--neon-purple), 0 0 30px color-mix(in srgb, var(--neon-purple) 50%, transparent), 0 0 2px #fff' }}>B</span>
-          <span className="font-cyber font-black text-2xl leading-none select-none italic"
-            style={{ color: 'var(--neon-purple)', textShadow: '0 0 18px var(--neon-purple), 0 0 40px color-mix(in srgb, var(--neon-purple) 55%, transparent)' }}>Z</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <NotificationBell />
-          {isPersonal && <Link to="/Profile" aria-label="Abrir perfil" className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-xs font-semibold text-primary">{userName ? userName.split(' ').map(part => part[0]).slice(0, 2).join('').toUpperCase() : 'PT'}</Link>}
-          <CyberNav role={role} currentPageName={currentPageName} userName={userName} />
+          <Link to="/" aria-label="Ir para o início" className="flex items-baseline gap-0.5 px-2 py-1 rounded-lg"
+            style={{
+              border: '1px solid color-mix(in srgb, var(--neon-purple) 65%, transparent)',
+              background: 'color-mix(in srgb, var(--neon-purple) 12%, transparent)',
+              boxShadow: '0 0 20px color-mix(in srgb, var(--neon-purple) 40%, transparent), inset 0 0 8px color-mix(in srgb, var(--neon-purple) 10%, transparent)',
+            }}>
+            <span className="font-cyber font-black text-2xl leading-none select-none italic" style={{ color: '#ffffff', textShadow: '0 0 14px var(--neon-purple), 0 0 30px color-mix(in srgb, var(--neon-purple) 50%, transparent), 0 0 2px #fff' }}>B</span>
+            <span className="font-cyber font-black text-2xl leading-none select-none italic" style={{ color: 'var(--neon-purple)', textShadow: '0 0 18px var(--neon-purple), 0 0 40px color-mix(in srgb, var(--neon-purple) 55%, transparent)' }}>Z</span>
+          </Link>
+          <div className="flex items-center gap-2"><NotificationBell /><CyberNav role={role} currentPageName={currentPageName} userName={userName} /></div>
         </div>
-      </div>
+      )}
 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex fixed top-0 left-0 h-full w-60 z-40 flex-col border-r"
@@ -377,11 +399,11 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Main Content */}
-      <main className={`lg:ml-60 pt-16 lg:pt-0 min-h-screen ${(role === "user" || role === "assinante" || role === "personal") ? "pb-24 lg:pb-0" : ""}`}>
+      <main className={`lg:ml-60 min-h-screen ${isPersonal ? "pt-[calc(76px+env(safe-area-inset-top))] lg:pt-0" : "pt-16 lg:pt-0"} ${((role === "user" || role === "assinante" || role === "personal") && !isPersonalDashboard) ? "pb-24 lg:pb-0" : ""}`}>
         <div className="hidden lg:block fixed top-5 right-6 z-30">
           <NotificationBell />
         </div>
-        <motion.div className="p-4 md:p-8"
+        <motion.div className={isPersonalDashboard ? "p-0" : "p-4 md:p-8"}
           key={typeof window !== 'undefined' ? window.location.pathname : 'page'}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

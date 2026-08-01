@@ -55,6 +55,13 @@ module.exports = {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			},
+  			 professor: {
+  			   bg: 'hsl(var(--professor-bg) / <alpha-value>)',
+  			   card: 'hsl(var(--professor-card) / <alpha-value>)',
+  			   text: 'hsl(var(--professor-text) / <alpha-value>)',
+  			   muted: 'hsl(var(--professor-muted) / <alpha-value>)',
+  			   border: 'hsl(var(--professor-border) / <alpha-value>)'
+  			 },
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',
   				foreground: 'hsl(var(--sidebar-foreground))',

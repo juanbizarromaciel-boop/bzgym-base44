@@ -29,6 +29,11 @@
     --chart-3: 330 65% 48%;
     --chart-4: 38 80% 48%;
     --chart-5: 160 65% 38%;
+    --professor-bg: 236 44% 4%;
+    --professor-card: 238 33% 9%;
+    --professor-text: 270 27% 96%;
+    --professor-muted: 265 17% 72%;
+    --professor-border: 270 91% 65%;
     --radius: 0.5rem;
     --sidebar-background: 240 28% 10%;
     --sidebar-foreground: 270 20% 85%;
@@ -65,6 +70,11 @@
     --chart-3: 330 65% 48%;
     --chart-4: 38 80% 48%;
     --chart-5: 160 65% 38%;
+    --professor-bg: 236 44% 4%;
+    --professor-card: 238 33% 9%;
+    --professor-text: 270 27% 96%;
+    --professor-muted: 265 17% 72%;
+    --professor-border: 270 91% 65%;
     --sidebar-background: 240 28% 10%;
     --sidebar-foreground: 270 20% 85%;
     --sidebar-primary: 270 60% 55%;
