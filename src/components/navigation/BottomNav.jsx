@@ -29,6 +29,13 @@ const personalTabs = [
   { label: "Financeiro", icon: CreditCard, path: "/Finance" },
 ];
 
+const adminTabs = [
+  { label: "Início", icon: LayoutDashboard, path: "/AdminDashboard" },
+  { label: "Usuários", icon: Users2, path: "/Students" },
+  { label: "Financeiro", icon: CreditCard, path: "/Finance" },
+  { label: "Relatórios", icon: TrendingUp, path: "/Relatorios" },
+];
+
 const studentMoreItems = [
   { label: "Perfil", icon: UserCircle, path: "/Profile", color: "#a855f7" },
   { label: "Mensagens", icon: MessageSquare, path: "/Chat", color: "#ec4899" },
@@ -59,12 +66,31 @@ const personalMoreItems = [
   { label: "Sair", icon: LogOut, action: "logout", color: "#ef4444" },
 ];
 
+const adminMoreItems = [
+  { label: "Aprovações", icon: ClipboardCheck, path: "/PendingStudents", color: "#f59e0b" },
+  { label: "Personais", icon: Users2, path: "/PersonalManagement", color: "#06b6d4" },
+  { label: "Assinaturas", icon: CreditCard, path: "/SubscriptionManagement", color: "#10b981" },
+  { label: "Treinos", icon: Dumbbell, path: "/WorkoutPlans", color: "#8b5cf6" },
+  { label: "Dietas", icon: Utensils, path: "/Diet", color: "#10b981" },
+  { label: "Progresso", icon: TrendingUp, path: "/Progress", color: "#f59e0b" },
+  { label: "Notícias", icon: BookOpen, path: "/NewsManagement", color: "#06b6d4" },
+  { label: "Cal. hormonal", icon: Calendar, path: "/CalendarioHormonalAdmin", color: "#84cc16" },
+  { label: "Mensagens", icon: MessageSquare, path: "/Chat", color: "#ec4899" },
+  { label: "Exercícios", icon: Dumbbell, path: "/ExerciseLibrary", color: "#8b5cf6" },
+  { label: "Documentos", icon: FileImage, path: "/StudentDocuments", color: "#a855f7" },
+  { label: "AI Coach", icon: Sparkles, path: "/AICoach", color: "#c084fc" },
+  { label: "Config. IA", icon: Brain, path: "/AISettings", color: "#06b6d4" },
+  { label: "Notificações", icon: Bell, path: "/Notificacoes", color: "#ec4899" },
+  { label: "Perfil", icon: UserCircle, path: "/Profile", color: "#a855f7" },
+  { label: "Sair", icon: LogOut, action: "logout", color: "#ef4444" },
+];
+
 export default function BottomNav({ role, onMoreClick }) {
   const location = useLocation();
   const [showMore, setShowMore] = useState(false);
 
-  const tabs = role === "personal" ? personalTabs : role === "assinante" ? subscriberTabs : studentTabs;
-  const menuItems = role === "personal" ? personalMoreItems : role === "assinante" ? subscriberMoreItems : studentMoreItems;
+  const tabs = role === "admin" ? adminTabs : role === "personal" ? personalTabs : role === "assinante" ? subscriberTabs : studentTabs;
+  const menuItems = role === "admin" ? adminMoreItems : role === "personal" ? personalMoreItems : role === "assinante" ? subscriberMoreItems : studentMoreItems;
 
   return (
     <>
@@ -80,14 +106,14 @@ export default function BottomNav({ role, onMoreClick }) {
             <motion.div
               initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              className="app-glass-nav fixed left-3 right-3 z-50 overflow-hidden rounded-2xl lg:hidden"
+              className="app-glass-nav fixed left-3 right-3 z-50 max-h-[72vh] overflow-hidden rounded-2xl lg:hidden"
               style={{ bottom: "calc(94px + env(safe-area-inset-bottom))" }}>
               <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.8), rgba(6,182,212,0.6), transparent)' }} />
               <div className="flex items-center justify-between px-5 py-3 border-b border-purple-900/20">
                 <p className="text-[10px] font-mono-cyber tracking-[0.3em] text-purple-400/50 uppercase">// mais opções</p>
                 <button onClick={() => setShowMore(false)} className="p-1 rounded-lg text-purple-400/40 hover:text-white transition-colors"><X className="w-4 h-4" /></button>
               </div>
-              <div className="grid grid-cols-3 gap-0 p-3">
+              <div className="grid max-h-[60vh] grid-cols-3 gap-0 overflow-y-auto p-3">
                 {menuItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   const content = <><div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${item.color}18`, border: `1px solid ${item.color}35` }}><item.icon className="w-5 h-5" style={{ color: item.color }} /></div><span className="text-[9px] font-mono-cyber tracking-wide text-center leading-tight" style={{ color: isActive ? item.color : 'rgba(255,255,255,0.6)' }}>{item.label}</span></>;
@@ -112,6 +138,7 @@ export default function BottomNav({ role, onMoreClick }) {
           {tabs.map((tab) => {
             const isActive =
               location.pathname === tab.path ||
+              (tab.path === "/AdminDashboard" && location.pathname === "/") ||
               (tab.path === "/StudentDashboard" && location.pathname === "/") ||
               (tab.path === "/SubscriberDashboard" && location.pathname === "/") ||
               (tab.path === "/PersonalDashboard" && location.pathname === "/");

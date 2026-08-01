@@ -3,12 +3,13 @@ import { CalendarDays, UserRound } from "lucide-react";
 
 const blocked = new Set(["", "lost", "undefined", "null", "nan"]);
 
-const firstName = (user, profileName) => {
+const firstName = (user, profileName, roleLabel) => {
   const values = [profileName, user?.display_name, user?.full_name, user?.name, user?.nome];
   const direct = values.find(value => typeof value === "string" && !blocked.has(value.trim().toLowerCase()));
   const emailName = user?.email?.split("@")[0]?.replace(/[._-]+/g, " ").trim() || "";
-  const fallback = blocked.has(emailName.split(/\s+/)[0]?.toLowerCase()) ? "Professor" : emailName;
-  const name = (direct || fallback || "Professor").split(/\s+/)[0];
+  const roleFallback = roleLabel === "Professor / Personal" ? "Professor" : (roleLabel || "Usuário");
+  const fallback = blocked.has(emailName.split(/\s+/)[0]?.toLowerCase()) ? roleFallback : emailName;
+  const name = (direct || fallback || roleFallback).split(/\s+/)[0];
   return name.charAt(0).toUpperCase() + name.slice(1);
 };
 
@@ -19,7 +20,7 @@ export default function DashboardGreeting({ user, profileName, roleLabel }) {
     <section className="grid grid-cols-[minmax(0,1fr)_108px] items-end gap-3 min-[390px]:grid-cols-[minmax(0,1fr)_112px]">
       <div className="min-w-0">
         <p className="text-[16px] text-professor-muted">{greeting},</p>
-        <h1 className="truncate text-[44px] font-semibold leading-[0.95] tracking-[-0.04em] text-professor min-[390px]:text-[48px]">{firstName(user, profileName)}</h1>
+        <h1 className="truncate text-[44px] font-semibold leading-[0.95] tracking-[-0.04em] text-professor min-[390px]:text-[48px]">{firstName(user, profileName, roleLabel)}</h1>
         <div className="mt-2.5 inline-flex h-8 items-center gap-2 rounded-full border border-app-primary/20 bg-app-primary/10 px-3 text-[10px] text-purple-200"><UserRound className="h-3.5 w-3.5" />{roleLabel}</div>
       </div>
       <div className="app-glass-card flex h-[104px] flex-col justify-center rounded-[18px] px-2 text-center">

@@ -7,6 +7,7 @@ export default function DashboardPrimaryCard({ icon: Icon, eyebrow, title, subti
     purple: "border-purple-300/20 bg-purple-400/10 text-purple-200",
     cyan: "border-cyan-300/20 bg-cyan-400/10 text-cyan-200",
     green: "border-emerald-300/20 bg-emerald-400/10 text-emerald-200",
+    amber: "border-amber-300/20 bg-amber-400/10 text-amber-200",
   };
   return (
     <section className="app-glass-card grid min-h-[132px] grid-cols-[48px_minmax(0,1fr)_auto] gap-3 rounded-[20px] p-3.5">

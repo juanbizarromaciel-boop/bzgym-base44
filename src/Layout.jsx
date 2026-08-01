@@ -206,11 +206,12 @@ export default function Layout({ children, currentPageName }) {
         ? "assinante"
         : baseRole;
       setRole(effectiveRole);
-      const rawName = [mergedUser.display_name, mergedUser.full_name, mergedUser.name, mergedUser.nome].find(value => typeof value === "string" && !["", "lost", "undefined", "null"].includes(value.trim().toLowerCase()));
+      const rawName = [mergedUser.display_name, mergedUser.full_name, mergedUser.name, mergedUser.nome].find(value => typeof value === "string" && !["", "lost", "undefined", "null", "nan"].includes(value.trim().toLowerCase()));
       const emailName = mergedUser.email?.split("@")[0]?.replace(/[._-]+/g, " ") || "";
-      const profileName = rawName || (!["", "lost", "undefined", "null"].includes(emailName.toLowerCase()) ? emailName : "Professor");
-      const isAppRole = ["personal", "user", "assinante"].includes(effectiveRole);
-      setUserName(isAppRole ? profileName : (mergedUser.full_name || mergedUser.email || ""));
+      const roleFallback = effectiveRole === "admin" ? "Administrador" : "Professor";
+      const profileName = rawName || (!["", "lost", "undefined", "null"].includes(emailName.toLowerCase()) ? emailName : roleFallback);
+      const hasPremiumProfile = ["admin", "personal", "user", "assinante"].includes(effectiveRole);
+      setUserName(hasPremiumProfile ? profileName : (mergedUser.full_name || mergedUser.email || ""));
       let avatar = mergedUser.photo_url || mergedUser.avatar_url || mergedUser.profile_image || "";
       if (!avatar && ["personal", "user"].includes(effectiveRole)) {
         const profiles = await base44.entities.Student.filter({ email: mergedUser.email }, "-created_date", 1);
@@ -224,11 +225,12 @@ export default function Layout({ children, currentPageName }) {
   const isPersonal = role === "personal";
   const isSubscriber = role === "assinante";
   const isAppProfile = role === "personal" || role === "user" || role === "assinante";
+  const hasPremiumHeader = isAdmin || isAppProfile;
   const navGroups = isAdmin ? adminNavGroups
     : isPersonal ? personalNavGroups
     : isSubscriber ? subscriberNavGroups
     : studentNavGroups;
-  const isProfileDashboard = (isPersonal && currentPageName === "PersonalDashboard") || (role === "user" && currentPageName === "StudentDashboard") || (isSubscriber && currentPageName === "SubscriberDashboard");
+  const isProfileDashboard = (isAdmin && currentPageName === "AdminDashboard") || (isPersonal && currentPageName === "PersonalDashboard") || (role === "user" && currentPageName === "StudentDashboard") || (isSubscriber && currentPageName === "SubscriberDashboard");
 
   const NavLink = ({ item }) => {
     const isActive = currentPageName === item.page;
@@ -278,7 +280,7 @@ export default function Layout({ children, currentPageName }) {
     <div className={`min-h-screen text-white ${isProfileDashboard ? "bg-professor-bg" : "bg-grid"}`} style={isProfileDashboard ? undefined : { backgroundColor: 'var(--bg-void)', color: 'var(--text-primary)' }}>
 
       {/* Mobile Header */}
-      {isAppProfile ? (
+      {hasPremiumHeader ? (
         <header className="app-glass-header fixed left-0 right-0 top-0 z-50 lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="mx-auto flex h-[72px] w-full max-w-[430px] items-center justify-between px-4">
             <Link to="/" aria-label="Ir para o início" className="flex min-w-0 items-center gap-3">
@@ -392,7 +394,7 @@ export default function Layout({ children, currentPageName }) {
       </aside>
 
       {/* Bottom navigation for mobile app profiles */}
-      {(role === "user" || role === "assinante" || role === "personal") && (
+      {(role === "admin" || role === "user" || role === "assinante" || role === "personal") && (
         <BottomNav role={role} onMoreClick={() => {
           // Open the CyberNav overlay — dispatch a synthetic click on the CyberNav button
           const btn = document.querySelector('[data-cybernav-trigger]');
@@ -401,7 +403,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Main Content */}
-      <main className={`lg:ml-60 min-h-screen ${isAppProfile ? "pt-[calc(76px+env(safe-area-inset-top))] lg:pt-0" : "pt-16 lg:pt-0"} ${(isAppProfile && !isProfileDashboard) ? "pb-24 lg:pb-0" : ""}`}>
+      <main className={`lg:ml-60 min-h-screen ${hasPremiumHeader ? "pt-[calc(76px+env(safe-area-inset-top))] lg:pt-0" : "pt-16 lg:pt-0"} ${(hasPremiumHeader && !isProfileDashboard) ? "pb-24 lg:pb-0" : ""}`}>
         <div className="hidden lg:block fixed top-5 right-6 z-30">
           <NotificationBell />
         </div>

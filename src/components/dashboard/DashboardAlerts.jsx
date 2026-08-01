@@ -2,8 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { AlertCircle, CheckCircle2, ChevronRight, CircleDollarSign } from "lucide-react";
 
-export default function DashboardAlerts({ alerts, financialTotal = 0 }) {
-  const visible = alerts.filter(Boolean).slice(0, 2);
+export default function DashboardAlerts({ alerts, financialTotal = 0, limit = 2 }) {
+  const visible = alerts.filter(Boolean).slice(0, limit);
   const formattedTotal = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(financialTotal);
   return (
     <section className="grid grid-cols-2 gap-2.5">
