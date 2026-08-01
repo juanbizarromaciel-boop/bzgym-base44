@@ -97,8 +97,8 @@ export default function BottomNav({ role, onMoreClick }) {
 
       {/* Bottom Bar */}
       <nav
-        className={role === "personal" ? "fixed left-4 right-4 z-40 mx-auto h-[74px] max-w-[398px] overflow-hidden rounded-[24px] border border-white/10 bg-professor-card/90 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-2xl lg:hidden" : "fixed bottom-0 left-0 right-0 z-40 lg:hidden"}
-        style={role === "personal" ? { bottom: "calc(10px + env(safe-area-inset-bottom))" } : {
+        className={role === "personal" ? "fixed left-4 right-4 z-40 mx-auto h-[72px] max-w-[398px] overflow-hidden rounded-[23px] border border-professor-border/20 bg-professor-card/90 shadow-[0_10px_32px_rgba(0,0,0,0.4)] backdrop-blur-lg lg:hidden" : "fixed bottom-0 left-0 right-0 z-40 lg:hidden"}
+        style={role === "personal" ? { bottom: "calc(8px + env(safe-area-inset-bottom))" } : {
           background: "linear-gradient(to top, rgba(6,4,18,0.98) 0%, rgba(8,5,22,0.96) 100%)",
           borderTop: "1px solid rgba(168,85,247,0.25)",
           boxShadow: "0 -4px 30px rgba(168,85,247,0.12), 0 -1px 0 rgba(168,85,247,0.15)",
@@ -108,7 +108,7 @@ export default function BottomNav({ role, onMoreClick }) {
         }}
       >
         <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: "linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(6,182,212,0.4), rgba(168,85,247,0.6), transparent)" }} />
+          style={{ background: role === "personal" ? "linear-gradient(90deg, transparent, rgba(168,85,247,0.3), transparent)" : "linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(6,182,212,0.4), rgba(168,85,247,0.6), transparent)" }} />
 
         <div className={`flex items-center justify-around px-2 py-2 ${role === "personal" ? "h-full" : ""}`}>
           {tabs.map((tab) => {
@@ -124,13 +124,13 @@ export default function BottomNav({ role, onMoreClick }) {
                 {isActive && (
                   <motion.div layoutId="bottom-nav-indicator"
                     className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-px rounded-full"
-                    style={{ background: "linear-gradient(90deg, transparent, #a855f7, transparent)", boxShadow: "0 0 8px #a855f7" }}
+                    style={{ background: "linear-gradient(90deg, transparent, #a855f7, transparent)", boxShadow: role === "personal" ? "0 0 4px rgba(168,85,247,0.65)" : "0 0 8px #a855f7" }}
                     transition={{ type: "spring", stiffness: 380, damping: 30 }} />
                 )}
                 <tab.icon className="w-5 h-5 flex-shrink-0"
-                  style={{ color: isActive ? "#d8b4fe" : "rgba(168,85,247,0.45)", filter: isActive ? "drop-shadow(0 0 6px rgba(168,85,247,0.9))" : "none", transition: "all 0.2s ease" }} />
+                  style={{ color: isActive ? "#d8b4fe" : "rgba(168,85,247,0.45)", filter: isActive ? (role === "personal" ? "drop-shadow(0 0 4px rgba(168,85,247,0.55))" : "drop-shadow(0 0 6px rgba(168,85,247,0.9))") : "none", transition: "all 0.2s ease" }} />
                 <span className="text-[9px] font-mono-cyber tracking-wider leading-none"
-                  style={{ color: isActive ? "#d8b4fe" : "rgba(168,85,247,0.35)", textShadow: isActive ? "0 0 8px rgba(168,85,247,0.8)" : "none" }}>
+                  style={{ color: isActive ? "#d8b4fe" : "rgba(168,85,247,0.35)", textShadow: isActive ? (role === "personal" ? "0 0 4px rgba(168,85,247,0.55)" : "0 0 8px rgba(168,85,247,0.8)") : "none" }}>
                   {tab.label}
                 </span>
               </Link>

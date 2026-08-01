@@ -7,8 +7,8 @@ const typeLabel = { treino: "Treino de hoje", dieta: "Nutrição", checkin: "Che
 
 export default function TodayAppointment({ appointment, today }) {
   return (
-    <section className="grid min-h-[150px] grid-cols-[52px_minmax(0,1fr)_auto] gap-3 rounded-[20px] border border-professor-border/25 bg-professor-card/70 p-4 backdrop-blur-xl">
-      <div className="flex h-[52px] w-[52px] items-center justify-center self-center rounded-full border border-professor-border/40 bg-professor-border/10 shadow-[0_0_20px_rgba(168,85,247,0.12)]"><CalendarCheck className="h-6 w-6 text-purple-300" /></div>
+    <section className="grid min-h-[132px] grid-cols-[48px_minmax(0,1fr)_auto] gap-3 rounded-[20px] border border-professor-border/20 bg-professor-card/75 p-3.5 backdrop-blur-md">
+      <div className="flex h-12 w-12 items-center justify-center self-center rounded-full border border-professor-border/30 bg-professor-border/10 shadow-[0_0_14px_rgba(168,85,247,0.08)]"><CalendarCheck className="h-[22px] w-[22px] text-purple-300" /></div>
       <div className="min-w-0 self-center">
         <p className="text-[10px] font-medium text-purple-300">{appointment ? typeLabel[appointment.tipo] || "Atendimento" : "Próximo atendimento"}</p>
         {appointment ? <><h2 className="mt-1 line-clamp-2 text-[16px] font-semibold leading-tight">{appointment.titulo}</h2><p className="mt-1 text-xs text-professor-muted">{appointment.horario || "Horário não informado"}</p>{appointment.descricao && <p className="mt-1 line-clamp-1 text-[10px] text-professor-muted/70">{appointment.descricao}</p>}</> : <p className="mt-2 text-[12px] leading-relaxed text-professor-muted">Nenhum atendimento agendado para hoje</p>}

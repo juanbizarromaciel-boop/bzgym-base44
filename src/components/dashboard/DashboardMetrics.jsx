@@ -12,11 +12,9 @@ const items = [
 export default function DashboardMetrics({ values }) {
   return (
     <section>
-      <h2 className="mb-3 text-[13px] font-medium text-professor-muted">Resumo geral</h2>
-      <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-[375px]:mx-0 min-[375px]:overflow-visible min-[375px]:px-0">
-        <div className="grid grid-flow-col auto-cols-[88px] gap-2 snap-x snap-mandatory min-[375px]:grid-flow-row min-[375px]:grid-cols-4 min-[375px]:auto-cols-auto">
-          {items.map(({ key, label, icon: Icon, path, color, bg }) => <Link key={key} to={path} className="min-h-[150px] snap-start rounded-[18px] border border-white/10 bg-professor-card/70 p-3 backdrop-blur-xl transition-colors hover:border-professor-border/30"><div className={`flex h-8 w-8 items-center justify-center rounded-xl ${bg}`}><Icon className={`h-[18px] w-[18px] ${color}`} /></div><p className="mt-5 text-[28px] font-semibold leading-none">{values[key] || 0}</p><p className="mt-2 text-[10px] leading-tight text-professor-muted">{label}</p></Link>)}
-        </div>
+      <h2 className="mb-2.5 text-[13px] font-medium text-professor-muted">Resumo geral</h2>
+      <div className="grid grid-cols-4 gap-2">
+        {items.map(({ key, label, icon: Icon, path, color, bg }) => <Link key={key} to={path} className="h-[128px] min-w-0 rounded-[17px] border border-professor-border/20 bg-professor-card/75 p-3 backdrop-blur-md transition-colors hover:border-professor-border/30"><div className={`flex h-8 w-8 items-center justify-center rounded-xl ${bg}`}><Icon className={`h-[17px] w-[17px] ${color}`} /></div><p className="mt-4 text-[26px] font-semibold leading-none">{values[key] || 0}</p><p className="mt-2 text-[9px] leading-tight text-professor-muted">{label}</p></Link>)}
       </div>
     </section>
   );

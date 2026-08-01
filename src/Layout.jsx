@@ -277,10 +277,10 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Mobile Header */}
       {isPersonal ? (
-        <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/5 bg-professor-bg/95 backdrop-blur-xl lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <header className="fixed left-0 right-0 top-0 z-50 border-b border-professor-border/10 bg-professor-bg/95 backdrop-blur-md lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="mx-auto flex h-[72px] w-full max-w-[430px] items-center justify-between px-4">
             <Link to="/" aria-label="Ir para o início" className="flex min-w-0 items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] border border-professor-border/35 bg-professor-border/10 text-[22px] font-black italic tracking-[-0.08em] text-professor shadow-[0_0_18px_rgba(168,85,247,0.16)]">BZ</div>
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] border border-professor-border/25 bg-professor-border/10 text-[22px] font-black italic tracking-[-0.08em] text-professor shadow-[0_0_12px_rgba(168,85,247,0.1)]">BZ</div>
               <div className="min-w-0"><p className="truncate text-[13px] font-semibold text-professor">BZ Gym System</p></div>
             </Link>
             <div className="flex items-center gap-2">
