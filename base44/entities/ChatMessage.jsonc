@@ -6,6 +6,10 @@
       "type": "string",
       "description": "ID do aluno"
     },
+    "personal_id": {
+      "type": "string",
+      "description": "Email do Personal respons\u00e1vel pela conversa"
+    },
     "sender_email": {
       "type": "string",
       "description": "Email de quem enviou"
@@ -46,12 +50,29 @@
           }
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
+          "$and": [
+            {
+              "user_condition": {
+                "role": "personal"
+              }
+            },
+            {
+              "data.personal_id": "{{user.email}}"
+            },
+            {
+              "data.sender_email": "{{user.email}}"
+            }
+          ]
         },
         {
-          "data.sender_email": "{{user.email}}"
+          "$and": [
+            {
+              "data.student_id": "{{user.data.student_id}}"
+            },
+            {
+              "data.sender_email": "{{user.email}}"
+            }
+          ]
         }
       ]
     },
@@ -63,12 +84,16 @@
           }
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
-        },
-        {
-          "data.sender_email": "{{user.email}}"
+          "$and": [
+            {
+              "user_condition": {
+                "role": "personal"
+              }
+            },
+            {
+              "data.personal_id": "{{user.email}}"
+            }
+          ]
         },
         {
           "data.student_id": "{{user.data.student_id}}"
@@ -83,12 +108,19 @@
           }
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
+          "$and": [
+            {
+              "user_condition": {
+                "role": "personal"
+              }
+            },
+            {
+              "data.personal_id": "{{user.email}}"
+            }
+          ]
         },
         {
-          "data.sender_email": "{{user.email}}"
+          "data.student_id": "{{user.data.student_id}}"
         }
       ]
     },
@@ -100,7 +132,29 @@
           }
         },
         {
-          "data.sender_email": "{{user.email}}"
+          "$and": [
+            {
+              "user_condition": {
+                "role": "personal"
+              }
+            },
+            {
+              "data.personal_id": "{{user.email}}"
+            },
+            {
+              "data.sender_email": "{{user.email}}"
+            }
+          ]
+        },
+        {
+          "$and": [
+            {
+              "data.student_id": "{{user.data.student_id}}"
+            },
+            {
+              "data.sender_email": "{{user.email}}"
+            }
+          ]
         }
       ]
     }
