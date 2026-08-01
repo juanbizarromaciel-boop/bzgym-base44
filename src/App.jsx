@@ -197,6 +197,7 @@ const AuthenticatedApp = () => {
       <Route path="/Profile" element={<LayoutWrapper currentPageName="Profile"><Profile /></LayoutWrapper>} />
       <Route path="/AppThemes" element={<LayoutWrapper currentPageName="AppThemes"><AppThemes /></LayoutWrapper>} />
       <Route path="/SubscriberBilling" element={<LayoutWrapper currentPageName="SubscriberBilling"><SubscriberBilling /></LayoutWrapper>} />
+      <Route path="/Notificacoes" element={<LayoutWrapper currentPageName="Notificacoes"><Notificacoes /></LayoutWrapper>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>;
   }

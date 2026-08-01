@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import DashboardAluno from "@/components/dashboard/DashboardAluno";
 import DashboardSkeleton from "@/components/dashboard/DashboardSkeleton";
+import DashboardErrorState from "@/components/dashboard/DashboardErrorState";
 
 const DAY_MAP = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sabado"];
 const unique = items => items.flat().filter((item, index, list) => list.findIndex(other => other.id === item.id) === index);
@@ -32,6 +33,7 @@ export default function StudentDashboard() {
 
   if (loading || studentQuery.isLoading || (student && dataQuery.isLoading)) return <DashboardSkeleton />;
   if (!user || user.role !== "user") return <Navigate to="/AccessDenied" replace />;
+  if (studentQuery.isError || dataQuery.isError) return <DashboardErrorState onRetry={() => { studentQuery.refetch(); dataQuery.refetch(); }} />;
   if (!student) return <Navigate to="/Onboarding" replace />;
   if (student.active === false) return <Navigate to="/Welcome" replace />;
   const data = dataQuery.data || { plans: [], diets: [], messages: [], events: [], logs: [] };

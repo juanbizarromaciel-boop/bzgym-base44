@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import DashboardProfessor from "@/components/dashboard/DashboardProfessor";
 import DashboardSkeleton from "@/components/dashboard/DashboardSkeleton";
+import DashboardErrorState from "@/components/dashboard/DashboardErrorState";
 
 const localDate = () => {
   const date = new Date();
@@ -30,7 +31,7 @@ export default function PersonalDashboard() {
   if (loading || (enabled && studentsQuery.isLoading)) return <DashboardSkeleton />;
   if (!user || user.role !== "personal") return <Navigate to="/AccessDenied" replace />;
   const queries = [studentsQuery, plansQuery, dietsQuery, eventsQuery, paymentsQuery, checkInsQuery, messagesQuery];
-  if (queries.some(query => query.isError)) return <div className="mx-auto max-w-lg rounded-2xl border border-destructive/30 bg-card p-6 text-center"><p className="font-semibold">Não foi possível carregar a dashboard.</p><p className="mt-1 text-sm text-muted-foreground">Verifique sua conexão e tente novamente.</p><button onClick={() => queries.forEach(query => query.refetch())} className="mt-4 min-h-11 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground">Tentar novamente</button></div>;
+  if (queries.some(query => query.isError)) return <DashboardErrorState onRetry={() => queries.forEach(query => query.refetch())} />;
 
   const plans = (plansQuery.data || []).filter(plan => plan.active !== false && plan.statusVersao !== "arquivado" && plan.statusVersao !== "substituido");
   const diets = (dietsQuery.data || []).filter(diet => diet.active !== false && diet.statusVersao !== "arquivada" && diet.statusVersao !== "substituida");

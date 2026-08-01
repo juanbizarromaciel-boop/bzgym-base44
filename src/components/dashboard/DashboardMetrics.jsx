@@ -1,21 +1,15 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { Users, Dumbbell, Apple, MessageCircle } from "lucide-react";
+import DashboardLinkGrid from "@/components/dashboard/DashboardLinkGrid";
 
-const items = [
-  { key: "students", label: "Alunos ativos", icon: Users, path: "/Students", color: "text-primary", bg: "bg-primary/10" },
-  { key: "workouts", label: "Treinos", icon: Dumbbell, path: "/WorkoutPlans", color: "text-cyan-400", bg: "bg-cyan-500/10" },
-  { key: "diets", label: "Dietas", icon: Apple, path: "/Diet", color: "text-emerald-400", bg: "bg-emerald-500/10" },
-  { key: "messages", label: "Mensagens", icon: MessageCircle, path: "/Chat", color: "text-pink-400", bg: "bg-pink-500/10" },
+const definitions = [
+  { key: "students", label: "Alunos ativos", icon: Users, path: "/Students", tone: "bg-primary/10 text-primary" },
+  { key: "workouts", label: "Treinos", icon: Dumbbell, path: "/WorkoutPlans", tone: "bg-cyan-500/10 text-cyan-400" },
+  { key: "diets", label: "Dietas", icon: Apple, path: "/Diet", tone: "bg-emerald-500/10 text-emerald-400" },
+  { key: "messages", label: "Mensagens", icon: MessageCircle, path: "/Chat", tone: "bg-pink-500/10 text-pink-400" },
 ];
 
 export default function DashboardMetrics({ values }) {
-  return (
-    <section>
-      <h2 className="app-section-title mb-2.5 text-[13px]">Resumo geral</h2>
-      <div className="grid grid-cols-4 gap-2">
-        {items.map(({ key, label, icon: Icon, path, color, bg }) => <Link key={key} to={path} className="app-glass-card app-glass-card-interactive h-[128px] min-w-0 rounded-[17px] p-3"><div className={`flex h-8 w-8 items-center justify-center rounded-xl ${bg}`}><Icon className={`h-[17px] w-[17px] ${color}`} /></div><p className="mt-4 text-[26px] font-medium leading-none tracking-tight text-professor">{values[key] || 0}</p><p className="mt-2 text-[9px] leading-tight text-professor-muted">{label}</p></Link>)}
-      </div>
-    </section>
-  );
+  const items = definitions.map(item => ({ ...item, value: values[item.key] || 0 }));
+  return <DashboardLinkGrid title="Resumo geral" items={items} />;
 }

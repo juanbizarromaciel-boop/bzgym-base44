@@ -52,6 +52,7 @@ const subscriberMoreItems = [
   { label: "Treino IA", icon: Sparkles, path: "/WorkoutAI", color: "#8b5cf6" },
   { label: "Dieta IA", icon: Utensils, path: "/DietAI", color: "#10b981" },
   { label: "Exercícios", icon: BookOpen, path: "/ExerciseLibrary", color: "#06b6d4" },
+  { label: "Notificações", icon: Bell, path: "/Notificacoes", color: "#ec4899" },
   { label: "Foco", icon: Brain, path: "/FocusRoutine", color: "#f59e0b" },
   { label: "Sair", icon: LogOut, action: "logout", color: "#ef4444" },
 ];
