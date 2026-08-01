@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 export default function DashboardActionCards({ title, items }) {
+  const gridClass = items.length === 4 ? "grid grid-cols-2 gap-2.5" : "grid grid-cols-3 gap-2.5";
   return (
     <section>
       <h2 className="app-section-title mb-2.5 text-[13px]">{title}</h2>
-      <div className="grid grid-cols-3 gap-2.5">
+      <div className={gridClass}>
         {items.map(({ title: itemTitle, description, icon: Icon, path, tone }) => (
           <Link key={itemTitle} to={path} className="app-glass-card app-glass-card-interactive group flex h-[160px] min-w-0 flex-col rounded-[18px] p-3 text-center">
             <div className={`mx-auto flex h-10 w-10 items-center justify-center rounded-2xl border ${tone}`}><Icon className="h-5 w-5" /></div>

@@ -186,6 +186,7 @@ const AuthenticatedApp = () => {
       <Route path="/SubscriberDashboard" element={<LayoutWrapper currentPageName="SubscriberDashboard"><SubscriberDashboard /></LayoutWrapper>} />
       <Route path="/MyWorkout" element={<LayoutWrapper currentPageName="MyWorkout"><MyWorkout /></LayoutWrapper>} />
       <Route path="/WorkoutPlans" element={<LayoutWrapper currentPageName="WorkoutPlans"><WorkoutPlans /></LayoutWrapper>} />
+      <Route path="/AICoach" element={<LayoutWrapper currentPageName="AICoach"><AICoach /></LayoutWrapper>} />
       <Route path="/WorkoutAI" element={<LayoutWrapper currentPageName="WorkoutAI"><WorkoutAI /></LayoutWrapper>} />
       <Route path="/ExerciseLibrary" element={<LayoutWrapper currentPageName="ExerciseLibrary"><ExerciseLibrary /></LayoutWrapper>} />
       <Route path="/MyDiet" element={<LayoutWrapper currentPageName="MyDiet"><MyDiet /></LayoutWrapper>} />

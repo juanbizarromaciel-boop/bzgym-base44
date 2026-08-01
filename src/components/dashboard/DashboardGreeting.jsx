@@ -5,7 +5,11 @@ const blocked = new Set(["", "lost", "undefined", "null", "nan"]);
 
 const firstName = (user, profileName, roleLabel) => {
   const values = [profileName, user?.display_name, user?.full_name, user?.name, user?.nome];
-  const direct = values.find(value => typeof value === "string" && !blocked.has(value.trim().toLowerCase()));
+  const direct = values.find(value => {
+    if (typeof value !== "string") return false;
+    const normalized = value.trim().toLowerCase();
+    return !blocked.has(normalized) && !blocked.has(normalized.split(/\s+/)[0]);
+  });
   const emailName = user?.email?.split("@")[0]?.replace(/[._-]+/g, " ").trim() || "";
   const roleFallback = roleLabel === "Professor / Personal" ? "Professor" : (roleLabel || "Usuário");
   const fallback = blocked.has(emailName.split(/\s+/)[0]?.toLowerCase()) ? roleFallback : emailName;

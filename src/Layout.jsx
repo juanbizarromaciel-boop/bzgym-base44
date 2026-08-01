@@ -3,188 +3,11 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Dumbbell, Users, ClipboardList, BarChart3, Timer,
-  Library, LayoutDashboard, Utensils, BookOpen, Activity,
-  FileImage, Trophy, UserCircle, MessageSquare, UserPlus,
-  Sparkles, Settings, UserCog, DollarSign, CalendarDays, Briefcase, Brain,
-  Users2, Lock, Bell, Newspaper, CreditCard
-} from "lucide-react";
+
 import NotificationBell from "./components/notifications/NotificationBell";
 import CyberNav from "./components/navigation/CyberNav";
 import BottomNav from "./components/navigation/BottomNav";
-
-const adminNavGroups = [
-  { label: "Visão Geral", color: "#a855f7", items: [
-    { name: "Dashboard Admin", icon: LayoutDashboard, page: "AdminDashboard" },
-    { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
-    { name: "Notificações", icon: Bell, page: "Notificacoes" },
-  ]},
-  { label: "Alunos", color: "#06b6d4", items: [
-    { name: "Alunos", icon: Users, page: "Students" },
-    { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-  ]},
-  { label: "Treinos", color: "#ec4899", items: [
-    { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
-    { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
-    { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
-  ]},
-  { label: "Evolução", color: "#f59e0b", items: [
-    { name: "Progresso", icon: BarChart3, page: "Progress" },
-    { name: "Relatórios", icon: BarChart3, page: "Relatorios" },
-    { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-  ]},
-  { label: "Nutrição", color: "#10b981", items: [
-    { name: "Dietas", icon: Utensils, page: "Diet" },
-    { name: "Histórico de Dietas", icon: ClipboardList, page: "DietLogs" },
-    { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
-  ]},
-  { label: "Comunicação", color: "#06b6d4", items: [
-    { name: "Chat", icon: MessageSquare, page: "Chat" },
-  ]},
-  { label: "Saúde", color: "#84cc16", items: [
-    { name: "Saúde e Exames", icon: Activity, page: "CH" },
-  ]},
-  { label: "Inteligência Artificial", color: "#a855f7", items: [
-    { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
-    { name: "Config. IA", icon: Settings, page: "AISettings" },
-  ]},
-  { label: "Administração", color: "#f97316", items: [
-    { name: "Gestão de Personais", icon: UserCog, page: "PersonalManagement" },
-    { name: "Gestão de Assinaturas", icon: DollarSign, page: "SubscriptionManagement" },
-    { name: "Gestão de Notícias", icon: Newspaper, page: "NewsManagement" },
-  ]},
-  { label: "Agenda & Financeiro", color: "#10b981", items: [
-    { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
-    { name: "Financeiro", icon: DollarSign, page: "Finance" },
-    { name: "Cal. de Aulas", icon: CalendarDays, page: "ClassCalendar" },
-    { name: "Cobrança", icon: Briefcase, page: "ConsultancyBilling" },
-  ]},
-  { label: "Comunidade", color: "#ec4899", items: [
-    { name: "Comunidade", icon: Users2, page: "Comunidade" },
-  ]},
-  { label: "Ferramentas", color: "#8b5cf6", items: [
-    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
-    { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-    { name: "Perfil", icon: UserCircle, page: "Profile" },
-  ]},
-  { label: "Restrito", color: "#84cc16", items: [
-    { name: "Calendário Hormonal", icon: Lock, page: "CalendarioHormonalAdmin" },
-  ]},
-];
-
-const personalNavGroups = [
-  { label: "Visão Geral", color: "#a855f7", items: [
-    { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
-    { name: "Novos Alunos", icon: UserPlus, page: "PendingStudents" },
-  ]},
-  { label: "Meus Alunos", color: "#06b6d4", items: [
-    { name: "Alunos", icon: Users, page: "Students" },
-    { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-  ]},
-  { label: "Treinos", color: "#ec4899", items: [
-    { name: "Planos de Treino", icon: ClipboardList, page: "WorkoutPlans" },
-    { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
-    { name: "Treinar Aluno", icon: Dumbbell, page: "StudentWorkout" },
-  ]},
-  { label: "Evolução", color: "#f59e0b", items: [
-    { name: "Progresso", icon: BarChart3, page: "Progress" },
-    { name: "Relatórios", icon: BarChart3, page: "Relatorios" },
-    { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-  ]},
-  { label: "Nutrição", color: "#10b981", items: [
-    { name: "Dietas", icon: Utensils, page: "Diet" },
-    { name: "Histórico de Dietas", icon: ClipboardList, page: "DietLogs" },
-    { name: "Alimentos", icon: BookOpen, page: "FoodDatabase" },
-  ]},
-  { label: "Comunicação", color: "#06b6d4", items: [
-    { name: "Chat", icon: MessageSquare, page: "Chat" },
-  ]},
-  { label: "Saúde", color: "#84cc16", items: [
-    { name: "Saúde e Exames", icon: Activity, page: "CH" },
-  ]},
-  { label: "Inteligência Artificial", color: "#a855f7", items: [
-    { name: "BZ AI Coach", icon: Sparkles, page: "AICoach" },
-  ]},
-  { label: "Agenda & Financeiro", color: "#10b981", items: [
-    { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
-    { name: "Financeiro", icon: DollarSign, page: "Finance" },
-    { name: "Gestão de Assinaturas", icon: DollarSign, page: "SubscriptionManagement" },
-    { name: "Cal. de Aulas", icon: CalendarDays, page: "ClassCalendar" },
-    { name: "Cobrança", icon: Briefcase, page: "ConsultancyBilling" },
-  ]},
-  { label: "Comunidade", color: "#ec4899", items: [
-    { name: "Comunidade", icon: Users2, page: "Comunidade" },
-  ]},
-  { label: "Ferramentas", color: "#8b5cf6", items: [
-    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
-    { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-    { name: "Perfil", icon: UserCircle, page: "Profile" },
-  ]},
-];
-
-const subscriberNavGroups = [
-  { label: "Início", color: "#a855f7", items: [
-    { name: "Dashboard", icon: LayoutDashboard, page: "SubscriberDashboard" },
-  ]},
-  { label: "Treino", color: "#ec4899", items: [
-    { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
-    { name: "Criar/Editar Treinos", icon: ClipboardList, page: "WorkoutPlans" },
-    { name: "IA de Treino", icon: Sparkles, page: "WorkoutAI" },
-    { name: "Exercícios", icon: Library, page: "ExerciseLibrary" },
-  ]},
-  { label: "Nutrição", color: "#10b981", items: [
-    { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
-    { name: "Criar/Editar Dieta", icon: ClipboardList, page: "Diet" },
-    { name: "IA de Dieta", icon: Sparkles, page: "DietAI" },
-  ]},
-  { label: "Comunidade", color: "#ec4899", items: [
-    { name: "Comunidade", icon: Users2, page: "Comunidade" },
-  ]},
-  { label: "Conta", color: "#8b5cf6", items: [
-    { name: "Assinatura", icon: CreditCard, page: "SubscriberBilling" },
-    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
-    { name: "Perfil", icon: UserCircle, page: "Profile" },
-  ]},
-];
-
-const studentNavGroups = [
-  { label: "Hoje", color: "#a855f7", items: [
-    { name: "Dashboard", icon: LayoutDashboard, page: "StudentDashboard" },
-    { name: "Check-in Diário", icon: ClipboardList, page: "CheckIn" },
-  ]},
-  { label: "Treino", color: "#ec4899", items: [
-    { name: "Meu Treino", icon: Dumbbell, page: "MyWorkout" },
-    { name: "Criar/Editar Treinos", icon: ClipboardList, page: "WorkoutPlans" },
-    { name: "IA de Treino", icon: Sparkles, page: "WorkoutAI" },
-    { name: "Aprender Exercícios", icon: BookOpen, page: "LearnExercises" },
-    { name: "Mural PRs", icon: Trophy, page: "PRBoard" },
-  ]},
-  { label: "Nutrição", color: "#10b981", items: [
-    { name: "Minha Dieta", icon: Utensils, page: "MyDiet" },
-    { name: "Criar/Editar Dieta", icon: ClipboardList, page: "Diet" },
-    { name: "IA de Dieta", icon: Sparkles, page: "DietAI" },
-  ]},
-  { label: "Evolução", color: "#f59e0b", items: [
-    { name: "Progresso", icon: BarChart3, page: "Progress" },
-    { name: "Documentos", icon: FileImage, page: "StudentDocuments" },
-  ]},
-  { label: "Comunicação", color: "#06b6d4", items: [
-    { name: "Chat", icon: MessageSquare, page: "Chat" },
-    { name: "Comunidade", icon: Users2, page: "Comunidade" },
-  ]},
-  { label: "Agenda", color: "#a855f7", items: [
-    { name: "Calendário", icon: CalendarDays, page: "CalendarioGeral" },
-  ]},
-  { label: "Saúde", color: "#84cc16", items: [
-    { name: "Saúde e Exames", icon: Activity, page: "CH" },
-  ]},
-  { label: "Conta", color: "#8b5cf6", items: [
-    { name: "Foco & Rotina", icon: Brain, page: "FocusRoutine" },
-    { name: "Cronômetro", icon: Timer, page: "TimerPage" },
-    { name: "Perfil", icon: UserCircle, page: "Profile" },
-  ]},
-];
+import { getNavigationGroups } from "./components/navigation/navigationConfig";
 
 export default function Layout({ children, currentPageName }) {
   const [role, setRole] = useState(null);
@@ -226,10 +49,7 @@ export default function Layout({ children, currentPageName }) {
   const isSubscriber = role === "assinante";
   const isAppProfile = role === "personal" || role === "user" || role === "assinante";
   const hasPremiumHeader = isAdmin || isAppProfile;
-  const navGroups = isAdmin ? adminNavGroups
-    : isPersonal ? personalNavGroups
-    : isSubscriber ? subscriberNavGroups
-    : studentNavGroups;
+  const navGroups = getNavigationGroups(role);
   const isProfileDashboard = (isAdmin && currentPageName === "AdminDashboard") || (isPersonal && currentPageName === "PersonalDashboard") || (role === "user" && currentPageName === "StudentDashboard") || (isSubscriber && currentPageName === "SubscriberDashboard");
 
   const NavLink = ({ item }) => {
@@ -395,11 +215,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Bottom navigation for mobile app profiles */}
       {(role === "admin" || role === "user" || role === "assinante" || role === "personal") && (
-        <BottomNav role={role} onMoreClick={() => {
-          // Open the CyberNav overlay — dispatch a synthetic click on the CyberNav button
-          const btn = document.querySelector('[data-cybernav-trigger]');
-          if (btn) btn.click();
-        }} />
+        <BottomNav role={role} />
       )}
 
       {/* Main Content */}
