@@ -44,6 +44,8 @@ export default function Chat() {
     : allStudentsChat;
 
   const activeStudentId = isTrainer ? selectedStudentId : student?.id;
+  const activeStudent = isTrainer ? students.find(s => s.id === selectedStudentId) : student;
+  const activePersonalId = activeStudent?.personal_id || (user?.role === "personal" ? user.email : undefined);
 
   const { data: messages = [] } = useQuery({
     queryKey: ["chat_messages", activeStudentId],
@@ -88,6 +90,7 @@ export default function Chat() {
 
     sendMut.mutate({
       student_id: activeStudentId,
+      personal_id: activePersonalId,
       sender_email: user.email,
       sender_name: user.full_name || user.email,
       message: message.trim(),
@@ -150,9 +153,7 @@ export default function Chat() {
     );
   }
 
-  const selectedStudentName = isTrainer
-    ? students.find(s => s.id === selectedStudentId)?.name
-    : student?.name;
+  const selectedStudentName = activeStudent?.name;
 
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">

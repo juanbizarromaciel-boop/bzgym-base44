@@ -99,7 +99,7 @@ export default function WorkoutPlans() {
       day_of_week: plan.day_of_week,
       exercises: plan.exercises || [],
       active: plan.active,
-      personal_id: (currentUser?.role === "personal" || currentUser?.role === "admin") ? currentUser.email : plan.personal_id,
+      personal_id: currentUser?.role === "personal" ? currentUser.email : (students.find(s => s.id === studentId)?.personal_id || plan.personal_id),
     }),
     onSuccess: (newPlan) => {
       qc.invalidateQueries({ queryKey: ["plans"] });
@@ -138,7 +138,7 @@ export default function WorkoutPlans() {
     const dataToSave = isSelfManagedWorkout
       ? { ...planForm, student_id: planForm.student_id || ownStudent?.id || currentUser.email, usuarioId: currentUser.email, assinanteId: currentUser.email, tipoDono: "assinante", personal_id: currentUser.email }
       : (isPersonal || isAdmin)
-        ? { ...planForm, personal_id: currentUser.email }
+        ? { ...planForm, personal_id: isPersonal ? currentUser.email : (students.find(s => s.id === planForm.student_id)?.personal_id || editingPlan?.personal_id || currentUser.email) }
         : planForm;
     editingPlan
       ? updateMut.mutate({ id: editingPlan.id, data: dataToSave })
