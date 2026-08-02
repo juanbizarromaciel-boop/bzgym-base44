@@ -47,11 +47,8 @@ export default function Finance() {
     enabled: !!user,
   });
 
-  const isAdmin = user?.role === 'admin';
-
-  // Personal só vê seus próprios pagamentos e alunos
-  const filteredPayments = isAdmin ? payments : payments.filter(p => p.personal_id === user?.email);
-  const filteredStudents = isAdmin ? students : students.filter(s => s.personal_id === user?.email);
+  const filteredPayments = payments.filter(p => p.personal_id === user?.email || p.created_by_id === user?.id);
+  const filteredStudents = students.filter(s => s.personal_id === user?.email || s.created_by_id === user?.id);
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Payment.delete(id),

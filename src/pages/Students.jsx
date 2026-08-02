@@ -52,15 +52,12 @@ export default function Students() {
 
   const { data: allStudents = [], isLoading } = useQuery({
     queryKey: ["students", currentUser?.email],
-    queryFn: () => currentUser?.role === "personal"
-      ? base44.entities.Student.filter({ personal_id: currentUser.email }, "-created_date", 500)
-      : base44.entities.Student.list(),
+    queryFn: () => base44.entities.Student.list("-created_date", 500),
     enabled: !!currentUser,
   });
 
-  // Personal só vê seus próprios alunos; admin vê todos
-  const students = currentUser?.role === "personal"
-    ? allStudents.filter(s => s.personal_id === currentUser.email)
+  const students = ["admin", "personal"].includes(currentUser?.role)
+    ? allStudents.filter(s => s.personal_id === currentUser.email || s.created_by_id === currentUser.id)
     : allStudents;
 
   const createMut = useMutation({
@@ -110,8 +107,8 @@ export default function Students() {
       finalForm = { ...finalForm, photo_url: file_url };
       setPhotoUploading(false);
     }
-    // Garantir que personal_id é salvo ao criar aluno como personal
-    if (!editingStudent && currentUser?.role === "personal") {
+    // Todo aluno criado por Admin ou Personal fica vinculado ao responsável atual.
+    if (!editingStudent && ["admin", "personal"].includes(currentUser?.role)) {
       finalForm = { ...finalForm, personal_id: currentUser.email };
     }
     if (editingStudent) {

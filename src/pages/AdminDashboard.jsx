@@ -11,7 +11,7 @@ export default function AdminDashboard() {
   const { user, loading } = useCurrentUser();
   const enabled = user?.role === "admin";
   const summaryQuery = useQuery({
-    queryKey: ["admin-dashboard-summary"],
+    queryKey: ["admin-dashboard-summary", user?.email],
     queryFn: async () => (await base44.functions.invoke("getAdminDashboardSummary", {})).data,
     enabled,
     staleTime: 30000,

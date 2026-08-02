@@ -16,20 +16,22 @@ export default async function(req) {
       entities.CalendarioHormonal.list('-created_date', 500), entities.SportsNews.list('-created_date', 500),
     ]);
 
-    const activeStudents = students.filter(item => item.active !== false);
-    const pendingStudents = students.filter(item => item.active === false);
+    const ownedStudents = students.filter(item => item.personal_id === user.email || item.created_by_id === user.id);
+    const ownedPayments = payments.filter(item => item.personal_id === user.email || item.created_by_id === user.id);
+    const activeStudents = ownedStudents.filter(item => item.active !== false);
+    const pendingStudents = ownedStudents.filter(item => item.active === false);
     const personals = users.filter(item => item.role === 'personal');
     const subscribers = users.filter(item => item.role === 'assinante' || item.account_type === 'assinante' || item.assinatura_status);
     const unreadMessages = messages.filter(item => !item.read);
-    const pendingPayments = payments.filter(item => item.status === 'pendente' || item.status === 'atrasado');
+    const pendingPayments = ownedPayments.filter(item => item.status === 'pendente' || item.status === 'atrasado');
     const today = new Date().toISOString().slice(0, 10);
     const month = today.slice(0, 7);
     const todayCheckIns = checkIns.filter(item => item.date === today);
     const activeHormonal = hormonalEvents.filter(item => item.status === 'ativo');
-    const monthlyRevenue = payments.filter(item => item.status === 'pago' && item.payment_date?.startsWith(month)).reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+    const monthlyRevenue = ownedPayments.filter(item => item.status === 'pago' && item.payment_date?.startsWith(month)).reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
     const recentActivity = [
-      ...students.slice(0, 5).map(item => ({ id: `student-${item.id}`, date: item.created_date, text: `Novo aluno: ${item.name || item.email || 'Sem nome'}`, path: '/Students', type: 'student' })),
-      ...payments.slice(0, 5).map(item => ({ id: `payment-${item.id}`, date: item.created_date, text: `Pagamento ${item.status || 'registrado'}: ${item.user_name || item.description || 'Sem identificação'}`, path: '/Finance', type: 'payment' })),
+      ...ownedStudents.slice(0, 5).map(item => ({ id: `student-${item.id}`, date: item.created_date, text: `Novo aluno: ${item.name || item.email || 'Sem nome'}`, path: '/Students', type: 'student' })),
+      ...ownedPayments.slice(0, 5).map(item => ({ id: `payment-${item.id}`, date: item.created_date, text: `Pagamento ${item.status || 'registrado'}: ${item.user_name || item.description || 'Sem identificação'}`, path: '/Finance', type: 'payment' })),
       ...workoutPlans.slice(0, 5).map(item => ({ id: `workout-${item.id}`, date: item.updated_date || item.created_date, text: `Treino atualizado: ${item.name || 'Sem nome'}`, path: '/WorkoutPlans', type: 'workout' })),
       ...dietPlans.slice(0, 5).map(item => ({ id: `diet-${item.id}`, date: item.updated_date || item.created_date, text: `Dieta atualizada: ${item.name || 'Sem nome'}`, path: '/Diet', type: 'diet' })),
     ].filter(item => item.date).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);

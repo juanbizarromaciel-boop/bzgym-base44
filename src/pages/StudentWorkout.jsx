@@ -34,13 +34,10 @@ export default function StudentWorkout() {
   const qc = useQueryClient();
   const { user: currentUser } = useCurrentUser();
 
-  const { data: allStudents = [] } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list(), staleTime: 60000 });
-  const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list(), staleTime: 60000 });
+  const { data: allStudents = [] } = useQuery({ queryKey: ["students", currentUser?.email], queryFn: () => base44.entities.Student.list(), enabled: !!currentUser, staleTime: 60000 });
+  const { data: allPlans = [] } = useQuery({ queryKey: ["plans", currentUser?.email], queryFn: () => base44.entities.WorkoutPlan.list(), enabled: !!currentUser, staleTime: 60000 });
 
-  const isAdmin = currentUser?.role === "admin";
-  const students = isAdmin
-    ? allStudents.filter(s => s.active !== false)
-    : allStudents.filter(s => s.active !== false && s.personal_id === currentUser?.email);
+  const students = allStudents.filter(s => s.active !== false && (s.personal_id === currentUser?.email || s.created_by_id === currentUser?.id));
   const selectedStudent = students.find(s => s.id === selectedStudentId);
   const selectedStudentIds = [selectedStudent?.id, selectedStudent?.email].filter(Boolean);
 
@@ -56,9 +53,7 @@ export default function StudentWorkout() {
   });
 
   const myStudentIds = new Set(students.flatMap(s => [s.id, s.email].filter(Boolean)));
-  const myPlans = isAdmin
-    ? allPlans
-    : allPlans.filter(p => p.personal_id === currentUser?.email || myStudentIds.has(p.student_id));
+  const myPlans = allPlans.filter(p => p.personal_id === currentUser?.email || p.created_by_id === currentUser?.id || myStudentIds.has(p.student_id));
   const studentPlans = myPlans.filter((p) => selectedStudentIds.includes(p.student_id));
   const selectedPlan = myPlans.find((p) => p.id === selectedPlanId);
 
