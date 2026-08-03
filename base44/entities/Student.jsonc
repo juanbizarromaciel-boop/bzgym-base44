@@ -40,7 +40,7 @@
     },
     "personal_id": {
       "type": "string",
-      "description": "Email do Personal respons\u00e1vel pelo aluno"
+      "description": "Email do Admin ou Personal respons\u00e1vel pelo aluno"
     }
   },
   "required": [
@@ -50,9 +50,7 @@
     "create": {
       "$or": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.personal_id": "{{user.email}}"
@@ -65,9 +63,7 @@
     "read": {
       "$or": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.personal_id": "{{user.email}}"
@@ -80,9 +76,7 @@
     "update": {
       "$or": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.personal_id": "{{user.email}}"
@@ -93,9 +87,14 @@
       ]
     },
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        }
+      ]
     }
   }
 }
