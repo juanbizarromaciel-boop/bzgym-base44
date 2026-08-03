@@ -25,7 +25,7 @@
     },
     "personal_id": {
       "type": "string",
-      "description": "Email do personal respons\u00e1vel"
+      "description": "Email do Admin ou Personal respons\u00e1vel"
     },
     "amount": {
       "type": "number",
@@ -96,14 +96,10 @@
     "create": {
       "$or": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
-          "user_condition": {
-            "role": "personal"
-          }
+          "data.personal_id": "{{user.email}}"
         },
         {
           "data.user_email": "{{user.email}}"
@@ -113,9 +109,7 @@
     "read": {
       "$or": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.personal_id": "{{user.email}}"
@@ -128,9 +122,7 @@
     "update": {
       "$or": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.personal_id": "{{user.email}}"
@@ -143,9 +135,7 @@
     "delete": {
       "$or": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.personal_id": "{{user.email}}"
