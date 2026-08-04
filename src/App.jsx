@@ -305,6 +305,8 @@ const AuthenticatedApp = () => {
       <Route path="/PendingStudents" element={<LayoutWrapper currentPageName="PendingStudents"><PendingStudents /></LayoutWrapper>} />
       <Route path="/CH" element={<LayoutWrapper currentPageName="CH"><CH /></LayoutWrapper>} />
       <Route path="/PRBoard" element={<LayoutWrapper currentPageName="PRBoard"><PRBoard /></LayoutWrapper>} />
+      <Route path="/Students" element={<LayoutWrapper currentPageName="Students"><Students /></LayoutWrapper>} />
+      <Route path="/StudentWorkout" element={<LayoutWrapper currentPageName="StudentWorkout"><StudentWorkout /></LayoutWrapper>} />
       <Route path="/Profile" element={<LayoutWrapper currentPageName="Profile"><Profile /></LayoutWrapper>} />
       <Route path="/StudentDocuments" element={<LayoutWrapper currentPageName="StudentDocuments"><StudentDocuments /></LayoutWrapper>} />
       <Route path="/LearnExercises" element={<LayoutWrapper currentPageName="LearnExercises"><LearnExercises /></LayoutWrapper>} />
