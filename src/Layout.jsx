@@ -97,7 +97,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className={`min-h-screen text-white ${isProfileDashboard ? "bg-professor-bg" : "bg-grid"}`} style={isProfileDashboard ? undefined : { backgroundColor: 'var(--bg-void)', color: 'var(--text-primary)' }}>
+    <div className="premium-app-shell min-h-screen text-app-text">
 
       {/* Mobile Header */}
       {hasPremiumHeader ? (
@@ -137,12 +137,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex fixed top-0 left-0 h-full w-60 z-40 flex-col border-r"
-        style={{
-          background: `linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 97%, transparent) 0%, color-mix(in srgb, var(--bg-void) 99%, transparent) 100%)`,
-          borderColor: 'color-mix(in srgb, var(--neon-purple) 55%, transparent)',
-          boxShadow: '4px 0 40px rgba(0,0,0,0.8), inset -1px 0 0 color-mix(in srgb, var(--neon-purple) 40%, transparent), 3px 0 30px color-mix(in srgb, var(--neon-purple) 18%, transparent), 0 0 60px color-mix(in srgb, var(--neon-purple) 8%, transparent)'
-        }}>
+      <aside className="app-glass-header fixed left-0 top-0 z-40 hidden h-full w-60 flex-col border-r border-app-primary/15 lg:flex">
 
         {/* Logo */}
         <div className="px-5 py-4" style={{ borderBottom: '1px solid color-mix(in srgb, var(--neon-purple) 35%, transparent)' }}>

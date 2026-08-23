@@ -5,8 +5,8 @@ module.exports = {
   theme: {
   	extend: {
       fontFamily: {
-        'cyber':      ['Orbitron', 'sans-serif'],
-        'mono-cyber': ['Share Tech Mono', 'monospace'],
+        'cyber':      ['Inter', 'sans-serif'],
+        'mono-cyber': ['Inter', 'sans-serif'],
         'body':       ['Inter', 'sans-serif'],
       },
   		borderRadius: {

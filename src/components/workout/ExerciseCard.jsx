@@ -53,7 +53,7 @@ export default function ExerciseCard({ exercise, index, onEdit, onRemove, showAc
 
   return (
     <>
-      <div className="group rounded-xl p-4 border border-purple-900/20 hover:border-purple-500/25 transition-all" style={{background: 'rgba(0,0,0,0.5)'}}>
+      <div className="app-glass-card app-glass-card-interactive group rounded-xl p-4">
         <div className="flex items-start gap-3">
           {showActions && (
             <div className="text-purple-600/30 mt-1 cursor-grab hover:text-purple-400/50">
@@ -62,14 +62,14 @@ export default function ExerciseCard({ exercise, index, onEdit, onRemove, showAc
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-cyber text-purple-500/40 bg-purple-900/20 px-2 py-0.5 rounded border border-purple-900/30">
+              <span className="text-xs font-body text-purple-500/40 bg-purple-900/20 px-2 py-0.5 rounded border border-purple-900/30">
                 #{index + 1}
               </span>
               <h4 className="font-semibold text-white truncate">{exercise.exercise_name}</h4>
             </div>
 
             <div className="flex flex-wrap gap-2 mb-2">
-              <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
+              <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-body">
                 {exercise.sets}x{exercise.reps}
               </Badge>
               {exercise.load_kg > 0 && (
@@ -78,7 +78,7 @@ export default function ExerciseCard({ exercise, index, onEdit, onRemove, showAc
                 </Badge>
               )}
               {exercise.rest_seconds > 0 && (
-                <Badge className="bg-purple-900/30 border border-purple-900/40 text-purple-400/60 text-xs font-mono-cyber">
+                <Badge className="bg-purple-900/30 border border-purple-900/40 text-purple-400/60 text-xs font-body">
                   {exercise.rest_seconds}s
                 </Badge>
               )}
@@ -90,7 +90,7 @@ export default function ExerciseCard({ exercise, index, onEdit, onRemove, showAc
             </div>
 
             {exercise.technique_details && (
-              <p className="text-xs text-purple-400/40 italic font-mono-cyber">{exercise.technique_details}</p>
+              <p className="text-xs text-purple-400/40 italic font-body">{exercise.technique_details}</p>
             )}
             {exercise.notes && (
               <p className="text-xs text-purple-400/30 mt-1">{exercise.notes}</p>
@@ -169,7 +169,7 @@ export default function ExerciseCard({ exercise, index, onEdit, onRemove, showAc
       {showVideo && (
         <div className="rounded-xl border border-cyan-500/20 bg-black overflow-hidden -mt-1">
           <div className="flex items-center justify-between px-4 py-2 border-b border-cyan-900/30">
-            <span className="text-xs text-cyan-400 font-mono-cyber">{exercise.exercise_name}</span>
+            <span className="text-xs text-cyan-400 font-body">{exercise.exercise_name}</span>
             <button onClick={() => setShowVideo(false)} className="p-1 rounded hover:bg-purple-500/10 transition-colors">
               <X className="w-4 h-4 text-purple-400/60" />
             </button>
@@ -194,7 +194,7 @@ export default function ExerciseCard({ exercise, index, onEdit, onRemove, showAc
           ) : (
             <div className="flex flex-col items-center justify-center py-10 gap-3">
               <Video className="w-8 h-8 text-purple-500/20" />
-              <p className="text-xs text-purple-500/40 font-mono-cyber text-center">
+              <p className="text-xs text-purple-500/40 font-body text-center">
                 // nenhum vídeo cadastrado para este exercício
               </p>
             </div>

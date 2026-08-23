@@ -68,11 +68,11 @@ export default function PaymentFormDialog({ payment, students, personalId, onClo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)' }}>
-      <div className="w-full max-w-md rounded-2xl p-6 relative" style={{ background: 'rgba(8,4,22,0.98)', border: '1px solid rgba(168,85,247,0.3)', boxShadow: '0 0 40px rgba(168,85,247,0.15)' }}>
+      <div className="app-glass-card relative w-full max-w-md rounded-2xl p-6">
         <div className="absolute top-0 left-0 right-0 h-px rounded-t-2xl" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)' }} />
 
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-cyber text-base text-white tracking-wide">{payment?.id ? "EDITAR PAGAMENTO" : "NOVO PAGAMENTO"}</h2>
+          <h2 className="text-base font-semibold text-app-text">{payment?.id ? "EDITAR PAGAMENTO" : "NOVO PAGAMENTO"}</h2>
           <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-purple-500/10">
             <X className="w-4 h-4 text-purple-400" />
           </button>

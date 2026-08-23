@@ -19,6 +19,7 @@ import ExerciseCard from "../components/workout/ExerciseCard";
 import ExerciseFormDialog from "../components/workout/ExerciseFormDialog";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
 import AiWorkoutEvolutionDialog from "../components/workout/AiWorkoutEvolutionDialog";
+import WorkoutPlansHeader from "@/components/workout/WorkoutPlansHeader";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -193,55 +194,13 @@ export default function WorkoutPlans() {
   const orphanPlans = isSelfManagedWorkout ? [] : filteredPlans.filter(p => !knownStudentIds.has(p.student_id));
 
   return (
-    <motion.div initial="hidden" animate="show" variants={stagger}>
-      {/* Custom Cyber Header */}
-      <div className="mb-8 relative">
-        {/* Top decorative line */}
-        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(236,72,153,0.8), transparent)' }} />
-        
-        {/* Main header content */}
-        <div className="flex items-center justify-between py-6">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-1 h-8" style={{ background: 'linear-gradient(to bottom, #ec4899, #a855f7)', borderRadius: '2px', boxShadow: '0 0 12px rgba(236,72,153,0.6)' }} />
-              <h1 className="text-3xl font-black font-cyber tracking-wider" style={{ color: '#ffffff', textShadow: '0 0 20px rgba(236,72,153,0.5), 0 0 40px rgba(168,85,247,0.3)' }}>
-                {isSelfManagedWorkout ? "MEUS TREINOS" : "TREINOS"}
-              </h1>
-            </div>
-            <div className="flex items-center gap-2" style={{ paddingLeft: '14px' }}>
-              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ec4899', boxShadow: '0 0 8px #ec4899, 0 0 16px rgba(236,72,153,0.6)' }} />
-              <p className="text-sm font-mono-cyber tracking-wide" style={{ color: 'rgba(236,72,153,0.8)', textShadow: '0 0 10px rgba(236,72,153,0.5)' }}>
-                {isSelfManagedWorkout ? "Crie, edite e evolua seus próprios treinos" : "Monte treinos personalizados para seus alunos"}
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={openCreatePlan}
-            className="relative px-5 py-3 rounded-xl font-medium tracking-wider flex items-center gap-2 overflow-hidden group"
-            style={{
-              background: 'linear-gradient(135deg, rgba(236,72,153,0.2), rgba(168,85,247,0.15))',
-              border: '1px solid rgba(236,72,153,0.6)',
-              boxShadow: '0 0 20px rgba(236,72,153,0.25), inset 0 0 12px rgba(236,72,153,0.08)'
-            }}
-          >
-            {/* Hover glow effect */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.3), rgba(168,85,247,0.25))' }} />
-            
-            <Plus className="w-5 h-5 relative z-10" style={{ color: '#ec4899', filter: 'drop-shadow(0 0 6px rgba(236,72,153,0.8))' }} />
-            <span className="text-sm font-bold relative z-10" style={{ color: '#ffffff', textShadow: '0 0 8px rgba(236,72,153,0.5)' }}>NOVO TREINO</span>
-          </button>
-        </div>
-
-        {/* Bottom decorative line */}
-        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(236,72,153,0.8), rgba(168,85,247,0.6), transparent)' }} />
-      </div>
+    <motion.div className="app-page" initial="hidden" animate="show" variants={stagger}>
+      <WorkoutPlansHeader selfManaged={isSelfManagedWorkout} onCreate={openCreatePlan} />
 
       {!isSelfManagedWorkout && <motion.div variants={fadeUp} className="mb-6 flex items-center gap-3">
         <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)' }} />
         <Select value={filterStudent} onValueChange={setFilterStudent}>
-          <SelectTrigger className="w-full sm:w-80 cyber-input" style={{ borderColor: 'rgba(168,85,247,0.5)', boxShadow: '0 0 14px rgba(168,85,247,0.12)' }}>
+          <SelectTrigger className="w-full sm:w-80 app-input" style={{ borderColor: 'rgba(168,85,247,0.5)', boxShadow: '0 0 14px rgba(168,85,247,0.12)' }}>
             <SelectValue placeholder="Filtrar por aluno" />
           </SelectTrigger>
           <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
@@ -320,7 +279,7 @@ export default function WorkoutPlans() {
                 <div className="pl-12 pr-5 pb-4 space-y-2 border-t border-purple-900/10 pt-3">
                   <button
                     onClick={(e) => { e.stopPropagation(); setAiEvolution({ plan, student, mode: "treino_especifico" }); }}
-                    className="w-full mb-3 btn-neon-cyan px-4 py-2 rounded-lg text-xs font-bold tracking-widest flex items-center justify-center gap-2"
+                    className="w-full mb-3 app-button-secondary px-4 py-2 rounded-lg text-xs font-bold tracking-widest flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-4 h-4" /> EVOLUIR ESTE TREINO COM IA
                   </button>
@@ -328,7 +287,7 @@ export default function WorkoutPlans() {
                     <ExerciseCard key={idx} exercise={ex} index={idx} showActions={false} />
                   ))}
                   {(!plan.exercises || plan.exercises.length === 0) && (
-                    <p className="text-sm text-purple-500/30 text-center py-4 font-mono-cyber">// nenhum exercício adicionado</p>
+                    <p className="text-sm text-purple-500/30 text-center py-4 font-body">// nenhum exercício adicionado</p>
                   )}
                 </div>
               )}
@@ -362,7 +321,7 @@ export default function WorkoutPlans() {
                  </div>
                  <div className="text-left">
                    <p className="font-semibold text-white text-lg">{student.name}</p>
-                   <p className="text-[11px] font-mono-cyber mt-1" style={{ color: 'rgba(168,85,247,0.7)', textShadow: '0 0 8px rgba(168,85,247,0.5)' }}>
+                   <p className="text-[11px] font-body mt-1" style={{ color: 'rgba(168,85,247,0.7)', textShadow: '0 0 8px rgba(168,85,247,0.5)' }}>
                      {activePlans.length} ativo{activePlans.length !== 1 ? "s" : ""}
                      {archivedPlans.length > 0 && ` • ${archivedPlans.length} oculto${archivedPlans.length !== 1 ? "s" : ""}`}
                    </p>
@@ -372,12 +331,12 @@ export default function WorkoutPlans() {
                  {activePlans.length > 0 && (
                    <div className="flex gap-1.5 flex-wrap">
                      {activePlans.slice(0, 3).map(p => (
-                       <span key={p.id} className="text-[9px] px-2.5 py-1 rounded-md font-mono-cyber tracking-wider"
+                       <span key={p.id} className="text-[9px] px-2.5 py-1 rounded-md font-body tracking-wider"
                          style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.45)', color: '#c084fc', textShadow: '0 0 6px rgba(168,85,247,0.5)' }}>
                          {p.name.length > 10 ? p.name.slice(0, 10) + "…" : p.name}
                        </span>
                      ))}
-                     {activePlans.length > 3 && <span className="text-[9px] font-mono-cyber self-center" style={{ color: 'rgba(168,85,247,0.6)', textShadow: '0 0 5px rgba(168,85,247,0.4)' }}>+{activePlans.length - 3}</span>}
+                     {activePlans.length > 3 && <span className="text-[9px] font-body self-center" style={{ color: 'rgba(168,85,247,0.6)', textShadow: '0 0 5px rgba(168,85,247,0.4)' }}>+{activePlans.length - 3}</span>}
                    </div>
                  )}
                  {isOpen
@@ -394,11 +353,11 @@ export default function WorkoutPlans() {
                     <div className="px-5 py-4 bg-cyan-500/5 border-b border-cyan-900/20">
                       <button
                         onClick={() => setAiEvolution({ plan: activePlans[0], student, mode: "plano_completo" })}
-                        className="w-full btn-neon-purple px-4 py-3 rounded-xl text-xs font-bold tracking-widest flex items-center justify-center gap-2"
+                        className="w-full app-button-primary px-4 py-3 rounded-xl text-xs font-bold tracking-widest flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" /> EVOLUIR PLANO COMPLETO COM IA
                       </button>
-                      <p className="text-[10px] text-purple-400/50 text-center mt-2 font-mono-cyber">
+                      <p className="text-[10px] text-purple-400/50 text-center mt-2 font-body">
                         // cria um novo ciclo com os treinos selecionados sem apagar o histórico
                       </p>
                     </div>
@@ -406,7 +365,7 @@ export default function WorkoutPlans() {
                   {activePlans.map((plan) => <PlanRow key={plan.id} plan={plan} isArchived={false} />)}
 
                   {activePlans.length === 0 && archivedPlans.length === 0 && (
-                    <p className="text-sm text-purple-500/30 text-center py-6 font-mono-cyber">// nenhum treino</p>
+                    <p className="text-sm text-purple-500/30 text-center py-6 font-body">// nenhum treino</p>
                   )}
 
                   {/* Archived folder */}
@@ -417,7 +376,7 @@ export default function WorkoutPlans() {
                         onClick={() => toggleArchiveVisibility(student.id)}
                       >
                         <Archive className="w-3.5 h-3.5 text-amber-500/50" />
-                        <span className="text-[10px] font-mono-cyber text-amber-500/50 tracking-wider">
+                        <span className="text-[10px] font-body text-amber-500/50 tracking-wider">
                           TREINOS OCULTOS ({archivedPlans.length})
                         </span>
                         {archiveOpen ? <ChevronUp className="w-3 h-3 text-amber-500/40 ml-auto" /> : <ChevronDown className="w-3 h-3 text-amber-500/40 ml-auto" />}
@@ -436,7 +395,7 @@ export default function WorkoutPlans() {
         })}
 
         {orphanPlans.map((plan) => (
-          <motion.div key={plan.id} variants={fadeUp} className="cyber-card rounded-xl border border-purple-900/20 overflow-hidden hover:border-purple-500/25 transition-all">
+          <motion.div key={plan.id} variants={fadeUp} className="app-glass-card rounded-xl border border-purple-900/20 overflow-hidden hover:border-purple-500/25 transition-all">
             <div className="p-5 flex items-center justify-between cursor-pointer" onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}>
               <div className="flex items-center gap-4">
                 <div className="w-2 h-10 rounded-full bg-gradient-to-b from-purple-500 to-cyan-500 opacity-60" />
@@ -463,7 +422,7 @@ export default function WorkoutPlans() {
 
         {filteredPlans.length === 0 && (
           <motion.div variants={fadeUp} className="text-center py-16 text-purple-500/30">
-            <p className="font-mono-cyber text-sm">// nenhum treino encontrado</p>
+            <p className="font-body text-sm">// nenhum treino encontrado</p>
           </motion.div>
         )}
       </motion.div>
@@ -472,13 +431,13 @@ export default function WorkoutPlans() {
       <Dialog open={planDialogOpen} onOpenChange={closePlanDialog}>
         <DialogContent className="border border-purple-900/40 text-white max-w-lg max-h-[90vh] overflow-y-auto" style={{background: '#04040e'}}>
           <DialogHeader>
-            <DialogTitle className="font-cyber tracking-widest text-purple-300">{editingPlan ? "EDITAR TREINO" : "NOVO TREINO"}</DialogTitle>
+            <DialogTitle className="font-body tracking-widest text-purple-300">{editingPlan ? "EDITAR TREINO" : "NOVO TREINO"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {!isSelfManagedWorkout && <div>
               <Label className="text-purple-400/60 text-xs tracking-wider">ALUNO *</Label>
               <Select value={planForm.student_id} onValueChange={(v) => setPlanForm({ ...planForm, student_id: v })}>
-                <SelectTrigger className="cyber-input mt-1"><SelectValue placeholder="Selecione o aluno" /></SelectTrigger>
+                <SelectTrigger className="app-input mt-1"><SelectValue placeholder="Selecione o aluno" /></SelectTrigger>
                 <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
                   {students.map((s) => (
                     <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>
@@ -489,12 +448,12 @@ export default function WorkoutPlans() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-purple-400/60 text-xs tracking-wider">NOME DO TREINO *</Label>
-                <Input value={planForm.name} onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })} placeholder="Ex: Treino A - Peito" className="cyber-input mt-1" />
+                <Input value={planForm.name} onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })} placeholder="Ex: Treino A - Peito" className="app-input mt-1" />
               </div>
               <div>
                 <Label className="text-purple-400/60 text-xs tracking-wider">DIA</Label>
                 <Select value={planForm.day_of_week} onValueChange={(v) => setPlanForm({ ...planForm, day_of_week: v })}>
-                  <SelectTrigger className="cyber-input mt-1"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="app-input mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
                     {Object.entries(days).map(([k, v]) => (
                       <SelectItem key={k} value={k} className="text-white">{v}</SelectItem>
@@ -509,7 +468,7 @@ export default function WorkoutPlans() {
                 <Label className="text-purple-400/60 text-xs tracking-wider">EXERCÍCIOS</Label>
                 <button
                   onClick={() => { setEditingExerciseIndex(null); setExerciseDialogOpen(true); }}
-                  className="btn-neon-cyan px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1"
+                  className="app-button-secondary px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1"
                 >
                   <Plus className="w-3 h-3" /> ADICIONAR
                 </button>
@@ -523,7 +482,7 @@ export default function WorkoutPlans() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closePlanDialog} className="border-purple-900/40 text-purple-400/60 hover:bg-purple-500/10">Cancelar</Button>
-            <button onClick={handleSavePlan} className="btn-neon-purple px-4 py-2 rounded-lg text-sm font-medium" disabled={createMut.isPending || updateMut.isPending}>
+            <button onClick={handleSavePlan} className="app-button-primary px-4 py-2 rounded-lg text-sm font-medium" disabled={createMut.isPending || updateMut.isPending}>
               SALVAR TREINO
             </button>
           </DialogFooter>
@@ -534,7 +493,7 @@ export default function WorkoutPlans() {
       <Dialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
         <DialogContent className="border border-pink-900/40 text-white max-w-sm" style={{background: '#04040e'}}>
           <DialogHeader>
-            <DialogTitle className="font-cyber tracking-widest text-pink-300 flex items-center gap-2">
+            <DialogTitle className="font-body tracking-widest text-pink-300 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" /> CONFIRMAR EXCLUSÃO
             </DialogTitle>
           </DialogHeader>
@@ -557,7 +516,7 @@ export default function WorkoutPlans() {
       <Dialog open={!!duplicatePlan} onOpenChange={() => { setDuplicatePlan(null); setDupeStudentId(""); }}>
         <DialogContent className="border border-cyan-900/40 text-white max-w-sm" style={{background: '#04040e'}}>
           <DialogHeader>
-            <DialogTitle className="font-cyber tracking-widest text-cyan-300 flex items-center gap-2">
+            <DialogTitle className="font-body tracking-widest text-cyan-300 flex items-center gap-2">
               <Copy className="w-4 h-4" /> DUPLICAR TREINO
             </DialogTitle>
           </DialogHeader>
@@ -570,7 +529,7 @@ export default function WorkoutPlans() {
             <div>
               <Label className="text-purple-400/60 text-xs tracking-wider">PASSAR PARA O ALUNO</Label>
               <Select value={dupeStudentId} onValueChange={setDupeStudentId}>
-                <SelectTrigger className="cyber-input mt-1"><SelectValue placeholder="Selecione o aluno" /></SelectTrigger>
+                <SelectTrigger className="app-input mt-1"><SelectValue placeholder="Selecione o aluno" /></SelectTrigger>
                 <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
                   {students.map((s) => (
                     <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>
@@ -584,7 +543,7 @@ export default function WorkoutPlans() {
             <button
               onClick={() => duplicateMut.mutate({ plan: duplicatePlan, studentId: dupeStudentId })}
               disabled={!dupeStudentId || duplicateMut.isPending}
-              className="btn-neon-cyan px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40"
+              className="app-button-secondary px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40"
             >
               DUPLICAR E EDITAR
             </button>

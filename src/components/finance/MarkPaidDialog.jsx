@@ -83,12 +83,12 @@ export default function MarkPaidDialog({ payment, studentName, onClose, onSaved 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)' }}>
-      <div className="w-full max-w-md rounded-2xl p-6 relative" style={{ background: 'rgba(8,4,22,0.98)', border: '1px solid rgba(16,185,129,0.3)', boxShadow: '0 0 40px rgba(16,185,129,0.15)' }}>
+      <div className="app-glass-card relative w-full max-w-md rounded-2xl p-6">
         <div className="absolute top-0 left-0 right-0 h-px rounded-t-2xl" style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.5), transparent)' }} />
 
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="font-cyber text-base text-white tracking-wide flex items-center gap-2">
+            <h2 className="flex items-center gap-2 text-base font-semibold text-app-text">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               MARCAR COMO PAGO
             </h2>

@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   DollarSign, Plus, Pencil, Trash2, AlertTriangle,
-  CheckCircle2, Clock, TrendingUp, Users, Filter
+  CheckCircle2, Clock
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import PaymentFormDialog from "../components/finance/PaymentFormDialog";
 import MarkPaidDialog from "../components/finance/MarkPaidDialog";
+import FinanceStats from "@/components/finance/FinanceStats";
+import PageHeader from "@/components/shared/PageHeader";
 import { format, isPast, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -43,12 +44,18 @@ export default function Finance() {
 
   const { data: students = [] } = useQuery({
     queryKey: ['students', user?.email],
-    queryFn: () => base44.entities.Student.list(),
+    queryFn: async () => {
+      const [owned, created] = await Promise.all([
+        base44.entities.Student.filter({ personal_id: user.email }),
+        base44.entities.Student.filter({ created_by_id: user.id }),
+      ]);
+      return [...new Map([...owned, ...created].map(student => [student.id, student])).values()];
+    },
     enabled: !!user,
   });
 
   const filteredPayments = payments.filter(p => p.personal_id === user?.email || p.created_by_id === user?.id);
-  const filteredStudents = students.filter(s => s.personal_id === user?.email || s.created_by_id === user?.id);
+  const filteredStudents = students;
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Payment.delete(id),
@@ -84,50 +91,10 @@ export default function Finance() {
   const formatDate = (d) => { try { return format(parseISO(d), 'dd/MM/yyyy', { locale: ptBR }); } catch { return d; } };
 
   return (
-    <motion.div className="max-w-5xl space-y-6" initial="hidden" animate="show" variants={stagger}>
-      {/* Header */}
-      <motion.div variants={fadeUp} className="relative rounded-2xl p-6 overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(168,85,247,0.05))', border: '1px solid rgba(16,185,129,0.2)', boxShadow: '0 0 40px rgba(16,185,129,0.06)' }}>
-        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.5), transparent)' }} />
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', boxShadow: '0 0 20px rgba(16,185,129,0.2)' }}>
-              <DollarSign className="w-6 h-6 text-emerald-400" style={{ filter: 'drop-shadow(0 0 6px rgba(16,185,129,0.8))' }} />
-            </div>
-            <div>
-              <h1 className="font-cyber text-2xl text-white tracking-wide">FINANCEIRO</h1>
-              <p className="text-xs font-mono-cyber mt-0.5" style={{ color: 'rgba(110,231,183,0.5)' }}>Controle de pagamentos dos alunos</p>
-            </div>
-          </div>
-          <button onClick={() => { setEditingPayment(null); setShowForm(true); }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
-            style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.35)', color: '#6ee7b7', boxShadow: '0 0 14px rgba(16,185,129,0.1)' }}>
-            <Plus className="w-4 h-4" /> Novo Pagamento
-          </button>
-        </div>
-      </motion.div>
+    <motion.div className="app-page space-y-6" initial="hidden" animate="show" variants={stagger}>
+      <PageHeader title="Financeiro" subtitle="Controle de pagamentos dos alunos" action={<button onClick={() => { setEditingPayment(null); setShowForm(true); }} className="app-button-primary h-11 gap-2 rounded-xl px-4 text-sm"><Plus className="h-4 w-4" />Novo pagamento</button>} />
 
-      {/* Stats */}
-      <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: "Total Recebido", value: formatMoney(totalPago), color: '#6ee7b7', border: 'rgba(16,185,129,0.25)', bg: 'rgba(16,185,129,0.07)', icon: TrendingUp },
-          { label: "A Receber", value: formatMoney(totalPendente), color: '#fcd34d', border: 'rgba(245,158,11,0.25)', bg: 'rgba(245,158,11,0.07)', icon: Clock },
-          { label: "Atrasados", value: atrasados.length, color: '#fca5a5', border: 'rgba(239,68,68,0.25)', bg: 'rgba(239,68,68,0.07)', icon: AlertTriangle },
-          { label: "Alunos", value: [...new Set(filteredPayments.map(p => p.student_id))].length, color: '#c084fc', border: 'rgba(168,85,247,0.25)', bg: 'rgba(168,85,247,0.07)', icon: Users },
-        ].map((s, i) => (
-          <motion.div key={i} whileHover={{ scale: 1.04, y: -2 }} transition={{ duration: 0.16 }}
-            className="rounded-xl p-4 border relative overflow-hidden" style={{ background: s.bg, borderColor: s.border }}>
-            <div className="absolute top-0 left-0 right-0 h-px"
-              style={{ background: `linear-gradient(90deg, transparent, ${s.color}80, transparent)` }} />
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-mono-cyber" style={{ color: s.color, opacity: 0.7, letterSpacing: '0.1em' }}>{s.label}</p>
-              <s.icon className="w-3.5 h-3.5" style={{ color: s.color, opacity: 0.6 }} />
-            </div>
-            <p className="text-lg font-cyber" style={{ color: s.color }}>{s.value}</p>
-          </motion.div>
-        ))}
-      </motion.div>
+      <motion.div variants={fadeUp}><FinanceStats received={formatMoney(totalPago)} pending={formatMoney(totalPendente)} overdue={atrasados.length} students={new Set(filteredPayments.map(payment => payment.student_id)).size} /></motion.div>
 
       {/* Alerta atrasados */}
       {atrasados.length > 0 && (
@@ -170,7 +137,7 @@ export default function Finance() {
 
       {/* Table — desktop only */}
       <motion.div variants={fadeUp} className="hidden sm:block rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(168,85,247,0.15)' }}>
-        <div className="grid grid-cols-12 px-4 py-2.5 text-[10px] font-mono-cyber uppercase tracking-widest"
+        <div className="grid grid-cols-12 px-4 py-2.5 text-[10px] font-body uppercase tracking-widest"
           style={{ background: 'rgba(168,85,247,0.08)', borderBottom: '1px solid rgba(168,85,247,0.12)', color: 'rgba(192,132,252,0.5)' }}>
           <div className="col-span-3">Aluno</div>
           <div className="col-span-2">Descrição</div>
@@ -210,7 +177,7 @@ export default function Finance() {
                   </p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-xs font-mono-cyber" style={{ color: 'rgba(192,132,252,0.55)' }}>
+                  <p className="text-xs font-body" style={{ color: 'rgba(192,132,252,0.55)' }}>
                     {p.due_date ? formatDate(p.due_date) : '—'}
                   </p>
                   {p.payment_date && (
@@ -287,7 +254,7 @@ export default function Finance() {
 
                 {/* Value + status */}
                 <div className="flex items-center justify-between">
-                  <p className="text-xl font-cyber" style={{ color: '#6ee7b7' }}>
+                  <p className="text-xl font-body" style={{ color: '#6ee7b7' }}>
                     {p.amount ? formatMoney(p.amount) : '—'}
                   </p>
                   {status !== 'pago' ? (
@@ -315,12 +282,12 @@ export default function Finance() {
                   )}
                   <div className="flex gap-4 flex-wrap">
                     {p.due_date && (
-                      <p className="text-xs font-mono-cyber" style={{ color: 'rgba(192,132,252,0.6)' }}>
+                      <p className="text-xs font-body" style={{ color: 'rgba(192,132,252,0.6)' }}>
                         Venc.: {formatDate(p.due_date)}
                       </p>
                     )}
                     {p.payment_date && (
-                      <p className="text-xs font-mono-cyber" style={{ color: 'rgba(110,231,183,0.55)' }}>
+                      <p className="text-xs font-body" style={{ color: 'rgba(110,231,183,0.55)' }}>
                         Pago: {formatDate(p.payment_date)}
                       </p>
                     )}

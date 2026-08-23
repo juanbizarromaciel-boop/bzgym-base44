@@ -4,9 +4,6 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CheckCircle, Dumbbell, PlayCircle, Trophy, TrendingDown, AlertTriangle, RotateCcw, XCircle } from "lucide-react";
@@ -16,6 +13,7 @@ import RestTimer from "../components/workout/RestTimer";
 import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
 import UncheckExerciseDialog from "../components/workout/UncheckExerciseDialog";
+import WorkoutSelectors from "@/components/workout/WorkoutSelectors";
 import { sortExercisesByProgression, getExerciseProgression } from "../utils/progressionSort";
 import { usePersistentWorkoutSession } from "@/hooks/usePersistentWorkoutSession";
 
@@ -197,38 +195,10 @@ export default function StudentWorkout() {
   };
 
   return (
-    <div>
+    <div className="app-page">
       <PageHeader title="Treinar Aluno" subtitle="Selecione o aluno e registre o treino" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-        <div className="relative">
-          <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none z-10" style={{ borderTop: '2px solid #a855f7', borderLeft: '2px solid #a855f7', boxShadow: '-1px -1px 6px rgba(168,85,247,0.5)' }} />
-          <Select value={selectedStudentId} onValueChange={(v) => { reopenSession(); setSelectedStudentId(v); setSelectedPlanId(""); setSetsData({}); setCompletedExercises(new Set()); setStartedAt(new Date().toISOString()); }}>
-            <SelectTrigger className="cyber-input" style={{ borderColor: 'rgba(168,85,247,0.5)', boxShadow: '0 0 14px rgba(168,85,247,0.15)' }}>
-              <SelectValue placeholder="Selecione o aluno" />
-            </SelectTrigger>
-            <SelectContent style={{background: '#04040e', borderColor: 'rgba(168,85,247,0.3)'}}>
-              {students.map((s) => (
-                <SelectItem key={s.id} value={s.id} className="text-white">{s.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="relative">
-          <div className="absolute top-0 left-0 w-3 h-3 pointer-events-none z-10" style={{ borderTop: '2px solid #06b6d4', borderLeft: '2px solid #06b6d4', boxShadow: '-1px -1px 6px rgba(6,182,212,0.5)' }} />
-          <Select value={selectedPlanId} onValueChange={(v) => { reopenSession(); setSelectedPlanId(v); setSetsData({}); setCompletedExercises(new Set()); if (!startedAt) setStartedAt(new Date().toISOString()); }}>
-            <SelectTrigger className="cyber-input" style={{ borderColor: 'rgba(6,182,212,0.5)', boxShadow: '0 0 14px rgba(6,182,212,0.15)' }}>
-              <SelectValue placeholder="Selecione o treino" />
-            </SelectTrigger>
-            <SelectContent style={{background: '#04040e', borderColor: 'rgba(6,182,212,0.3)'}}>
-              {studentPlans.map((p) => (
-                <SelectItem key={p.id} value={p.id} className="text-white">{p.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <WorkoutSelectors students={students} plans={studentPlans} studentId={selectedStudentId} planId={selectedPlanId} onStudent={(value) => { reopenSession(); setSelectedStudentId(value); setSelectedPlanId(""); setSetsData({}); setCompletedExercises(new Set()); setStartedAt(new Date().toISOString()); }} onPlan={(value) => { reopenSession(); setSelectedPlanId(value); setSetsData({}); setCompletedExercises(new Set()); if (!startedAt) setStartedAt(new Date().toISOString()); }} />
 
       {selectedPlan && (
         <div className="space-y-4">
@@ -237,7 +207,7 @@ export default function StudentWorkout() {
             style={{ background: 'linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)', borderColor: 'rgba(168,85,247,0.30)', boxShadow: '0 4px 24px rgba(0,0,0,0.4), 0 0 20px rgba(168,85,247,0.08)' }}>
             <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.8), rgba(6,182,212,0.4), transparent)' }} />
             <div className="absolute top-0 left-0 w-3 h-3" style={{ borderTop: '2px solid rgba(168,85,247,0.9)', borderLeft: '2px solid rgba(168,85,247,0.9)' }} />
-            <p className="text-[10px] font-mono-cyber tracking-[0.2em] uppercase mb-4"
+            <p className="text-[10px] font-body tracking-[0.2em] uppercase mb-4"
               style={{ color: 'rgba(168,85,247,0.7)', textShadow: '0 0 8px rgba(168,85,247,0.5)' }}>
               Grupos Musculares — {selectedPlan.name}
             </p>
@@ -249,8 +219,8 @@ export default function StudentWorkout() {
             style={{ background: 'linear-gradient(145deg, var(--bg-card) 0%, var(--bg-void) 100%)', borderColor: 'rgba(168,85,247,0.30)', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
             <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.7), transparent)' }} />
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs tracking-wider font-mono-cyber" style={{ color: 'rgba(168,85,247,0.7)', textShadow: '0 0 6px rgba(168,85,247,0.5)' }}>PROGRESSO DO TREINO</span>
-              <span className="font-cyber text-sm" style={{ color: '#a855f7', textShadow: '0 0 10px rgba(168,85,247,0.8)' }}>{completedExercises.size}/{selectedPlan.exercises?.length || 0}</span>
+              <span className="text-xs tracking-wider font-body" style={{ color: 'rgba(168,85,247,0.7)', textShadow: '0 0 6px rgba(168,85,247,0.5)' }}>PROGRESSO DO TREINO</span>
+              <span className="font-body text-sm" style={{ color: '#a855f7', textShadow: '0 0 10px rgba(168,85,247,0.8)' }}>{completedExercises.size}/{selectedPlan.exercises?.length || 0}</span>
             </div>
             <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(168,85,247,0.12)' }}>
               <div
@@ -267,7 +237,7 @@ export default function StudentWorkout() {
           <button
             onClick={handleCancelWorkout}
             disabled={isFinalizing}
-            className="w-full py-2.5 rounded-lg text-xs font-mono-cyber tracking-wider flex items-center justify-center gap-2 mb-2"
+            className="w-full py-2.5 rounded-lg text-xs font-body tracking-wider flex items-center justify-center gap-2 mb-2"
             style={{ border: '1px solid rgba(236,72,153,0.35)', background: 'rgba(236,72,153,0.06)', color: '#f9a8d4' }}
           >
             <XCircle className="w-4 h-4" />
@@ -279,7 +249,7 @@ export default function StudentWorkout() {
             <button
               onClick={handleFinishWorkout}
               disabled={isFinalizing}
-              className="w-full btn-neon-purple py-4 rounded-xl font-cyber text-base tracking-widest flex items-center justify-center gap-3 mb-2"
+              className="w-full app-button-primary py-4 rounded-xl font-body text-base tracking-widest flex items-center justify-center gap-3 mb-2"
               style={{boxShadow: '0 0 30px rgba(168,85,247,0.4)'}}
             >
               <Trophy className="w-5 h-5" />
@@ -324,7 +294,7 @@ export default function StudentWorkout() {
                         : { background: 'rgba(168,85,247,0.12)', borderColor: 'rgba(168,85,247,0.45)', boxShadow: '0 0 10px rgba(168,85,247,0.25)' }}>
                       {isCompleted
                         ? <CheckCircle className="w-5 h-5" style={{ color: '#06b6d4', filter: 'drop-shadow(0 0 5px rgba(6,182,212,0.9))' }} />
-                        : <span className="font-cyber text-xs" style={{ color: '#a855f7', textShadow: '0 0 8px rgba(168,85,247,0.9)' }}>#{exerciseIdx + 1}</span>
+                        : <span className="font-body text-xs" style={{ color: '#a855f7', textShadow: '0 0 8px rgba(168,85,247,0.9)' }}>#{exerciseIdx + 1}</span>
                       }
                     </div>
                     <div className="flex-1">
@@ -341,7 +311,7 @@ export default function StudentWorkout() {
                         )}
                       </div>
                       {progression && (progression.type === "down" || progression.type === "same") && (
-                        <div className="flex items-center gap-1.5 mt-1 text-[10px] font-mono-cyber px-2 py-1 rounded-md w-fit"
+                        <div className="flex items-center gap-1.5 mt-1 text-[10px] font-body px-2 py-1 rounded-md w-fit"
                           style={{ background: `${progression.color}12`, border: `1px solid ${progression.color}30`, color: progression.color }}>
                           {progression.type === "down" ? <TrendingDown className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
                           {progression.label}
@@ -355,7 +325,7 @@ export default function StudentWorkout() {
                           onApply={(kg) => applyWeightToAllSets(exerciseKey, kg, exercise.sets)}
                           disabled={isCompleted}
                         />
-                        <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono-cyber">
+                        <Badge className="bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-body">
                           {exercise.sets}x{exercise.reps}
                         </Badge>
                         {exercise.load_kg > 0 && (
@@ -370,7 +340,7 @@ export default function StudentWorkout() {
                         )}
                       </div>
                       {exercise.technique_details && (
-                        <p className="text-xs text-purple-400/40 mt-1 font-mono-cyber italic">{exercise.technique_details}</p>
+                        <p className="text-xs text-purple-400/40 mt-1 font-body italic">{exercise.technique_details}</p>
                       )}
                     </div>
                   </div>
@@ -379,7 +349,7 @@ export default function StudentWorkout() {
 
                 {/* Sets Grid */}
                 <div className="space-y-2">
-                  <div className="grid grid-cols-12 gap-2 text-[10px] font-mono-cyber uppercase tracking-wider px-2 mb-1"
+                  <div className="grid grid-cols-12 gap-2 text-[10px] font-body uppercase tracking-wider px-2 mb-1"
                     style={{ color: 'rgba(168,85,247,0.55)' }}>
                     <span className="col-span-2">Série</span>
                     <span className="col-span-5">Reps feitas</span>
@@ -387,7 +357,7 @@ export default function StudentWorkout() {
                   </div>
                   {sets.map((set, setIdx) => (
                     <div key={setIdx} className="grid grid-cols-12 gap-2 items-center">
-                      <span className="col-span-2 text-center text-sm font-cyber rounded-lg py-2"
+                      <span className="col-span-2 text-center text-sm font-body rounded-lg py-2"
                         style={{ color: 'rgba(168,85,247,0.8)', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.25)', textShadow: '0 0 6px rgba(168,85,247,0.6)' }}>
                         {setIdx + 1}
                       </span>
@@ -397,7 +367,7 @@ export default function StudentWorkout() {
                           value={set.reps_done || ""}
                           onChange={(e) => updateSet(exerciseKey, setIdx, "reps_done", e.target.value, exercise.sets)}
                           placeholder={exercise.reps}
-                          className="cyber-input text-center"
+                          className="app-input text-center"
                           disabled={isCompleted}
                         />
                       </div>
@@ -407,7 +377,7 @@ export default function StudentWorkout() {
                           value={set.load_kg || ""}
                           onChange={(e) => updateSet(exerciseKey, setIdx, "load_kg", e.target.value, exercise.sets)}
                           placeholder={exercise.load_kg?.toString() || "0"}
-                          className="cyber-input text-center"
+                          className="app-input text-center"
                           disabled={isCompleted}
                         />
                       </div>
@@ -418,7 +388,7 @@ export default function StudentWorkout() {
                 {!isCompleted && (
                   <button
                     onClick={() => saveExerciseLog(exerciseIdx)}
-                    className="w-full mt-4 py-3 rounded-lg text-sm font-cyber tracking-widest flex items-center justify-center gap-2 transition-all"
+                    className="w-full mt-4 py-3 rounded-lg text-sm font-body tracking-widest flex items-center justify-center gap-2 transition-all"
                     disabled={isFinalizing}
                     style={{
                       background: 'linear-gradient(135deg, rgba(168,85,247,0.22), rgba(236,72,153,0.12))',
@@ -440,8 +410,8 @@ export default function StudentWorkout() {
                     style={{ border: '1px solid rgba(6,182,212,0.35)', background: 'rgba(6,182,212,0.06)', boxShadow: '0 0 12px rgba(6,182,212,0.12)' }}>
                     <CheckCircle className="w-4 h-4 group-hover:hidden" style={{ color: '#06b6d4', filter: 'drop-shadow(0 0 5px rgba(6,182,212,0.8))' }} />
                     <RotateCcw className="w-4 h-4 hidden group-hover:block" style={{ color: '#fbbf24' }} />
-                    <span className="text-xs font-mono-cyber tracking-wider group-hover:hidden" style={{ color: '#06b6d4', textShadow: '0 0 8px rgba(6,182,212,0.8)' }}>✓ CONCLUÍDO</span>
-                    <span className="text-xs font-mono-cyber tracking-wider hidden group-hover:block" style={{ color: '#fbbf24' }}>DESMARCAR</span>
+                    <span className="text-xs font-body tracking-wider group-hover:hidden" style={{ color: '#06b6d4', textShadow: '0 0 8px rgba(6,182,212,0.8)' }}>✓ CONCLUÍDO</span>
+                    <span className="text-xs font-body tracking-wider hidden group-hover:block" style={{ color: '#fbbf24' }}>DESMARCAR</span>
                   </button>
                 )}
               </div>
@@ -453,14 +423,14 @@ export default function StudentWorkout() {
       {!selectedPlanId && selectedStudentId && studentPlans.length === 0 && (
         <div className="text-center py-16 text-purple-500/30">
           <Dumbbell className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p className="font-mono-cyber text-sm">// nenhum treino encontrado</p>
+          <p className="font-body text-sm">// nenhum treino encontrado</p>
         </div>
       )}
 
       {!selectedStudentId && (
         <div className="text-center py-16 text-purple-500/30">
           <Dumbbell className="w-12 h-12 mx-auto mb-4 opacity-20" style={{filter: 'drop-shadow(0 0 10px rgba(168,85,247,0.4))'}} />
-          <p className="font-mono-cyber text-sm">// selecione um aluno para começar</p>
+          <p className="font-body text-sm">// selecione um aluno para começar</p>
         </div>
       )}
 
@@ -468,7 +438,7 @@ export default function StudentWorkout() {
       {workoutFinished && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
           <div className="w-full max-w-md animate-fade-in-up">
-            <div className="cyber-card rounded-2xl p-8 border border-purple-500/40 text-center"
+            <div className="app-glass-card rounded-2xl p-8 border border-purple-500/40 text-center"
               style={{boxShadow: '0 0 60px rgba(168,85,247,0.2), 0 0 120px rgba(168,85,247,0.08)'}}>
 
               {/* Trophy Icon */}
@@ -479,27 +449,27 @@ export default function StudentWorkout() {
                 </div>
               </div>
 
-              <h2 className="font-cyber text-2xl text-white tracking-widest mb-2"
+              <h2 className="font-body text-2xl text-white tracking-widest mb-2"
                 style={{textShadow: '0 0 20px rgba(168,85,247,0.6)'}}>
                 TREINO CONCLUÍDO!
               </h2>
 
-              <p className="text-purple-400/60 font-mono-cyber text-xs mb-6">
+              <p className="text-purple-400/60 font-body text-xs mb-6">
                 // {students.find(s => s.id === selectedStudentId)?.name}
               </p>
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-3">
-                  <p className="text-2xl font-cyber text-purple-300">{selectedPlan.exercises?.length || 0}</p>
-                  <p className="text-[10px] text-purple-500/50 font-mono-cyber uppercase tracking-wider mt-1">Exercícios</p>
+                  <p className="text-2xl font-body text-purple-300">{selectedPlan.exercises?.length || 0}</p>
+                  <p className="text-[10px] text-purple-500/50 font-body uppercase tracking-wider mt-1">Exercícios</p>
                 </div>
                 <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-3">
-                  <p className="text-2xl font-cyber text-cyan-300">
+                  <p className="text-2xl font-body text-cyan-300">
                     {Object.values(setsData).reduce((acc, sets) => acc + sets.length, 0) || 
                      (selectedPlan.exercises?.reduce((acc, ex) => acc + (ex.sets || 0), 0) || 0)}
                   </p>
-                  <p className="text-[10px] text-cyan-500/50 font-mono-cyber uppercase tracking-wider mt-1">Séries</p>
+                  <p className="text-[10px] text-cyan-500/50 font-body uppercase tracking-wider mt-1">Séries</p>
                 </div>
               </div>
 
@@ -508,12 +478,12 @@ export default function StudentWorkout() {
               </p>
 
               <div className="border-t border-purple-900/30 pt-5">
-                <p className="text-[11px] text-purple-500/40 font-mono-cyber mb-4">
+                <p className="text-[11px] text-purple-500/40 font-body mb-4">
                   // dados disponíveis em: Progresso → {students.find(s => s.id === selectedStudentId)?.name}
                 </p>
                 <button
                   onClick={handleResetWorkout}
-                  className="w-full btn-neon-purple py-3 rounded-xl font-cyber text-sm tracking-widest"
+                  className="w-full app-button-primary py-3 rounded-xl font-body text-sm tracking-widest"
                 >
                   NOVO TREINO
                 </button>

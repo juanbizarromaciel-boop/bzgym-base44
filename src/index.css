@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -40,6 +42,16 @@
     --app-text: 270 27% 96%;
     --app-muted: 262 17% 74%;
     --app-primary: 266 72% 68%;
+    --neon-purple: hsl(var(--app-primary));
+    --neon-cyan: hsl(190 70% 48%);
+    --neon-pink: hsl(330 65% 55%);
+    --bg-void: hsl(var(--app-bg));
+    --bg-dark: hsl(var(--app-surface));
+    --bg-card: hsl(var(--app-surface));
+    --bg-card2: hsl(var(--app-surface-highlight));
+    --text-primary: hsl(var(--app-text));
+    --text-secondary: hsl(var(--app-muted));
+    --text-muted: hsl(var(--app-muted) / 0.7);
     --radius: 0.5rem;
     --sidebar-background: 240 28% 10%;
     --sidebar-foreground: 270 20% 85%;
@@ -161,4 +173,65 @@
     font-weight: 500;
     letter-spacing: 0.01em;
   }
+
+  .app-page {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    color: hsl(var(--app-text));
+  }
+
+  .app-input {
+    background: hsl(var(--app-surface) / 0.72) !important;
+    border: 1px solid hsl(var(--app-primary) / 0.18) !important;
+    color: hsl(var(--app-text)) !important;
+    border-radius: 0.75rem;
+  }
+
+  .app-input:focus {
+    border-color: hsl(var(--app-primary) / 0.48) !important;
+    box-shadow: 0 0 0 3px hsl(var(--app-primary) / 0.1) !important;
+  }
+
+  .app-button-primary, .app-button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--app-primary) / 0.18);
+    border: 1px solid hsl(var(--app-primary) / 0.32);
+    color: hsl(var(--app-text));
+    font-weight: 600;
+    transition: background-color 180ms ease, border-color 180ms ease;
+  }
+
+  .app-button-primary:hover, .app-button-secondary:hover {
+    background: hsl(var(--app-primary) / 0.26);
+    border-color: hsl(var(--app-primary) / 0.46);
+  }
+
+  .cyber-card {
+    background: linear-gradient(145deg, hsl(var(--app-surface-highlight) / 0.67), hsl(var(--app-surface) / 0.58));
+    border: 1px solid hsl(var(--app-primary) / 0.16);
+    box-shadow: 0 12px 34px hsl(240 50% 2% / 0.24);
+    backdrop-filter: blur(14px);
+  }
+
+  .cyber-input {
+    background: hsl(var(--app-surface) / 0.72) !important;
+    border: 1px solid hsl(var(--app-primary) / 0.18) !important;
+    color: hsl(var(--app-text)) !important;
+    border-radius: 0.75rem;
+  }
+
+  .btn-neon-purple, .btn-neon-cyan, .btn-neon-pink, .btn-neon-green, .btn-neon-amber {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--app-primary) / 0.18);
+    border: 1px solid hsl(var(--app-primary) / 0.32);
+    color: hsl(var(--app-text));
+    font-weight: 600;
+  }
+
+  .bg-grid { background-color: hsl(var(--app-bg)); }
 }
