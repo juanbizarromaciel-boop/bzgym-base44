@@ -33,7 +33,7 @@ export default function StudentWorkout() {
   const { user: currentUser } = useCurrentUser();
 
   const { data: allStudents = [] } = useQuery({ queryKey: ["students", currentUser?.email], queryFn: () => base44.entities.Student.list(), enabled: !!currentUser, staleTime: 60000 });
-  const { data: allPlans = [] } = useQuery({ queryKey: ["plans", currentUser?.email], queryFn: () => base44.entities.WorkoutPlan.list(), enabled: !!currentUser, staleTime: 60000 });
+  const { data: allPlans = [], isLoading: plansLoading } = useQuery({ queryKey: ["plans", currentUser?.email], queryFn: () => base44.entities.WorkoutPlan.list(), enabled: !!currentUser, staleTime: 60000 });
 
   const students = allStudents.filter(s => s.active !== false && (s.personal_id === currentUser?.email || s.created_by_id === currentUser?.id));
   const selectedStudent = students.find(s => s.id === selectedStudentId);
@@ -52,8 +52,8 @@ export default function StudentWorkout() {
 
   const myStudentIds = new Set(students.flatMap(s => [s.id, s.email].filter(Boolean)));
   const myPlans = allPlans.filter(p => p.personal_id === currentUser?.email || p.created_by_id === currentUser?.id || myStudentIds.has(p.student_id));
-  const studentPlans = myPlans.filter((p) => selectedStudentIds.includes(p.student_id));
-  const selectedPlan = myPlans.find((p) => p.id === selectedPlanId);
+  const studentPlans = myPlans.filter((p) => selectedStudentIds.includes(p.student_id) && p.active !== false && !["arquivado", "substituido"].includes(p.statusVersao));
+  const selectedPlan = studentPlans.find((p) => p.id === selectedPlanId);
 
   const workoutSnapshot = useMemo(() => ({
     trainer_email: currentUser?.email || "",
@@ -71,6 +71,15 @@ export default function StudentWorkout() {
     snapshot: workoutSnapshot,
     enabled: !!selectedStudentId && !!selectedPlanId && !!startedAt,
   });
+
+  useEffect(() => {
+    if (plansLoading || !selectedPlanId || selectedPlan) return;
+    closeSession();
+    setSelectedPlanId("");
+    setSetsData({});
+    setCompletedExercises(new Set());
+    toast.info("Este treino está oculto e não pode ser iniciado.");
+  }, [plansLoading, selectedPlanId, selectedPlan, closeSession]);
 
   useEffect(() => {
     if (!sessionLoaded || restoredRef.current) return;

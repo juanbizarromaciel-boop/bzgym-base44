@@ -70,7 +70,7 @@ export default function MyWorkout() {
   }, [user, students, isSubscriber, navigate]);
 
   const { blocked, personalName } = usePaymentStatus(student);
-  const myPlans = owner ? allPlans.filter(p => p.active !== false && (
+  const myPlans = owner ? allPlans.filter(p => p.active !== false && !["arquivado", "substituido"].includes(p.statusVersao) && (
     p.student_id === owner.id ||
     p.student_id === owner.email ||
     p.usuarioId === owner.email ||
