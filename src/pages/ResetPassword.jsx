@@ -41,7 +41,7 @@ export default function ResetPassword() {
         title="Invalid reset link"
         subtitle="This password reset link is missing or invalid"
         footer={
-          <Link to="/forgot-password" className="text-primary font-medium hover:underline">
+          <Link to="/forgot-password" className="font-medium text-cyan-400 hover:underline">
             Request a new link
           </Link>
         }
@@ -64,8 +64,8 @@ export default function ResetPassword() {
           {error}
         </div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <div className="space-y-1">
           <Label htmlFor="password">New Password</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
@@ -77,12 +77,12 @@ export default function ResetPassword() {
               placeholder="••••••••"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="pl-10 h-12"
+              className="app-input h-11 rounded-lg pl-10 text-base sm:h-9 sm:text-sm"
               required
             />
           </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1">
           <Label htmlFor="confirm">Confirm Password</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
@@ -93,12 +93,12 @@ export default function ResetPassword() {
               placeholder="••••••••"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="pl-10 h-12"
+              className="app-input h-11 rounded-lg pl-10 text-base sm:h-9 sm:text-sm"
               required
             />
           </div>
         </div>
-        <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
+        <Button type="submit" className="h-11 w-full rounded-full border-0 font-semibold text-primary-foreground sm:h-9" style={{ background: "linear-gradient(90deg, hsl(var(--app-primary)), hsl(190 70% 48%))", boxShadow: "0 10px 28px hsl(var(--app-primary) / 0.24)" }} disabled={loading}>
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
