@@ -51,7 +51,22 @@
       "$or": [
         {
           "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "user_condition": {
             "role": "user"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "assinante"
           }
         },
         {
@@ -74,17 +89,31 @@
     "update": {
       "$or": [
         {
-          "created_by": "{{user.email}}"
+          "user_condition": {
+            "role": "admin"
+          }
         },
         {
           "user_condition": {
-            "role": "user"
+            "role": "personal"
           }
+        },
+        {
+          "created_by": "{{user.email}}"
         }
       ]
     },
     "delete": {
-      "created_by": "{{user.email}}"
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "created_by": "{{user.email}}"
+        }
+      ]
     }
   }
 }

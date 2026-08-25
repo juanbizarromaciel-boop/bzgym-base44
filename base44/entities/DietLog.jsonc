@@ -59,9 +59,13 @@
           }
         },
         {
-          "user_condition": {
-            "role": "user"
-          }
+          "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
         }
       ]
     },
@@ -78,9 +82,13 @@
           }
         },
         {
-          "user_condition": {
-            "role": "user"
-          }
+          "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
         }
       ]
     },
@@ -97,9 +105,13 @@
           }
         },
         {
-          "user_condition": {
-            "role": "user"
-          }
+          "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
         }
       ]
     },
@@ -112,8 +124,17 @@
         },
         {
           "user_condition": {
-            "role": "user"
+            "role": "personal"
           }
+        },
+        {
+          "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
         }
       ]
     }

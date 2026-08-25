@@ -50,29 +50,15 @@
           }
         },
         {
-          "$and": [
-            {
-              "user_condition": {
-                "role": "personal"
-              }
-            },
-            {
-              "data.personal_id": "{{user.email}}"
-            },
-            {
-              "data.sender_email": "{{user.email}}"
-            }
-          ]
+          "user_condition": {
+            "role": "personal"
+          }
         },
         {
-          "$and": [
-            {
-              "data.student_id": "{{user.data.student_id}}"
-            },
-            {
-              "data.sender_email": "{{user.email}}"
-            }
-          ]
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "created_by_id": "{{user.id}}"
         }
       ]
     },
@@ -84,16 +70,18 @@
           }
         },
         {
-          "$and": [
-            {
-              "user_condition": {
-                "role": "personal"
-              }
-            },
-            {
-              "data.personal_id": "{{user.email}}"
-            }
-          ]
+          "user_condition": {
+            "role": "personal"
+          }
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.email}}"
         },
         {
           "data.student_id": "{{user.data.student_id}}"
@@ -108,19 +96,15 @@
           }
         },
         {
-          "$and": [
-            {
-              "user_condition": {
-                "role": "personal"
-              }
-            },
-            {
-              "data.personal_id": "{{user.email}}"
-            }
-          ]
+          "user_condition": {
+            "role": "personal"
+          }
         },
         {
-          "data.student_id": "{{user.data.student_id}}"
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "data.personal_id": "{{user.email}}"
         }
       ]
     },
@@ -132,29 +116,10 @@
           }
         },
         {
-          "$and": [
-            {
-              "user_condition": {
-                "role": "personal"
-              }
-            },
-            {
-              "data.personal_id": "{{user.email}}"
-            },
-            {
-              "data.sender_email": "{{user.email}}"
-            }
-          ]
+          "data.sender_email": "{{user.email}}"
         },
         {
-          "$and": [
-            {
-              "data.student_id": "{{user.data.student_id}}"
-            },
-            {
-              "data.sender_email": "{{user.email}}"
-            }
-          ]
+          "created_by_id": "{{user.id}}"
         }
       ]
     }

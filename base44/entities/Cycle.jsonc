@@ -53,9 +53,10 @@
           }
         },
         {
-          "user_condition": {
-            "role": "user"
-          }
+          "data.student_id": "{{user.email}}"
+        },
+        {
+          "data.student_id": "{{user.data.student_id}}"
         }
       ]
     },
