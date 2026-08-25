@@ -8,6 +8,7 @@ import NotificationBell from "./components/notifications/NotificationBell";
 import CyberNav from "./components/navigation/CyberNav";
 import BottomNav from "./components/navigation/BottomNav";
 import { getNavigationGroups } from "./components/navigation/navigationConfig";
+import { getEffectiveRole } from "@/lib/user-role";
 
 export default function Layout({ children, currentPageName }) {
   const [role, setRole] = useState(null);
@@ -23,11 +24,7 @@ export default function Layout({ children, currentPageName }) {
       } catch (error) {
         mergedUser = authUser;
       }
-      const baseRole = mergedUser.role || "user";
-      const hasSubscriberProfile = mergedUser.account_type === "assinante" || mergedUser.assinatura_status || mergedUser.assinatura_vencimento || mergedUser.assinatura_origem || mergedUser.stripe_subscription_id;
-      const effectiveRole = hasSubscriberProfile && !["admin", "personal", "recente", "bloqueado"].includes(baseRole)
-        ? "assinante"
-        : baseRole;
+      const effectiveRole = getEffectiveRole(mergedUser);
       setRole(effectiveRole);
       const rawName = [mergedUser.display_name, mergedUser.full_name, mergedUser.name, mergedUser.nome].find(value => typeof value === "string" && !["", "lost", "undefined", "null", "nan"].includes(value.trim().toLowerCase()));
       const emailName = mergedUser.email?.split("@")[0]?.replace(/[._-]+/g, " ") || "";

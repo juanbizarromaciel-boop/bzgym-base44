@@ -3,7 +3,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "@/Layout";
 import RoleRoute from "@/routing/RoleRoute";
 import PageNotFound from "@/lib/PageNotFound";
-import AccessDenied from "@/pages/AccessDenied";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AISettings from "@/pages/AISettings";
 import AICoach from "@/pages/AICoach";
@@ -71,6 +70,6 @@ export default function AppRoutes({ user, accessState }) {
   return <Routes>
     <Route path="/" element={<Navigate to={home[user?.role] || "/AccessDenied"} replace />} />
     {pages.map(([name, Page, allowed]) => <Route key={name} path={`/${name}`} element={wrapped(name, Page, user, allowed)} />)}
-    <Route path="/PaymentOverdue" element={<PaymentOverdue />} /><Route path="/AccessDenied" element={<AccessDenied />} /><Route path="*" element={<PageNotFound />} />
+    <Route path="/PaymentOverdue" element={<PaymentOverdue />} /><Route path="/AccessDenied" element={<Navigate to={home[user?.role] || "/"} replace />} /><Route path="*" element={<PageNotFound />} />
   </Routes>;
 }
