@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import UserNotRegisteredError from "@/components/UserNotRegisteredError";
 import AccountLoadError from "@/components/AccountLoadError";
+import AppLoadingScreen from "@/components/AppLoadingScreen";
 import AppRoutes from "@/routing/AppRoutes";
 import { getEffectiveRole } from "@/lib/user-role";
 
@@ -16,11 +17,15 @@ export default function AuthenticatedApp() {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [showAccountError, setShowAccountError] = useState(false);
+  const accountUnavailable = loadError || (!isLoadingAuth && !isLoadingPublicSettings && !loading && !user);
 
   useEffect(() => {
-    if (isLoadingAuth || authError) { setLoading(false); return; }
+    if (isLoadingAuth) return;
+    if (authError) { setLoading(false); return; }
     let unsubscribe;
     const load = async () => {
+      setLoading(true);
       setLoadError(false);
       const authUser = await base44.auth.me();
       let profile = authUser;
@@ -46,10 +51,17 @@ export default function AuthenticatedApp() {
     return () => unsubscribe?.();
   }, [isLoadingAuth, authError]);
 
-  if (isLoadingPublicSettings || isLoadingAuth || loading) return <div className="fixed inset-0 flex items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-app-primary/20 border-t-app-primary" /></div>;
+  useEffect(() => {
+    if (!accountUnavailable) { setShowAccountError(false); return; }
+    const timer = window.setTimeout(() => setShowAccountError(true), 4000);
+    return () => window.clearTimeout(timer);
+  }, [accountUnavailable]);
+
+  if (isLoadingPublicSettings || isLoadingAuth || loading) return <AppLoadingScreen />;
   if (authError?.type === "user_not_registered") return <UserNotRegisteredError />;
   if (authError?.type === "auth_required") { navigateToLogin(); return null; }
-  if (loadError || !user) return <AccountLoadError />;
+  if (accountUnavailable && !showAccountError) return <AppLoadingScreen message="Carregando os dados da sua conta" />;
+  if (accountUnavailable) return <AccountLoadError />;
   const accessState = blocked(user) ? "blocked" : user?.role === "recente" ? "onboarding" : user?.role === "user" && student?.active === false ? "pending" : "active";
   return <AppRoutes user={user} accessState={accessState} />;
 }
