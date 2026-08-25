@@ -12,7 +12,7 @@ const subscriberValid = user => user?.assinatura_status === "isenta" || (user?.a
 const blocked = user => user && !["admin", "personal", "recente"].includes(user.role) && (user.role === "bloqueado" || user.assinatura_bloqueio_manual || user.assinatura_status === "bloqueada" || (["assinante"].includes(user.role) && !subscriberValid(user)));
 
 export default function AuthenticatedApp() {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
   const [user, setUser] = useState(null);
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -59,7 +59,6 @@ export default function AuthenticatedApp() {
 
   if (isLoadingPublicSettings || isLoadingAuth || loading) return <AppLoadingScreen />;
   if (authError?.type === "user_not_registered") return <UserNotRegisteredError />;
-  if (authError?.type === "auth_required") { navigateToLogin(); return null; }
   if (accountUnavailable && !showAccountError) return <AppLoadingScreen message="Carregando os dados da sua conta" />;
   if (accountUnavailable) return <AccountLoadError />;
   const accessState = blocked(user) ? "blocked" : user?.role === "recente" ? "onboarding" : user?.role === "user" && student?.active === false ? "pending" : "active";

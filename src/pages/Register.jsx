@@ -4,8 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Apple, UserPlus, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { toast } from "@/components/ui/use-toast";
@@ -67,8 +66,8 @@ export default function Register() {
     }
   };
 
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", safeReturnTo());
+  const handleProvider = (provider) => {
+    base44.auth.loginWithProvider(provider, safeReturnTo());
   };
 
   if (showOtp) {
@@ -83,23 +82,19 @@ export default function Register() {
             {error}
           </div>
         )}
-        <div className="flex justify-center mb-6">
-          <InputOTP
+        <div className="mb-6">
+          <Input
+            type="text"
+            inputMode="numeric"
             maxLength={6}
             value={otpCode}
-            onChange={setOtpCode}
+            onChange={(event) => setOtpCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
             autoFocus
             autoComplete="one-time-code"
-          >
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
+            aria-label="Verification code"
+            placeholder="000000"
+            className="h-12 text-center text-lg tracking-[0.5em]"
+          />
         </div>
         <Button
           className="w-full h-12 font-medium"
@@ -142,14 +137,20 @@ export default function Register() {
         </>
       }
     >
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-5 h-5 mr-2" />
-        Continue with Google
-      </Button>
+      <div className="space-y-3 mb-6">
+        <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={() => handleProvider("google")}>
+          <GoogleIcon className="w-5 h-5 mr-2" />
+          Continue with Google
+        </Button>
+        <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={() => handleProvider("microsoft")}>
+          <svg viewBox="0 0 24 24" className="w-5 h-5 mr-2" aria-hidden="true"><path fill="currentColor" d="M3 3h8v8H3V3Zm10 0h8v8h-8V3ZM3 13h8v8H3v-8Zm10 0h8v8h-8v-8Z" /></svg>
+          Continue with Microsoft
+        </Button>
+        <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={() => handleProvider("apple")}>
+          <Apple className="w-5 h-5 mr-2" />
+          Continue with Apple
+        </Button>
+      </div>
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">

@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
+import { Apple, LogIn, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { safeReturnTo } from "@/lib/authReturnTo";
@@ -32,8 +32,8 @@ export default function Login() {
     }
   };
 
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", returnTo);
+  const handleProvider = (provider) => {
+    base44.auth.loginWithProvider(provider, returnTo);
   };
 
   return (
@@ -53,14 +53,20 @@ export default function Login() {
         </>
       }
     >
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-5 h-5 mr-2" />
-        Continue with Google
-      </Button>
+      <div className="space-y-3 mb-6">
+        <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={() => handleProvider("google")}>
+          <GoogleIcon className="w-5 h-5 mr-2" />
+          Continue with Google
+        </Button>
+        <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={() => handleProvider("microsoft")}>
+          <svg viewBox="0 0 24 24" className="w-5 h-5 mr-2" aria-hidden="true"><path fill="currentColor" d="M3 3h8v8H3V3Zm10 0h8v8h-8V3ZM3 13h8v8H3v-8Zm10 0h8v8h-8v-8Z" /></svg>
+          Continue with Microsoft
+        </Button>
+        <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={() => handleProvider("apple")}>
+          <Apple className="w-5 h-5 mr-2" />
+          Continue with Apple
+        </Button>
+      </div>
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">
