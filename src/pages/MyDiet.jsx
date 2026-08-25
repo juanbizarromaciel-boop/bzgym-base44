@@ -34,7 +34,7 @@ export default function MyDiet() {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [student, setStudent] = useState(null);
-  const [activeTab, setActiveTab] = useState("plano");
+  const [activeTab, setActiveTab] = useState(() => new URLSearchParams(window.location.search).get("tab") || "plano");
   const [simPlanId, setSimPlanId] = useState("");
   const [historyPlanId, setHistoryPlanId] = useState("");
   const [mealDetail, setMealDetail] = useState(null); // { plan, mealIndex }

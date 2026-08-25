@@ -54,11 +54,11 @@ const pages = [
   ["AdminDashboard", AdminDashboard, [A]], ["PersonalDashboard", PersonalDashboard, [P]], ["StudentDashboard", StudentDashboard, [U]], ["SubscriberDashboard", SubscriberDashboard, [S]],
   ["Students", Students, [A,P]], ["PendingStudents", PendingStudents, [A,P]], ["StudentWorkout", StudentWorkout, [A,P]], ["WorkoutPlans", WorkoutPlans, [A,P,S]], ["MyWorkout", MyWorkout, [A,U,S]], ["WorkoutAI", WorkoutAI, [A,P,S]], ["ExerciseLibrary", ExerciseLibrary, [A,P,S]],
   ["Diet", Diet, [A,P,S]], ["MyDiet", MyDiet, [A,U,S]], ["DietAI", DietAI, [A,P,S]], ["DietLogs", DietLogs, [A,P]], ["FoodDatabase", FoodDatabase, [A,P]],
-  ["Progress", Progress, [A,P,U]], ["CheckIn", CheckInPage, [A,U]], ["StudentDocuments", StudentDocuments, [A,P,U]], ["LearnExercises", LearnExercises, [A,P,U]], ["PRBoard", PRBoard, [A,P,U]], ["CH", CH, [A,P,U]],
-  ["Chat", Chat, [A,P,U]], ["CalendarioGeral", CalendarioGeral, [A,P,U]], ["ClassCalendar", ClassCalendar, [A,P]], ["Comunidade", Comunidade, [A,P,U,S]], ["Notificacoes", Notificacoes, [A,P,U,S]],
+  ["Progress", Progress, [A,P,U]], ["CheckIn", CheckInPage, [A]], ["StudentDocuments", StudentDocuments, [A,P,U]], ["LearnExercises", LearnExercises, [A,P]], ["PRBoard", PRBoard, [A,P,U]], ["CH", CH, [A,P]],
+  ["Chat", Chat, [A,P]], ["CalendarioGeral", CalendarioGeral, [A,P,U]], ["ClassCalendar", ClassCalendar, [A,P]], ["Comunidade", Comunidade, [A,P,U,S]], ["Notificacoes", Notificacoes, [A,P,S]],
   ["AICoach", AICoach, [A,P,S]], ["Relatorios", Relatorios, [A,P]], ["Finance", Finance, [A,P]], ["ConsultancyBilling", ConsultancyBilling, [A,P]], ["SubscriptionManagement", SubscriptionManagement, [A,P]],
   ["PersonalManagement", PersonalManagement, [A]], ["AISettings", AISettings, [A]], ["CalendarioHormonalAdmin", CalendarioHormonalAdmin, [A]], ["NewsManagement", NewsManagement, [A]],
-  ["SportsNewsDetail", SportsNewsDetail, [A,P,U,S]], ["FocusRoutine", FocusRoutine, [A,P,U,S]], ["TimerPage", TimerPage, [A,P,U]], ["Profile", Profile, [A,P,U,S]], ["AppThemes", AppThemes, [A,P,U,S]], ["SubscriberBilling", SubscriberBilling, [A,S]],
+  ["SportsNewsDetail", SportsNewsDetail, [A,P,U,S]], ["FocusRoutine", FocusRoutine, [A,P,S]], ["TimerPage", TimerPage, [A,P]], ["Profile", Profile, [A,P,U,S]], ["AppThemes", AppThemes, [A,P,S]], ["SubscriberBilling", SubscriberBilling, [A,S]],
 ];
 const home = { admin: "/AdminDashboard", personal: "/PersonalDashboard", user: "/StudentDashboard", assinante: "/SubscriberDashboard" };
 const wrapped = (name, Page, user, allowed) => <RoleRoute user={user} allowed={allowed}><Layout currentPageName={name}><Page /></Layout></RoleRoute>;

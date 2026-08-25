@@ -61,7 +61,8 @@ export const navigationItems = [
   { id: "logout", label: "Sair", description: "Encerrar a sessão com segurança", icon: LogOut, route: null, action: "logout", section: "Conta", allowedRoles: all, priority: 99 }
 ];
 
-export const getNavigationItems = (role) => navigationItems.filter(item => item.allowedRoles.includes(role));
+const studentVisibleItems = new Set(["student-home", "my-workout", "my-diet", "student-documents", "pr-board", "progress", "calendar", "community", "profile", "logout"]);
+export const getNavigationItems = (role) => navigationItems.filter(item => item.allowedRoles.includes(role) && (role !== "user" || studentVisibleItems.has(item.id)));
 export const getBottomNavigation = (role) => getNavigationItems(role).filter(item => item.bottomPriority?.[role]).sort((a, b) => a.bottomPriority[role] - b.bottomPriority[role]);
 export const getMoreNavigation = (role) => getNavigationItems(role).filter(item => !item.isHome).sort((a, b) => a.priority - b.priority);
 

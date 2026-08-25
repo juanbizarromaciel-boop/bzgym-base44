@@ -22,12 +22,12 @@ export default function StudentDashboard() {
     staleTime: 30000,
     queryFn: async () => {
       const ids = [student.id, student.email, user.email].filter(Boolean);
-      const [plans, diets, messages, events, logs] = await Promise.all([
+      const [plans, diets, events, logs] = await Promise.all([
         scoped("WorkoutPlan", "student_id", ids), scoped("DietPlan", "student_id", ids),
-        scoped("ChatMessage", "student_id", ids), scoped("CalendarioEvento", "student_id", ids, "data", 50),
+        scoped("CalendarioEvento", "student_id", ids, "data", 50),
         scoped("WorkoutLog", "student_id", ids, "-date", 100),
       ]);
-      return { plans, diets, messages, events, logs };
+      return { plans, diets, events, logs };
     },
   });
 
@@ -36,14 +36,13 @@ export default function StudentDashboard() {
   if (studentQuery.isError || dataQuery.isError) return <DashboardErrorState onRetry={() => { studentQuery.refetch(); dataQuery.refetch(); }} />;
   if (!student) return <Navigate to="/Onboarding" replace />;
   if (student.active === false) return <Navigate to="/Welcome" replace />;
-  const data = dataQuery.data || { plans: [], diets: [], messages: [], events: [], logs: [] };
+  const data = dataQuery.data || { plans: [], diets: [], events: [], logs: [] };
   const plans = data.plans.filter(plan => plan.active !== false && !["arquivado", "substituido"].includes(plan.statusVersao));
   const diets = data.diets.filter(plan => plan.active !== false && !["arquivada", "substituida"].includes(plan.statusVersao));
   const today = new Date().toISOString().slice(0, 10);
   const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
   const weeklyWorkouts = new Set(data.logs.filter(log => new Date(`${log.date}T12:00:00`) >= weekAgo).map(log => log.date)).size;
   const todayPlan = plans.find(plan => plan.day_of_week === DAY_MAP[new Date().getDay()]) || plans[0];
-  const unreadMessages = data.messages.filter(message => message.is_trainer && !message.read).length;
   const appointments = data.events.filter(event => event.data >= today && !["concluido", "cancelado"].includes(event.status)).length;
-  return <DashboardAluno user={user} student={student} todayPlan={todayPlan} dietPlan={diets[0]} unreadMessages={unreadMessages} appointments={appointments} weeklyWorkouts={weeklyWorkouts} />;
+  return <DashboardAluno user={user} student={student} todayPlan={todayPlan} dietPlan={diets[0]} appointments={appointments} weeklyWorkouts={weeklyWorkouts} />;
 }
