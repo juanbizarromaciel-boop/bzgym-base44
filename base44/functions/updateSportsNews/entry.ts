@@ -23,15 +23,17 @@ const pickAttr = (block, tag, attr) => {
 
 const hashFor = (title, url) => `${title || ''}|${url || ''}`.toLowerCase().replace(/\s+/g, ' ').slice(0, 500);
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
+    let user = null;
+    try { user = await base44.auth.me(); } catch (_) {}
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+
     let payload = {};
     try { payload = await req.json(); } catch (_) {}
     const force = payload.force === true;
-    let user = null;
-    try { user = await base44.auth.me(); } catch (_) {}
-    if (user && user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
     const sources = await base44.asServiceRole.entities.NewsSource.list();
     const activeSources = sources.filter(s => s.active && s.url && s.name);
@@ -101,4 +103,4 @@ Deno.serve(async (req) => {
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}
