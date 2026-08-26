@@ -38,6 +38,7 @@ import Progress from "@/pages/Progress";
 import Relatorios from "@/pages/Relatorios";
 import SportsNewsDetail from "@/pages/SportsNewsDetail";
 import StudentDashboard from "@/pages/StudentDashboard";
+import StudentAccessBlocked from "@/pages/StudentAccessBlocked";
 import StudentDocuments from "@/pages/StudentDocuments";
 import StudentWorkout from "@/pages/StudentWorkout";
 import Students from "@/pages/Students";
@@ -64,6 +65,7 @@ const home = { admin: "/AdminDashboard", personal: "/PersonalDashboard", user: "
 const wrapped = (name, Page, user, allowed) => <RoleRoute user={user} allowed={allowed}><Layout currentPageName={name}><Page /></Layout></RoleRoute>;
 
 export default function AppRoutes({ user, accessState }) {
+  if (accessState === "student_blocked") return <Routes><Route path="/StudentAccessBlocked" element={<StudentAccessBlocked />} /><Route path="*" element={<Navigate to="/StudentAccessBlocked" replace />} /></Routes>;
   if (accessState === "blocked") return <Routes><Route path="/PaymentOverdue" element={<PaymentOverdue />} /><Route path="/SubscriberBilling" element={<SubscriberBilling />} /><Route path="*" element={<Navigate to="/PaymentOverdue" replace />} /></Routes>;
   if (accessState === "onboarding") return <Routes><Route path="/Onboarding" element={<Onboarding />} /><Route path="*" element={<Navigate to="/Onboarding" replace />} /></Routes>;
   if (accessState === "pending") return <Routes><Route path="/Welcome" element={<Welcome />} /><Route path="/Chat" element={<Layout currentPageName="Chat"><Chat /></Layout>} /><Route path="/AppThemes" element={<Layout currentPageName="AppThemes"><AppThemes /></Layout>} /><Route path="*" element={<Navigate to="/Welcome" replace />} /></Routes>;

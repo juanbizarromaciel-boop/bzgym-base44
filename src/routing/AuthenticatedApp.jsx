@@ -15,6 +15,7 @@ export default function AuthenticatedApp() {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
   const [user, setUser] = useState(null);
   const [student, setStudent] = useState(null);
+  const [studentAccess, setStudentAccess] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [showAccountError, setShowAccountError] = useState(false);
@@ -23,7 +24,9 @@ export default function AuthenticatedApp() {
   useEffect(() => {
     if (isLoadingAuth) return;
     if (authError) { setLoading(false); return; }
-    let unsubscribe;
+    let unsubscribeUser;
+    let unsubscribeStudent;
+    let unsubscribeAccess;
     const load = async () => {
       setLoading(true);
       setLoadError(false);
@@ -38,17 +41,24 @@ export default function AuthenticatedApp() {
           const found = records[0] || null;
           if (found?.id && nextUser.student_id !== found.id) { await base44.auth.updateMe({ student_id: found.id }); nextUser = { ...nextUser, student_id: found.id }; }
           setStudent(found);
+          const controls = await base44.entities.StudentAccessControl.filter({ student_email: profile.email }, "-created_date", 1);
+          setStudentAccess(controls[0] || null);
         } catch {
           setStudent(null);
+          setStudentAccess(null);
         }
+      } else {
+        setStudentAccess(null);
       }
       setUser(nextUser); setLoading(false); return nextUser;
     };
     load().then(current => {
       if (!current?.email) return;
-      try { unsubscribe = base44.entities.User.subscribe(event => { if (event.data?.email?.toLowerCase() === current.email.toLowerCase()) load(); }); } catch {}
+      try { unsubscribeUser = base44.entities.User.subscribe(event => { if (event.data?.email?.toLowerCase() === current.email.toLowerCase()) load(); }); } catch {}
+      try { unsubscribeStudent = base44.entities.Student.subscribe(event => { if (event.data?.email?.toLowerCase() === current.email.toLowerCase()) load(); }); } catch {}
+      try { unsubscribeAccess = base44.entities.StudentAccessControl.subscribe(event => { if (event.data?.student_email?.toLowerCase() === current.email.toLowerCase()) load(); }); } catch {}
     }).catch(() => { setLoadError(true); setLoading(false); });
-    return () => unsubscribe?.();
+    return () => { unsubscribeUser?.(); unsubscribeStudent?.(); unsubscribeAccess?.(); };
   }, [isLoadingAuth, authError]);
 
   useEffect(() => {
@@ -61,6 +71,6 @@ export default function AuthenticatedApp() {
   if (authError?.type === "user_not_registered") return <UserNotRegisteredError />;
   if (accountUnavailable && !showAccountError) return <AppLoadingScreen message="Carregando os dados da sua conta" />;
   if (accountUnavailable) return <AccountLoadError />;
-  const accessState = blocked(user) ? "blocked" : user?.role === "recente" ? "onboarding" : user?.role === "user" && student?.active === false ? "pending" : "active";
+  const accessState = user?.role === "user" && studentAccess?.blocked === true ? "student_blocked" : blocked(user) ? "blocked" : user?.role === "recente" ? "onboarding" : user?.role === "user" && student?.active === false ? "pending" : "active";
   return <AppRoutes user={user} accessState={accessState} />;
 }

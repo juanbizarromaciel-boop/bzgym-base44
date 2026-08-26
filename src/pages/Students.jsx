@@ -15,6 +15,7 @@ import {
 import { Plus, Search, Camera, Link2 } from "lucide-react";
 import InviteCodePanel from "../components/students/InviteCodePanel";
 import StudentCard from "@/components/students/StudentCard";
+import StudentPaymentPanel from "@/components/students/StudentPaymentPanel";
 import PageHeader from "@/components/shared/PageHeader";
 import { motion } from "framer-motion";
 
@@ -44,6 +45,7 @@ export default function Students() {
   const [editingStudent, setEditingStudent] = useState(null);
   const [form, setForm] = useState(emptyStudent);
   const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState("students");
   const [inviteOpen, setInviteOpen] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -64,6 +66,12 @@ export default function Students() {
     enabled: !!currentUser,
   });
 
+  const { data: accessControls = [] } = useQuery({
+    queryKey: ["student-access-controls", currentUser?.email],
+    queryFn: () => base44.entities.StudentAccessControl.list("-created_date", 500),
+    enabled: ["admin", "personal"].includes(currentUser?.role),
+  });
+
   const createMut = useMutation({
     mutationFn: (data) => base44.entities.Student.create(data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["students"] }); closeDialog(); },
@@ -77,6 +85,13 @@ export default function Students() {
   const deleteMut = useMutation({
     mutationFn: (id) => base44.entities.Student.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["students"] }),
+  });
+
+  const accessMut = useMutation({
+    mutationFn: ({ student, control }) => control
+      ? base44.entities.StudentAccessControl.update(control.id, { blocked: !control.blocked })
+      : base44.entities.StudentAccessControl.create({ student_id: student.id, student_email: student.email, personal_id: student.personal_id || currentUser.email, blocked: true }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["student-access-controls"] }),
   });
 
   const closeDialog = () => {
@@ -130,14 +145,20 @@ export default function Students() {
     <motion.div className="app-page" initial="hidden" animate="show" variants={stagger}>
       <PageHeader title="Alunos" subtitle={`${students.filter(student => student.active !== false).length} alunos ativos`} action={<div className="flex gap-2">{["personal", "admin"].includes(currentUser?.role) && <button onClick={() => setInviteOpen(true)} className="app-button-secondary h-11 gap-2 rounded-xl px-4 text-sm"><Link2 className="h-4 w-4" />Convite</button>}<button onClick={() => setDialogOpen(true)} className="app-button-primary h-11 gap-2 rounded-xl px-4 text-sm"><Plus className="h-4 w-4" />Novo aluno</button></div>} />
 
-      <motion.div variants={fadeUp} className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-500/50" />
-        <Input placeholder="Buscar aluno..." value={search} onChange={(e) => setSearch(e.target.value)} className="app-input pl-10" />
+      <motion.div variants={fadeUp} className="mb-6 flex gap-2 border-b border-app-primary/15 pb-3">
+        <button onClick={() => setActiveTab("students")} className={`rounded-xl px-4 py-2 text-sm font-semibold ${activeTab === "students" ? "bg-app-primary/20 text-app-text" : "text-app-muted"}`}>Gestão de alunos</button>
+        {["personal", "admin"].includes(currentUser?.role) && <button onClick={() => setActiveTab("payments")} className={`rounded-xl px-4 py-2 text-sm font-semibold ${activeTab === "payments" ? "bg-app-primary/20 text-app-text" : "text-app-muted"}`}>Alunos Pagamento</button>}
       </motion.div>
 
-      <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {filtered.map(student => <motion.div key={student.id} variants={fadeUp}><StudentCard student={student} goal={goals[student.goal]} goalClass={goalColors[student.goal]} onEdit={() => openEdit(student)} onDelete={() => deleteMut.mutate(student.id)} /></motion.div>)}
-      </motion.div>
+      {activeTab === "students" ? <>
+        <motion.div variants={fadeUp} className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-500/50" />
+          <Input placeholder="Buscar aluno..." value={search} onChange={(e) => setSearch(e.target.value)} className="app-input pl-10" />
+        </motion.div>
+        <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filtered.map(student => <motion.div key={student.id} variants={fadeUp}><StudentCard student={student} goal={goals[student.goal]} goalClass={goalColors[student.goal]} onEdit={() => openEdit(student)} onDelete={() => deleteMut.mutate(student.id)} /></motion.div>)}
+        </motion.div>
+      </> : <StudentPaymentPanel students={students} controls={accessControls} onToggle={(student, control) => accessMut.mutate({ student, control })} pendingId={accessMut.isPending ? accessMut.variables?.student?.id : null} />}
 
       <InviteCodePanel open={inviteOpen} onClose={() => setInviteOpen(false)} />
 

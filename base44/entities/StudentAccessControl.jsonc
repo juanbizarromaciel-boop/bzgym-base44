@@ -1,0 +1,78 @@
+{
+  "name": "StudentAccessControl",
+  "type": "object",
+  "properties": {
+    "student_id": {
+      "type": "string"
+    },
+    "student_email": {
+      "type": "string"
+    },
+    "personal_id": {
+      "type": "string"
+    },
+    "blocked": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "student_id",
+    "student_email",
+    "personal_id",
+    "blocked"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        },
+        {
+          "data.student_email": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.personal_id": "{{user.email}}"
+        }
+      ]
+    }
+  }
+}
