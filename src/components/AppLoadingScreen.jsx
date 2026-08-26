@@ -2,7 +2,7 @@ import React from "react";
 
 export default function AppLoadingScreen({ message = "Preparando sua experiência" }) {
   return (
-    <main className="premium-app-shell fixed inset-0 flex items-center justify-center overflow-hidden p-6 text-app-text">
+    <main className="premium-app-shell fixed inset-0 z-[100] flex items-center justify-center overflow-hidden p-6 text-app-text">
       <section className="flex w-full max-w-sm flex-col items-center text-center" aria-live="polite">
         <div className="relative flex h-24 w-24 items-center justify-center">
           <div className="absolute inset-0 animate-spin rounded-full border border-app-primary/15 border-t-app-primary" />
