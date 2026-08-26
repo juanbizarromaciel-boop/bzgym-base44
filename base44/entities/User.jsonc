@@ -50,7 +50,9 @@
         "pendente",
         "atrasada",
         "bloqueada",
-        "isenta"
+        "isenta",
+        "cancelamento_agendado",
+        "cancelada"
       ],
       "default": "pendente"
     },
@@ -62,7 +64,7 @@
         "stripe"
       ],
       "default": "nenhuma",
-      "description": "Indica se a assinatura foi liberada manualmente pelo admin ou paga via Stripe"
+      "description": "Origem da assinatura"
     },
     "assinatura_bloqueio_manual": {
       "type": "boolean",
@@ -86,6 +88,13 @@
     },
     "assinatura_valor": {
       "type": "number"
+    },
+    "assinatura_cancelar_no_fim": {
+      "type": "boolean",
+      "default": false
+    },
+    "assinatura_cancelada_em": {
+      "type": "string"
     },
     "stripe_customer_id": {
       "type": "string"

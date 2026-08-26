@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CreditCard, Search, CheckCircle2, Lock, Unlock, ExternalLink } from "lucide-react";
+import { CreditCard, Search, CheckCircle2, Lock, Unlock, ExternalLink, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
@@ -132,6 +132,13 @@ export default function SubscriptionManagement() {
     refresh();
   };
 
+  const cancelImmediately = async (user) => {
+    if (!window.confirm(`Cancelar imediatamente a assinatura de ${user.full_name || user.email} e alterar para Aluno?`)) return;
+    await base44.functions.invoke("cancelSubscription", { targetUserId: user.id });
+    toast.success("Assinatura cancelada e perfil alterado para Aluno.");
+    refresh();
+  };
+
   const createStripeCheckout = async (user) => {
     if (window.self !== window.top) {
       toast.error("Checkout Stripe funciona apenas no app publicado, fora do preview.");
@@ -176,13 +183,14 @@ export default function SubscriptionManagement() {
         const origin = sourceLabel(u, last);
         return <div key={u.id} className="grid md:grid-cols-12 gap-3 items-center px-4 py-4 border-t border-purple-500/10">
           <div className="md:col-span-3"><p className="font-semibold text-white">{u.full_name || "Sem nome"}</p><p className="text-xs text-purple-200/45">{u.email}</p></div>
-          <div className="md:col-span-2 space-y-1"><Badge className={blocked ? "bg-red-500/15 border border-red-500/30 text-red-200" : "bg-emerald-500/15 border border-emerald-500/30 text-emerald-200"}>{blocked ? "bloqueado" : u.role}</Badge><p className="text-[10px] text-purple-200/45">Origem: {origin}</p></div>
+          <div className="md:col-span-2 space-y-1"><Badge className={blocked ? "bg-red-500/15 border border-red-500/30 text-red-200" : "bg-emerald-500/15 border border-emerald-500/30 text-emerald-200"}>{u.assinatura_status === "cancelamento_agendado" ? "cancelamento agendado" : u.assinatura_status === "cancelada" ? "cancelada" : blocked ? "bloqueado" : u.assinatura_status || u.role}</Badge><p className="text-[10px] text-purple-200/45">Perfil: {u.role} · Origem: {origin}</p></div>
           <div className="md:col-span-2 text-sm text-purple-100/70">{u.assinatura_vencimento || "—"}</div>
           <div className="md:col-span-2 text-sm text-purple-100/70">{last ? `${money(last.amount)} em ${last.payment_date || last.created_date?.slice(0,10)}` : "—"}</div>
           <div className="md:col-span-3 flex flex-wrap justify-end gap-2">
             <Button size="sm" onClick={() => { setPayingUser(u); setAmount(u.assinatura_valor || ""); }} className="btn-neon-green"><CheckCircle2 className="w-4 h-4 mr-1" /> Pago</Button>
             <Button size="sm" variant="outline" onClick={() => createStripeCheckout(u)} className="border-purple-500/30 text-purple-100"><ExternalLink className="w-4 h-4 mr-1" /> Stripe</Button>
             {blocked ? <Button size="sm" variant="outline" onClick={() => unblockUser(u)} className="border-emerald-500/30 text-emerald-200"><Unlock className="w-4 h-4" /></Button> : <Button size="sm" variant="outline" onClick={() => blockUser(u)} className="border-red-500/30 text-red-200"><Lock className="w-4 h-4" /></Button>}
+            {(u.role === "assinante" || u.stripe_subscription_id || ["ativa", "cancelamento_agendado"].includes(u.assinatura_status)) && <Button size="sm" variant="outline" onClick={() => cancelImmediately(u)} className="border-red-500/30 text-red-200"><XCircle className="mr-1 h-4 w-4" /> Cancelar</Button>}
           </div>
         </div>;
       })}

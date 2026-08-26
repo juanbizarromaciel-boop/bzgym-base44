@@ -27,13 +27,5 @@ export function normalizeRole(role) {
 }
 
 export function getEffectiveRole(profile) {
-  const role = normalizeRole(profile?.role);
-  const subscriber = role === "assinante"
-    || profile?.account_type === "assinante"
-    || ["manual", "stripe"].includes(profile?.assinatura_origem)
-    || Boolean(profile?.stripe_subscription_id);
-
-  return subscriber && !["admin", "personal", "recente", "bloqueado"].includes(role)
-    ? "assinante"
-    : role;
+  return normalizeRole(profile?.role);
 }

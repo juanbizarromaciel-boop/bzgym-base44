@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, CreditCard, Dumbbell, Flame, ShieldCheck, Sparkles, Trophy, Zap } from "lucide-react";
+import { CalendarClock, CheckCircle2, CreditCard, Dumbbell, Flame, ShieldCheck, Sparkles, Trophy, XCircle, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 const money = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -43,8 +43,11 @@ const benefits = [
 
 export default function SubscriberBilling() {
   const [loadingPlan, setLoadingPlan] = useState(null);
-  const { data: user } = useQuery({ queryKey: ["me-billing"], queryFn: () => base44.auth.me() });
+  const [cancelling, setCancelling] = useState(false);
+  const { data: user, refetch } = useQuery({ queryKey: ["me-billing"], queryFn: async () => (await base44.functions.invoke("getCurrentUserProfile", {})).data.user });
   const blocked = user?.role === "bloqueado" || user?.assinatura_status === "bloqueada";
+  const hasSubscription = user?.role === "assinante" && ["ativa", "cancelamento_agendado", "isenta"].includes(user?.assinatura_status);
+  const cancellationScheduled = user?.assinatura_status === "cancelamento_agendado";
 
   const payWithStripe = async (plan) => {
     if (window.self !== window.top) {
@@ -64,6 +67,15 @@ export default function SubscriberBilling() {
     window.location.href = res.data.url;
   };
 
+  const cancelAtPeriodEnd = async () => {
+    if (!window.confirm("Cancelar a renovação? Seu acesso continuará até o fim do período pago.")) return;
+    setCancelling(true);
+    await base44.functions.invoke("cancelSubscription", {});
+    await refetch();
+    setCancelling(false);
+    toast.success("Cancelamento agendado para o fim do período.");
+  };
+
   return <div className="min-h-screen p-4 md:p-8 bg-grid" style={{ backgroundColor: "var(--bg-void)" }}>
     <div className="max-w-6xl mx-auto space-y-7">
       <section className="rounded-3xl border border-purple-500/30 bg-purple-500/5 p-6 md:p-10 text-center relative overflow-hidden">
@@ -76,7 +88,19 @@ export default function SubscriberBilling() {
         </div>
       </section>
 
-      <div className="grid lg:grid-cols-2 gap-4">
+      {hasSubscription ? <section className="rounded-3xl border border-emerald-500/30 bg-emerald-500/5 p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-3">
+            <CreditCard className="mt-1 h-6 w-6 text-emerald-300" />
+            <div>
+              <p className="text-xs uppercase tracking-widest text-emerald-200/60">Status da assinatura</p>
+              <h2 className="mt-1 text-xl font-bold text-white">{cancellationScheduled ? "Cancelamento agendado" : user.assinatura_status === "isenta" ? "Assinatura isenta" : "Assinatura ativa"}</h2>
+              <p className="mt-1 flex items-center gap-2 text-sm text-purple-100/60"><CalendarClock className="h-4 w-4" />{cancellationScheduled ? `Acesso disponível até ${user.assinatura_vencimento || "o fim do período"}` : `Próxima renovação: ${user.assinatura_vencimento || "não informada"}`}</p>
+            </div>
+          </div>
+          {!cancellationScheduled && user.assinatura_status !== "isenta" && <Button variant="outline" onClick={cancelAtPeriodEnd} disabled={cancelling} className="border-red-500/30 text-red-200"><XCircle className="mr-2 h-4 w-4" />{cancelling ? "Cancelando..." : "Cancelar assinatura"}</Button>}
+        </div>
+      </section> : <div className="grid lg:grid-cols-2 gap-4">
         {plans.map((plan) => <div key={plan.id} className={`rounded-3xl border p-6 relative overflow-hidden ${plan.featured ? "border-emerald-400/45 bg-emerald-500/10" : "border-purple-500/25 bg-purple-500/5"}`}>
           {plan.featured && <div className="absolute top-0 right-0 rounded-bl-2xl bg-emerald-400/20 border-l border-b border-emerald-400/35 px-4 py-2 text-xs text-emerald-100 font-bold">MAIS INTELIGENTE</div>}
           <Badge className={plan.featured ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-100" : "bg-purple-500/15 border border-purple-500/30 text-purple-100"}>{plan.badge}</Badge>
@@ -88,7 +112,7 @@ export default function SubscriberBilling() {
             <ShieldCheck className="w-4 h-4 mr-2" /> {loadingPlan === plan.id ? "Abrindo Stripe..." : blocked ? "Reativar agora" : "Assinar agora"}
           </Button>
         </div>)}
-      </div>
+      </div>}
 
       <section className="rounded-3xl border border-cyan-500/25 bg-cyan-500/5 p-6">
         <div className="flex items-center gap-3 mb-5"><Sparkles className="w-6 h-6 text-cyan-300" /><h2 className="font-cyber text-xl text-white tracking-widest">O QUE VOCÊ GANHA ASSINANDO</h2></div>

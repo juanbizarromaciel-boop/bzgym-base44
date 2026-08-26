@@ -48,7 +48,10 @@ export default function PersonalManagement() {
   });
 
   const updateUserRoleMut = useMutation({
-    mutationFn: ({ id, role }) => base44.entities.User.update(id, { role }),
+    mutationFn: async ({ id, role }) => {
+      if (role === "user") return base44.functions.invoke("cancelSubscription", { targetUserId: id });
+      return base44.entities.User.update(id, { role });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["all-users"] });
       toast.success("Cargo atualizado!");
