@@ -9,7 +9,7 @@ import { getEffectiveRole } from "@/lib/user-role";
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 const subscriberValid = user => user?.assinatura_status === "isenta" || (["ativa", "cancelamento_agendado"].includes(user?.assinatura_status) && (!user.assinatura_vencimento || user.assinatura_vencimento >= todayIso()));
-const blocked = user => user && !["admin", "personal", "recente"].includes(user.role) && (user.role === "bloqueado" || user.assinatura_bloqueio_manual || user.assinatura_status === "bloqueada" || (["assinante"].includes(user.role) && !subscriberValid(user)));
+const blocked = user => user && (user.role === "bloqueado" || (user.role === "assinante" && (user.assinatura_bloqueio_manual || user.assinatura_status === "bloqueada" || !subscriberValid(user))));
 
 export default function AuthenticatedApp() {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();

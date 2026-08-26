@@ -14,8 +14,6 @@ import UncheckExerciseDialog from "../components/workout/UncheckExerciseDialog";
 import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
-import BlockedWorkoutBanner from "../components/finance/BlockedWorkoutBanner";
-import { usePaymentStatus } from "../hooks/usePaymentStatus";
 import { sortExercisesByProgression, getExerciseProgression } from "../utils/progressionSort";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
@@ -69,7 +67,6 @@ export default function MyWorkout() {
     }
   }, [user, students, isSubscriber, navigate]);
 
-  const { blocked, personalName } = usePaymentStatus(student);
   const myPlans = owner ? allPlans.filter(p => p.active !== false && !["arquivado", "substituido"].includes(p.statusVersao) && (
     p.student_id === owner.id ||
     p.student_id === owner.email ||
@@ -154,9 +151,6 @@ export default function MyWorkout() {
     setSelectedVideo(videoUrl);
     setVideoDialogOpen(true);
   };
-
-  // Payment blocked
-  if (blocked && !isSubscriber) return <BlockedWorkoutBanner studentName={student?.name} personalName={personalName} />;
 
   // Loading
   if (userLoading || loadingStudents) return (
