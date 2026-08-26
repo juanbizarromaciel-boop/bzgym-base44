@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { getEffectiveRole } from "@/lib/user-role";
 
 /**
  * Hook para obter o usuário atual.
@@ -18,11 +19,7 @@ export function useCurrentUser() {
       } catch (error) {
         mergedUser = authUser;
       }
-      const baseRole = mergedUser.role || "user";
-      const hasSubscriberProfile = mergedUser.account_type === "assinante" || mergedUser.assinatura_status || mergedUser.assinatura_vencimento || mergedUser.assinatura_origem || mergedUser.stripe_subscription_id;
-      const role = hasSubscriberProfile && !["admin", "personal", "recente", "bloqueado"].includes(baseRole)
-        ? "assinante"
-        : baseRole;
+      const role = getEffectiveRole(mergedUser);
       setUser({ ...mergedUser, role });
       setLoading(false);
     }).catch(() => {
