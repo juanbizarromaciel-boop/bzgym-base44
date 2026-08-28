@@ -31,7 +31,7 @@ const EMPTY_FORM = {
   titulo: "", descricao: "", tipo: "tarefa",
   data: new Date().toISOString().split("T")[0],
   horario: "", recorrencia: "nenhuma", status: "pendente",
-  cor: "", observacoes: "",
+  student_id: "", student_email: "", cor: "", observacoes: "",
 };
 
 function getDaysInMonth(year, month) {
@@ -59,9 +59,27 @@ export default function CalendarioGeral() {
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
+  const isPersonalManager = ["admin", "personal"].includes(user?.role);
+
+  const { data: students = [] } = useQuery({
+    queryKey: ["agendaStudents", user?.email],
+    queryFn: async () => {
+      const assigned = await base44.entities.Student.filter({ personal_id: user.email });
+      return assigned.filter(student => student.active !== false && student.email);
+    },
+    enabled: !!user && isPersonalManager,
+  });
+
   const { data: eventos = [], isLoading } = useQuery({
-    queryKey: ["calendarioEventos", user?.email],
-    queryFn: () => base44.entities.CalendarioEvento.list("-created_date", 200),
+    queryKey: ["calendarioEventos", user?.email, user?.role],
+    queryFn: async () => {
+      if (!isPersonalManager) return base44.entities.CalendarioEvento.list("-created_date", 200);
+      const [assigned, created] = await Promise.all([
+        base44.entities.CalendarioEvento.filter({ personal_id: user.email }, "-created_date", 200),
+        base44.entities.CalendarioEvento.filter({ usuario_id: user.email }, "-created_date", 200),
+      ]);
+      return [...new Map([...assigned, ...created].map(event => [event.id, event])).values()];
+    },
     enabled: !!user,
     staleTime: 30000,
   });
@@ -81,17 +99,24 @@ export default function CalendarioGeral() {
 
   const openNew = (date) => {
     setEditingEvento(null);
-    setForm({ ...EMPTY_FORM, data: date || selectedDate, usuario_id: user?.email });
+    setForm({ ...EMPTY_FORM, data: date || selectedDate, usuario_id: user?.email, personal_id: user?.email });
     setDialogOpen(true);
   };
   const openEdit = (ev) => {
     setEditingEvento(ev);
-    setForm({ titulo: ev.titulo || "", descricao: ev.descricao || "", tipo: ev.tipo || "tarefa", data: ev.data || "", horario: ev.horario || "", recorrencia: ev.recorrencia || "nenhuma", status: ev.status || "pendente", cor: ev.cor || "", observacoes: ev.observacoes || "" });
+    setForm({ titulo: ev.titulo || "", descricao: ev.descricao || "", tipo: ev.tipo || "tarefa", data: ev.data || "", horario: ev.horario || "", recorrencia: ev.recorrencia || "nenhuma", status: ev.status || "pendente", student_id: ev.student_id || "", student_email: ev.student_email || "", cor: ev.cor || "", observacoes: ev.observacoes || "" });
     setDialogOpen(true);
   };
   const handleSubmit = () => {
     if (!form.titulo || !form.data) { toast.error("Preencha título e data"); return; }
-    const payload = { ...form, usuario_id: user?.email };
+    const selectedStudent = students.find(student => student.id === form.student_id);
+    const payload = {
+      ...form,
+      usuario_id: user?.email,
+      personal_id: user?.email,
+      student_id: selectedStudent?.id || "",
+      student_email: selectedStudent?.email || "",
+    };
     editingEvento ? updateMut.mutate({ id: editingEvento.id, d: payload }) : createMut.mutate(payload);
   };
   const toggleStatus = (ev) => {
@@ -270,6 +295,19 @@ export default function CalendarioGeral() {
               <input value={form.titulo} onChange={e => setForm(p => ({ ...p, titulo: e.target.value }))}
                 className="cyber-input w-full px-3 py-2 rounded-lg mt-1 text-white text-sm" placeholder="Ex: Treino de pernas" />
             </div>
+            {isPersonalManager && <div>
+              <Label className="text-purple-400/60 text-xs tracking-wider">E-MAIL DO ALUNO</Label>
+              <Select value={form.student_id || "sem_aluno"} onValueChange={value => {
+                const student = students.find(item => item.id === value);
+                setForm(previous => ({ ...previous, student_id: value === "sem_aluno" ? "" : value, student_email: student?.email || "" }));
+              }}>
+                <SelectTrigger className="cyber-input mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent style={{ background: '#04040e', borderColor: 'rgba(168,85,247,0.3)' }}>
+                  <SelectItem value="sem_aluno" className="text-white">Evento pessoal, sem aluno</SelectItem>
+                  {students.map(student => <SelectItem key={student.id} value={student.id} className="text-white">{student.email}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>}
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label className="text-purple-400/60 text-xs tracking-wider">TIPO</Label>

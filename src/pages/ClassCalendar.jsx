@@ -45,11 +45,16 @@ export default function ClassCalendar() {
       setUser(u);
       setPersonalName(u.full_name || "");
       setPixKey(u.email || "");
-      base44.entities.Student.list().then(all => {
-        const filtered = u.role === 'admin' ? all : all.filter(s => s.personal_id === u.email);
-        setStudents(filtered.filter(s => s.active !== false));
+      base44.entities.Student.filter({ personal_id: u.email }).then(ownStudents => {
+        setStudents(ownStudents.filter(student => student.active !== false && student.email));
       }).catch(() => {});
-      base44.entities.CalendarioEvento.list("data", 500).then(all => setScheduledClasses(all.filter(item => item.tipo === "treino"))).catch(() => {});
+      Promise.all([
+        base44.entities.CalendarioEvento.filter({ personal_id: u.email }, "data", 500),
+        base44.entities.CalendarioEvento.filter({ usuario_id: u.email }, "data", 500),
+      ]).then(lists => {
+        const ownClasses = [...new Map(lists.flat().map(event => [event.id, event])).values()];
+        setScheduledClasses(ownClasses.filter(event => event.tipo === "treino"));
+      }).catch(() => {});
     }).catch(() => {});
   }, []);
 

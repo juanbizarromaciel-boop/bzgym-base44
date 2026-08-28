@@ -39,23 +39,17 @@ export default function Finance() {
 
   const { data: payments = [], isLoading } = useQuery({
     queryKey: ['payments', user?.email],
-    queryFn: () => base44.entities.Payment.list('-due_date'),
+    queryFn: () => base44.entities.Payment.filter({ personal_id: user.email }, '-due_date'),
     enabled: !!user,
   });
 
   const { data: students = [] } = useQuery({
     queryKey: ['students', user?.email],
-    queryFn: async () => {
-      const [owned, created] = await Promise.all([
-        base44.entities.Student.filter({ personal_id: user.email }),
-        base44.entities.Student.filter({ created_by_id: user.id }),
-      ]);
-      return [...new Map([...owned, ...created].map(student => [student.id, student])).values()];
-    },
+    queryFn: () => base44.entities.Student.filter({ personal_id: user.email }),
     enabled: !!user,
   });
 
-  const filteredPayments = payments.filter(p => p.personal_id === user?.email || p.created_by_id === user?.id);
+  const filteredPayments = payments.filter(p => p.personal_id === user?.email);
   const filteredStudents = students;
 
   const deleteMutation = useMutation({
