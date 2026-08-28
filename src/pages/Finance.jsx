@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   DollarSign, Plus, Pencil, Trash2, AlertTriangle,
-  CheckCircle2, Clock
+  CheckCircle2, Clock, XCircle
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -21,6 +21,7 @@ const STATUS_CONFIG = {
   pago:     { label: "Pago",     color: '#6ee7b7', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', icon: CheckCircle2 },
   pendente: { label: "Pendente", color: '#fcd34d', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)',  icon: Clock },
   atrasado: { label: "Atrasado", color: '#fca5a5', bg: 'rgba(239,68,68,0.12)',  border: 'rgba(239,68,68,0.3)',  icon: AlertTriangle },
+  cancelado: { label: "Cancelado", color: '#c4b5fd', bg: 'rgba(139,92,246,0.10)', border: 'rgba(139,92,246,0.25)', icon: XCircle },
 };
 
 export default function Finance() {
@@ -115,7 +116,7 @@ export default function Finance() {
       {/* Filters */}
       <motion.div variants={fadeUp} className="flex flex-wrap gap-3 items-center">
         <div className="flex gap-1.5">
-          {['todos', 'pago', 'pendente', 'atrasado'].map(s => (
+          {['todos', 'pago', 'pendente', 'atrasado', 'cancelado'].map(s => (
             <button key={s} onClick={() => setFilterStatus(s)}
               className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize"
               style={{
@@ -173,7 +174,7 @@ export default function Finance() {
                 </div>
                 <div className="col-span-2">
                   <p className="text-sm font-semibold" style={{ color: '#6ee7b7' }}>
-                    {p.amount ? formatMoney(p.amount) : '—'}
+                    {p.amount != null ? formatMoney(p.amount) : '—'}
                   </p>
                 </div>
                 <div className="col-span-2">
@@ -185,7 +186,7 @@ export default function Finance() {
                   )}
                 </div>
                 <div className="col-span-2">
-                  {status !== 'pago' ? (
+                  {!['pago', 'cancelado'].includes(status) ? (
                     <button
                       onClick={() => setMarkPaidPayment(p)}
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all hover:opacity-80"
@@ -255,9 +256,9 @@ export default function Finance() {
                 {/* Value + status */}
                 <div className="flex items-center justify-between">
                   <p className="text-xl font-body" style={{ color: '#6ee7b7' }}>
-                    {p.amount ? formatMoney(p.amount) : '—'}
+                    {p.amount != null ? formatMoney(p.amount) : '—'}
                   </p>
-                  {status !== 'pago' ? (
+                  {!['pago', 'cancelado'].includes(status) ? (
                     <button
                       onClick={() => setMarkPaidPayment(p)}
                       className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold hover:opacity-80 transition-all"

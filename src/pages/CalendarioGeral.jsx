@@ -61,9 +61,7 @@ export default function CalendarioGeral() {
 
   const { data: eventos = [], isLoading } = useQuery({
     queryKey: ["calendarioEventos", user?.email],
-    queryFn: () => user?.role === "admin"
-      ? base44.entities.CalendarioEvento.list("-created_date", 200)
-      : base44.entities.CalendarioEvento.filter({ usuario_id: user.email }, "-created_date", 200),
+    queryFn: () => base44.entities.CalendarioEvento.list("-created_date", 200),
     enabled: !!user,
     staleTime: 30000,
   });
@@ -126,11 +124,11 @@ export default function CalendarioGeral() {
             </div>
             <p className="text-xs font-mono-cyber text-purple-400/50 pl-4">// organize sua rotina e compromissos</p>
           </div>
-          <button onClick={() => openNew(todayStr)}
+          {user?.role !== "user" && <button onClick={() => openNew(todayStr)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium"
             style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.40)', color: '#ffffff' }}>
             <Plus className="w-4 h-4" style={{ color: '#a855f7' }} /> EVENTO
-          </button>
+          </button>}
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), rgba(6,182,212,0.4), transparent)' }} />
       </div>
@@ -214,11 +212,11 @@ export default function CalendarioGeral() {
           <p className="text-sm font-mono-cyber text-purple-400/70">
             {new Date(selectedDate + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
           </p>
-          <button onClick={() => openNew(selectedDate)}
+          {user?.role !== "user" && <button onClick={() => openNew(selectedDate)}
             className="text-[10px] font-mono-cyber flex items-center gap-1 px-2.5 py-1.5 rounded-lg"
             style={{ border: '1px solid rgba(168,85,247,0.30)', color: 'rgba(168,85,247,0.70)' }}>
             <Plus className="w-3 h-3" /> novo
-          </button>
+          </button>}
         </div>
 
         {selectedEventos.length === 0 ? (
@@ -232,25 +230,25 @@ export default function CalendarioGeral() {
               const cfg = TIPO_CONFIG[ev.tipo] || TIPO_CONFIG.outro;
               const Icon = cfg.icon;
               const isDone = ev.status === "concluido";
+              const isCancelled = ev.status === "cancelado";
+              const canManage = user?.role === "admin" || ev.usuario_id === user?.email || ev.personal_id === user?.email;
               return (
                 <motion.div key={ev.id} layout initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl border transition-all"
-                  style={{ borderColor: `${cfg.color}25`, background: `${cfg.color}08`, opacity: isDone ? 0.5 : 1 }}>
-                  <button onClick={() => toggleStatus(ev)} className="flex-shrink-0">
-                    {isDone
-                      ? <Check className="w-4 h-4" style={{ color: '#10b981' }} />
-                      : <Circle className="w-4 h-4" style={{ color: cfg.color }} />}
-                  </button>
+                  style={{ borderColor: `${cfg.color}25`, background: `${cfg.color}08`, opacity: isDone || isCancelled ? 0.5 : 1 }}>
+                  {canManage ? <button onClick={() => toggleStatus(ev)} className="flex-shrink-0">
+                    {isDone ? <Check className="w-4 h-4" style={{ color: '#10b981' }} /> : <Circle className="w-4 h-4" style={{ color: cfg.color }} />}
+                  </button> : <Circle className="w-4 h-4 flex-shrink-0" style={{ color: cfg.color }} />}
                   <Icon className="w-3.5 h-3.5 flex-shrink-0" style={{ color: cfg.color }} />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${isDone ? 'line-through text-white/30' : 'text-white'}`}>{ev.titulo}</p>
-                    {ev.horario && <p className="text-[10px] font-mono-cyber text-purple-400/40">{ev.horario}</p>}
+                    <p className={`text-sm font-medium ${isDone || isCancelled ? 'line-through text-white/30' : 'text-white'}`}>{ev.titulo}</p>
+                    {ev.horario && <p className="text-[10px] font-mono-cyber text-purple-400/40">{ev.horario}{isCancelled ? " · Cancelada" : ""}</p>}
                     {ev.descricao && <p className="text-[11px] text-white/40 truncate">{ev.descricao}</p>}
                   </div>
-                  <div className="flex gap-1">
+                  {canManage && <div className="flex gap-1">
                     <button onClick={() => openEdit(ev)} className="p-1 rounded text-purple-400/30 hover:text-purple-300 hover:bg-purple-500/10 transition-all text-xs">✏</button>
                     <button onClick={() => deleteMut.mutate(ev.id)} className="p-1 rounded text-purple-400/30 hover:text-pink-400 hover:bg-pink-500/10 transition-all text-xs">✕</button>
-                  </div>
+                  </div>}
                 </motion.div>
               );
             })}

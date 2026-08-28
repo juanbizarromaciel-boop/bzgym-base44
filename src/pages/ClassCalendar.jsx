@@ -7,6 +7,7 @@ import {
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import ScheduledClassList from "@/components/calendar/ScheduledClassList";
 
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
@@ -34,6 +35,9 @@ export default function ClassCalendar() {
   const [showFinanceModal, setShowFinanceModal] = useState(false);
   const [financeForm, setFinanceForm] = useState({ student_id: "", description: "", due_date: "" });
   const [savingFinance, setSavingFinance] = useState(false);
+  const [scheduledClasses, setScheduledClasses] = useState([]);
+  const [focusedDate, setFocusedDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [cancellingId, setCancellingId] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(u => {
@@ -44,6 +48,7 @@ export default function ClassCalendar() {
         const filtered = u.role === 'admin' ? all : all.filter(s => s.personal_id === u.email);
         setStudents(filtered.filter(s => s.active !== false));
       }).catch(() => {});
+      base44.entities.CalendarioEvento.list("data", 500).then(all => setScheduledClasses(all.filter(item => item.tipo === "treino"))).catch(() => {});
     }).catch(() => {});
   }, []);
 
@@ -78,8 +83,11 @@ export default function ClassCalendar() {
     if (!financeForm.due_date) { toast.error("Informe o vencimento."); return; }
     setSavingFinance(true);
     try {
-      await base44.entities.Payment.create({
+      const student = students.find(item => item.id === financeForm.student_id);
+      const payment = await base44.entities.Payment.create({
         student_id: financeForm.student_id,
+        user_email: student?.email || "",
+        user_name: student?.name || "",
         personal_id: user?.email,
         amount: totalValue || 0,
         due_date: financeForm.due_date,
@@ -87,12 +95,41 @@ export default function ClassCalendar() {
         status: "pendente",
         description: financeForm.description,
       });
-      toast.success("Lançado no financeiro como pendente!");
+      const classValue = durationHours * rateNum;
+      const createdClasses = await base44.entities.CalendarioEvento.bulkCreate(sortedDays.map(([data, value]) => ({
+        usuario_id: user.email, personal_id: user.email, student_id: student.id, student_email: student.email || "",
+        payment_id: payment.id, class_value: classValue, duration_minutes: classDuration,
+        titulo: `Aula com ${student.name}`, descricao: `${classDuration} minutos`, tipo: "treino", data, horario: value.time,
+        recorrencia: "nenhuma", status: "pendente",
+      })));
+      setScheduledClasses(previous => [...previous, ...createdClasses]);
+      toast.success("Financeiro e agenda atualizados!");
       setShowFinanceModal(false);
     } catch (e) {
       toast.error("Erro: " + e.message);
     }
     setSavingFinance(false);
+  };
+
+  const cancelClass = async (classEvent) => {
+    const scheduledAt = new Date(`${classEvent.data}T${classEvent.horario || "23:59"}:00`);
+    if (scheduledAt <= new Date()) { toast.error("Só é possível abater aulas canceladas antes do horário marcado."); return; }
+    if (!window.confirm("Cancelar esta aula e abater o valor do financeiro?")) return;
+    setCancellingId(classEvent.id);
+    try {
+      await base44.entities.CalendarioEvento.update(classEvent.id, { status: "cancelado" });
+      if (classEvent.payment_id) {
+        const payment = await base44.entities.Payment.get(classEvent.payment_id);
+        const amount = Math.max(0, Number(payment.amount || 0) - Number(classEvent.class_value || 0));
+        await base44.entities.Payment.update(payment.id, { amount, status: amount === 0 ? "cancelado" : payment.status });
+      }
+      setScheduledClasses(items => items.map(item => item.id === classEvent.id ? { ...item, status: "cancelado" } : item));
+      toast.success("Aula cancelada e valor abatido do financeiro.");
+    } catch (error) {
+      toast.error("Não foi possível cancelar a aula: " + error.message);
+    } finally {
+      setCancellingId(null);
+    }
   };
 
   const year = currentDate.getFullYear();
@@ -310,12 +347,13 @@ ${personalName.trim() || "[Seu nome]"}`;
               {daysInMonth.map(day => {
                 const key = format(day, 'yyyy-MM-dd');
                 const isSelected = !!selectedDays[key];
+                const dayClasses = scheduledClasses.filter(item => item.data === key && item.status !== "cancelado");
                 const today = isToday(day);
 
                 return (
                   <button
                     key={key}
-                    onClick={() => toggleDay(day)}
+                    onClick={() => { setFocusedDate(key); toggleDay(day); }}
                     className="relative aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-all"
                     style={{
                       background: isSelected
@@ -336,15 +374,17 @@ ${personalName.trim() || "[Seu nome]"}`;
                         style={{ background: '#c084fc', boxShadow: '0 0 4px rgba(192,132,252,0.9)' }} />
                     )}
                     {format(day, 'd')}
+                    {dayClasses.length > 0 && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 rounded-full bg-cyan-400 px-1 text-[8px] leading-3 text-black">{dayClasses.length}</span>}
                   </button>
                 );
               })}
             </div>
 
             <p className="text-center text-[10px] font-mono-cyber mt-3" style={{ color: 'rgba(168,85,247,0.3)' }}>
-              Clique nos dias para selecionar as aulas
+              Clique nos dias para selecionar e consultar as aulas
             </p>
           </div>
+          <ScheduledClassList date={focusedDate} classes={scheduledClasses} students={students} onCancel={cancelClass} cancellingId={cancellingId} />
         </div>
 
         {/* RIGHT: Selected days + Summary + Message */}
