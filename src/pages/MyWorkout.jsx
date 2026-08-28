@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag, TrendingDown, AlertTriangle, RotateCcw } from "lucide-react";
+import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag, TrendingDown, AlertTriangle, RotateCcw, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -14,6 +14,8 @@ import UncheckExerciseDialog from "../components/workout/UncheckExerciseDialog";
 import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
+import WorkoutElapsedTimer from "@/components/workout/WorkoutElapsedTimer";
+import { usePersistentWorkoutSession } from "@/hooks/usePersistentWorkoutSession";
 import { sortExercisesByProgression, getExerciseProgression } from "../utils/progressionSort";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
@@ -31,9 +33,12 @@ export default function MyWorkout() {
   const [setsData, setSetsData] = useState({});
   const [completedExercises, setCompletedExercises] = useState(new Set());
   const [workoutDone, setWorkoutDone] = useState(false);
+  const [startedAt, setStartedAt] = useState("");
+  const [isFinalizing, setIsFinalizing] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [uncheckDialog, setUncheckDialog] = useState(null); // { exerciseIdx, exerciseName }
+  const restoredRef = useRef(false);
   const qc = useQueryClient();
 
   const today = DAY_MAP[new Date().getDay()];
@@ -49,7 +54,7 @@ export default function MyWorkout() {
   const { data: students = [], isLoading: loadingStudents } = useQuery({ queryKey: ["students"], queryFn: () => base44.entities.Student.list(), staleTime: 60000 });
   const matchedStudent = user ? students.find(s => s.email?.toLowerCase() === user.email?.toLowerCase()) : null;
   const { data: allLogs = [] } = useQuery({ queryKey: ["logs"], queryFn: () => base44.entities.WorkoutLog.list(), staleTime: 30000, placeholderData: (prev) => prev });
-  const { data: allPlans = [] } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list(), staleTime: 60000, placeholderData: (prev) => prev });
+  const { data: allPlans = [], isFetched: plansFetched } = useQuery({ queryKey: ["plans"], queryFn: () => base44.entities.WorkoutPlan.list(), staleTime: 60000, placeholderData: (prev) => prev });
   const { data: exercises = [] } = useQuery({ queryKey: ["exercises"], queryFn: () => base44.entities.Exercise.list(), staleTime: 60000 });
 
   useEffect(() => {
@@ -76,10 +81,37 @@ export default function MyWorkout() {
   const selectedPlan = myPlans.find(p => p.id === selectedPlanId);
   const todayPlans = myPlans.filter(p => p.day_of_week === today);
 
-  const logMut = useMutation({
-    mutationFn: (data) => base44.entities.WorkoutLog.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["logs"] }),
+  const workoutSnapshot = useMemo(() => ({
+    trainer_email: user?.email || "",
+    student_id: owner?.id || owner?.email || "",
+    student_email: owner?.email || user?.email || "",
+    workout_plan_id: selectedPlanId || "",
+    sets_data: setsData,
+    completed_exercises: Array.from(completedExercises),
+    status: "active",
+    started_at: startedAt,
+  }), [user?.email, owner?.id, owner?.email, selectedPlanId, setsData, completedExercises, startedAt]);
+
+  const { restoredSession, isLoaded: sessionLoaded, closeSession, reopenSession } = usePersistentWorkoutSession({
+    trainerEmail: user?.email,
+    snapshot: workoutSnapshot,
+    enabled: !!owner && !!selectedPlanId && !!startedAt,
   });
+
+  useEffect(() => {
+    if (!sessionLoaded || !plansFetched || !owner || restoredRef.current) return;
+    restoredRef.current = true;
+    if (!restoredSession) return;
+    if (!myPlans.some(plan => plan.id === restoredSession.workout_plan_id)) {
+      closeSession();
+      return;
+    }
+    setSelectedPlanId(restoredSession.workout_plan_id);
+    setSetsData(restoredSession.sets_data || {});
+    setCompletedExercises(new Set(restoredSession.completed_exercises || []));
+    setStartedAt(restoredSession.started_at || new Date().toISOString());
+    toast.info("Andamento do treino restaurado.");
+  }, [sessionLoaded, plansFetched, owner, restoredSession, myPlans, closeSession]);
 
   // Use exercise_name as stable key to avoid data loss on re-renders/refetches
   const getExKey = (exercise, idx) => exercise.exercise_name || `ex_${idx}`;
@@ -106,20 +138,9 @@ export default function MyWorkout() {
     const exercise = selectedPlan.exercises[exerciseIdx];
     const exKey = getExKey(exercise, exerciseIdx);
     const sets = setsData[exKey] || initSets(exKey, exercise.sets);
-    const maxLoad = Math.max(...sets.map(s => s.load_kg), 0);
-    logMut.mutate({
-      student_id: owner.id || owner.email,
-      workout_plan_id: selectedPlanId,
-      exercise_id: exercise.exercise_id || "",
-      exercise_name: exercise.exercise_name,
-      date: new Date().toISOString().split("T")[0],
-      sets_completed: sets,
-      technique_used: exercise.technique || "normal",
-      max_load_kg: maxLoad,
-    });
-    const newCompleted = new Set([...completedExercises, exerciseIdx]);
-    setCompletedExercises(newCompleted);
-    toast.success(`${exercise.exercise_name} concluído!`);
+    setSetsData(prev => ({ ...prev, [exKey]: sets }));
+    setCompletedExercises(prev => new Set([...prev, exerciseIdx]));
+    toast.success(`${exercise.exercise_name} registrado no andamento!`);
   };
 
   const handleUncheckRequest = (exerciseIdx, exerciseName) => {
@@ -136,11 +157,43 @@ export default function MyWorkout() {
     }
   };
 
-  const finishWorkout = () => {
-    setWorkoutDone(true);
-    setTimeout(() => {
-      navigate("/Progress");
-    }, 3000);
+  const finishWorkout = async () => {
+    if (!selectedPlan || completedExercises.size !== selectedPlan.exercises?.length) return;
+    setIsFinalizing(true);
+    try {
+      const logs = selectedPlan.exercises.map((exercise, exerciseIdx) => {
+        const exKey = getExKey(exercise, exerciseIdx);
+        const sets = setsData[exKey] || initSets(exKey, exercise.sets);
+        return { student_id: owner.id || owner.email, workout_plan_id: selectedPlanId, exercise_id: exercise.exercise_id || "", exercise_name: exercise.exercise_name, date: new Date().toISOString().split("T")[0], sets_completed: sets, technique_used: exercise.technique || "normal", max_load_kg: Math.max(...sets.map(set => Number(set.load_kg) || 0), 0) };
+      });
+      await base44.entities.WorkoutLog.bulkCreate(logs);
+      await closeSession();
+      await qc.invalidateQueries({ queryKey: ["logs"] });
+      setWorkoutDone(true);
+      setTimeout(() => navigate("/Progress"), 3000);
+    } catch {
+      toast.error("Não foi possível finalizar. Seu andamento continua salvo.");
+    } finally {
+      setIsFinalizing(false);
+    }
+  };
+
+  const cancelWorkout = async () => {
+    if (!window.confirm("Cancelar este treino? O andamento será descartado e não entrará no histórico.")) return;
+    await closeSession();
+    setSelectedPlanId(null);
+    setSetsData({});
+    setCompletedExercises(new Set());
+    setStartedAt("");
+    toast.info("Treino cancelado sem salvar no histórico.");
+  };
+
+  const startWorkout = (planId) => {
+    reopenSession();
+    setSelectedPlanId(planId);
+    setSetsData({});
+    setCompletedExercises(new Set());
+    setStartedAt(new Date().toISOString());
   };
 
   const getExerciseVideo = (exerciseId) => {
@@ -270,7 +323,7 @@ export default function MyWorkout() {
                 <p className="font-semibold text-white">{plan.name}</p>
                 <p className="text-xs text-purple-400/40 mt-0.5 font-mono-cyber">{plan.exercises?.length || 0} exercícios</p>
               </div>
-              <button onClick={() => setSelectedPlanId(plan.id)} className="btn-neon-purple px-5 py-2.5 rounded-lg text-sm font-medium tracking-wider">
+              <button onClick={() => startWorkout(plan.id)} className="btn-neon-purple px-5 py-2.5 rounded-lg text-sm font-medium tracking-wider">
                 INICIAR →
               </button>
             </div>
@@ -297,7 +350,7 @@ export default function MyWorkout() {
             return (
               <motion.button variants={fadeUp} whileHover={{ scale: 1.01 }} transition={{ duration: 0.15 }}
                 key={plan.id}
-                onClick={() => setSelectedPlanId(plan.id)}
+                onClick={() => startWorkout(plan.id)}
                 className={`w-full text-left rounded-xl p-4 border transition-all group ${
                   isToday ? "border-purple-500/25 bg-purple-500/5" : "cyber-card border-purple-900/20 hover:border-purple-500/20"
                 }`}
@@ -352,18 +405,22 @@ export default function MyWorkout() {
       <div className="flex items-center justify-between mb-5">
         <div>
           <button
-            onClick={() => { setSelectedPlanId(null); setSetsData({}); setCompletedExercises(new Set()); }}
-            className="text-xs text-purple-500/40 font-mono-cyber hover:text-purple-400 transition-colors mb-2 flex items-center gap-1"
+            onClick={cancelWorkout}
+            disabled={isFinalizing}
+            className="mb-2 flex items-center gap-1 text-xs font-mono-cyber text-red-300/70 transition-colors hover:text-red-300 disabled:opacity-50"
           >
-            ← VOLTAR
+            <XCircle className="h-3.5 w-3.5" /> CANCELAR TREINO
           </button>
           <h2 className="font-cyber text-lg text-white tracking-widest">{selectedPlan?.name}</h2>
         </div>
-        <div className="text-right">
-          <span className="font-cyber text-2xl text-purple-300" style={{ textShadow: '0 0 10px rgba(168,85,247,0.5)' }}>
-            {completedExercises.size}<span className="text-purple-600 text-base">/{selectedPlan.exercises?.length || 0}</span>
-          </span>
-          <p className="text-[10px] font-mono-cyber text-purple-500/40">CONCLUÍDOS</p>
+        <div className="flex items-center gap-3">
+          <WorkoutElapsedTimer startedAt={startedAt} />
+          <div className="text-right">
+            <span className="font-cyber text-2xl text-purple-300" style={{ textShadow: '0 0 10px rgba(168,85,247,0.5)' }}>
+              {completedExercises.size}<span className="text-purple-600 text-base">/{selectedPlan.exercises?.length || 0}</span>
+            </span>
+            <p className="text-[10px] font-mono-cyber text-purple-500/40">CONCLUÍDOS</p>
+          </div>
         </div>
       </div>
 
@@ -382,7 +439,8 @@ export default function MyWorkout() {
         <div className="mb-6">
           <button
             onClick={finishWorkout}
-            className="w-full py-4 rounded-xl font-cyber text-lg tracking-widest transition-all"
+            disabled={isFinalizing}
+            className="w-full py-4 rounded-xl font-cyber text-lg tracking-widest transition-all disabled:opacity-50"
             style={{
               background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.15))',
               border: '2px solid rgba(6,182,212,0.5)',
@@ -392,7 +450,7 @@ export default function MyWorkout() {
           >
             <div className="flex items-center justify-center gap-3">
               <Flag className="w-6 h-6" />
-              <span>FINALIZAR TREINO</span>
+              <span>{isFinalizing ? "FINALIZANDO..." : "FINALIZAR TREINO"}</span>
             </div>
           </button>
         </div>
@@ -519,7 +577,7 @@ export default function MyWorkout() {
                 <button
                   onClick={() => saveExerciseLog(exerciseIdx)}
                   className="w-full mt-4 btn-neon-cyan py-3 rounded-lg text-sm font-medium tracking-widest flex items-center justify-center gap-2"
-                  disabled={logMut.isPending}
+                  disabled={isFinalizing}
                 >
                   <CheckCircle className="w-4 h-4" />
                   CONCLUIR
