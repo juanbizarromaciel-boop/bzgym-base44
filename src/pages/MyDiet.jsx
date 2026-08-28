@@ -12,6 +12,7 @@ import DietChecklist from "../components/diet/DietChecklist";
 import DietHistory from "../components/diet/DietHistory";
 import MealDetailModal from "../components/diet/MealDetailModal";
 import AiDietEvolutionDialog from "../components/diet/AiDietEvolutionDialog";
+import DietSectionTabs from "@/components/diet/DietSectionTabs";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -23,18 +24,16 @@ const GOAL_COLORS = {
   manutencao: "bg-purple-500/10 border-purple-500/20 text-purple-300",
 };
 
-const TABS = [
-  { id: "plano", label: "MEU PLANO", icon: Utensils },
-  { id: "checklist", label: "CHECKLIST", icon: CheckSquare },
-  { id: "historico", label: "HISTÓRICO", icon: History },
-  { id: "simulador", label: "SIMULADOR", icon: Calculator },
-];
+const VALID_TABS = ["plano", "checklist", "historico", "simulador"];
 
 export default function MyDiet() {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [student, setStudent] = useState(null);
-  const [activeTab, setActiveTab] = useState(() => new URLSearchParams(window.location.search).get("tab") || "plano");
+  const [activeTab, setActiveTab] = useState(() => {
+    const requestedTab = new URLSearchParams(window.location.search).get("tab");
+    return VALID_TABS.includes(requestedTab) ? requestedTab : "plano";
+  });
   const [simPlanId, setSimPlanId] = useState("");
   const [historyPlanId, setHistoryPlanId] = useState("");
   const [mealDetail, setMealDetail] = useState(null); // { plan, mealIndex }
@@ -109,48 +108,8 @@ export default function MyDiet() {
         accentColor="#10b981"
       />
 
-      {/* Tabs */}
-      <motion.div variants={fadeUp} className="flex gap-2 mb-8 p-2 rounded-xl border relative overflow-x-auto"
-        style={{
-          borderColor: 'rgba(16,185,129,0.35)',
-          background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03))',
-          boxShadow: '0 0 30px rgba(16,185,129,0.1), inset 0 0 20px rgba(16,185,129,0.05)'
-        }}>
-        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.6), transparent)' }} />
-        {TABS.map(tab => (
-          <motion.button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold tracking-widest transition-all whitespace-nowrap flex-shrink-0 relative overflow-hidden group ${
-              activeTab === tab.id
-                ? "text-white"
-                : "text-green-500/50 hover:text-green-300"
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-            style={activeTab === tab.id ? {
-              background: 'linear-gradient(135deg, rgba(16,185,129,0.25), rgba(16,185,129,0.12))',
-              border: '1px solid rgba(16,185,129,0.45)',
-              boxShadow: '0 0 20px rgba(16,185,129,0.3), inset 0 0 12px rgba(16,185,129,0.15)',
-            } : {
-              border: '1px solid rgba(16,185,129,0.15)',
-              boxShadow: 'none'
-            }}>
-            {activeTab === tab.id && (
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: `radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.2), transparent 70%)` }} />
-            )}
-            <tab.icon className="w-4 h-4 relative z-10" style={{ filter: activeTab === tab.id ? 'drop-shadow(0 0 4px rgba(16,185,129,0.8))' : 'none' }} />
-            <span className="relative z-10">{tab.label}</span>
-            {activeTab === tab.id && (
-              <motion.div
-                className="absolute bottom-0 left-0 right-0 h-0.5"
-                style={{ background: 'linear-gradient(90deg, transparent, rgba(16,185,129,0.8), transparent)', boxShadow: '0 0 8px rgba(16,185,129,0.8)' }}
-                layoutId="activeTab"
-              />
-            )}
-          </motion.button>
-        ))}
+      <motion.div variants={fadeUp}>
+        <DietSectionTabs activeTab={activeTab} onChange={setActiveTab} />
       </motion.div>
 
       {/* ── PLANO TAB ── */}
