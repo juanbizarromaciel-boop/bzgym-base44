@@ -6,6 +6,7 @@ import { toast } from "sonner";
 export default function PaymentFormDialog({ payment, students, personalId, onClose, onSaved }) {
   const [form, setForm] = useState({
     student_id: "",
+    user_name: "",
     amount: "",
     payment_date: "",
     due_date: "",
@@ -19,6 +20,7 @@ export default function PaymentFormDialog({ payment, students, personalId, onClo
     if (payment) {
       setForm({
         student_id: payment.student_id || "",
+        user_name: payment.user_name || "",
         amount: payment.amount || "",
         payment_date: payment.payment_date || "",
         due_date: payment.due_date || "",
@@ -34,8 +36,12 @@ export default function PaymentFormDialog({ payment, students, personalId, onClo
     if (!form.due_date) { toast.error("Informe a data de vencimento."); return; }
     setSaving(true);
     try {
+      const selectedStudent = students.find(student => student.id === form.student_id);
+      if (!selectedStudent?.email) { toast.error("O aluno selecionado precisa ter um e-mail cadastrado."); setSaving(false); return; }
       const data = {
         ...form,
+        user_email: selectedStudent.email,
+        user_name: form.user_name.trim() || selectedStudent.name || selectedStudent.email,
         amount: form.amount ? parseFloat(form.amount) : 0,
         personal_id: personalId,
       };
@@ -80,11 +86,19 @@ export default function PaymentFormDialog({ payment, students, personalId, onClo
 
         <div className="space-y-3">
           <div>
-            <label style={labelStyle}>ALUNO</label>
-            <select value={form.student_id} onChange={e => setForm(f => ({ ...f, student_id: e.target.value }))} style={inputStyle}>
-              <option value="">Selecionar aluno...</option>
-              {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            <label style={labelStyle}>E-MAIL DO ALUNO</label>
+            <select value={form.student_id} onChange={e => {
+              const student = students.find(item => item.id === e.target.value);
+              setForm(f => ({ ...f, student_id: e.target.value, user_name: student?.name || "" }));
+            }} style={inputStyle}>
+              <option value="">Selecionar e-mail...</option>
+              {students.filter(student => student.email).map(student => <option key={student.id} value={student.id}>{student.email}</option>)}
             </select>
+          </div>
+
+          <div>
+            <label style={labelStyle}>NOME DO ALUNO (OPCIONAL)</label>
+            <input type="text" placeholder="Nome para exibição" value={form.user_name} onChange={e => setForm(f => ({ ...f, user_name: e.target.value }))} style={inputStyle} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">

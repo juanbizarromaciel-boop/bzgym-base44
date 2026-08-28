@@ -26,6 +26,7 @@ export default function ClassCalendar() {
   const [selectedDays, setSelectedDays] = useState({}); // { "YYYY-MM-DD": { time: "08:00" } }
   const [hourlyRate, setHourlyRate] = useState("");
   const [classDuration, setClassDuration] = useState(60); // minutes
+  const [selectedStudentId, setSelectedStudentId] = useState("");
   const [studentName, setStudentName] = useState("");
   const [personalName, setPersonalName] = useState("");
   const [generatedMessage, setGeneratedMessage] = useState("");
@@ -71,7 +72,7 @@ export default function ClassCalendar() {
     const due = getNextDueDate(month, year);
     const monthLabel = MONTH_NAMES[month] + "/" + year;
     setFinanceForm({
-      student_id: "",
+      student_id: selectedStudentId,
       description: `Mensalidade ${monthLabel}`,
       due_date: due,
     });
@@ -84,10 +85,12 @@ export default function ClassCalendar() {
     setSavingFinance(true);
     try {
       const student = students.find(item => item.id === financeForm.student_id);
+      if (!student?.email) { toast.error("O aluno selecionado precisa ter um e-mail cadastrado."); setSavingFinance(false); return; }
+      const displayName = studentName.trim() || student.name || student.email;
       const payment = await base44.entities.Payment.create({
         student_id: financeForm.student_id,
-        user_email: student?.email || "",
-        user_name: student?.name || "",
+        user_email: student.email,
+        user_name: displayName,
         personal_id: user?.email,
         amount: totalValue || 0,
         due_date: financeForm.due_date,
@@ -99,7 +102,7 @@ export default function ClassCalendar() {
       const createdClasses = await base44.entities.CalendarioEvento.bulkCreate(sortedDays.map(([data, value]) => ({
         usuario_id: user.email, personal_id: user.email, student_id: student.id, student_email: student.email || "",
         payment_id: payment.id, class_value: classValue, duration_minutes: classDuration,
-        titulo: `Aula com ${student.name}`, descricao: `${classDuration} minutos`, tipo: "treino", data, horario: value.time,
+        titulo: `Aula com ${displayName}`, descricao: `${classDuration} minutos`, tipo: "treino", data, horario: value.time,
         recorrencia: "nenhuma", status: "pendente",
       })));
       setScheduledClasses(previous => [...previous, ...createdClasses]);
@@ -252,12 +255,27 @@ ${personalName.trim() || "[Seu nome]"}`;
             style={{ background: 'rgba(8,4,22,0.7)', borderColor: 'rgba(168,85,247,0.18)' }}>
             <p className="text-[10px] font-mono-cyber text-purple-400/50 tracking-widest uppercase">Configurações</p>
             <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <label className="text-[10px] font-mono-cyber text-purple-400/50 tracking-wider uppercase mb-1 block">E-mail do aluno</label>
+                <select
+                  value={selectedStudentId}
+                  onChange={e => {
+                    const id = e.target.value;
+                    const selected = students.find(item => item.id === id);
+                    setSelectedStudentId(id);
+                    setStudentName(selected?.name || "");
+                  }}
+                  className="cyber-input w-full rounded-lg px-3 py-2 text-sm outline-none">
+                  <option value="">Selecionar e-mail...</option>
+                  {students.filter(item => item.active !== false && item.email).map(item => <option key={item.id} value={item.id}>{item.email}</option>)}
+                </select>
+              </div>
               <div>
-                <label className="text-[10px] font-mono-cyber text-purple-400/50 tracking-wider uppercase mb-1 block">Aluno</label>
+                <label className="text-[10px] font-mono-cyber text-purple-400/50 tracking-wider uppercase mb-1 block">Nome do aluno (opcional)</label>
                 <input
                   value={studentName}
                   onChange={e => setStudentName(e.target.value)}
-                  placeholder="Nome do aluno"
+                  placeholder="Nome para exibição"
                   className="w-full rounded-lg px-3 py-2 text-sm outline-none cyber-input"
                   style={{ background: 'rgba(4,2,14,0.7)', border: '1px solid rgba(168,85,247,0.2)', color: '#edd9ff' }}
                 />
@@ -533,10 +551,16 @@ ${personalName.trim() || "[Seu nome]"}`;
                 <label className="text-[10px] font-mono-cyber block mb-1" style={{ color: 'rgba(110,231,183,0.5)', letterSpacing: '0.1em' }}>ALUNO</label>
                 <select
                   value={financeForm.student_id}
-                  onChange={e => setFinanceForm(f => ({ ...f, student_id: e.target.value }))}
+                  onChange={e => {
+                    const id = e.target.value;
+                    const selected = students.find(item => item.id === id);
+                    setFinanceForm(f => ({ ...f, student_id: id }));
+                    setSelectedStudentId(id);
+                    setStudentName(selected?.name || "");
+                  }}
                   style={{ background: 'rgba(4,2,14,0.7)', border: '1px solid rgba(16,185,129,0.25)', color: '#f0e6ff', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem', width: '100%', outline: 'none' }}>
-                  <option value="">Selecionar aluno...</option>
-                  {students.filter(s => s.active !== false).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  <option value="">Selecionar e-mail...</option>
+                  {students.filter(s => s.active !== false && s.email).map(s => <option key={s.id} value={s.id}>{s.email}{s.name ? ` — ${s.name}` : ""}</option>)}
                 </select>
               </div>
 
