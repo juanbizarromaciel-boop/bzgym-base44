@@ -15,6 +15,8 @@ import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
 import WorkoutElapsedTimer from "@/components/workout/WorkoutElapsedTimer";
+import ExerciseSearchButton from "@/components/exercise/ExerciseSearchButton";
+import ExerciseSearchModal from "@/components/exercise/ExerciseSearchModal";
 import { usePersistentWorkoutSession } from "@/hooks/usePersistentWorkoutSession";
 import { sortExercisesByProgression, getExerciseProgression } from "../utils/progressionSort";
 
@@ -37,6 +39,7 @@ export default function MyWorkout() {
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [searchExerciseName, setSearchExerciseName] = useState(null);
   const [uncheckDialog, setUncheckDialog] = useState(null); // { exerciseIdx, exerciseName }
   const restoredRef = useRef(false);
   const qc = useQueryClient();
@@ -484,8 +487,9 @@ export default function MyWorkout() {
                     }
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-white">{exercise.exercise_name}</h3>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <h3 className="truncate font-semibold text-white">{exercise.exercise_name}</h3>
+                      <ExerciseSearchButton exerciseName={exercise.exercise_name} onSearch={setSearchExerciseName} />
                       {getExerciseVideo(exercise.exercise_id) && (
                         <button
                           onClick={() => openVideoDialog(getExerciseVideo(exercise.exercise_id))}
@@ -604,6 +608,11 @@ export default function MyWorkout() {
         exerciseName={uncheckDialog?.exerciseName}
         onConfirm={confirmUncheck}
         onCancel={() => setUncheckDialog(null)}
+      />
+
+      <ExerciseSearchModal
+        exerciseName={searchExerciseName}
+        onClose={() => setSearchExerciseName(null)}
       />
 
       {/* Video Dialog */}
