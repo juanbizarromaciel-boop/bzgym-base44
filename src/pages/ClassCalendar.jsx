@@ -261,7 +261,7 @@ ${personalName.trim() || "[Seu nome]"}`;
             <p className="text-[10px] font-mono-cyber text-purple-400/50 tracking-widest uppercase">Configurações</p>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
-                <label className="text-[10px] font-mono-cyber text-purple-400/50 tracking-wider uppercase mb-1 block">E-mail do aluno</label>
+                <label className="text-[10px] font-mono-cyber text-purple-400/50 tracking-wider uppercase mb-1 block">Aluno</label>
                 <select
                   value={selectedStudentId}
                   onChange={e => {
@@ -271,8 +271,8 @@ ${personalName.trim() || "[Seu nome]"}`;
                     setStudentName(selected?.name || "");
                   }}
                   className="cyber-input w-full rounded-lg px-3 py-2 text-sm outline-none">
-                  <option value="">Selecionar e-mail...</option>
-                  {students.filter(item => item.active !== false && item.email).map(item => <option key={item.id} value={item.id}>{item.email}</option>)}
+                  <option value="">Selecionar aluno...</option>
+                  {students.filter(item => item.active !== false && item.email).map(item => <option key={item.id} value={item.id}>{item.name || item.email}</option>)}
                 </select>
               </div>
               <div>
@@ -564,8 +564,8 @@ ${personalName.trim() || "[Seu nome]"}`;
                     setStudentName(selected?.name || "");
                   }}
                   style={{ background: 'rgba(4,2,14,0.7)', border: '1px solid rgba(16,185,129,0.25)', color: '#f0e6ff', borderRadius: '0.5rem', padding: '0.5rem 0.75rem', fontSize: '0.875rem', width: '100%', outline: 'none' }}>
-                  <option value="">Selecionar e-mail...</option>
-                  {students.filter(s => s.active !== false && s.email).map(s => <option key={s.id} value={s.id}>{s.email}{s.name ? ` — ${s.name}` : ""}</option>)}
+                  <option value="">Selecionar aluno...</option>
+                  {students.filter(s => s.active !== false && s.email).map(s => <option key={s.id} value={s.id}>{s.name || s.email}</option>) }
                 </select>
               </div>
 

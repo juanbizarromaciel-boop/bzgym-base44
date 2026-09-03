@@ -296,7 +296,7 @@ export default function CalendarioGeral() {
                 className="cyber-input w-full px-3 py-2 rounded-lg mt-1 text-white text-sm" placeholder="Ex: Treino de pernas" />
             </div>
             {isPersonalManager && <div>
-              <Label className="text-purple-400/60 text-xs tracking-wider">E-MAIL DO ALUNO</Label>
+              <Label className="text-purple-400/60 text-xs tracking-wider">ALUNO</Label>
               <Select value={form.student_id || "sem_aluno"} onValueChange={value => {
                 const student = students.find(item => item.id === value);
                 setForm(previous => ({ ...previous, student_id: value === "sem_aluno" ? "" : value, student_email: student?.email || "" }));
@@ -304,7 +304,7 @@ export default function CalendarioGeral() {
                 <SelectTrigger className="cyber-input mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent style={{ background: '#04040e', borderColor: 'rgba(168,85,247,0.3)' }}>
                   <SelectItem value="sem_aluno" className="text-white">Evento pessoal, sem aluno</SelectItem>
-                  {students.map(student => <SelectItem key={student.id} value={student.id} className="text-white">{student.email}</SelectItem>)}
+                  {students.map(student => <SelectItem key={student.id} value={student.id} className="text-white">{student.name || student.email}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>}
