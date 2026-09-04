@@ -39,6 +39,7 @@ export default function ClassCalendar() {
   const [scheduledClasses, setScheduledClasses] = useState([]);
   const [focusedDate, setFocusedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [cancellingId, setCancellingId] = useState(null);
+  const [updatingClassId, setUpdatingClassId] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(u => {
@@ -117,6 +118,20 @@ export default function ClassCalendar() {
       toast.error("Erro: " + e.message);
     }
     setSavingFinance(false);
+  };
+
+  const toggleClassStatus = async (classEvent) => {
+    const nextStatus = classEvent.status === "concluido" ? "pendente" : "concluido";
+    setUpdatingClassId(classEvent.id);
+    try {
+      await base44.entities.CalendarioEvento.update(classEvent.id, { status: nextStatus });
+      setScheduledClasses(items => items.map(item => item.id === classEvent.id ? { ...item, status: nextStatus } : item));
+      toast.success(nextStatus === "concluido" ? "Aula confirmada como feita." : "Confirmação da aula desfeita.");
+    } catch (error) {
+      toast.error("Não foi possível atualizar a aula: " + error.message);
+    } finally {
+      setUpdatingClassId(null);
+    }
   };
 
   const cancelClass = async (classEvent) => {
@@ -407,7 +422,7 @@ ${personalName.trim() || "[Seu nome]"}`;
               Clique nos dias para selecionar e consultar as aulas
             </p>
           </div>
-          <ScheduledClassList date={focusedDate} classes={scheduledClasses} students={students} onCancel={cancelClass} cancellingId={cancellingId} />
+          <ScheduledClassList date={focusedDate} classes={scheduledClasses} students={students} onCancel={cancelClass} cancellingId={cancellingId} onToggleStatus={toggleClassStatus} updatingId={updatingClassId} />
         </div>
 
         {/* RIGHT: Selected days + Summary + Message */}

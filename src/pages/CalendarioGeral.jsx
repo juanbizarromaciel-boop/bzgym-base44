@@ -90,7 +90,7 @@ export default function CalendarioGeral() {
   });
   const updateMut = useMutation({
     mutationFn: ({ id, d }) => base44.entities.CalendarioEvento.update(id, d),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["calendarioEventos"] }); toast.success("Atualizado"); setDialogOpen(false); setEditingEvento(null); }
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["calendarioEventos"] }); qc.invalidateQueries({ queryKey: ["paymentClasses"] }); toast.success("Atualizado"); setDialogOpen(false); setEditingEvento(null); }
   });
   const deleteMut = useMutation({
     mutationFn: (id) => base44.entities.CalendarioEvento.delete(id),
@@ -260,14 +260,14 @@ export default function CalendarioGeral() {
               return (
                 <motion.div key={ev.id} layout initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl border transition-all"
-                  style={{ borderColor: `${cfg.color}25`, background: `${cfg.color}08`, opacity: isDone || isCancelled ? 0.5 : 1 }}>
-                  {canManage ? <button onClick={() => toggleStatus(ev)} className="flex-shrink-0">
-                    {isDone ? <Check className="w-4 h-4" style={{ color: '#10b981' }} /> : <Circle className="w-4 h-4" style={{ color: cfg.color }} />}
+                  style={{ borderColor: isDone && ev.tipo === "treino" ? "rgba(16,185,129,0.35)" : `${cfg.color}25`, background: isDone && ev.tipo === "treino" ? "rgba(16,185,129,0.10)" : `${cfg.color}08`, opacity: isCancelled ? 0.5 : 1 }}>
+                  {canManage && !isCancelled ? <button onClick={() => toggleStatus(ev)} className={`flex flex-shrink-0 items-center gap-1.5 rounded-lg border px-2 py-1 text-[10px] ${isDone ? "border-amber-500/25 bg-amber-500/10 text-amber-200" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"}`} title={isDone ? "Desfazer confirmação" : "Confirmar aula"}>
+                    {isDone ? <Check className="w-4 h-4" /> : <Circle className="w-4 h-4" />}{ev.tipo === "treino" && <span className="hidden sm:inline">{isDone ? "Desfazer" : "Confirmar aula"}</span>}
                   </button> : <Circle className="w-4 h-4 flex-shrink-0" style={{ color: cfg.color }} />}
                   <Icon className="w-3.5 h-3.5 flex-shrink-0" style={{ color: cfg.color }} />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${isDone || isCancelled ? 'line-through text-white/30' : 'text-white'}`}>{ev.titulo}</p>
-                    {ev.horario && <p className="text-[10px] font-mono-cyber text-purple-400/40">{ev.horario}{isCancelled ? " · Cancelada" : ""}</p>}
+                    <p className={`text-sm font-medium ${isCancelled || (isDone && ev.tipo !== "treino") ? 'line-through text-white/30' : isDone ? 'text-emerald-200' : 'text-white'}`}>{ev.titulo}</p>
+                    {ev.horario && <p className={`text-[10px] font-mono-cyber ${isDone && ev.tipo === "treino" ? "text-emerald-300/60" : "text-purple-400/40"}`}>{ev.horario}{isCancelled ? " · Cancelada" : isDone && ev.tipo === "treino" ? " · Aula feita" : ""}</p>}
                     {ev.descricao && <p className="text-[11px] text-white/40 truncate">{ev.descricao}</p>}
                   </div>
                   {canManage && <div className="flex gap-1">

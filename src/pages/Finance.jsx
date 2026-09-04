@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import PaymentFormDialog from "../components/finance/PaymentFormDialog";
 import MarkPaidDialog from "../components/finance/MarkPaidDialog";
 import FinanceStats from "@/components/finance/FinanceStats";
+import ClassPaymentSummary from "@/components/finance/ClassPaymentSummary";
 import PageHeader from "@/components/shared/PageHeader";
 import { format, isPast, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -42,6 +43,18 @@ export default function Finance() {
     queryFn: () => base44.entities.Payment.filter({ personal_id: user.email }, '-due_date'),
     enabled: !!user,
   });
+
+  const { data: paymentClasses = [] } = useQuery({
+    queryKey: ['paymentClasses', user?.email],
+    queryFn: () => base44.entities.CalendarioEvento.filter({ personal_id: user.email }, '-data', 500),
+    enabled: !!user,
+  });
+
+  const classesByPayment = React.useMemo(() => paymentClasses.reduce((groups, item) => {
+    if (!item.payment_id || item.tipo !== "treino") return groups;
+    groups[item.payment_id] = [...(groups[item.payment_id] || []), item];
+    return groups;
+  }, {}), [paymentClasses]);
 
   const { data: students = [] } = useQuery({
     queryKey: ['students', user?.email],
@@ -134,11 +147,11 @@ export default function Finance() {
       <motion.div variants={fadeUp} className="hidden sm:block rounded-xl overflow-hidden border" style={{ borderColor: 'rgba(168,85,247,0.15)' }}>
         <div className="grid grid-cols-12 px-4 py-2.5 text-[10px] font-body uppercase tracking-widest"
           style={{ background: 'rgba(168,85,247,0.08)', borderBottom: '1px solid rgba(168,85,247,0.12)', color: 'rgba(192,132,252,0.5)' }}>
-          <div className="col-span-3">Aluno</div>
-          <div className="col-span-2">Descrição</div>
-          <div className="col-span-2">Valor</div>
+          <div className="col-span-2">Aluno</div>
+          <div className="col-span-4">Descrição e aulas</div>
+          <div className="col-span-2">Valor fixo</div>
           <div className="col-span-2">Vencimento</div>
-          <div className="col-span-2">Status</div>
+          <div className="col-span-1">Status</div>
           <div className="col-span-1"></div>
         </div>
 
@@ -160,11 +173,12 @@ export default function Finance() {
               <div key={p.id}
                 className="grid grid-cols-12 px-4 py-3.5 items-center transition-colors hover:bg-purple-500/5"
                 style={{ borderBottom: idx < filtered.length - 1 ? '1px solid rgba(168,85,247,0.07)' : 'none' }}>
-                <div className="col-span-3">
+                <div className="col-span-2">
                   <p className="text-sm font-medium text-white truncate">{getStudentName(p.student_id)}</p>
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-4 pr-3">
                   <p className="text-xs truncate" style={{ color: 'rgba(196,181,224,0.6)' }}>{p.description || '—'}</p>
+                  <ClassPaymentSummary classes={classesByPayment[p.id] || []} formatMoney={formatMoney} />
                 </div>
                 <div className="col-span-2">
                   <p className="text-sm font-semibold" style={{ color: '#6ee7b7' }}>
@@ -179,7 +193,7 @@ export default function Finance() {
                     <p className="text-[10px]" style={{ color: 'rgba(110,231,183,0.4)' }}>Pago: {formatDate(p.payment_date)}</p>
                   )}
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-1">
                   {!['pago', 'cancelado'].includes(status) ? (
                     <button
                       onClick={() => setMarkPaidPayment(p)}
@@ -269,6 +283,8 @@ export default function Finance() {
                     </span>
                   )}
                 </div>
+
+                <ClassPaymentSummary classes={classesByPayment[p.id] || []} formatMoney={formatMoney} />
 
                 {/* Description + dates */}
                 <div className="space-y-1 pt-1 border-t" style={{ borderColor: 'rgba(168,85,247,0.1)' }}>
