@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Circle, RefreshCw, ChevronDown, ChevronUp, Flame, Clock, RotateCcw, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import FoodSubstituteModal from "./FoodSubstituteModal";
+import RecipeSuggestions from "./RecipeSuggestions";
 import { toast } from "sonner";
 
 function getTodayKey() {
@@ -270,6 +271,8 @@ export default function DietChecklist({ plan, student }) {
           </button>
         </div>
       </div>
+
+      <RecipeSuggestions plan={plan} />
 
       {/* Meal cards */}
       <div className="space-y-3">

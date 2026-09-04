@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Search, Beef, Wheat, Droplets, Flame, X, PlusCircle } from "lucide-react";
+import { Plus, Trash2, Search, Beef, Wheat, Droplets, Flame, X, PlusCircle, RefreshCw } from "lucide-react";
+import FoodSubstituteModal from "@/components/diet/FoodSubstituteModal";
 import { toast } from "sonner";
 
 const CATEGORIES = {
@@ -48,6 +49,7 @@ export default function MealFoodEditor({ items = [], onChange }) {
   const [qty, setQty] = useState("");
   const [newFoodOpen, setNewFoodOpen] = useState(false);
   const [newFoodForm, setNewFoodForm] = useState(emptyFood);
+  const [substituteTarget, setSubstituteTarget] = useState(null);
   const qc = useQueryClient();
 
   const { data: foods = [] } = useQuery({
@@ -148,6 +150,9 @@ export default function MealFoodEditor({ items = [], onChange }) {
                   className="cyber-input text-center text-xs w-16 h-7 px-1"
                 />
                 <span className="text-[10px] text-purple-500/40 font-mono-cyber">g</span>
+                <button type="button" onClick={() => setSubstituteTarget({ idx, item })} title="Trocar alimento" className="p-1 text-cyan-400/40 hover:text-cyan-300 transition-colors">
+                  <RefreshCw className="w-3.5 h-3.5" />
+                </button>
                 <button
                   onClick={() => handleRemoveItem(idx)}
                   className="p-1 text-pink-400/30 hover:text-pink-400 transition-colors opacity-0 group-hover:opacity-100"
@@ -359,6 +364,18 @@ export default function MealFoodEditor({ items = [], onChange }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {substituteTarget && (
+        <FoodSubstituteModal
+          open={!!substituteTarget}
+          onClose={() => setSubstituteTarget(null)}
+          item={substituteTarget.item}
+          onSelect={(newItem) => {
+            onChange(items.map((item, index) => index === substituteTarget.idx ? newItem : item));
+            setSubstituteTarget(null);
+          }}
+        />
+      )}
     </div>
   );
 }
