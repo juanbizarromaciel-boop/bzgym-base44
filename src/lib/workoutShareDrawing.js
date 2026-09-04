@@ -39,7 +39,7 @@ export function fitText(ctx, text, maxWidth, startSize, weight = 800) {
 }
 
 export const workoutMetrics = stats => [
-  { label: "EXERCÍCIOS", value: String(stats.exercises?.length || 0) },
-  { label: "DURAÇÃO", value: stats.durationMinutes ? `${stats.durationMinutes} MIN` : "CONCLUÍDO" },
+  { label: "TEMPO", value: stats.durationMinutes ? `${stats.durationMinutes} MIN` : "—" },
   { label: "VOLUME", value: `${Math.round(stats.volumeKg || 0).toLocaleString("pt-BR")} KG` },
+  { label: "SÉRIES", value: String(stats.seriesCount || 0) },
 ];

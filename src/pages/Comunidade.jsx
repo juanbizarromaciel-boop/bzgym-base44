@@ -194,6 +194,7 @@ export default function Comunidade() {
   const latestWorkoutStats = latestLog ? {
     name: latestPlan?.name || "Meu treino",
     volumeKg: latestLogs.flatMap(log => log.sets_completed || []).reduce((sum, set) => sum + (Number(set.load_kg) || 0) * (Number(set.reps_done) || 0), 0),
+    seriesCount: latestLogs.flatMap(log => log.sets_completed || []).length,
     exercises: latestLogs.map(log => ({ name: log.exercise_name, maxLoad: log.max_load_kg || 0 })),
   } : null;
 

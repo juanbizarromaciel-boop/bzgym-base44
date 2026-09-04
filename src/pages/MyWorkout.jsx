@@ -252,6 +252,7 @@ export default function MyWorkout() {
     name: selectedPlan.name,
     durationMinutes: startedAt ? Math.max(1, Math.round((Date.now() - new Date(startedAt).getTime()) / 60000)) : 0,
     volumeKg: Object.values(setsData).flat().reduce((sum, set) => sum + (Number(set.load_kg) || 0) * (Number(set.reps_done) || 0), 0),
+    seriesCount: Object.values(setsData).flat().length,
     exercises: selectedPlan.exercises.map((exercise, index) => ({ name: exercise.exercise_name, maxLoad: Math.max(...(setsData[getExKey(exercise, index)] || []).map(set => Number(set.load_kg) || 0), 0) })),
   } : null;
 

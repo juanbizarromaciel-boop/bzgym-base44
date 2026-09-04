@@ -6,7 +6,7 @@ export async function createWorkoutShareImage(stats, template, photo) {
   canvas.width = 1080;
   canvas.height = 1350;
   const ctx = canvas.getContext("2d");
-  const image = template === "photo_stats" && photo ? await loadSharePhoto(photo) : null;
+  const image = photo ? await loadSharePhoto(photo) : null;
   drawWorkoutTemplate(ctx, template, stats, image);
   return new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", .94));
 }
