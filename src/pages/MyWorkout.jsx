@@ -16,6 +16,7 @@ import MuscleMap from "../components/workout/MuscleMap";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
 import WorkoutElapsedTimer from "@/components/workout/WorkoutElapsedTimer";
 import WorkoutShareComposer from "@/components/workout/WorkoutShareComposer";
+import WorkoutFeedbackDialog from "@/components/workout/WorkoutFeedbackDialog";
 import ExerciseSearchButton from "@/components/exercise/ExerciseSearchButton";
 import ExerciseSearchModal from "@/components/exercise/ExerciseSearchModal";
 import { usePersistentWorkoutSession } from "@/hooks/usePersistentWorkoutSession";
@@ -34,6 +35,8 @@ export default function MyWorkout() {
   const [student, setStudent] = useState(null);
   const [selectedPlanId, setSelectedPlanId] = useState(null);
   const [setsData, setSetsData] = useState({});
+  const [exerciseNotes, setExerciseNotes] = useState({});
+  const [workoutNotes, setWorkoutNotes] = useState("");
   const [completedExercises, setCompletedExercises] = useState(new Set());
   const [workoutDone, setWorkoutDone] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -91,11 +94,11 @@ export default function MyWorkout() {
     student_id: owner?.id || owner?.email || "",
     student_email: owner?.email || user?.email || "",
     workout_plan_id: selectedPlanId || "",
-    sets_data: setsData,
+    sets_data: { ...setsData, __exercise_notes: exerciseNotes, __workout_notes: workoutNotes },
     completed_exercises: Array.from(completedExercises),
     status: "active",
     started_at: startedAt,
-  }), [user?.email, owner?.id, owner?.email, selectedPlanId, setsData, completedExercises, startedAt]);
+  }), [user?.email, owner?.id, owner?.email, selectedPlanId, setsData, exerciseNotes, workoutNotes, completedExercises, startedAt]);
 
   const { restoredSession, isLoaded: sessionLoaded, closeSession, reopenSession } = usePersistentWorkoutSession({
     trainerEmail: user?.email,
@@ -112,7 +115,10 @@ export default function MyWorkout() {
       return;
     }
     setSelectedPlanId(restoredSession.workout_plan_id);
-    setSetsData(restoredSession.sets_data || {});
+    const { __exercise_notes = {}, __workout_notes = "", ...restoredSets } = restoredSession.sets_data || {};
+    setSetsData(restoredSets);
+    setExerciseNotes(__exercise_notes);
+    setWorkoutNotes(__workout_notes);
     setCompletedExercises(new Set(restoredSession.completed_exercises || []));
     setStartedAt(restoredSession.started_at || new Date().toISOString());
     toast.info("Andamento do treino restaurado.");
@@ -169,7 +175,7 @@ export default function MyWorkout() {
       const logs = selectedPlan.exercises.map((exercise, exerciseIdx) => {
         const exKey = getExKey(exercise, exerciseIdx);
         const sets = setsData[exKey] || initSets(exKey, exercise.sets);
-        return { student_id: owner.id || owner.email, workout_plan_id: selectedPlanId, exercise_id: exercise.exercise_id || "", exercise_name: exercise.exercise_name, date: new Date().toISOString().split("T")[0], sets_completed: sets, technique_used: exercise.technique || "normal", max_load_kg: Math.max(...sets.map(set => Number(set.load_kg) || 0), 0) };
+        return { student_id: owner.id || owner.email, workout_plan_id: selectedPlanId, exercise_id: exercise.exercise_id || "", exercise_name: exercise.exercise_name, date: new Date().toISOString().split("T")[0], sets_completed: sets, technique_used: exercise.technique || "normal", notes: exerciseNotes[exKey]?.trim() || "", workout_notes: workoutNotes.trim(), max_load_kg: Math.max(...sets.map(set => Number(set.load_kg) || 0), 0) };
       });
       await base44.entities.WorkoutLog.bulkCreate(logs);
       await closeSession();
@@ -187,6 +193,8 @@ export default function MyWorkout() {
     await closeSession();
     setSelectedPlanId(null);
     setSetsData({});
+    setExerciseNotes({});
+    setWorkoutNotes("");
     setCompletedExercises(new Set());
     setStartedAt("");
     toast.info("Treino cancelado sem salvar no histórico.");
@@ -196,6 +204,8 @@ export default function MyWorkout() {
     reopenSession();
     setSelectedPlanId(planId);
     setSetsData({});
+    setExerciseNotes({});
+    setWorkoutNotes("");
     setCompletedExercises(new Set());
     setStartedAt(new Date().toISOString());
   };
@@ -446,7 +456,13 @@ export default function MyWorkout() {
 
       {/* Finish Workout Button */}
       {completedExercises.size === selectedPlan.exercises?.length && completedExercises.size > 0 && (
-        <div className="mb-6">
+        <div className="mb-6 space-y-3">
+          <WorkoutFeedbackDialog
+            title="Observação do treino"
+            label="Adicionar observação do treino"
+            value={workoutNotes}
+            onChange={setWorkoutNotes}
+          />
           <button
             onClick={finishWorkout}
             disabled={isFinalizing}
@@ -490,7 +506,14 @@ export default function MyWorkout() {
                    <div className="flex min-w-0 items-start gap-2">
                      <h3 className="min-w-0 flex-1 break-words font-semibold leading-snug text-white">{exercise.exercise_name}</h3>
                      <ExerciseSearchButton exerciseName={exercise.exercise_name} onSearch={setSearchExerciseName} />
-                      {getExerciseVideo(exercise.exercise_id) && (
+                     <WorkoutFeedbackDialog
+                       iconOnly
+                       title={`Parecer sobre ${exercise.exercise_name}`}
+                       label={`Adicionar parecer sobre ${exercise.exercise_name}`}
+                       value={exerciseNotes[exKey] || ""}
+                       onChange={(value) => setExerciseNotes(prev => ({ ...prev, [exKey]: value }))}
+                     />
+                     {getExerciseVideo(exercise.exercise_id) && (
                         <button
                           onClick={() => openVideoDialog(getExerciseVideo(exercise.exercise_id))}
                           className="flex-shrink-0 text-cyan-400 transition-colors hover:text-cyan-300"

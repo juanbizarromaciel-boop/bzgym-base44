@@ -16,6 +16,7 @@ import CheckInHistory from "../components/progress/CheckInHistory";
 import BioimpedanciaPanel from "../components/progress/BioimpedanciaPanel";
 import MedidasCorporaisPanel from "../components/progress/MedidasCorporaisPanel";
 import FotosProgressoPanel from "../components/progress/FotosProgressoPanel";
+import WorkoutFeedbackHistory from "@/components/progress/WorkoutFeedbackHistory";
 
 const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
@@ -383,6 +384,8 @@ export default function Progress() {
               <MuscleMap loggedExercises={filteredLogs} exerciseLibrary={exercises} size="md" showLabels={true} />
             </motion.div>
           )}
+
+          <motion.div variants={fadeUp}><WorkoutFeedbackHistory logs={filteredLogs} /></motion.div>
 
           {trend && (
             <motion.div variants={fadeUp} className="flex items-center gap-4 mb-6 cyber-card rounded-xl p-4 border border-purple-900/20">
