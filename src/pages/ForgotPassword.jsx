@@ -41,10 +41,10 @@ export default function ForgotPassword() {
           If an account exists with that email, you'll receive a password reset link shortly.
         </p>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="space-y-1">
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="auth-field">
             <Label htmlFor="email">Email address</Label>
-            <div className="relative">
+            <div className="auth-fieldbox">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
               <Input
                 id="email"
@@ -59,7 +59,7 @@ export default function ForgotPassword() {
               />
             </div>
           </div>
-          <Button type="submit" className="h-11 w-full rounded-full border-0 font-semibold text-primary-foreground sm:h-9" style={{ background: "linear-gradient(90deg, hsl(var(--app-primary)), hsl(190 70% 48%))", boxShadow: "0 10px 28px hsl(var(--app-primary) / 0.24)" }} disabled={loading}>
+          <Button type="submit" className="auth-primary" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />

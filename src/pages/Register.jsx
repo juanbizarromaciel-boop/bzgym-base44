@@ -93,12 +93,11 @@ export default function Register() {
             autoComplete="one-time-code"
             aria-label="Verification code"
             placeholder="000000"
-            className="app-input h-11 rounded-lg text-center text-lg tracking-[0.5em]"
+            className="app-input auth-otp text-center text-lg tracking-[0.5em]"
           />
         </div>
         <Button
-          className="h-11 w-full rounded-full border-0 font-semibold text-primary-foreground"
-          style={{ background: "linear-gradient(90deg, hsl(var(--app-primary)), hsl(190 70% 48%))", boxShadow: "0 10px 28px hsl(var(--app-primary) / 0.24)" }}
+          className="auth-primary"
           onClick={handleVerify}
           disabled={loading || otpCode.length < 6}
         >
@@ -113,7 +112,7 @@ export default function Register() {
         </Button>
         <p className="text-center text-sm text-muted-foreground mt-4">
           Didn't receive the code?{" "}
-          <button onClick={handleResend} className="font-medium text-cyan-400 hover:underline">
+          <button onClick={handleResend} className="auth-create">
             Resend
           </button>
         </p>
@@ -138,29 +137,22 @@ export default function Register() {
         </>
       }
     >
-      <div className="mb-4 space-y-2">
-        <Button variant="outline" className="h-11 w-full rounded-full border-app-muted/35 bg-app-highlight/55 text-sm font-medium text-app-text hover:bg-app-highlight/80 sm:h-9" onClick={() => handleProvider("google")}>
+      <div className="auth-providers">
+        <Button variant="outline" className="auth-provider" onClick={() => handleProvider("google")}>
           <GoogleIcon className="w-5 h-5 mr-2" />
           Continue with Google
         </Button>
-        <Button variant="outline" className="h-11 w-full rounded-full border-app-muted/35 bg-app-highlight/55 text-sm font-medium text-app-text hover:bg-app-highlight/80 sm:h-9" onClick={() => handleProvider("microsoft")}>
+        <Button variant="outline" className="auth-provider" onClick={() => handleProvider("microsoft")}>
           <svg viewBox="0 0 24 24" className="w-5 h-5 mr-2" aria-hidden="true"><path fill="currentColor" d="M3 3h8v8H3V3Zm10 0h8v8h-8V3ZM3 13h8v8H3v-8Zm10 0h8v8h-8v-8Z" /></svg>
           Continue with Microsoft
         </Button>
-        <Button variant="outline" className="h-11 w-full rounded-full border-app-muted/35 bg-app-highlight/55 text-sm font-medium text-app-text hover:bg-app-highlight/80 sm:h-9" onClick={() => handleProvider("apple")}>
+        <Button variant="outline" className="auth-provider" onClick={() => handleProvider("apple")}>
           <Apple className="w-5 h-5 mr-2" />
           Continue with Apple
         </Button>
       </div>
 
-      <div className="relative mb-3">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-app-surface px-3 text-app-muted">or</span>
-        </div>
-      </div>
+      <div className="auth-divider"><span>or</span></div>
 
       {error && (
         <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
@@ -168,10 +160,10 @@ export default function Register() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="space-y-1">
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="auth-field">
           <Label htmlFor="email">Email</Label>
-          <div className="relative">
+          <div className="auth-fieldbox">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <Input
               id="email"
@@ -186,9 +178,9 @@ export default function Register() {
             />
           </div>
         </div>
-        <div className="space-y-1">
+        <div className="auth-field">
           <Label htmlFor="password">Password</Label>
-          <div className="relative">
+          <div className="auth-fieldbox">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <Input
               id="password"
@@ -202,9 +194,9 @@ export default function Register() {
             />
           </div>
         </div>
-        <div className="space-y-1">
+        <div className="auth-field">
           <Label htmlFor="confirm">Confirm Password</Label>
-          <div className="relative">
+          <div className="auth-fieldbox">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <Input
               id="confirm"
@@ -218,7 +210,7 @@ export default function Register() {
             />
           </div>
         </div>
-        <Button type="submit" className="h-11 w-full rounded-full border-0 font-semibold text-primary-foreground sm:h-9" style={{ background: "linear-gradient(90deg, hsl(var(--app-primary)), hsl(190 70% 48%))", boxShadow: "0 10px 28px hsl(var(--app-primary) / 0.24)" }} disabled={loading}>
+        <Button type="submit" className="auth-primary" disabled={loading}>
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
