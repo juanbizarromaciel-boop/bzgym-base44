@@ -296,23 +296,15 @@ export default function StudentWorkout() {
                   style={{ borderTop: isCompleted ? '1.5px solid rgba(6,182,212,0.9)' : '1.5px solid rgba(168,85,247,0.8)', borderLeft: isCompleted ? '1.5px solid rgba(6,182,212,0.9)' : '1.5px solid rgba(168,85,247,0.8)' }} />
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg border flex items-center justify-center flex-shrink-0"
-                      style={isCompleted
-                        ? { background: 'rgba(6,182,212,0.12)', borderColor: 'rgba(6,182,212,0.45)', boxShadow: '0 0 12px rgba(6,182,212,0.3)' }
-                        : { background: 'rgba(168,85,247,0.12)', borderColor: 'rgba(168,85,247,0.45)', boxShadow: '0 0 10px rgba(168,85,247,0.25)' }}>
-                      {isCompleted
-                        ? <CheckCircle className="w-5 h-5" style={{ color: '#06b6d4', filter: 'drop-shadow(0 0 5px rgba(6,182,212,0.9))' }} />
-                        : <span className="font-body text-xs" style={{ color: '#a855f7', textShadow: '0 0 8px rgba(168,85,247,0.9)' }}>#{exerciseIdx + 1}</span>
-                      }
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-white">{exercise.exercise_name}</h3>
+                   <div className="flex min-w-0 items-start gap-3">
+                ...
+                     <div className="min-w-0 flex-1">
+                       <div className="flex min-w-0 items-start gap-2">
+                         <h3 className="min-w-0 flex-1 break-words font-semibold leading-snug text-white">{exercise.exercise_name}</h3>
                         {getExerciseVideo(exercise.exercise_id) && (
                           <button
                             onClick={() => openVideoDialog(getExerciseVideo(exercise.exercise_id))}
-                            className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                            className="flex-shrink-0 text-cyan-400 transition-colors hover:text-cyan-300"
                             title="Ver vídeo do exercício"
                           >
                             <PlayCircle className="w-5 h-5" />

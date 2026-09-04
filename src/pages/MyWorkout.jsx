@@ -484,23 +484,16 @@ export default function MyWorkout() {
               style={isCompleted ? { opacity: 0.6, background: 'rgba(6,182,212,0.02)' } : {}}
             >
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg border flex items-center justify-center flex-shrink-0 ${
-                    isCompleted ? "bg-cyan-500/10 border-cyan-500/30" : "bg-purple-500/10 border-purple-500/20"
-                  }`}>
-                    {isCompleted
-                      ? <CheckCircle className="w-5 h-5 text-cyan-400" />
-                      : <span className="font-cyber text-xs text-purple-400">#{exerciseIdx + 1}</span>
-                    }
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <h3 className="truncate font-semibold text-white">{exercise.exercise_name}</h3>
-                      <ExerciseSearchButton exerciseName={exercise.exercise_name} onSearch={setSearchExerciseName} />
+               <div className="flex min-w-0 items-start gap-3">
+              ...
+                 <div className="min-w-0 flex-1">
+                   <div className="flex min-w-0 items-start gap-2">
+                     <h3 className="min-w-0 flex-1 break-words font-semibold leading-snug text-white">{exercise.exercise_name}</h3>
+                     <ExerciseSearchButton exerciseName={exercise.exercise_name} onSearch={setSearchExerciseName} />
                       {getExerciseVideo(exercise.exercise_id) && (
                         <button
                           onClick={() => openVideoDialog(getExerciseVideo(exercise.exercise_id))}
-                          className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                          className="flex-shrink-0 text-cyan-400 transition-colors hover:text-cyan-300"
                           title="Ver vídeo do exercício"
                         >
                           <PlayCircle className="w-5 h-5" />
