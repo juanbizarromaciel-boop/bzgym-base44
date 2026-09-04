@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag, TrendingDown, AlertTriangle, RotateCcw, XCircle } from "lucide-react";
+import { CheckCircle, Dumbbell, Flame, ChevronRight, Trophy, Calendar, PlayCircle, Flag, TrendingDown, AlertTriangle, RotateCcw, XCircle, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ import LastWeightBadge from "../components/workout/LastWeightBadge";
 import MuscleMap from "../components/workout/MuscleMap";
 import WorkoutPdfExport from "../components/workout/WorkoutPdfExport";
 import WorkoutElapsedTimer from "@/components/workout/WorkoutElapsedTimer";
+import WorkoutShareComposer from "@/components/workout/WorkoutShareComposer";
 import ExerciseSearchButton from "@/components/exercise/ExerciseSearchButton";
 import ExerciseSearchModal from "@/components/exercise/ExerciseSearchModal";
 import { usePersistentWorkoutSession } from "@/hooks/usePersistentWorkoutSession";
@@ -35,6 +36,7 @@ export default function MyWorkout() {
   const [setsData, setSetsData] = useState({});
   const [completedExercises, setCompletedExercises] = useState(new Set());
   const [workoutDone, setWorkoutDone] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [startedAt, setStartedAt] = useState("");
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
@@ -173,7 +175,6 @@ export default function MyWorkout() {
       await closeSession();
       await qc.invalidateQueries({ queryKey: ["logs"] });
       setWorkoutDone(true);
-      setTimeout(() => navigate("/Progress"), 3000);
     } catch {
       toast.error("Não foi possível finalizar. Seu andamento continua salvo.");
     } finally {
@@ -237,6 +238,13 @@ export default function MyWorkout() {
     );
   }
 
+  const shareStats = selectedPlan ? {
+    name: selectedPlan.name,
+    durationMinutes: startedAt ? Math.max(1, Math.round((Date.now() - new Date(startedAt).getTime()) / 60000)) : 0,
+    volumeKg: Object.values(setsData).flat().reduce((sum, set) => sum + (Number(set.load_kg) || 0) * (Number(set.reps_done) || 0), 0),
+    exercises: selectedPlan.exercises.map((exercise, index) => ({ name: exercise.exercise_name, maxLoad: Math.max(...(setsData[getExKey(exercise, index)] || []).map(set => Number(set.load_kg) || 0), 0) })),
+  } : null;
+
   // Workout complete celebration
   if (workoutDone) return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
@@ -274,12 +282,11 @@ export default function MyWorkout() {
           </div>
         </div>
       </div>
-      <p className="text-xs font-mono-cyber text-purple-500/40 mb-2">// redirecionando para o progresso...</p>
-      <div className="flex gap-2">
-        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0s' }} />
-        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
-        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0.4s' }} />
+      <div className="flex w-full max-w-md flex-col gap-2 sm:flex-row">
+        <button onClick={() => setShareOpen(true)} className="btn-neon-cyan flex flex-1 items-center justify-center gap-2 rounded-xl py-3"><Share2 className="h-4 w-4" /> COMPARTILHAR TREINO</button>
+        <button onClick={() => navigate("/Progress")} className="flex-1 rounded-xl border border-purple-500/25 py-3 text-sm text-purple-200">VER PROGRESSO</button>
       </div>
+      <WorkoutShareComposer open={shareOpen} onClose={() => setShareOpen(false)} stats={shareStats} />
     </div>
   );
 

@@ -5,13 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
   Heart, MessageCircle, Plus, Trophy, TrendingUp, Lightbulb,
-  HelpCircle, Zap, Image, X, Upload, Loader2, Filter
+  HelpCircle, Zap, Image, X, Upload, Loader2, Filter, Dumbbell
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import SportsNewsFeed from "@/components/news/SportsNewsFeed";
 import SportsNewsHighlights from "@/components/news/SportsNewsHighlights";
+import WorkoutShareComposer from "@/components/workout/WorkoutShareComposer";
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22,1,0.36,1] } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
@@ -112,6 +113,7 @@ export default function Comunidade() {
   const [activeTab, setActiveTab] = useState("comunidade");
   const [filter, setFilter] = useState("todos");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [form, setForm] = useState({ tipo_post: "motivacao", texto: "", imagem_url: "", visibilidade: "alunos" });
   const [uploading, setUploading] = useState(false);
   const qc = useQueryClient();
@@ -129,6 +131,9 @@ export default function Comunidade() {
     queryFn: () => base44.entities.ComunidadePost.list("-created_date", 50),
     staleTime: 30000,
   });
+  const { data: workoutLogs = [] } = useQuery({ queryKey: ["communityWorkoutLogs"], queryFn: () => base44.entities.WorkoutLog.list("-date", 50), enabled: !!user });
+  const { data: workoutPlans = [] } = useQuery({ queryKey: ["communityWorkoutPlans"], queryFn: () => base44.entities.WorkoutPlan.list(), enabled: !!user });
+  const { data: communityStudents = [] } = useQuery({ queryKey: ["communityStudents"], queryFn: () => base44.entities.Student.list(), enabled: !!user });
 
   const createMut = useMutation({
     mutationFn: (d) => base44.entities.ComunidadePost.create(d),
@@ -148,9 +153,12 @@ export default function Comunidade() {
   const handleUpload = async (file) => {
     if (!file) return;
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setForm(p => ({ ...p, imagem_url: file_url }));
-    setUploading(false);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setForm(p => ({ ...p, imagem_url: file_url }));
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handlePublish = () => {
@@ -177,6 +185,17 @@ export default function Comunidade() {
 
   const filtered = filter === "todos" ? posts : posts.filter(p => p.tipo_post === filter);
   const isAdmin = user?.role === "admin";
+  const linkedStudent = communityStudents.find(student => student.email?.toLowerCase() === user?.email?.toLowerCase());
+  const ownerIds = [user?.email, linkedStudent?.id].filter(Boolean);
+  const myLogs = workoutLogs.filter(log => ownerIds.includes(log.student_id));
+  const latestLog = myLogs[0];
+  const latestLogs = latestLog ? myLogs.filter(log => log.date === latestLog.date && log.workout_plan_id === latestLog.workout_plan_id) : [];
+  const latestPlan = workoutPlans.find(plan => plan.id === latestLog?.workout_plan_id);
+  const latestWorkoutStats = latestLog ? {
+    name: latestPlan?.name || "Meu treino",
+    volumeKg: latestLogs.flatMap(log => log.sets_completed || []).reduce((sum, set) => sum + (Number(set.load_kg) || 0) * (Number(set.reps_done) || 0), 0),
+    exercises: latestLogs.map(log => ({ name: log.exercise_name, maxLoad: log.max_load_kg || 0 })),
+  } : null;
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger} className={`${activeTab === "noticias" ? "max-w-5xl" : "max-w-2xl"} mx-auto space-y-6`}>
@@ -294,6 +313,13 @@ export default function Comunidade() {
                 className="cyber-input mt-1 resize-none" rows={4} />
             </div>
 
+            <div>
+              <Label className="text-cyan-400/60 text-xs tracking-wider">TREINO (opcional)</Label>
+              <button onClick={() => setShareOpen(true)} disabled={!latestWorkoutStats || uploading} className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-500/25 bg-cyan-500/5 p-3 text-xs text-cyan-200 disabled:opacity-40">
+                <Dumbbell className="h-4 w-4" /> {latestWorkoutStats ? "ANEXAR E COMPARTILHAR ÚLTIMO TREINO" : "NENHUM TREINO CONCLUÍDO"}
+              </button>
+            </div>
+
             {/* Image upload */}
             <div>
               <Label className="text-pink-400/60 text-xs tracking-wider">IMAGEM (opcional)</Label>
@@ -314,7 +340,7 @@ export default function Comunidade() {
                       <p className="text-[10px] font-mono-cyber text-pink-400/40">Clique para enviar foto</p>
                     </>
                   )}
-                  <input type="file" accept="image/*" className="hidden" onChange={e => handleUpload(e.target.files[0])} />
+                  <input type="file" accept="image/*" capture="environment" className="hidden" onChange={e => handleUpload(e.target.files[0])} />
                 </label>
               )}
             </div>
@@ -327,6 +353,7 @@ export default function Comunidade() {
           </div>
         </DialogContent>
       </Dialog>
+      <WorkoutShareComposer open={shareOpen} onClose={() => setShareOpen(false)} stats={latestWorkoutStats} onImageReady={handleUpload} />
     </motion.div>
   );
 }
